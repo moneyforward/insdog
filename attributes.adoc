@@ -1,0 +1,1 @@
+include::src/site/asciidoc/attributes.adoc[]
