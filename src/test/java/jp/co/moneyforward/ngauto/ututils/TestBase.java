@@ -1,4 +1,4 @@
-package com.github.dakusui.java8.template.testutils;
+package jp.co.moneyforward.ngauto.ututils;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

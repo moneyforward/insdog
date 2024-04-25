@@ -9,7 +9,7 @@ _project_name="$(project_name)"
 rm -fr target/site-staging/.git
 cd target/site-staging
 git init
-git remote add origin "https://github.com/dakusui/${_project_name}.git"
+git remote add origin "https://github.com/moneyforward/${_project_name}.git"
 git push origin :gh-pages || :
 git checkout -b gh-pages
 git add --all
