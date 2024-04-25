@@ -1,0 +1,41 @@
+$extends:
+  - "BaseTest.yaml++"
+Labels:
+  - smoke
+Given:
+  - LoadDataStore
+When:
+  - Scene: Login
+    Args:
+    - "eval:$(ref .credentials.username)"
+    - "eval:$(ref .credentials.password)"
+  - Scene: registerBankAccountUnderApiPartnership
+    Args:
+      - 楽天銀行
+      - ピアノ支店
+      - 1234567
+    OnFail:
+      - Abort
+  - Scene: registerBankAccountUnderApiPartnership
+    Args:
+      - みずほ銀行
+      - 江戸川橋支店
+      - 1234567
+  - Scene: registerBankAccountWithOnetimePassword
+    Args:
+      - 北洋銀行
+      - ピアノ支店
+      - 1234567
+  - Scene: unregisterBankAccount
+    Args:
+      - みずほ銀行
+      - 江戸川橋支店
+      - 1234567
+  - - Scene: unregisterBankAccount
+      Args:
+        - みずほ銀行
+        - 江戸川橋支店
+        - 1234567
+  - Scene: LogOut
+Then:
+  - ReportResult

@@ -1,0 +1,20 @@
+$extends: BasePage.yaml++
+New:
+  - Type: Act
+    Name: WaitFor
+    Args:
+      - Type: Act
+        Name: BecomingClickable
+Locators:
+  email:
+    Type: Input
+    Strategy: Name
+    Args:
+    - input[name='mfid_user[email]']
+    - "eval:$(ref credentials.email)"
+  password:
+    Type: Password
+    Strategy: Name
+    Args:
+      - input[name='mfid_user[password]']
+      - "eval:$(ref credentials.password)"

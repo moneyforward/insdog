@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.dakusui</groupId>
-    <artifactId>doclet-exercise</artifactId>
+    <groupId>jp.co.moneyforward.ngauto</groupId>
+    <artifactId>ngauto-mf</artifactId>
     <packaging>jar</packaging>
     <version>1.0.0-SNAPSHOT</version>
     <description>A library to synthesize an object from interfaces dynamically
     </description>
 
-    <name>doclet-exercise</name>
+    <name>ngauto-mf</name>
     <url>http://dakusui.github.io/${project.name}</url>
 
     <scm>
@@ -47,11 +47,14 @@
         <github.global.server>github</github.global.server>
         <env.GEM_PATH>${project.basedir}/.generated/build/gems</env.GEM_PATH>
         <!-- END: project settings -->
+        <!-- BEGIN: compilation dependencies -->
+        <playwright.version>1.43.0</playwright.version>
+        <!-- END: compilation dependencies -->
         <!-- BEGIN: test dependencies -->
         <opentest4j.version>1.2.0</opentest4j.version>
         <junit-jupiter-engine.version>5.10.1</junit-jupiter-engine.version>
         <junit-jupiter-api.version>5.10.1</junit-jupiter-api.version>
-        <thincrest-pcond.version>1.1.0</thincrest-pcond.version>
+        <junit-platform-launcher.version>1.10.2</junit-platform-launcher.version>
         <!-- END: test dependencies -->
         <!-- BEGIN: build dependencies -->
         <asciidoclet.version>2.0.1-SNAPSHOT</asciidoclet.version>
@@ -75,10 +78,27 @@
         <maven-install-plugin.version>3.1.1</maven-install-plugin.version>
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
+        <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
         <!-- BEGIN: build dependencies -->
     </properties>
 
     <dependencies>
+        <dependency>
+            <!-- groupId>jp.co.moneyforward.playwright</groupId -->
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>${playwright.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dakusui</groupId>
+            <artifactId>valid8j</artifactId>
+            <version>2.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dakusui</groupId>
+            <artifactId>actionunit</artifactId>
+            <version>6.0.0</version>
+        </dependency>
         <dependency>
             <groupId>org.opentest4j</groupId>
             <artifactId>opentest4j</artifactId>
@@ -89,18 +109,22 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit-jupiter-engine.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit-jupiter-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>${junit-platform-launcher.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.dakusui</groupId>
-            <artifactId>thincrest-pcond</artifactId>
-            <version>${thincrest-pcond.version}</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit-jupiter-api.version}</version>
         </dependency>
     </dependencies>
 
@@ -117,6 +141,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>${maven-resources-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>${maven-shade-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -244,6 +273,26 @@
                         -->
                     </compilerArgs>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.github.dakusui.pcond</pattern>
+                                    <shadedPattern>com.shaded.dakusui.pcond</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

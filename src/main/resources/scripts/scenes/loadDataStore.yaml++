@@ -1,0 +1,12 @@
+# comment1,comment2,comment3,*action,*what,attribute,matcher,value
+#,data_store読み込み,,,,,,
+#,,,load_action_file,ca_account_registration_data_store_members.csv,,,
+#,,,load_action_file,ca_account_registration_data_store_urls.csv,,,
+
+Acts:
+  - Act: LoadActionFile
+    Args:
+      - ca_account_registration_data_store_members.csv
+  - Act: LoadActionFile
+    Args:
+      - ca_account_registration_data_store_urls.csv
