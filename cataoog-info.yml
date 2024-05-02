@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: autotest-ca
+  annotations:
+    github.com/project-slug: moneyforward/autotest-ca
+    backstage.io/techdocs-ref: url:https://github.com/moneyforward/autotest-ca/tree/techdocs
+spec:
+  type: other
+  lifecycle: unknown
+  owner: dakusui
