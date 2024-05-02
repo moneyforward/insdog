@@ -1,0 +1,7 @@
+site_name: 'autotest-ca-docs'
+
+nav:
+  - Home: docs/index.md
+
+plugins:
+  - techdocs-core

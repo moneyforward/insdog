@@ -7,7 +7,6 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="autotest-ca_web" />
-        <module name="java8-template" />
       </profile>
     </annotationProcessing>
   </component>
