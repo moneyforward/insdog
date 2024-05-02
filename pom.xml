@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>jp.co.moneyforward.ngauto</groupId>
-    <artifactId>ngauto-mf</artifactId>
+    <artifactId>autotest-ca</artifactId>
     <packaging>jar</packaging>
     <version>1.0.0-SNAPSHOT</version>
     <description>A library to synthesize an object from interfaces dynamically
@@ -333,7 +333,7 @@
                         <jvmArg>-Dunderpitest=yes</jvmArg>
                     </jvmArgs>
                     <targetClasses>
-                        <param>jp.co.moneyforward.ngauto.*</param>
+                        <param>jp.co.moneyforward.autotest.*</param>
                     </targetClasses>
                     <targetTests>
                         <param>*Test</param>

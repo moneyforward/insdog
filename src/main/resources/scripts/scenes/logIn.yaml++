@@ -17,4 +17,5 @@ args:
 - userName
 - password
 actions:
-- test
+  - Name: OpenWindow
+    Args: ""
