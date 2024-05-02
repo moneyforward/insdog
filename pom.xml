@@ -2,21 +2,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>jp.co.moneyforward.ngauto</groupId>
-    <artifactId>ngauto-mf</artifactId>
+    <artifactId>autotest-ca</artifactId>
     <packaging>jar</packaging>
     <version>1.0.0-SNAPSHOT</version>
     <description>A library to synthesize an object from interfaces dynamically
     </description>
 
     <name>ngauto-mf</name>
-    <url>http://dakusui.github.io/${project.name}</url>
+    <url>http://moneyforward.github.io/${project.name}</url>
 
     <scm>
-        <connection>scm:git:git@github.com/dakusui/${project.name}.git
+        <connection>scm:git:git@github.com/moneyforward/${project.name}.git
         </connection>
-        <developerConnection>scm:git:git@github.com:dakusui/${project.name}.git
+        <developerConnection>scm:git:git@github.com:moneyforward/${project.name}.git
         </developerConnection>
-        <url>http://dakusui.github.io/${project.name}</url>
+        <url>http://moneyforward.github.io/${project.name}</url>
         <tag>${project.name}-${project.version}</tag>
     </scm>
 
@@ -29,8 +29,8 @@
     </licenses>
 
     <organization>
-        <name>Hiroshi Ukai</name>
-        <url>http://dakusui.github.io/</url>
+        <name>Money Forward Corporation</name>
+        <url>http://moneyforward.github.io/</url>
     </organization>
 
     <developers>
@@ -141,11 +141,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>${maven-resources-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-shade-plugin</artifactId>
-                    <version>${maven-shade-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -286,8 +281,8 @@
                         <configuration>
                             <relocations>
                                 <relocation>
-                                    <pattern>com.github.dakusui.pcond</pattern>
-                                    <shadedPattern>com.shaded.dakusui.pcond</shadedPattern>
+                                    <pattern>jp.co.moneyforward.example.to.be.shaded</pattern>
+                                    <shadedPattern>com.shaded.moneyforward.example.to.be.shaded</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
@@ -338,7 +333,7 @@
                         <jvmArg>-Dunderpitest=yes</jvmArg>
                     </jvmArgs>
                     <targetClasses>
-                        <param>com.github.dakusui.java8.template.*</param>
+                        <param>jp.co.moneyforward.autotest.*</param>
                     </targetClasses>
                     <targetTests>
                         <param>*Test</param>
