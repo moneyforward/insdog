@@ -200,7 +200,7 @@ function _clone_techdocs() {
   local _techdocs_dir="${1}"
   # - remove the entire `.work/wiki`.
   [[ -e "${_techdocs_dir}" ]] && rm -fr "${_techdocs_dir}"
-  # - clone `{repo_name}.wiki.git` repo to `.work/wiki/`
+  # - clone `{repo_name}.git`'s techdocs branch to `.work/techdocs/`
   local _repo_url _techdocs_repo_url
   _repo_url="$(git config --get remote.origin.url)"
   _techdocs_repo_url="${_repo_url}"
@@ -216,23 +216,23 @@ function _empty_compiled_doc_dir() {
 
 function _render_github_wiki_files() {
   local _doc_dest_dir="${1}" _wiki_dir="${2}"
-  _render_doc_files "${_doc_dest_dir}" "${_wiki_dir}" "_to_github_md_file"
+  _render_doc_files "${_doc_dest_dir}" "${_wiki_dir}" "_to_github_md_file" "doc"
 }
 
 function _render_techdocs_files() {
   local _doc_dest_dir="${1}" _techdocs_dir="${2}"
-  _render_doc_files "${_doc_dest_dir}" "${_techdocs_dir}" "_to_techdocs_md_file"
+  _render_doc_files "${_doc_dest_dir}" "${_techdocs_dir}" "_to_techdocs_md_file" "docs"
 }
 
 function _render_doc_files() {
-  local _doc_dest_dir="${1}" _output_dir="${2}" _renderer_function_name="${3}"
+  local _doc_dest_dir="${1}" _output_dir="${2}" _renderer_function_name="${3}" _docdir_under_output_dir="${4}"
   # - convert `.md` files under `.work/doc` and put the converted ones under `.work/wiki/doc/`
   #   slashes (`/`) in a relative path name of a `.md` file will be converted into pipes (`|`).
   #   links in every file is mangled unless the destination contains a colon.
   mapfile -t _md_files < <(find "${_doc_dest_dir}" -type f -name '*.md')
   local _i
   for _i in "${_md_files[@]}"; do
-    "${_renderer_function_name}" "${_doc_dest_dir}" "${_output_dir}/doc" "${_i}"
+    "${_renderer_function_name}" "${_doc_dest_dir}" "${_output_dir}/${_docdir_under_output_dir}" "${_i}"
   done
 }
 
@@ -260,9 +260,6 @@ function compile-docs() {
 function compile-wiki() {
   local _wiki_dir="${1}" _doc_dest_dir="${2}" _dir_for_staged_wiki_files="${3}"
   message "compile-wiki"
-  message "- _wiki_dir: ${_wiki_dir}"
-  message "- _doc_dest_dir: ${_doc_dest_dir}"
-  message "- _dir_for_staged_wiki_files: ${_dir_for_staged_wiki_files}"
 
   _clone_wiki "${_wiki_dir}"
   _empty_compiled_doc_dir "${_dir_for_staged_wiki_files}"
@@ -277,7 +274,6 @@ function compile-techdocs() {
 
   _clone_techdocs "${_techdocs_dir}"
   _empty_compiled_doc_dir "${_dir_for_generated_docs_in_techdocs}"
-
   _render_techdocs_files "${_doc_dest_dir}" "${_techdocs_dir}"
 }
 
@@ -340,7 +336,18 @@ function _parse_options() {
   local _local_wiki_dir=".work/wiki" _local_techdocs_dir=".work/techdocs" _local_doc_dir=".work/doc" _generated_doc_base_in_local_wiki_dir="doc"
   for _i in "${@}"; do
     if [[ "${_i}" == "--" ]]; then
-      break;
+      if [[ "${_s}" == "subcommands" ]]; then
+        _s="mappings"
+        continue
+      elif [[ "${_s}" == "mappings" ]]; then
+        _s="options"
+        continue
+      else
+        abort "unknown state: ${_s}"
+      fi
+    fi
+    if [[ "${_s}" != "options" ]]; then
+      continue
     fi
     if [[ "${_i}" == "--"* ]]; then
       if [[ "${_i}" == "--local-wiki-dir="* ]]; then
@@ -399,7 +406,7 @@ function main() {
   mapfile -t _subcommands < <(_parse_subcommands "${@}")
   mapfile -t _mappings < <(_parse_directory_mappings "${@}")
   mapfile -t _options < <(_parse_options "${@}")
-  [[ "${#_subcommands[@]}" == 0 ]] && _subcommands=(clean compile)
+  [[ "${#_subcommands[@]}" == 0 ]] && _subcommands=(clean)
   # - check if .git/config exists. exit if not.
   [[ -f .git/config ]] || abort "This directory seems not to be a project root directory."
   local _pwd
@@ -412,14 +419,10 @@ function main() {
     if [[ "${_each}" == "clean" ]]; then
       clean "${_pwd}/${_wiki_dir}" "${_pwd}/${_doc_dest_dir}"
     elif [[ "${_each}" == "compile-wiki" ]]; then
-      message "compile-wiki"
-      message "- _wiki_dir: ${_wiki_dir}"
-      message "- _doc_dest_dir ${_doc_dest_dir}"
-      message "- _dir_for_staged_wiki_files: ${_dir_for_staged_wiki_files}"
       compile-docs "${_wiki_dir}" "${_doc_dest_dir}" "${_mappings[@]}"
       compile-wiki "${_wiki_dir}" "${_doc_dest_dir}" "${_dir_for_staged_wiki_files}"
     elif [[ "${_each}" == "compile-techdocs" ]]; then
-      compile-docs "${_wiki_dir}" "${_doc_dest_dir}" "${_mappings[@]}"
+      compile-docs "${_techdocs_dir}" "${_doc_dest_dir}" "${_mappings[@]}"
       compile-techdocs "${_techdocs_dir}" "${_doc_dest_dir}" "${_dir_for_staged_techdocs_files}"
     elif [[ "${_each}" == "publish-wiki" ]]; then
       # Deploy the generated github-wiki site.
