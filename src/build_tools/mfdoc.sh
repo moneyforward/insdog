@@ -139,6 +139,22 @@ function _generate_index_for_manually_written_wiki_pages() {
   done
 }
 
+# Converts a file specified by "{_src_basedir}/path/to/file.md}" for techdocs markdown and write it to "{_dest_basedir}/path|to|file.md".
+# This implementation just adds an auto-generation warning to each file.
+#
+# @param _src_basedir A base directory under which source markdown files are stored.
+# @param _dest_basedir A base directory under which generated markdown files are stored.
+# @param _path_to_src_file A relative path to a file to be processed from src_basedir.
+function _to_techdocs_md_file() {
+  local _src_basedir="${1}" _dest_basedir="${2}" _path_to_src_file="${3}"
+  local _src_filename="${_path_to_src_file}"
+  local _dest_filename _p="${_path_to_src_file#"${_src_basedir}"/}"
+  _dest_filename="${_dest_basedir}/${_p}"
+  mkdir -p "$(dirname "${_dest_filename}")"
+  _auto_generation_warning > "${_dest_filename}"
+  cat "${_path_to_src_file}" >> "${_dest_filename}"
+}
+
 # Copy files whose names math $1 (glob) under a directory specified by $2 unto $3 keeping the directory structure.
 #
 # Example:
@@ -180,22 +196,43 @@ function _clone_wiki() {
   git clone --depth=1 "${_wiki_repo_url}" --branch master --single-branch "${_wiki_dir}"
 }
 
-function _empty_wiki_doc_dir() {
-  local _dir_for_generated_docs_in_wiki="${1?_dir_for_generated_docs_in_wiki is not specified!}"
+function _clone_techdocs() {
+  local _techdocs_dir="${1}"
+  # - remove the entire `.work/wiki`.
+  [[ -e "${_techdocs_dir}" ]] && rm -fr "${_techdocs_dir}"
+  # - clone `{repo_name}.wiki.git` repo to `.work/wiki/`
+  local _repo_url _techdocs_repo_url
+  _repo_url="$(git config --get remote.origin.url)"
+  _techdocs_repo_url="${_repo_url}"
+  git clone --depth=1 "${_techdocs_repo_url}" --branch techdocs --single-branch "${_techdocs_dir}" || abort "branch: 'techdocs' was not found in this repository."
+}
+
+function _empty_compiled_doc_dir() {
+  local _dir_for_staged_wiki_files="${1?_dir_for_staged_wiki_files is not specified!}"
   # - empty the entire `"${_wiki_dir}/doc`.
-  [[ -e "${_dir_for_generated_docs_in_wiki}" ]] && rm -fr "${_dir_for_generated_docs_in_wiki}"
-  mkdir -p "${_dir_for_generated_docs_in_wiki}"
+  [[ -e "${_dir_for_staged_wiki_files}" ]] && rm -fr "${_dir_for_staged_wiki_files}"
+  mkdir -p "${_dir_for_staged_wiki_files}"
 }
 
 function _render_github_wiki_files() {
   local _doc_dest_dir="${1}" _wiki_dir="${2}"
+  _render_doc_files "${_doc_dest_dir}" "${_wiki_dir}" "_to_github_md_file"
+}
+
+function _render_techdocs_files() {
+  local _doc_dest_dir="${1}" _techdocs_dir="${2}"
+  _render_doc_files "${_doc_dest_dir}" "${_techdocs_dir}" "_to_techdocs_md_file"
+}
+
+function _render_doc_files() {
+  local _doc_dest_dir="${1}" _output_dir="${2}" _renderer_function_name="${3}"
   # - convert `.md` files under `.work/doc` and put the converted ones under `.work/wiki/doc/`
   #   slashes (`/`) in a relative path name of a `.md` file will be converted into pipes (`|`).
   #   links in every file is mangled unless the destination contains a colon.
   mapfile -t _md_files < <(find "${_doc_dest_dir}" -type f -name '*.md')
   local _i
   for _i in "${_md_files[@]}"; do
-    _to_github_md_file "${_doc_dest_dir}" "${_wiki_dir}/doc" "${_i}"
+    "${_renderer_function_name}" "${_doc_dest_dir}" "${_output_dir}/doc" "${_i}"
   done
 }
 
@@ -221,23 +258,46 @@ function compile-docs() {
 }
 
 function compile-wiki() {
-  local _wiki_dir="${1}" _doc_dest_dir="${2}" _dir_for_generated_docs_in_wiki="${3}"
+  local _wiki_dir="${1}" _doc_dest_dir="${2}" _dir_for_staged_wiki_files="${3}"
+  message "compile-wiki"
+  message "- _wiki_dir: ${_wiki_dir}"
+  message "- _doc_dest_dir: ${_doc_dest_dir}"
+  message "- _dir_for_staged_wiki_files: ${_dir_for_staged_wiki_files}"
 
   _clone_wiki "${_wiki_dir}"
-  _empty_wiki_doc_dir "${_dir_for_generated_docs_in_wiki}"
+  _empty_compiled_doc_dir "${_dir_for_staged_wiki_files}"
 
   _render_github_wiki_files "${_doc_dest_dir}" "${_wiki_dir}"
   _generate_index_for_manually_written_wiki_pages "${_wiki_dir}" > "${_wiki_dir}/_Sidebar.md"
-  cat "${_dir_for_generated_docs_in_wiki}/index.md" >> "${_wiki_dir}/_Sidebar.md"
+  cat "${_dir_for_staged_wiki_files}/index.md" >> "${_wiki_dir}/_Sidebar.md"
 }
 
-function deploy() {
+function compile-techdocs() {
+  local _techdocs_dir="${1}" _doc_dest_dir="${2}" _dir_for_generated_docs_in_techdocs="${3}"
+
+  _clone_techdocs "${_techdocs_dir}"
+  _empty_compiled_doc_dir "${_dir_for_generated_docs_in_techdocs}"
+
+  _render_techdocs_files "${_doc_dest_dir}" "${_techdocs_dir}"
+}
+
+function publish-wiki() {
   local _wiki_dir="${1}"
+  _publish-docs "${_wiki_dir}" master
+}
+
+function publish-techdocs() {
+  local _techdocs_dir="${1}"
+  _publish-docs "${_techdocs_dir}" techdocs
+}
+
+function _publish-docs() {
+  local _staged_dir="${1}" _branch="${2}"
   # - add/commit/push generated wiki to remote.
   #   don't worry, we are not pushing it to the product repo, but to the product.wiki repo.
-  git  -C "${_wiki_dir}" add --all
-  # Some Differentiation would be preferable. summmary from
-  git  -C "${_wiki_dir}" commit -a -m "$(printf 'UPDATE:%s' "$(git log -n 1 --format='%s (%h)
+  git  -C "${_staged_dir}" add --all
+  # Some Differentiation would be preferable. summary from
+  git  -C "${_staged_dir}" commit -a -m "$(printf 'UPDATE:%s' "$(git log -n 1 --format='%s (%h)
 ----
 commit %H
 Author: %an
@@ -247,7 +307,7 @@ Date: %ad
 
 %b
 ----')")" || :
-  git  -C "${_wiki_dir}" push origin master:master
+  git  -C "${_staged_dir}" push origin "${_branch}:${_branch}"
 }
 
 function _parse_subcommands() {
@@ -277,7 +337,7 @@ function _parse_subcommands() {
 function _parse_options() {
   local _i
   local _s="subcommands"
-  local _local_wiki_dir=".work/wiki" _local_doc_dir=".work/doc" _generated_doc_base_in_local_wiki_dir="doc"
+  local _local_wiki_dir=".work/wiki" _local_techdocs_dir=".work/techdocs" _local_doc_dir=".work/doc" _generated_doc_base_in_local_wiki_dir="doc"
   for _i in "${@}"; do
     if [[ "${_i}" == "--" ]]; then
       break;
@@ -293,6 +353,7 @@ function _parse_options() {
     fi
   done
   echo "${_local_wiki_dir}"
+  echo "${_local_techdocs_dir}"
   echo "${_local_doc_dir}"
   echo "${_generated_doc_base_in_local_wiki_dir}"
 }
@@ -343,18 +404,29 @@ function main() {
   [[ -f .git/config ]] || abort "This directory seems not to be a project root directory."
   local _pwd
   _pwd="$(pwd)"
-  local _wiki_dir="${_options[0]}"  _doc_dest_dir="${_options[1]}"
-  local _dir_for_generated_docs_in_wiki="${_wiki_dir}/${_options[2]}"
+  local _wiki_dir="${_options[0]}" _techdocs_dir="${_options[1]}" _doc_dest_dir="${_options[2]}"
+  local _dir_for_staged_wiki_files="${_wiki_dir}/${_options[3]}"
+  local _dir_for_staged_techdocs_files="${_techdocs_dir}/${_options[3]}"
 
   for _each in "${_subcommands[@]}"; do
     if [[ "${_each}" == "clean" ]]; then
       clean "${_pwd}/${_wiki_dir}" "${_pwd}/${_doc_dest_dir}"
-    elif [[ "${_each}" == "compile" ]]; then
+    elif [[ "${_each}" == "compile-wiki" ]]; then
+      message "compile-wiki"
+      message "- _wiki_dir: ${_wiki_dir}"
+      message "- _doc_dest_dir ${_doc_dest_dir}"
+      message "- _dir_for_staged_wiki_files: ${_dir_for_staged_wiki_files}"
       compile-docs "${_wiki_dir}" "${_doc_dest_dir}" "${_mappings[@]}"
-      compile-wiki "${_wiki_dir}" "${_doc_dest_dir}" "${_dir_for_generated_docs_in_wiki}"
-    elif [[ "${_each}" == "deploy" ]]; then
+      compile-wiki "${_wiki_dir}" "${_doc_dest_dir}" "${_dir_for_staged_wiki_files}"
+    elif [[ "${_each}" == "compile-techdocs" ]]; then
+      compile-docs "${_wiki_dir}" "${_doc_dest_dir}" "${_mappings[@]}"
+      compile-techdocs "${_techdocs_dir}" "${_doc_dest_dir}" "${_dir_for_staged_techdocs_files}"
+    elif [[ "${_each}" == "publish-wiki" ]]; then
       # Deploy the generated github-wiki site.
-      deploy "${_wiki_dir}"
+      publish-wiki "${_wiki_dir}"
+    elif [[ "${_each}" == "publish-techdocs" ]]; then
+      # Deploy the generated github-wiki site.
+      publish-techdocs "${_techdocs_dir}"
     else
       abort "Unknown subcommand: '${_each}' was given."
     fi
