@@ -8,7 +8,7 @@
     <description>A library to synthesize an object from interfaces dynamically
     </description>
 
-    <name>ngauto-mf</name>
+    <name>autotest-ca</name>
     <url>http://moneyforward.github.io/${project.name}</url>
 
     <scm>
@@ -92,7 +92,7 @@
         <dependency>
             <groupId>com.github.dakusui</groupId>
             <artifactId>valid8j</artifactId>
-            <version>2.0.3</version>
+            <version>2.1.2</version>
         </dependency>
         <dependency>
             <groupId>com.github.dakusui</groupId>

@@ -47,3 +47,6 @@ hs_err_pid*
 
 # Emacs backup files
 *~
+
+# IntelliJ's file
+autotest-ca.iml

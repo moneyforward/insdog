@@ -11,6 +11,6 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD})
 @TestTemplate
-@ExtendWith(MyCustomTestEngine.class)
+@ExtendWith(AutotestEngine.class)
 public @interface NextDakenKunTest {
 }
