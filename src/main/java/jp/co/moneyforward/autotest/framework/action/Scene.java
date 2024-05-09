@@ -61,6 +61,25 @@ public interface Scene extends ActionFactory<Map<String, Io<Object, Object>>, Ma
       this.main.add((ActionFactory<Object, Object>) action.assertion(fieldName, assertion));
       return this;
     }
+    @SuppressWarnings("unchecked")
+    public final <T, R> Builder add(String fieldName,
+                                    ActionFactory<T, R> action) {
+      requireState(value(this).function(knownFieldNames())
+                              .asList()
+                              .satisfies()
+                              .predicate(not(contains(fieldName))));
+      this.knownFieldNames.add(fieldName);
+      this.main.add((ActionFactory<Object, Object>) action);
+      return this;
+    }
+    
+    public final <T, R> Builder addAct(String fieldName, Act<T, R> act, Function<R, Statement<R>> assertion) {
+      return this.add(fieldName, act, assertion);
+    }
+    
+    public final Builder addScene(String fieldName, Scene scene) {
+      return this.add(fieldName, scene);
+    }
     
     private static Function<Builder, List<String>> knownFieldNames() {
       return function("knownFieldNames", x -> x.knownFieldNames.stream().toList());

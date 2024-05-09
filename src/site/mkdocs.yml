@@ -1,7 +1,7 @@
 site_name: 'autotest-ca-docs'
 
 nav:
-  - Home: docs/index.md
+  - Home: src/site/markdown/README.md
 
 plugins:
   - techdocs-core
