@@ -1,3 +1,6 @@
-# Troubleshooting and Support
+# Frequently Asked Questions
 
-When you find a bug in `bravo`, please report it to a slack channel [# bravo_dev](https://moneyforward.slack.com/archives/C01CNJYNFD2).
+- **(t.b.d.):** (t.b.d.)
+- **(t.b.d.):** (t.b.d.)
+
+Please also check [GitHub Issues](https://github.com/moneyforward/autotest-ca/issues)
