@@ -1,6 +1,5 @@
 package jp.co.moneyforward.autotest.framework.testengine;
 
-import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.fluent.Expectations;
 import jp.co.moneyforward.autotest.framework.action.Execution;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.github.valid8j.fluent.Expectations.require;
-import static com.github.valid8j.fluent.Expectations.value;
 import static java.util.Arrays.asList;
 
 public class AutotestEngine implements BeforeAllCallback, TestTemplateInvocationContextProvider {
@@ -46,31 +44,32 @@ public class AutotestEngine implements BeforeAllCallback, TestTemplateInvocation
                 new BeforeAllCallback() {
                   @Override
                   public void beforeAll(ExtensionContext context) {
-                  
+                    System.out.println("BeforeAll");
                   }
                 },
                 new BeforeEachCallback() {
                   @Override
                   public void beforeEach(ExtensionContext context) {
-                  
+                    System.out.println("BeforeEach");
                   }
                 },
                 new AfterEachCallback() {
                   @Override
                   public void afterEach(ExtensionContext context) {
-                  
+                    System.out.println("AfterEach");
                   }
                 },
                 new AfterAllCallback() {
                   @Override
                   public void afterAll(ExtensionContext context) {
-                  
+                    System.out.println("AfterAll");
+                    throw new RuntimeException("Bye!");
                   }
                 }
             );
           }
         },
-    new TestTemplateInvocationContext() {
+        new TestTemplateInvocationContext() {
           @Override
           public String getDisplayName(int invocationIndex) {
             return TestTemplateInvocationContext.super.getDisplayName(invocationIndex);

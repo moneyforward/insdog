@@ -238,8 +238,10 @@ function _render_doc_files() {
 
 function clean() {
   local _wiki_dir="${1?_wiki_dir is not specified}"
-  local _doc_dest_dir="${2?_doc_dest_dir is not specified!}"
+  local _techdocs_dir="${2?_doc_dest_dir is not specified!}"
+  local _doc_dest_dir="${3?_tecdocs_dir is not specified!}"
   rm -fr "${_doc_dest_dir}"
+  rm -fr "${_techdocs_dir}"
   rm -fr "${_wiki_dir}"
 }
 
@@ -389,24 +391,30 @@ function _parse_directory_mappings() {
 }
 
 # Directory Layout:
-# - `doc/`: doc-source directory
-#   A directory for storing documentations that describe the entire `bravo`, not its individual components.
 # - `.work/`: working directory
 #   A directory for storing automatically generated temporary files.
 #   Any contents under here shouldn't be registered in git.
 #   - `doc/`: doc-working directory
 #     A directory that temporary stores working copy of `{project_root}/doc/` directory.
 #     packages/
-#       A directory that collects documentations written as `README.md` files in source code packages.
-#   - `wiki/`: wiki-working directory
+#     A directory that collects documentations written as `.md` files in source code packages
+#     based on the "mappings".
+#   - `wiki/`: wiki-staging directory
 #     A directory that clones the content of `{repo_name}.wiki` git repository's `master` branch's top.
 #     - `doc/`
 #       A directory that stores github wiki converted files. (a/b/c.md => a|b|c, links are mangled)
+#   - `techdocs/`: techdocs-staging directory
+#     - `docs/`
+#       A directory that stores files to be published as techdocs contents.
 function main() {
   mapfile -t _subcommands < <(_parse_subcommands "${@}")
   mapfile -t _mappings < <(_parse_directory_mappings "${@}")
   mapfile -t _options < <(_parse_options "${@}")
+<<<<<<< HEAD
+  [[ "${#_subcommands[@]}" == 0 ]] && _subcommands=(clean compile-wiki compile-techdocs)
+=======
   [[ "${#_subcommands[@]}" == 0 ]] && _subcommands=(clean)
+>>>>>>> 69df5c45bfacf1e071eb64ef272185660e5252cc
   # - check if .git/config exists. exit if not.
   [[ -f .git/config ]] || abort "This directory seems not to be a project root directory."
   local _pwd
@@ -417,7 +425,7 @@ function main() {
 
   for _each in "${_subcommands[@]}"; do
     if [[ "${_each}" == "clean" ]]; then
-      clean "${_pwd}/${_wiki_dir}" "${_pwd}/${_doc_dest_dir}"
+      clean "${_pwd}/${_wiki_dir}" "${_pwd}/${_techdocs_dir}" "${_pwd}/${_doc_dest_dir}"
     elif [[ "${_each}" == "compile-wiki" ]]; then
       compile-docs "${_wiki_dir}" "${_doc_dest_dir}" "${_mappings[@]}"
       compile-wiki "${_wiki_dir}" "${_doc_dest_dir}" "${_dir_for_staged_wiki_files}"

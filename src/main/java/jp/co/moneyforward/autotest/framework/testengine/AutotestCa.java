@@ -12,5 +12,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD})
 @TestTemplate
 @ExtendWith(AutotestEngine.class)
-public @interface NextDakenKunTest {
+public @interface AutotestCa {
 }

@@ -12,16 +12,14 @@ public class TestSandbox {
     assertTrue(argument > 0);
   }
   
-  @NextDakenKunTest
-  @ExampleParameterResolver.ResolveIt
-  public void runForestRun(int argument, int arg) {
-    System.out.println("I'm not Forest.(" + argument + "," + arg + ")");
+  @AutotestCa
+  public void runForestRun() {
+    System.out.println("I'm not Forest.");
   }
   
-  @NextDakenKunTest
-  @ExampleParameterResolver.ResolveIt
-  public void runForestRun2(int argument) {
-    System.out.println("I'm not Forest2.(" + argument + ")");
+  @AutotestCa
+  public void runForestRun2() {
+    System.out.println("I'm not Forest2");
   }
   
 }

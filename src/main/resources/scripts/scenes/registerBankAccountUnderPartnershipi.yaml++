@@ -8,6 +8,7 @@
 #,submit,,click,#js-account-edit-form > div > input,,,
 #,assert,,assert_text,#alert-success > p,,eq,金融機関を登録しました。
 #,,,sleep,,,,2
+
 #,データ連携_新規登録,,get,$ca_accounts_service_list_url,,,
 #,銀行ラベルを押す,,click,#js-navi-tab > li.active > a,,,
 #,【法人】ゆうちょ（ゆうちょダイレクト）銀行を登録,,click,#tab1 > ul.account-list > li:nth-child(3) > a,,,
@@ -18,6 +19,7 @@
 #,submit,,click,#js-account-edit-form > div > input,,,
 #,assert,,assert_text,#alert-success > p,,eq,金融機関を登録しました。
 #,,,sleep,,,,2
+
 #,データ連携_新規登録,,get,$ca_accounts_service_list_url,,,
 #,検索ボックスに【法人】北洋銀行を入力する,,send_key,#js-ca-main-contents > div.js-service-search.service-search > input,,,【法人】北洋銀行
 #,【法人】北洋銀行を押す,,click,li,text,eq,【法人】北洋銀行

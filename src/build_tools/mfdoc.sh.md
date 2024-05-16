@@ -1,22 +1,22 @@
-# `generate-wiki.sh`
+# `mfdoc.sh`
 
 This is a tool to generate GitHub wiki site from markdown files in a repository.
 This tool is designed to be run from a project's root directory, which has `.git` directory under it.
 
 ## Syntax
 
-`generate-wiki.sh [option]... [subcommand]... [-- [mapping]...]`
+`mfdoc.sh [option]... [subcommand]... [-- [mapping]...]`
 
 Followings are examples:
 
 Re-generate the wiki site and deploy it to the project's wiki site.
 
-* `generate-wiki.sh clean compile deploy`.
+* `mfdoc.sh clean compile deploy`.
 
 Re-generate the wiki site only from the markdown files under the `manuals` directory.
 The generated files will be placed under `doc/man` directory of the wiki site.
 
-* `generate-wiki.sh compile -- "*.md:manuals:man"`
+* `mfdoc.sh compile -- "*.md:manuals:man"`
 
 
 ## Options
@@ -45,7 +45,7 @@ A mapping defines how to collect documents in a repository to its wiki site.
    +---------------- target file patterns.
 ```
 
-If you have a file `tools/doc/generate-wiki.sh.md` in the repo, it will be copied to `{local doc directory}/packages/tools/doc/generate-wiki.sh.md`.
+If you have a file `tools/doc/mfdoc.sh.md` in the repo, it will be copied to `{local doc directory}/packages/tools/doc/mddoc-sh.md`.
 
 **Examples:**
 
@@ -56,7 +56,7 @@ Note that copied files will be converted into GitHub style markdown and then cop
 
 ## Subcommands
 
-`generated-wiki.sh` 
+`mfdoc.sh` 
 
 * `clean`: Cleans directories specified by `--local-wiki-dir=` and `--local-doc-dir=` options.
 * `compile`: Generates the contents of the wiki site.
