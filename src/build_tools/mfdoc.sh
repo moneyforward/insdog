@@ -410,11 +410,7 @@ function main() {
   mapfile -t _subcommands < <(_parse_subcommands "${@}")
   mapfile -t _mappings < <(_parse_directory_mappings "${@}")
   mapfile -t _options < <(_parse_options "${@}")
-<<<<<<< HEAD
   [[ "${#_subcommands[@]}" == 0 ]] && _subcommands=(clean compile-wiki compile-techdocs)
-=======
-  [[ "${#_subcommands[@]}" == 0 ]] && _subcommands=(clean)
->>>>>>> 69df5c45bfacf1e071eb64ef272185660e5252cc
   # - check if .git/config exists. exit if not.
   [[ -f .git/config ]] || abort "This directory seems not to be a project root directory."
   local _pwd

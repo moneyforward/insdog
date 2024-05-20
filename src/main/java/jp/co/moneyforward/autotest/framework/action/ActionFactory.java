@@ -7,59 +7,62 @@ import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 
+@FunctionalInterface
 public interface ActionFactory<T, R> {
-  class Io<T, R> {
-    private final T input;
-    private R output;
-    private boolean outputInitialized;
-    
-    public Io(T input) {
-      this.input = input;
-      this.outputInitialized = false;
-    }
-    
-    public T input() {
-      return this.input;
-    }
-    
-    public Optional<R> output() {
-      return outputInitialized ?
-          Optional.of(this.output) :
-          Optional.empty();
-    }
-    
-    public Io<T, R> output(R output) {
-      this.output = output;
-      this.outputInitialized = true;
-      return this;
-    }
+  R perform(T input, ExecutionEnvironment executionEnvironment);
+  
+  default Optional<String> name() {
+    return Optional.empty();
   }
   
-  Action toAction(Function<Context, Io<T, R>> ioProvider, ExecutionEnvironment executionEnvironment);
+  default Action toAction(String outputFieldName, ExecutionEnvironment executionEnvironment, String inputFieldName) {
+    return toAction(inputProvider(inputFieldName), outputConsumerProvider(outputFieldName), executionEnvironment);
+  }
   
-  String name();
+  default Action toAction(Function<Context, T> inputProvider, Function<Context, Consumer<R>> outputConsumerProvider, ExecutionEnvironment executionEnvironment) {
+    Action action = createAction(inputProvider, outputConsumerProvider, executionEnvironment);
+    return name().map(n -> named(n, action)).orElse(action);
+  }
   
-  default ActionFactory<T, R> assertion(String name, Function<R, Statement<R>> assertion) {
+  private Action createAction(Function<Context, T> inputProvider, Function<Context, Consumer<R>> outputConsumerProvider, ExecutionEnvironment executionEnvironment) {
+    return leaf(c -> outputConsumerProvider.apply(c)
+                                           .accept(perform(inputProvider.apply(c), executionEnvironment)));
+  }
+  
+  default Function<Context, T> inputProvider(String inputFieldName) {
+    return c -> c.valueOf(inputFieldName);
+  }
+  
+  default Function<Context, Consumer<R>> outputConsumerProvider(String outputFieldName) {
+    return c -> c.valueOf(outputFieldName);
+  }
+  
+  default ActionFactory<T, R> assertion(Function<R, Statement<R>> assertion) {
     return new ActionFactory<>() {
       @Override
-      public Action toAction(Function<Context, Io<T,R>> ioProvider, ExecutionEnvironment executionEnvironment) {
+      public Action toAction(Function<Context, T> inputProvider, Function<Context, Consumer<R>> outputConsumerProvider, ExecutionEnvironment executionEnvironment) {
+        AtomicReference<R> output = new AtomicReference<>();
         return sequential(
-            ActionFactory.this.toAction(ioProvider, executionEnvironment),
-            leaf(context -> {
-              Io<T, R> io = ioProvider.apply(context);
-              Expectations.assertStatement(assertion.apply(io.output().orElseThrow()));
-            }));
+            ActionFactory.this.toAction(inputProvider,
+                                        context -> outputConsumerProvider.apply(context).andThen(output::set),
+                                        executionEnvironment),
+            leaf(context -> Expectations.assertStatement(assertion.apply(output.get()))));
       }
       
+      @Override
+      public R perform(T input, ExecutionEnvironment executionEnvironment) {
+        return null;
+      }
       
       @Override
-      public String name() {
-        return name;
+      public Optional<String> name() {
+        return ActionFactory.this.name();
       }
     };
   }

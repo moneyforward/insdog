@@ -7,7 +7,7 @@ import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
-public class Navigate implements Act<Browser, Page> {
+public class Navigate implements Act<Page, Page> {
   private final String url;
   
   public Navigate(String url) {
@@ -15,8 +15,7 @@ public class Navigate implements Act<Browser, Page> {
   }
   
   @Override
-  public Page perform(Browser value, ExecutionEnvironment executionEnvironment) {
-    Page page = value.newPage();
+  public Page perform(Page page, ExecutionEnvironment executionEnvironment) {
     page.navigate(this.url);
     return page;
   }

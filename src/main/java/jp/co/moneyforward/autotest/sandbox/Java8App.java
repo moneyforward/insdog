@@ -36,11 +36,13 @@ public class Java8App {
    */
   public static void main(String... args) {
     try (Playwright playwright = Playwright.create()) {
-      Browser browser = playwright.chromium().launch();
-      Page page = browser.newPage();
-      page.navigate("http://www.google.com");
-      System.out.println(page.title());
-      page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("example.png")));
+      try (Browser browser = playwright.chromium().launch()) {
+        Page page = browser.newPage();
+        page.navigate("http://www.google.com");
+        System.out.println(page.title());
+        page.click("");
+        page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("example.png")));
+      }
     }
     
     System.out.println(new Java8App().process("hello"));

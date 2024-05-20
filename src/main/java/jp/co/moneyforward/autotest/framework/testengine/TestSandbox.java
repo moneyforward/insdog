@@ -12,14 +12,13 @@ public class TestSandbox {
     assertTrue(argument > 0);
   }
   
-  @AutotestCa
+  @PlayScenario
   public void runForestRun() {
     System.out.println("I'm not Forest.");
   }
   
-  @AutotestCa
+  @PlayScenario
   public void runForestRun2() {
     System.out.println("I'm not Forest2");
   }
-  
 }

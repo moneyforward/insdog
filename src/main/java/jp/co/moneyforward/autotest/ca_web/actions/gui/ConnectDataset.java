@@ -1,4 +1,4 @@
-package jp.co.moneyforward.autotest.sandbox;
+package jp.co.moneyforward.autotest.ca_web.actions.gui;
 
 import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;

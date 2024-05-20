@@ -1,5 +1,6 @@
 package jp.co.moneyforward.autotest.framework.testengine;
 
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.fluent.Expectations;
 import jp.co.moneyforward.autotest.framework.action.Execution;
@@ -14,9 +15,11 @@ import java.util.stream.Stream;
 
 import static com.github.valid8j.fluent.Expectations.require;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 public class AutotestEngine implements BeforeAllCallback, TestTemplateInvocationContextProvider {
   private final ExtensionContext.Namespace namespace = ExtensionContext.Namespace.create(AutotestEngine.class);
+  private Play play;
   
   @Override
   public boolean supportsTestTemplate(ExtensionContext extensionContext) {
@@ -29,9 +32,17 @@ public class AutotestEngine implements BeforeAllCallback, TestTemplateInvocation
     ExecutionEnvironment executionEnvironment = ExecutionEnvironment.load(System.getProperties());
     require(Expectations.value(errors).satisfies().empty());
     Context actionContext = Context.create();
-    Play play = null;
-    Execution execution = new ExecutionCompiler.Default().compile(play, executionEnvironment);
+    this.play = getPlayFrom(context);
+    Execution execution = getCompilerFrom(context).compile(play, executionEnvironment);
     context.getStore(namespace).put("actionContext", actionContext);
+  }
+  
+  private static ExecutionCompiler.Default getCompilerFrom(ExtensionContext context) {
+    return new ExecutionCompiler.Default();
+  }
+  
+  private Play getPlayFrom(ExtensionContext context) {
+    return null;
   }
   
   @Override
@@ -53,6 +64,17 @@ public class AutotestEngine implements BeforeAllCallback, TestTemplateInvocation
                     System.out.println("BeforeEach");
                   }
                 },
+                new ParameterResolver() {
+                  @Override
+                  public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+                    return true;
+                  }
+                  
+                  @Override
+                  public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+                    return ActionSupport.nop();
+                  }
+                },
                 new AfterEachCallback() {
                   @Override
                   public void afterEach(ExtensionContext context) {
@@ -68,8 +90,7 @@ public class AutotestEngine implements BeforeAllCallback, TestTemplateInvocation
                 }
             );
           }
-        },
-        new TestTemplateInvocationContext() {
+          
           @Override
           public String getDisplayName(int invocationIndex) {
             return TestTemplateInvocationContext.super.getDisplayName(invocationIndex);
