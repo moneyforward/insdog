@@ -16,6 +16,12 @@ import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 public interface Act<T, R> extends ActionFactory<T, R> {
   R perform(T value, ExecutionEnvironment executionEnvironment);
   
+  
+  @Override
+  default Action toAction(ActionComposer actionComposer, String inputFieldName, String outputFieldName) {
+    return actionComposer.create(this, inputFieldName, outputFieldName);
+  }
+
   default Optional<String> name() {
     return this.getClass().isAnonymousClass() ? Optional.empty()
                                               : Optional.of(this.getClass().getSimpleName());
@@ -27,10 +33,10 @@ public interface Act<T, R> extends ActionFactory<T, R> {
                                                            executionEnvironment)));
   }
   
-  class Value<T> implements Act<Void, T> {
+  class Let<T> implements Act<Void, T> {
     private final T value;
     
-    public Value(T value) {
+    public Let(T value) {
       this.value = value;
     }
     

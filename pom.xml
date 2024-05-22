@@ -48,7 +48,7 @@
         <env.GEM_PATH>${project.basedir}/.generated/build/gems</env.GEM_PATH>
         <!-- END: project settings -->
         <!-- BEGIN: compilation dependencies -->
-        <playwright.version>1.43.0</playwright.version>
+        <playwright.version>1.44.0</playwright.version>
         <!-- END: compilation dependencies -->
         <!-- BEGIN: test dependencies -->
         <opentest4j.version>1.2.0</opentest4j.version>
@@ -57,7 +57,7 @@
         <junit-platform-launcher.version>1.10.2</junit-platform-launcher.version>
         <!-- END: test dependencies -->
         <!-- BEGIN: build dependencies -->
-        <asciidoclet.version>2.0.1-SNAPSHOT</asciidoclet.version>
+        <asciidoclet.version>2.0.0</asciidoclet.version>
         <asciidoctor.maven.plugin.version>2.0.0-RC.1</asciidoctor.maven.plugin.version>
         <asciidoctorj.version>2.5.11</asciidoctorj.version>
         <asciidoctorj.diagram.version>2.0.1</asciidoctorj.diagram.version>
@@ -102,7 +102,6 @@
             <groupId>org.opentest4j</groupId>
             <artifactId>opentest4j</artifactId>
             <version>${opentest4j.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -118,7 +117,6 @@
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-launcher</artifactId>
             <version>${junit-platform-launcher.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -177,7 +175,6 @@
                             <groupId>org.asciidoctor</groupId>
                             <artifactId>asciidoclet</artifactId>
                             <version>${asciidoclet.version}</version>
-                            <classifier>shaded</classifier>
                         </docletArtifact>
                         <additionalJOptions>
                             <additionalJOption>--add-exports=jdk.javadoc/jdk.javadoc.internal.api=asciidoclet</additionalJOption>

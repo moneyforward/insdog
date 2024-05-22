@@ -1,12 +1,39 @@
-# Requirements
+# PoC Requirements Draft
 
-Requirements that `bravo` must satisfy are listed and discussed here.
+The PoC must not to be fully integrated into the release flow.
+Instead, it should be built as such that it can be easily executed at will.
 
-In the past, requirements for the product have not been managed and structured in a formal way.
-From now on (Apr/2024), let's file a ticket for every new requirement item for the product.
+## Must
 
-When we notice there is a requirement item for which a ticket should have been filed, let's file it.
+- Tests can be executed correctly
+- Stored in a separate repository
+- Executable via CI
+- Testing available on STG environment
+- Support various test cases. (copy from 駄犬くん)
+- Defined Testcase-management
+- Written in Java
 
-A JIRA space for it is found [here](https://jira.for.bravo.requirements).
+## Enhancement
 
+- Executable also via Event Handler (trigger w/ commit_hash)
+- Check in Playwright for correct commit_hash deployment before testing
 
+## Nice to have
+
+- Jenkins integration (Have Jenkins deploy trigger the Event Handler)
+- Execute via Github Action
+- Async execution
+
+## Out of Scope
+
+- Other Environments than STG
+- This is out of scope for now, but has to be done later.
+- For idev, cooperation with the SRE team is likely necessary
+- Comprehensive Test Suite
+- Creating a Test Suite with the appropriate amount of tests will take a lot of time.
+- This project's focus is on the technical-side and the aim is to proof the capabilities.
+
+## References
+
+- [Draft: Playwright PoC Requirements](https://moneyforward.kibe.la/reviewable_drafts/6a29d1f8-837c-41fa-8806-ab6e6765e8ec)
+- [asana: Automatic E2E Testing](https://app.asana.com/0/1206402209253009/1206402209253009)

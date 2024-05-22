@@ -1,4 +1,4 @@
-package jp.co.moneyforward.autotest.framework;
+package jp.co.moneyforward.autotest.framework.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

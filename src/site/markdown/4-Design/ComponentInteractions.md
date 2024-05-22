@@ -1,4 +1,4 @@
-# Internal Architecture of `autotest-ca`
+# Interactions between Components of `autotest-ca`
 
 In the context of automated testing, various actions are defined and performed over and over again.
 Sometimes, as a test case itself. 

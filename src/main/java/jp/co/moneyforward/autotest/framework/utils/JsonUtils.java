@@ -60,14 +60,6 @@ public class JsonUtils {
       return new GsonBuilder().setPrettyPrinting().create().toJson(summarizedValue);
     }
   
-  /**
-   * Merges given {@code JsonObject}s into one JSON object and returns it.
-   * A {@code null} in {@code objs} will be ignored.
-   *
-   * @param objs {@code JsonObject}s to be merged.
-   * @return A merged {@code JsonObject}.
-   * @see ExtendJsonObject#merge(JsonObject...)
-   */
   public static JsonObject merge(JsonObject... objs) {
     JsonObject ret = new JsonObject();
     ExtendJsonObject.extendJsonObject(ret, ConflictStrategy.PREFER_SECOND_OBJ, objs);

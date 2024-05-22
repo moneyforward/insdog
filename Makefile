@@ -59,3 +59,5 @@ _publish-techdocs:
 clean-mfdoc:
 	$(BASH) -eu $(PROJ_DIR)/src/build_tools/mfdoc.sh clean
 
+javadoc:
+	mvn clean compile test javadoc:javadoc

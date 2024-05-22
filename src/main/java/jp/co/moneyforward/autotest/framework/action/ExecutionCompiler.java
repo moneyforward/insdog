@@ -18,7 +18,7 @@ public interface ExecutionCompiler {
         public Action beforeAll() {
           return sequential(play.baseSetUp()
                                 .stream()
-                                .map(each -> each.toAction("TODO", executionEnvironment, "TODO"))
+                                .map(each -> each.toAction(ActionComposer.createActionComposer(each.name().orElse("TODO"), executionEnvironment), "TODO", "TODO"))
                                 .toList());
         }
         
@@ -26,7 +26,7 @@ public interface ExecutionCompiler {
         public Action beforeEach() {
           return sequential(play.setUp()
                                 .stream()
-                                .map(each -> each.toAction("", executionEnvironment, ""))
+                                .map(each -> each.toAction(ActionComposer.createActionComposer(each.name().orElse("TODO"), executionEnvironment), "", ""))
                                 .toList());
         }
         
@@ -34,7 +34,7 @@ public interface ExecutionCompiler {
         public List<Action> main() {
           return play.mainScenes()
                      .stream()
-                     .map(each -> each.toAction("", executionEnvironment, ""))
+                     .map(each -> each.toAction(ActionComposer.createActionComposer(each.name().orElse("TODO"), executionEnvironment), "", ""))
                      .toList();
         }
         
@@ -42,7 +42,7 @@ public interface ExecutionCompiler {
         public Action afterEach() {
           return sequential(play.tearDown()
                                 .stream()
-                                .map(each -> each.toAction("", executionEnvironment, ""))
+                                .map(each -> each.toAction(ActionComposer.createActionComposer(each.name().orElse("TODO"), executionEnvironment), "", ""))
                                 .toList());
         }
         
@@ -50,7 +50,7 @@ public interface ExecutionCompiler {
         public Action afterAll() {
           return sequential(play.baseTearDown()
                                 .stream()
-                                .map(each -> each.toAction("", executionEnvironment, ""))
+                                .map(each -> each.toAction(ActionComposer.createActionComposer(each.name().orElse("TODO"), executionEnvironment), "", ""))
                                 .toList());
         }
       };

@@ -6,7 +6,6 @@ import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -26,6 +25,13 @@ import static java.lang.System.nanoTime;
  */
 public interface Scene extends ActionFactory<Map<String, Object>, Map<String, Object>> {
   String IMPLICIT_VARIABLE_NAME = "_";
+  
+  @Override
+  default Action toAction(ActionComposer actionComposer, String inputFieldName, String outputFieldName) {
+    return actionComposer.create(this, inputFieldName, outputFieldName);
+  }
+  
+  List<String> inputFieldNames();
   
   interface ActionFactoryHolder<A extends ActionFactory<T, R>, T, R> {
     A get();
@@ -56,61 +62,22 @@ public interface Scene extends ActionFactory<Map<String, Object>, Map<String, Ob
   
   List<ActionFactoryHolder<?, Object, Object>> children();
   
-  default Action toAction(Function<Context, Map<String, Object>> inputProvider, Function<Context, Consumer<Map<String, Object>>> outputConsumerProvider, ExecutionEnvironment executionEnvironment) {
-    return sequential(children().stream()
-                                .map(ActionFactoryHolder::get)
-                                .map(each -> {
-                              AtomicReference<Map<String, Object>> inputHolder = new AtomicReference<>();
-                              return each.toAction(c -> {
-                                                     Map<String, Object> input = inputProvider.apply(c);
-                                                     inputHolder.set(input);
-                                                     Optional<String> name = each.name();
-                                                     return input.containsKey(name)
-                                                            ? input.get(name) :
-                                                            Void.class;
-                                                   },
-                                                   c -> o -> outputConsumerProvider.apply(c).accept(inputHolder.get()),
-                                                   executionEnvironment);
-                            })
-                                .toList());
-  }
-  
-  static <T, R> Act<T, R> asAct(Function<T, R> func) {
-    return asAct((v, e) -> func.apply(v));
-  }
-  
-  static <T, R> Act<T, R> asAct(BiFunction<T, ExecutionEnvironment, R> func) {
-    return new Act<T, R>() {
-      @Override
-      public R perform(T value, ExecutionEnvironment executionEnvironment) {
-        return func.apply(value, executionEnvironment);
-      }
-    };
-  }
-  
   class Builder {
+    private final List<String> inputFieldNames = new LinkedList<>();
     private final List<ActionFactoryHolder<?, Object, Object>> main;
     private final String sceneName;
-    private final Set<String> knownFieldNames;
     
     public Builder() {
-      this(Scene.class.getSimpleName() + ":" + nanoTime());
+      this(Scene.class.getSimpleName());
     }
     
     public Builder(String sceneName) {
       this.main = new LinkedList<>();
       this.sceneName = sceneName;
-      this.knownFieldNames = new HashSet<>();
     }
     
     @SuppressWarnings("unchecked")
     public final <T, R> Builder add(String outputFieldName, ActionFactory<T, R> action, String inputFieldName) {
-      requireState(value(this).function(knownFieldNames())
-                              .asList()
-                              .satisfies()
-                              .predicate(not(contains(inputFieldName))));
-      this.knownFieldNames.add(inputFieldName);
-      this.knownFieldNames.add(outputFieldName);
       this.main.add(ActionFactoryHolder.create(inputFieldName, outputFieldName, (ActionFactory<Object, Object>) action));
       return this;
     }
@@ -127,21 +94,21 @@ public interface Scene extends ActionFactory<Map<String, Object>, Map<String, Ob
       return this.add(IMPLICIT_VARIABLE_NAME, action, IMPLICIT_VARIABLE_NAME);
     }
     
-    
-    private static Function<Builder, List<String>> knownFieldNames() {
-      return function("knownFieldNames", x -> x.knownFieldNames.stream().toList());
-    }
-    
     public Scene build() {
       return new Scene() {
         @Override
-        public Map<String, Object> perform(Map<String, Object> input, ExecutionEnvironment executionEnvironment) {
-          return null;
+        public List<String> inputFieldNames() {
+          return Builder.this.inputFieldNames;
         }
         
         @Override
         public List<ActionFactoryHolder<?, Object, Object>> children() {
-          return null;
+          return Builder.this.main;
+        }
+        
+        @Override
+        public String toString() {
+          return Builder.this.sceneName + "@" + System.identityHashCode(this);
         }
       };
     }

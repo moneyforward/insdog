@@ -1,3 +1,4 @@
 # API Specification
 
-This directory collects external specification of `bravo`.
+API specification section will be available by doing `make javadoc`.
+Not available online at this moment.

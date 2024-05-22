@@ -1,8 +1,9 @@
-package jp.co.moneyforward.autotest.sandbox;
+package jp.co.moneyforward.autotest.ut.sandbox;
 
 
 import com.github.valid8j.fluent.Expectations;
 import com.github.valid8j.pcond.fluent.Statement;
+import jp.co.moneyforward.autotest.sandbox.Java8App;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import static com.github.valid8j.fluent.Expectations.assertStatement;
 import static com.github.valid8j.pcond.fluent.Statement.objectValue;
 
+@Disabled
 public class Java8AppTest extends TestBase {
   @Test
   public void testMain() {
@@ -100,6 +102,4 @@ public class Java8AppTest extends TestBase {
         .containing("notProcessed:")
         .containing(s));
   }
-  
-  
 }

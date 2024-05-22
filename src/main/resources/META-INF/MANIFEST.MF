@@ -1,1 +1,1 @@
-Automatic-Module-Name: com.github.dakusui.java8.template
+Automatic-Module-Name: jp.co.moneyforward.autotest

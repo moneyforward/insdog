@@ -4,13 +4,15 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 
 /**
  * An entry-point class of Java8 Template.
  */
 public class Java8App {
-  Java8App() {
+  public Java8App() {
   }
   
   /**
@@ -29,7 +31,7 @@ public class Java8App {
    *     |       Lots of work      |
    *     +-------------------------+
    * ----
-   *
+   *z
    * Have fun!
    *
    * @param args Arguments passed through the command line.
@@ -38,9 +40,12 @@ public class Java8App {
     try (Playwright playwright = Playwright.create()) {
       try (Browser browser = playwright.chromium().launch()) {
         Page page = browser.newPage();
-        page.navigate("http://www.google.com");
+        page.navigate("https://ca-web-ca-app-ai-ocr-bulk-upload.idev.test.musubu.co.in/voucher_journals/journal_candidates");
         System.out.println(page.title());
-        page.click("");
+        page.focus("input[name='mfid_user[email]']");
+        page.keyboard().type("ukai.hiroshi@moneyforward.co.jp");
+        page.focus("input[name='mfid_user[password]']");
+        page.keyboard().type("password!");
         page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("example.png")));
       }
     }

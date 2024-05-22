@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Java8App: Runner Template. Copy the VM option" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="jp.co.moneyforward.autotest.sandbox.Java8App" />
+    <module name="autotest-ca" />
+    <option name="VM_PARAMETERS" value="--add-exports=java.base/sun.misc=com.google.gson" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="jp.co.moneyforward.autotest.sandbox.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
