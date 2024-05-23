@@ -16,7 +16,6 @@ import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 public interface Act<T, R> extends ActionFactory<T, R> {
   R perform(T value, ExecutionEnvironment executionEnvironment);
   
-  
   @Override
   default Action toAction(ActionComposer actionComposer, String inputFieldName, String outputFieldName) {
     return actionComposer.create(this, inputFieldName, outputFieldName);

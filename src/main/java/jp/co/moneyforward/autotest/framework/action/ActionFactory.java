@@ -3,6 +3,7 @@ package jp.co.moneyforward.autotest.framework.action;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.valid8j.fluent.Expectations;
 import com.github.valid8j.pcond.fluent.Statement;
+import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,15 +26,16 @@ public interface ActionFactory<T, R> {
    * @return A new ActionFactory object with the given assertion.
    */
   default ActionFactory<T, R> assertion(Function<R, Statement<R>> assertion) {
-    return new ActionFactory<T, R>() {
+    return new ActionFactory<>() {
       @Override
       public Action toAction(ActionComposer actionComposer, String inputFieldName, String outputFieldName) {
-        AtomicReference<R> output = new AtomicReference<>();
         return sequential(
-            nop(), // TODO
-            leaf(context -> Expectations.assertStatement(assertion.apply(output.get()))));
+            ActionFactory.this.toAction(actionComposer, inputFieldName, outputFieldName),
+            ((Act<R, R>) (value, executionEnvironment) -> {
+              Expectations.assertStatement(assertion.apply(value));
+              return value;
+            }).toAction(actionComposer, outputFieldName, outputFieldName));
       }
-      
       
       @Override
       public Optional<String> name() {

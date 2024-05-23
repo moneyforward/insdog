@@ -1,21 +1,10 @@
 package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
-import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
-import static com.github.valid8j.fluent.Expectations.requireState;
-import static com.github.valid8j.fluent.Expectations.value;
-import static com.github.valid8j.pcond.forms.Predicates.contains;
-import static com.github.valid8j.pcond.forms.Predicates.not;
-import static com.github.valid8j.pcond.forms.Printables.function;
-import static java.lang.System.nanoTime;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An interface that represents a reusable unit of an action in autotest-ca's programming model.
@@ -92,6 +81,11 @@ public interface Scene extends ActionFactory<Map<String, Object>, Map<String, Ob
     
     public final <T, R> Builder add(ActionFactory<T, R> action) {
       return this.add(IMPLICIT_VARIABLE_NAME, action, IMPLICIT_VARIABLE_NAME);
+    }
+    
+    public Builder parameter(String inputFieldName) {
+      this.inputFieldNames.add(inputFieldName);
+      return this;
     }
     
     public Scene build() {

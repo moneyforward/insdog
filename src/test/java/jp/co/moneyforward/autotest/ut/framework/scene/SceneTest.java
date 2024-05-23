@@ -33,7 +33,10 @@ public class SceneTest extends TestBase {
         .add(helloAct())
         .build();
     
-    Action action = scene.toAction(ActionComposer.createActionComposer(scene.name().orElse("TODO"), createExecutionEnvironment()), "input", "output");
+    Action action = scene.toAction(ActionComposer.createActionComposer(scene.name().orElse("TODO"),
+                                                                       createExecutionEnvironment()),
+                                   "input",
+                                   "output");
     
     ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
   }
