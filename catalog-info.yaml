@@ -12,7 +12,4 @@ spec:
   owner: dakusui
 relations:
   - type: dependsOn
-    target:
-      kind: Component
-      namespace: default
-      name: ca_web
+    targetRef: component:ca_web
