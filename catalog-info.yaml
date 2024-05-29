@@ -12,4 +12,7 @@ spec:
   owner: dakusui
 relations:
   - type: dependsOn
-    target: component:ca_web
+    target:
+      type: Component
+      name: ca_web
+
