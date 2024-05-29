@@ -8,6 +8,7 @@ import jp.co.moneyforward.autotest.framework.action.ActionComposer;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.ca_web.core.Credentials;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
+import jp.co.moneyforward.autotest.ututils.ActUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
@@ -56,17 +57,18 @@ public class SceneTest extends TestBase {
   public void givenSceneWithVariableReadingActFailingAssertionAppended_whenToActionExecuted_thenActionTreeThatFailsIfPerformed() {
     Scene scene = new Scene.Builder()
         .add(ActUtils.let("John Doe"))
-        .add(ActUtils.helloAct().assertion(x -> value(x).toBe().equalTo("HELLO:John Doe!")))
+        .add(ActUtils.helloAct()
+                     .assertion(x -> value(x).toBe()
+                                             .equalTo("HELLO:John Doe!")))
         .build();
     
     
     Action action = scene.toAction(createActionComposer(), "input", "output");
     
-    assertStatement(
-        value((assertThrows(AssertionFailedError.class,
-                            () -> performAction(action)))).getMessage()
-                                                          .toBe()
-                                                          .containing("HELLO:John Doe!"));
+    assertStatement(value((assertThrows(AssertionFailedError.class,
+                                        () -> performAction(action)))).getMessage()
+                                                                      .toBe()
+                                                                      .containing("HELLO:John Doe!"));
   }
   
   
@@ -90,8 +92,9 @@ public class SceneTest extends TestBase {
         .add(new Scene.Builder()
                  .parameter("var1")
                  .add("var2",
-                      ActUtils.helloAct().assertion(x -> value(x).toBe()
-                                                                 .equalTo("HELLO:John Doe")), "var1")
+                      ActUtils.helloAct()
+                              .assertion(x -> value(x).toBe()
+                                                      .equalTo("HELLO:John Doe")), "var1")
                  .build(), "input")
         .build();
     
@@ -108,14 +111,18 @@ public class SceneTest extends TestBase {
         .add("seq1", new Scene.Builder()
             .parameter("var1")
             .add("var2",
-                 ActUtils.helloAct().assertion(x -> value(x).toBe()
-                                                            .equalTo("HELLO:John Doe")), "var1")
+                 ActUtils.helloAct()
+                         .assertion(x -> value(x).toBe()
+                                                 .equalTo("HELLO:John Doe")),
+                 "var1")
             .build(), "in")
         .add("seq2", new Scene.Builder()
             .parameter("var2")
             .add("var3",
-                 ActUtils.exclamationAct().assertion(x -> value(x).toBe().startingWith("HELLO:John Doe"))
-                         .assertion(x -> value(x).toBe().endingWith("!")), "var2")
+                 ActUtils.exclamationAct()
+                         .assertion(x -> value(x).toBe().startingWith("HELLO:John Doe"))
+                         .assertion(x -> value(x).toBe().endingWith("!")),
+                 "var2")
             
             .build(), "seq1")
         .build();

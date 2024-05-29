@@ -32,7 +32,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         .map(AutotestEngine::toTestTemplateInvocationContext);
   }
   
-  private static TestTemplateInvocationContext toTestTemplateInvocationContext(Action action) {
+  private static TestTemplateInvocationContext toTestTemplateInvocationContext(Entry<String, Action> actionEntry) {
     return new TestTemplateInvocationContext() {
       @Override
       public List<Extension> getAdditionalExtensions() {
@@ -44,14 +44,14 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
           
           @Override
           public Action resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-            return action;
+            return actionEntry.value();
           }
         });
       }
       
       @Override
       public String getDisplayName(int invocationIndex) {
-        return TestTemplateInvocationContext.super.getDisplayName(invocationIndex);
+        return TestTemplateInvocationContext.super.getDisplayName(invocationIndex) + ":" + actionEntry.key();
       }
     };
   }
@@ -59,19 +59,19 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   @Override
   public void afterAll(ExtensionContext context) throws Exception {
     AutotestRunner runner = autotestRunner(context);
-    actions(context, AutotestExecution.Spec::afterAll).forEach(runner::afterAll);
+    actions(context, AutotestExecution.Spec::afterAll).forEach(each -> runner.afterAll(each.value()));
   }
   
   @Override
   public void afterEach(ExtensionContext context) throws Exception {
     AutotestRunner runner = autotestRunner(context);
-    actions(context, AutotestExecution.Spec::afterEach).forEach(runner::afterEach);
+    actions(context, AutotestExecution.Spec::afterEach).forEach(each -> runner.afterEach(each.value()));
   }
   
   @Override
   public void beforeEach(ExtensionContext context) throws Exception {
     AutotestRunner runner = autotestRunner(context);
-    actions(context, AutotestExecution.Spec::beforeEach).forEach(runner::beforeEach);
+    actions(context, AutotestExecution.Spec::beforeEach).forEach(each -> runner.beforeEach(each.value()));
   }
   
   @Override
@@ -96,21 +96,28 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     
     {
       AutotestRunner runner = autotestRunner(context);
-      actions(context, AutotestExecution.Spec::beforeAll).forEach(runner::beforeAll);
+      actions(context, AutotestExecution.Spec::beforeAll).forEach(each -> runner.beforeAll(each.value()));
     }
   }
   
-  private static List<Action> actions(ExtensionContext context, Function<AutotestExecution.Spec, String[]> toSceneNames) {
+  private static List<Entry<String, Action>> actions(ExtensionContext context, Function<AutotestExecution.Spec, String[]> toSceneNames) {
     AutotestExecution.Spec executionSpec = executionSpec(context);
-    ActionComposer actionComposer = ActionComposer.createActionComposer("INPUT", "OUTPUT", createExecutionEnvironment(executionSpec));
     Map<String, Scene> sceneMap = sceneMap(context);
-    return toActions(sceneMap, actionComposer, toSceneNames.apply(executionSpec));
+    return toActions(sceneMap,
+                     ActionComposer.createActionComposer("INPUT", "OUTPUT", createExecutionEnvironment(executionSpec)),
+                     toSceneNames.apply(executionSpec));
   }
   
-  private static List<Action> toActions(Map<String, Scene> sceneMap, ActionComposer actionComposer, String[] sceneNames) {
+  private static List<Entry<String, Action>> toActions(Map<String, Scene> sceneMap, ActionComposer actionComposer, String[] sceneNames) {
     return Arrays.stream(sceneNames)
-                 .map(sceneMap::get)
-                 .map(each -> each.toAction(actionComposer, "INPUT:" + each.name(), "OUTPUT:" + each.name())).toList();
+                 .map(each -> new Entry<>(each, toAction(sceneMap.get(each), actionComposer)))
+                 .toList();
+  }
+  
+  private static Action toAction(Scene scene, ActionComposer actionComposer) {
+    return scene.toAction(actionComposer,
+                          "INPUT:" + scene.name(),
+                          "OUTPUT:" + scene.name());
   }
   
   private static ExecutionEnvironment createExecutionEnvironment(AutotestExecution.Spec executionSpec) {
@@ -168,7 +175,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   private Method validateSceneProvidingMethod(Method m) {
-    // TODO
+    // TODO: https://app.asana.com/0/1206402209253009/1207418182714921/f
     return m;
   }
   

@@ -1,4 +1,4 @@
-package jp.co.moneyforward.autotest.ut.framework.scene;
+package jp.co.moneyforward.autotest.ututils;
 
 import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.action.Act.Let;
@@ -17,7 +17,7 @@ public enum ActUtils {
     return name("helloAct", (value, executionEnvironment) -> "HELLO:" + value);
   }
   
-  static Act<String, String> exclamationAct() {
+  public static Act<String, String> exclamationAct() {
     return name("exclamationAct", (value, executionEnvironment) -> value + "!");
   }
   

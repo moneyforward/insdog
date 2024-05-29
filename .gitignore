@@ -21,6 +21,10 @@ diag-*.png
 .generated/
 # END:   Asciidoctor related
 
+# BEGIN: mfdoc.sh related
+.work
+# END:   mfdoc.sh related
+
 ### Java template
 # Compiled class file
 *.class

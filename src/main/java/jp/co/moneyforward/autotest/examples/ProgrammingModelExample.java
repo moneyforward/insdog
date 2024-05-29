@@ -5,9 +5,14 @@ import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
+import org.junit.jupiter.api.Tag;
 
+@Tag("ProgrammingMode")
 @AutotestExecution(
-    defaultExecution = @AutotestExecution.Spec(value = {"login", "connect", "disconnect", "logout"},
+    defaultExecution = @AutotestExecution.Spec(
+        beforeEach = {"login"},
+        value = {"connect", "disconnect"},
+        afterEach = {"logout"},
         executionEnvironmentFactory = ExecutionEnvironmentForCa.ExecutionEnvironmentFactory.class))
 public class ProgrammingModelExample implements AutotestRunner {
   @Named
