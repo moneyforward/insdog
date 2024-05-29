@@ -1,4 +1,4 @@
-package jp.co.moneyforward.autotest.framework.core;
+package jp.co.moneyforward.autotest.ut.misc;
 
 public record Array(Element... elements) implements Element {
 }

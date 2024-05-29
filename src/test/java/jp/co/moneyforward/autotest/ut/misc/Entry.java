@@ -1,4 +1,4 @@
-package jp.co.moneyforward.autotest.framework.core;
+package jp.co.moneyforward.autotest.ut.misc;
 
 import static com.github.valid8j.fluent.Expectations.requireArgument;
 import static com.github.valid8j.fluent.Expectations.that;

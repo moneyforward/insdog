@@ -1,6 +1,4 @@
-package jp.co.moneyforward.autotest.framework.utils;
-
-import jp.co.moneyforward.autotest.framework.core.*;
+package jp.co.moneyforward.autotest.ut.misc;
 
 public enum ObjectUtils {
   ;

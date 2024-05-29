@@ -1,6 +1,6 @@
 package jp.co.moneyforward.autotest.ut.sandbox;
 
-import jp.co.moneyforward.autotest.framework.testengine.ObjectReturningTestExtension;
+import jp.co.moneyforward.autotest.ut.misc.ObjectReturningTestExtension;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 

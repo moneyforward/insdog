@@ -45,6 +45,11 @@ public interface Scene extends ActionFactory<Map<String, Object>, Map<String, Ob
         public String outputFieldName() {
           return outputFieldName;
         }
+        
+        @Override
+        public String toString() {
+          return String.format("%s", actionFactory);
+        }
       };
     }
   }
@@ -101,8 +106,13 @@ public interface Scene extends ActionFactory<Map<String, Object>, Map<String, Ob
         }
         
         @Override
+        public String name() {
+          return Builder.this.sceneName;
+        }
+        
+        @Override
         public String toString() {
-          return Builder.this.sceneName + "@" + System.identityHashCode(this);
+          return name() + "@" + System.identityHashCode(this);
         }
       };
     }

@@ -6,6 +6,14 @@ It is built as an executable assembly, which has all the necessary dependencies 
 ```mermaid
 C4Context
 
+Person(sdetFramework, "SDET-framework")
+Rel(sdetFramework, abstractActions, "Creates")
+Rel(sdetFramework, builtInActions, "Creates")
+Rel(sdetFramework, extension, "Creates")
+
+Person(sdetTests, "SDET-tests")
+Rel(sdetTests, testClasses, "Creates")
+
 Person(tester, "Tester")
 Rel(tester, junit-platform-launcher, "0-a. Invokes")
 
@@ -18,33 +26,33 @@ Rel(junit-platform-launcher, testClasses, "2. instantiates")
 Rel(extension, testClasses, "3. executes")
 
 Boundary(autotest-ca-assembly, "autotest-ca:assembly", "application") {
-    Boundary(junit5, "junit5", "library") {
-        Component(junit-platform-launcher, "junit-platform-launcher")
-    }
     Boundary(b0, "autotest-ca:main", "library") {
-        Boundary(b2, "tests", "package") {
-            Component(testClasses, "Tests")
-            Component(customActions, "Custom Action Factories")
-            Rel(testClasses, customActions, "Uses")
-        }
         Boundary(coreBoundary, "core", "package") {
             Component(extension, "JUnit 5 Test Extension")
             Component(abstractActions, "Base Action Factories")
             Rel(builtInActions, abstractActions, "implements")
             Component(builtInActions, "Built-in Action Factories")
         }
+        Boundary(b2, "tests", "package") {
+            Component(testClasses, "Tests")
+            Component(customActions, "Custom Action Factories")
+            Rel(testClasses, customActions, "Uses")
+        }
         Rel(testClasses, builtInActions, "Uses")
     }
+    Boundary(oss, "Third-party OSS Libraries") {
+        Component(junit-platform-launcher, "junit-platform-launcher")
+        Component(playwrightJava, "Playwright Java")
+        Rel(customActions, playwrightJava, "dependsOn")
+        Rel(builtInActions, playwrightJava, "dependsOn")
+    }
+
 }
 
-Person(sdetTests, "SDET-tests")
-Rel(sdetTests, testClasses, "Creates")
-
-Person(sdetFramework, "SDET-framework")
-Rel(sdetFramework, abstractActions, "Creates")
-Rel(sdetFramework, builtInActions, "Creates")
-Rel(sdetFramework, extension, "Creates")
-
+Boundary(platform, "Platform (OS)") {
+  Component(browser, "Browser")
+}
+Rel(playwrightJava, browser, "accesses")
 ```
 
 It is assumed that different set of people will work on each package.

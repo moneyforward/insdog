@@ -28,8 +28,8 @@ Note that code examples and class/sequence diagrams in this page are only intend
 
 ## Scenes, Acts, and Play
 
-`autotest-ca` has units called `Act` or `Scene`, and they are called `ActionFactory` in general.
-An `Act` is a minimal unit to define an interaction with the system.
+`autotest-ca` has units called `Act` and `Scene`, and they are called `ActionFactory` in general.
+An `Act` is a minimal unit to define an interaction with the system under test (SUT).
 A `Scene` consists of one or more `ActionFactories`.
 An action factory can have one input and one output.
 Input is read from a variable in a context to which action belongs.
@@ -63,6 +63,10 @@ classDiagram
 ```
 :::note info
 Due to a tool's limitation, generics isn't rendered same in the implementation language in the diagram and just showing overall concepts.
+:::
+
+:::TODO
+Remove "Play"
 :::
 
 They are modeled as Java code in a way where programmers (typically SDETs) can minimize repetitions in the test code to keep the readability and maintainability.
@@ -156,47 +160,42 @@ In order to modify/decorate the execution-time behavior of actions, `autotest-ca
 
 ```mermaid
 graph LR
-    AutotestExtension
-    TestClass
-    ExecutionCompiler
     Play
-    actionTrees
-    testActionTree
-    testResults
-    ActionStructure
-    ActionPerformer
-    
     Play --> baseSetUp
     Play --> setUp
     Play --> main
     Play --> tearDown
     Play --> baseTearDown
+    AutotestExtension
+    TestClass
+    ExecutionCompiler
+    actionTrees
+    testResults("Test Report (surefire)")
+    ActionPerformer
+    Execution
+    
+    subgraph actionTrees
+        afterEach
+        tests
+        beforeEach
+        afterAll
+        beforeAll
+    end
     ExecutionCompiler -- read --> Play
-    ExecutionCompiler -. write .-> ActionStructure
-    ActionStructure --> beforeAll
-    ActionStructure --> beforeEach
-    ActionStructure --> tests
-    ActionStructure --> afterEach
-    ActionStructure --> afterAll
+    ExecutionCompiler -. create .-> Execution
+    Execution --> beforeAll
+    Execution --> beforeEach
+    Execution --> tests
+    Execution --> afterEach
+    Execution --> afterAll
     AutotestExtension -- 1: read annotations --> TestClass
     AutotestExtension -. 2: compose a play object .-> Play
     AutotestExtension -. 3: instantiate execution compiler .-> ExecutionCompiler
     AutotestExtension -- 4: request compilation --> ExecutionCompiler
     AutotestExtension -- 5: request performing action --> ActionPerformer
 
-    subgraph testActionTree
-        beforeEach
-        tests
-        afterEach
-    end
-    subgraph actionTrees
-        beforeAll
-        testActionTree
-        afterAll
-    end
-    ActionPerformer -.-> testResults
-    ActionPerformer --> testActionTree
     ActionPerformer --> actionTrees
+    ActionPerformer -.-> testResults
 ```
 
 `Execution Compiler` compiles trees of `ActionFactories` into trees of actions, which can be performed by `ActionUnit`.

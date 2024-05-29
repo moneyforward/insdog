@@ -1,9 +1,10 @@
-package jp.co.moneyforward.autotest.framework.annotations;
+package jp.co.moneyforward.autotest.ut.misc;
 
 import java.lang.annotation.Retention;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
-public @interface Configure {
+public @interface DependsOn {
+  String[] value() default {};
 }

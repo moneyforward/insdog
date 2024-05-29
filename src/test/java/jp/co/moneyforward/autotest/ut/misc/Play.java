@@ -1,4 +1,6 @@
-package jp.co.moneyforward.autotest.framework.action;
+package jp.co.moneyforward.autotest.ut.misc;
+
+import jp.co.moneyforward.autotest.framework.action.Scene;
 
 import java.util.LinkedList;
 import java.util.List;

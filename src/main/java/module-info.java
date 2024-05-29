@@ -13,9 +13,11 @@ module jp.co.moneyforward.autotest {
   requires jdk.unsupported;
   
   
+  exports jp.co.moneyforward.autotest.examples;
   exports jp.co.moneyforward.autotest.framework.action;
   exports jp.co.moneyforward.autotest.framework.core;
   exports jp.co.moneyforward.autotest.framework.annotations;
   exports jp.co.moneyforward.autotest.framework.testengine;
-  exports jp.co.moneyforward.autotest.sandbox;
+  exports jp.co.moneyforward.autotest.ca_web.actions.gui;
+  exports jp.co.moneyforward.autotest.ca_web.core;
 }

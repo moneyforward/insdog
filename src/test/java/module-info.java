@@ -12,6 +12,8 @@ module jp.co.moneyforward.autotest.test {
   requires playwright;
   requires com.google.gson;
   requires jdk.unsupported;
+  
   exports jp.co.moneyforward.autotest.ut.framework.scene;
   exports jp.co.moneyforward.autotest.ututils;
+  exports jp.co.moneyforward.autotest.ut.sandbox;
 }

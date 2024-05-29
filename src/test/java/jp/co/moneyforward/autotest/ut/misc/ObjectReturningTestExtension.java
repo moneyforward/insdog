@@ -1,4 +1,4 @@
-package jp.co.moneyforward.autotest.framework.testengine;
+package jp.co.moneyforward.autotest.ut.misc;
 
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.*;

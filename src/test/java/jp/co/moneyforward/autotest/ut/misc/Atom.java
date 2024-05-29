@@ -1,4 +1,4 @@
-package jp.co.moneyforward.autotest.framework.core;
+package jp.co.moneyforward.autotest.ut.misc;
 
 import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.forms.Predicates.isInstanceOf;

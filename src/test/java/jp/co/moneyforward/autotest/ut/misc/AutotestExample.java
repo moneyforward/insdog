@@ -1,13 +1,13 @@
-package jp.co.moneyforward.autotest.sandbox;
+package jp.co.moneyforward.autotest.ut.misc;
 
 import jp.co.moneyforward.autotest.ca_web.actions.gui.ConnectDataset;
 import jp.co.moneyforward.autotest.ca_web.actions.gui.*;
 import jp.co.moneyforward.autotest.framework.action.Scene;
-import jp.co.moneyforward.autotest.framework.annotations.ActionTest;
-import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
+import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static com.github.valid8j.fluent.Expectations.value;
@@ -40,7 +40,7 @@ public class AutotestExample {
                               .build();
   }
   
-  @ActionTest
+  @AutotestExecution
   public Scene registerBankAccountUnderApiPartnership_Rakuten() {
     return new Scene.Builder().add("", new Click("click,#js-navi-tab > li.active > a"), "clickBankLabel")
                               // "registerRakutenBank"
@@ -60,7 +60,7 @@ public class AutotestExample {
                               .build();
   }
   
-  @ActionTest
+  @AutotestExecution
   public Scene registerBankAccountUnderApiPartnership_Yuucho() {
     return new Scene.Builder().add("", new Click("click,#js-navi-tab > li.active > a"), "clickBankLabel")
                               .add("registerYuuchoBank",
@@ -79,7 +79,7 @@ public class AutotestExample {
                               .build();
   }
   
-  @ActionTest
+  @AutotestExecution
   public Scene registerBankAccountWithOnetimePassword_Hokuyo() {
     return new Scene.Builder().add("", new Get("$ca_accounts_service_list_url"), "")
                               //"#js-ca-main-contents > div.js-service-search.service-search > input"
@@ -92,7 +92,7 @@ public class AutotestExample {
                               .build();
   }
   
-  @ActionTest
+  @AutotestExecution
   @DependsOn("registerBankAccountWithOnetimePassword_Hokuyo")
   public Scene unregisterBankAccount_Hokuyo() {
     //    # ,【法人】北洋銀行の明細確認,,click,td:nth-child(8) > a,text,eq,閲覧
@@ -123,7 +123,7 @@ public class AutotestExample {
         .build();
   }
   
-  @ActionTest
+  @AutotestExecution
   @DependsOn("registerBankAccountUnderApiPartnership_Rakuten")
   public Scene unregisterBankAccount_Rakuten() {
     return new Scene.Builder()
@@ -135,7 +135,7 @@ public class AutotestExample {
         .build();
   }
   
-  @ActionTest
+  @AutotestExecution
   @DependsOn("registerBankAccountUnderApiPartnership_Yuucho")
   public Scene unregisterBankAccount_Yuucho() {
     return new Scene.Builder()
@@ -151,4 +151,7 @@ public class AutotestExample {
                               .add("", new Click("a,text,eq,ログアウト"), "clickLogout")
                               .build();
   }
+  
+  @Test
+  public void test1() {}
 }

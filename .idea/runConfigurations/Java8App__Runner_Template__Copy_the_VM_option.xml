@@ -5,7 +5,7 @@
     <option name="VM_PARAMETERS" value="--add-exports=java.base/sun.misc=com.google.gson" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="jp.co.moneyforward.autotest.sandbox.*" />
+        <option name="PATTERN" value="jp.co.moneyforward.autotest.ut.misc.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

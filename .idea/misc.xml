@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="6">
+    <list size="8">
       <item index="0" class="java.lang.String" itemvalue="jp.co.moneyforward.autotest.framework.CompileScenarioWith" />
-      <item index="1" class="java.lang.String" itemvalue="jp.co.moneyforward.autotest.framework.annotations.ActionTest" />
-      <item index="2" class="java.lang.String" itemvalue="jp.co.moneyforward.autotest.framework.testengine.PlayScenario" />
-      <item index="3" class="java.lang.String" itemvalue="jp.co.moneyforward.ngauto.framework.annotations.RegisterAsAction" />
-      <item index="4" class="java.lang.String" itemvalue="org.junit.jupiter.api.AfterAll" />
-      <item index="5" class="java.lang.String" itemvalue="org.junit.jupiter.api.BeforeAll" />
+      <item index="1" class="java.lang.String" itemvalue="jp.co.moneyforward.autotest.framework.annotations.AutotestExecution" />
+      <item index="2" class="java.lang.String" itemvalue="jp.co.moneyforward.autotest.framework.annotations.Named" />
+      <item index="3" class="java.lang.String" itemvalue="jp.co.moneyforward.autotest.framework.annotations.SetUpEach" />
+      <item index="4" class="java.lang.String" itemvalue="jp.co.moneyforward.autotest.ut.misc.PlayScenario" />
+      <item index="5" class="java.lang.String" itemvalue="jp.co.moneyforward.ngauto.framework.annotations.RegisterAsAction" />
+      <item index="6" class="java.lang.String" itemvalue="org.junit.jupiter.api.AfterAll" />
+      <item index="7" class="java.lang.String" itemvalue="org.junit.jupiter.api.BeforeAll" />
     </list>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />

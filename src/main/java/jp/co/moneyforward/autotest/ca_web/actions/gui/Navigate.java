@@ -1,6 +1,5 @@
 package jp.co.moneyforward.autotest.ca_web.actions.gui;
 
-import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Page;
 import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;

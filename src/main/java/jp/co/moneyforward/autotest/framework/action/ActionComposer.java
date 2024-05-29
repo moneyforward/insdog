@@ -4,19 +4,22 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.valid8j.pcond.forms.Printables.function;
+import static java.lang.String.format;
+import static jp.co.moneyforward.autotest.framework.action.Utils.action;
 
 public interface ActionComposer {
   default <T, R> Action create(ActionFactory<T, R> actionFactory, String inputFieldName, String outputFieldName) {
-    System.out.println(actionFactory + ":" + (actionFactory instanceof Scene));
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(inputFieldName + ":=" + actionFactory + "[" + outputFieldName + "]");
   }
   
   default <T, R> Action create(Act<T, R> act, String inputFieldName, String outputFieldName) {
@@ -24,20 +27,34 @@ public interface ActionComposer {
   }
   
   default Action create(Scene scene, String inputFieldName, String outputFieldName) {
-    ActionComposer child = createActionComposer(inputFieldName, executionEnvironment());
+    ActionComposer child = createActionComposer(inputFieldName, outputFieldName, executionEnvironment());
     return ActionSupport.sequential(
-        leaf(c -> c.assignTo(inputFieldName, composeInputValueMap(composeParentVariableMap(inputFieldName, c), scene.inputFieldNames()))),
-        leaf(c -> c.assignTo(outputFieldName, new HashMap<>())),
-        attempt(sequential(scene.children()
-                                .stream()
-                                .map((Scene.ActionFactoryHolder<?, ?, ?> each) -> each.get().toAction(child,
-                                                                                                      each.inputFieldName(),
-                                                                                                      each.outputFieldName()))
-                                .toList()))
-            .ensure(leaf(c -> c.unassign(inputFieldName))));
+        InternalUtils.concat(
+            Stream.of(beginScene(scene, inputFieldName, outputFieldName)),
+            scene.children()
+                 .stream()
+                 .map((Scene.ActionFactoryHolder<?, ?, ?> each) -> each.get().toAction(child,
+                                                                                       each.inputFieldName(),
+                                                                                       each.outputFieldName())),
+            Stream.of(endScene(inputFieldName, outputFieldName)))
+            .toList());
   }
   
-  private static Map<String, Object> composeParentVariableMap(String inputFieldName, Context c) {
+  private static Action beginScene(Scene scene, String inputFieldName, String outputFieldName) {
+    return action(format("%s:=%s:{", outputFieldName, scene.name()), c -> {
+      System.err.println(c);
+      c.assignTo(inputFieldName, composeInputValueMap(getInputVariableMapOrCreate(inputFieldName, c),
+                                                      scene.inputFieldNames()));
+    });
+  }
+
+  private static Action endScene(String inputFieldName, String outputFieldName) {
+    return action("}[" + inputFieldName + "]",
+                  c -> c.assignTo(outputFieldName, new HashMap<>(c.valueOf(inputFieldName))));
+  }
+  
+  
+  private static Map<String, Object> getInputVariableMapOrCreate(String inputFieldName, Context c) {
     return c.defined(inputFieldName) ? c.valueOf(inputFieldName)
                                      : new HashMap<>();
   }
@@ -48,23 +65,27 @@ public interface ActionComposer {
     return ret;
   }
   
-  static ActionComposer createActionComposer(String sceneName, final ExecutionEnvironment executionEnvironment) {
+  static ActionComposer createActionComposer(String inputFieldName, String outputFieldName, final ExecutionEnvironment executionEnvironment) {
     return new ActionComposer() {
       
       @SuppressWarnings("unchecked")
       @Override
-      public <T> Function<Context, T> inputProvider(String inputFieldName) {
-        return c -> (T) c.<Map<String, Object>>valueOf(sceneName).get(inputFieldName);
+      public <T> Function<Context, T> inputProvider(String inputFieldName_) {
+        return function(inputFieldName_, c -> (T) store(c, inputFieldName).get(inputFieldName_));
       }
       
       @Override
-      public <R> Function<Context, Consumer<R>> outputConsumerProvider(String outputFieldName) {
-        return c -> r -> c.<Map<String, Object>>valueOf(sceneName).put(outputFieldName, r);
+      public <R> Function<Context, Consumer<R>> outputConsumerProvider(String outputFieldName_) {
+        return function(outputFieldName_, c -> r -> store(c, inputFieldName).put(outputFieldName_, r));
       }
       
       @Override
       public ExecutionEnvironment executionEnvironment() {
         return executionEnvironment;
+      }
+      
+      private static Map<String, Object> store(Context c, String sceneName) {
+        return c.valueOf(sceneName);
       }
     };
   }
@@ -74,6 +95,4 @@ public interface ActionComposer {
   <R> Function<Context, Consumer<R>> outputConsumerProvider(String outputFieldName);
   
   ExecutionEnvironment executionEnvironment();
-  
-  
 }
