@@ -10,9 +10,5 @@ spec:
   type: tool
   lifecycle: unknown
   owner: dakusui
-relations:
-  - type: dependsOn
-    target:
-      type: Component
-      name: ca_web
-
+  dependsOn:
+  - Component:ca_web
