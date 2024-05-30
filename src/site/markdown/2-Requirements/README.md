@@ -27,13 +27,13 @@ Instead, it should be built as such that it can be easily executed at will.
 ## Out of Scope
 
 - Other Environments than STG
-- This is out of scope for now, but has to be done later.
-- For idev, cooperation with the SRE team is likely necessary
+  - This is out of scope for now, but has to be done later.
+  - For idev, cooperation with the SRE team is likely necessary
 - Comprehensive Test Suite
-- Creating a Test Suite with the appropriate amount of tests will take a lot of time.
-- This project's focus is on the technical-side and the aim is to proof the capabilities.
+  - Creating a Test Suite with the appropriate amount of tests will take a lot of time.
+  - This project's focus is on the technical-side and the aim is to proof the capabilities.
 
 ## References
 
-- [Draft: Playwright PoC Requirements](https://moneyforward.kibe.la/reviewable_drafts/6a29d1f8-837c-41fa-8806-ab6e6765e8ec)
+- [Playwright PoC Requirements](https://moneyforward.kibe.la/notes/292471)
 - [asana: Automatic E2E Testing](https://app.asana.com/0/1206402209253009/1206402209253009)
