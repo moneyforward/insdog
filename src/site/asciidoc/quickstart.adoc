@@ -1,5 +1,57 @@
 include::attributes.adoc[]
 
+== About `autotest-ca`
+
+`autotest-ca` is a tool to test `ca_web` in an automated fashion.
+
+== Contributing
+
+Check https://github.com/moneyforward/autotest-ca/wiki/developmentGuide[developmentGuide].
+
+=== Setting Up local development environment
+
+In the project root directory, run:
+
+[source, bash]
+----
+$ /bin/bash -eu bootstrap.sh
+----
+
+NOTE:: In case you want to re-try the set-up, in the project root directory for some reason, you can do:
+[source, bash]
+----
+$ sudo rm -fr .homebrew/ .rc/ .go/ .sdkman/
+----
+Then, `/bin/bash -eu bootstrap.sh`.
+
+=== Building `autotest-ca`
+
+Use `build.sh` at the project root directory, which is just a thin wrapper of `make` command.
+To compile the source code and test it, you can do:
+
+[source, bash]
+----
+$ ./build.sh compile test
+----
+
+To know what other targets are defined and their usages, just do:
+
+[source, bash]
+----
+$ ./build.sh
+----
+
+This gives you explanations of "public" targets in the `Makefile`, which you are supposed to use in daily developments.
+
+=== Development Tools
+
+We use "IntelliJ IDEA".
+
+=== Coding Conventions
+
+Coding conventions are defined under `.idea/codeStyles` and `.ideaInspectionProfiles`.
+When you want to propose improvements in the style, please open a pull request containing only files under them.
+
 == Copyright and license
 
 All Rights Reserved by Money Forward.

@@ -6,12 +6,8 @@ PROJ_DIR:=$(shell pwd)
 
 ## This is a Makefile for "autotest-ca" project.
 ## - https://github.com/moneyforward/autotest-ca/wiki/9-ContributionGuidelines%7CMakefile
-ABOUT:
-	@echo "About this Makefile"
-
-## Does a pre-check if your environment is properly set up.
-precheck:
-	@echo "Currently not yet implemented."
+ABOUT: help
+	:
 
 ## Cleans all intermediate files, which should be generated only under `target` directory.
 clean: clean-mfdoc
@@ -61,3 +57,6 @@ clean-mfdoc:
 
 javadoc:
 	mvn clean compile test javadoc:javadoc
+
+help:
+	make2help $(MAKEFILE_LIST)

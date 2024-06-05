@@ -54,3 +54,9 @@ hs_err_pid*
 
 # IntelliJ's file
 autotest-ca.iml
+
+# Auto-generated files
+.homebrew
+.go
+.rc
+.sdkman
