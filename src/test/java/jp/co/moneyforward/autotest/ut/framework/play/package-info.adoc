@@ -1,1 +1,0 @@
-A package to store tests for checking a `Play` instance can be built from a given test class.

@@ -1,20 +1,19 @@
-package jp.co.moneyforward.autotest.examples;
+package jp.co.moneyforward.autotest.ut.testclasses;
 
 import jp.co.moneyforward.autotest.ca_web.core.ExecutionEnvironmentForCa;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
-import org.junit.jupiter.api.Tag;
+import jp.co.moneyforward.autotest.ututils.TestBase;
 
-@Tag("ProgrammingModel")
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
         beforeEach = {"login"},
         value = {"connect", "disconnect"},
         afterEach = {"logout"},
         executionEnvironmentFactory = ExecutionEnvironmentForCa.ExecutionEnvironmentFactory.class))
-public class ProgrammingModelExample implements AutotestRunner {
+public abstract class TestbedBase implements AutotestRunner {
   @Named
   public static Scene login() {
     return new Scene.Builder().build();
@@ -34,4 +33,5 @@ public class ProgrammingModelExample implements AutotestRunner {
   public static Scene logout() {
     return new Scene.Builder().build();
   }
+  
 }

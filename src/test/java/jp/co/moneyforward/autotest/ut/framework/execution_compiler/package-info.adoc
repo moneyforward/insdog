@@ -1,1 +1,0 @@
-A package that holds tests to ensure that the execution compiler mechanism can translate the `Play`-`Scene`-`ActionFactory` structure into an `Spec` object which has corresponding action trees for them.

@@ -3,7 +3,7 @@
     <option name="myName" value="Project Default" />
     <inspection_tool class="JUnitMalformedDeclaration" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="JavadocBlankLines" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="NewClassNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
+    <inspection_tool class="NewClassNamingConvention" enabled="true" level="TEXT ATTRIBUTES" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES">
       <extension name="JUnitTestClassNamingConvention" enabled="true">
         <option name="m_regex" value="[A-Z][A-Za-z\d]*(Test|Example|(Sandbox[0-9]+))(s|Case)?|Test|Example|(Sandbox[0-9]+)[A-Z][A-Za-z\d]*|IT(.*)|(.*)IT(Case)?" />
         <option name="m_minLength" value="5" />

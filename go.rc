@@ -1,0 +1,4 @@
+GOENV_ROOT=/Users/ukai.hiroshi/.goenv
+GOENV_SHELL=bash
+GOPATH=/Users/ukai.hiroshi/go/1.21.6
+GOROOT=/Users/ukai.hiroshi/.goenv/versions/1.21.6
