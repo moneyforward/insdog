@@ -17,24 +17,47 @@ public interface Scene extends ActionFactory<Map<String, Object>, Map<String, Ob
   
   @Override
   default Action toAction(ActionComposer actionComposer, String inputFieldName, String outputFieldName) {
-    return actionComposer.create(this,
-                                 inputFieldName,
-                                 outputFieldName);
+    return actionComposer.create(this, inputFieldName, outputFieldName);
   }
   
-  List<ParameterAssignment> parameterAssignments();
+  List<String> inputFieldNames();
   
-  String inputFieldName();
-  
-  String outputFieldName();
+  interface ActionFactoryHolder<A extends ActionFactory<T, R>, T, R> {
+    A get();
+    
+    String inputFieldName();
+    
+    String outputFieldName();
+    
+    static <A extends ActionFactory<T, R>, T, R> ActionFactoryHolder<A, T, R> create(String inputFieldName, String outputFieldName, A actionFactory) {
+      return new ActionFactoryHolder<>() {
+        @Override
+        public A get() {
+          return actionFactory;
+        }
+        
+        @Override
+        public String inputFieldName() {
+          return inputFieldName;
+        }
+        
+        @Override
+        public String outputFieldName() {
+          return outputFieldName;
+        }
+        
+        @Override
+        public String toString() {
+          return String.format("%s", actionFactory);
+        }
+      };
+    }
+  }
   
   List<ActionFactoryHolder<?, Object, Object>> children();
   
   class Builder {
-    private String outputConnectorFieldName;
-    private String inputConnectorFieldName;
-    
-    private final List<Scene.ParameterAssignment> inputFieldNames = new LinkedList<>();
+    private final List<String> inputFieldNames = new LinkedList<>();
     private final List<ActionFactoryHolder<?, Object, Object>> main;
     private final String sceneName;
     
@@ -45,19 +68,7 @@ public interface Scene extends ActionFactory<Map<String, Object>, Map<String, Ob
     public Builder(String sceneName) {
       this.main = new LinkedList<>();
       this.sceneName = sceneName;
-      this.inputConnectorFieldName(IMPLICIT_VARIABLE_NAME).outputConnectorFieldName(IMPLICIT_VARIABLE_NAME);
     }
-    
-    public Builder inputConnectorFieldName(String inputFieldName) {
-      this.inputConnectorFieldName = inputFieldName;
-      return this;
-    }
-    
-    public Builder outputConnectorFieldName(String outputFieldName) {
-      this.outputConnectorFieldName = outputFieldName;
-      return this;
-    }
-    
     
     @SuppressWarnings("unchecked")
     public final <T, R> Builder add(String outputFieldName, ActionFactory<T, R> action, String inputFieldName) {
@@ -66,41 +77,27 @@ public interface Scene extends ActionFactory<Map<String, Object>, Map<String, Ob
     }
     
     public final <T, R> Builder add(ActionFactory<T, R> action, String inputFieldName) {
-      return this.add(this.outputConnectorFieldName, action, inputFieldName);
+      return this.add(IMPLICIT_VARIABLE_NAME, action, inputFieldName);
     }
     
     public final <T, R> Builder add(String outputFieldName, ActionFactory<T, R> action) {
-      return this.add(outputFieldName, action, this.inputConnectorFieldName);
+      return this.add(outputFieldName, action, IMPLICIT_VARIABLE_NAME);
     }
     
     public final <T, R> Builder add(ActionFactory<T, R> action) {
-      return this.add(this.outputConnectorFieldName, action, this.inputConnectorFieldName);
+      return this.add(IMPLICIT_VARIABLE_NAME, action, IMPLICIT_VARIABLE_NAME);
     }
     
-    public Builder assign(String inputFieldName) {
-      return this.assign(inputFieldName, inputFieldName);
-    }
-    
-    public Builder assign(String parameterName, String fromVariable) {
-      this.inputFieldNames.add(new Scene.ParameterAssignment(parameterName, fromVariable));
+    public Builder parameter(String inputFieldName) {
+      this.inputFieldNames.add(inputFieldName);
       return this;
     }
     
     public Scene build() {
       return new Scene() {
         @Override
-        public List<ParameterAssignment> parameterAssignments() {
+        public List<String> inputFieldNames() {
           return Builder.this.inputFieldNames;
-        }
-        
-        @Override
-        public String inputFieldName() {
-          return "in:" + sceneName;
-        }
-        
-        @Override
-        public String outputFieldName() {
-          return "out:" + sceneName;
         }
         
         @Override
@@ -119,8 +116,5 @@ public interface Scene extends ActionFactory<Map<String, Object>, Map<String, Ob
         }
       };
     }
-  }
-  
-  record ParameterAssignment(String formalName, String actualName) {
   }
 }

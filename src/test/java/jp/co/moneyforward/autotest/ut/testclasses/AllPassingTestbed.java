@@ -1,7 +1,6 @@
 package jp.co.moneyforward.autotest.ut.testclasses;
 
 import com.github.dakusui.actionunit.exceptions.ActionException;
-import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.ca_web.core.ExecutionEnvironmentForCa;
 import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.action.Scene;
@@ -19,5 +18,4 @@ public class AllPassingTestbed extends TestbedBase {
       throw new ActionException("Intentional Exception!");
     }).build();
   }
- 
 }

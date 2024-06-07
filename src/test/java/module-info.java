@@ -17,5 +17,4 @@ module jp.co.moneyforward.autotest.test {
   exports jp.co.moneyforward.autotest.ututils;
   exports jp.co.moneyforward.autotest.ut.testclasses;
   exports jp.co.moneyforward.autotest.ut.framework.engine;
-  exports jp.co.moneyforward.autotest.ut.framework.execution.context_variables;
 }
