@@ -7,6 +7,7 @@ import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.*;
 
 import java.lang.reflect.InvocationTargetException;
@@ -18,6 +19,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Collections.emptyMap;
 
 public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, TestTemplateInvocationContextProvider, AfterEachCallback, AfterAllCallback {
   @Override
@@ -57,19 +60,19 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   @Override
-  public void afterAll(ExtensionContext context) throws Exception {
+  public void afterAll(ExtensionContext context) {
     AutotestRunner runner = autotestRunner(context);
     actions(context, AutotestExecution.Spec::afterAll).forEach(each -> runner.afterAll(each.value()));
   }
   
   @Override
-  public void afterEach(ExtensionContext context) throws Exception {
+  public void afterEach(ExtensionContext context) {
     AutotestRunner runner = autotestRunner(context);
     actions(context, AutotestExecution.Spec::afterEach).forEach(each -> runner.afterEach(each.value()));
   }
   
   @Override
-  public void beforeEach(ExtensionContext context) throws Exception {
+  public void beforeEach(ExtensionContext context) {
     AutotestRunner runner = autotestRunner(context);
     actions(context, AutotestExecution.Spec::beforeEach).forEach(each -> runner.beforeEach(each.value()));
   }
@@ -83,6 +86,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                      .orElseThrow(RuntimeException::new);
       Map<String, Scene> sceneMap = Arrays.stream(validateTestClass(runner.getClass()).getMethods())
                                           .filter(m -> m.isAnnotationPresent(Named.class))
+                                          .filter(m -> !m.isAnnotationPresent(Disabled.class))
                                           .map(this::validateSceneProvidingMethod)
                                           .map(m -> new Entry<>(nameOf(m), invokeMethod(m, runner)))
                                           .collect(Collectors.toMap(Entry::key, Entry::value));
@@ -104,20 +108,19 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     AutotestExecution.Spec executionSpec = executionSpec(context);
     Map<String, Scene> sceneMap = sceneMap(context);
     return toActions(sceneMap,
-                     ActionComposer.createActionComposer("INPUT", "OUTPUT", createExecutionEnvironment(executionSpec)),
+                     ActionComposer.createActionComposer("INPUT", "WORK", "OUTPUT", createExecutionEnvironment(executionSpec), emptyMap()),
                      toSceneNames.apply(executionSpec));
   }
   
   private static List<Entry<String, Action>> toActions(Map<String, Scene> sceneMap, ActionComposer actionComposer, String[] sceneNames) {
     return Arrays.stream(sceneNames)
+                 .filter(sceneMap::containsKey)
                  .map(each -> new Entry<>(each, toAction(sceneMap.get(each), actionComposer)))
                  .toList();
   }
   
   private static Action toAction(Scene scene, ActionComposer actionComposer) {
-    return scene.toAction(actionComposer,
-                          "INPUT:" + scene.name(),
-                          "OUTPUT:" + scene.name());
+    return scene.toAction(actionComposer, scene.inputFieldName(), scene.outputFieldName());
   }
   
   private static ExecutionEnvironment createExecutionEnvironment(AutotestExecution.Spec executionSpec) {

@@ -3,7 +3,6 @@ package jp.co.moneyforward.autotest.framework.core;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import com.github.dakusui.actionunit.visitors.SimpleActionPerformer;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import org.junit.jupiter.api.TestTemplate;
 
@@ -31,11 +30,13 @@ public interface AutotestRunner {
   }
   
   default void performActionWithReporting(Action action) {
-    ReportingActionPerformer.create().performAndReport(action, createWriter());
+    actionPerformer().performAndReport(action, createWriter());
   }
   
+  ReportingActionPerformer actionPerformer();
+  
   default void performAction(Action action) {
-    action.accept(SimpleActionPerformer.create());
+    action.accept(actionPerformer());
   }
   
   default Writer createWriter() {

@@ -1,14 +1,12 @@
 package jp.co.moneyforward.autotest.ut.framework.scene;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.io.Writer;
-import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.ca_web.core.ExecutionEnvironmentForCa;
-import jp.co.moneyforward.autotest.framework.action.ActionComposer;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.ca_web.core.Credentials;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.ututils.ActUtils;
+import jp.co.moneyforward.autotest.ututils.ActionUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
@@ -22,9 +20,9 @@ public class SceneTest extends TestBase {
   public void givenEmptyScene_whenToActionExecuted_thenActionTreeLooksCorrect() {
     Scene scene = new Scene.Builder().build();
     
-    Action action = scene.toAction(createActionComposer(), "input", "output");
+    Action action = scene.toAction(ActionUtils.createActionComposer(), "input", "output");
     
-    performAction(action);
+    ActionUtils.performAction(action);
   }
   
   @Test
@@ -33,11 +31,11 @@ public class SceneTest extends TestBase {
         .add(ActUtils.helloAct())
         .build();
     
-    Action action = scene.toAction(createActionComposer(),
+    Action action = scene.toAction(ActionUtils.createActionComposer(),
                                    "input",
                                    "output");
     
-    performAction(action);
+    ActionUtils.performAction(action);
   }
   
   @Test
@@ -48,9 +46,9 @@ public class SceneTest extends TestBase {
         .build();
     
     
-    Action action = scene.toAction(createActionComposer(), "input", "output");
+    Action action = scene.toAction(ActionUtils.createActionComposer(), "input", "output");
     
-    performAction(action);
+    ActionUtils.performAction(action);
   }
   
   @Test
@@ -63,12 +61,12 @@ public class SceneTest extends TestBase {
         .build();
     
     
-    Action action = scene.toAction(createActionComposer(), "input", "output");
+    Action action = scene.toAction(ActionUtils.createActionComposer(), "input", "output");
     
     assertStatement(value((assertThrows(AssertionFailedError.class,
-                                        () -> performAction(action)))).getMessage()
-                                                                      .toBe()
-                                                                      .containing("HELLO:John Doe!"));
+                                        () -> ActionUtils.performAction(action)))).getMessage()
+                                                                                  .toBe()
+                                                                                  .containing("HELLO:John Doe!"));
   }
   
   
@@ -80,9 +78,9 @@ public class SceneTest extends TestBase {
         .build();
     
     
-    Action action = scene.toAction(createActionComposer(), "input", "output");
+    Action action = scene.toAction(ActionUtils.createActionComposer(), "input", "output");
     
-    performAction(action);
+    ActionUtils.performAction(action);
   }
   
   @Test
@@ -90,7 +88,7 @@ public class SceneTest extends TestBase {
     Scene scene = new Scene.Builder()
         .add("var1", ActUtils.let("John Doe"))
         .add(new Scene.Builder()
-                 .parameter("var1")
+                 .assign("var1")
                  .add("var2",
                       ActUtils.helloAct()
                               .assertion(x -> value(x).toBe()
@@ -99,9 +97,9 @@ public class SceneTest extends TestBase {
         .build();
     
     
-    Action action = scene.toAction(createActionComposer(), "input", "output");
+    Action action = scene.toAction(ActionUtils.createActionComposer(), "input", "output");
     
-    performAction(action);
+    ActionUtils.performAction(action);
   }
   
   @Test
@@ -109,7 +107,7 @@ public class SceneTest extends TestBase {
     Scene scene = new Scene.Builder("scene1")
         .add("var1", ActUtils.let("John Doe"))
         .add("seq1", new Scene.Builder()
-            .parameter("var1")
+            .assign("var1")
             .add("var2",
                  ActUtils.helloAct()
                          .assertion(x -> value(x).toBe()
@@ -117,7 +115,7 @@ public class SceneTest extends TestBase {
                  "var1")
             .build(), "in")
         .add("seq2", new Scene.Builder()
-            .parameter("var2")
+            .assign("var2")
             .add("var3",
                  ActUtils.exclamationAct()
                          .assertion(x -> value(x).toBe().startingWith("HELLO:John Doe"))
@@ -128,21 +126,13 @@ public class SceneTest extends TestBase {
         .build();
     
     
-    Action action = scene.toAction(createActionComposer(), "in", "out");
+    Action action = scene.toAction(ActionUtils.createActionComposer(), "in", "out");
     
-    performAction(action);
+    ActionUtils.performAction(action);
     
   }
   
-  private static void performAction(Action action) {
-    ReportingActionPerformer.create().performAndReport(action, Writer.Std.OUT);
-  }
-  
-  private static ActionComposer createActionComposer() {
-    return ActionComposer.createActionComposer("IN", "OUT", createExecutionEnvironment());
-  }
-  
-  private static ExecutionEnvironment createExecutionEnvironment() {
+  public static ExecutionEnvironment createExecutionEnvironment() {
     return new ExecutionEnvironmentForCa() {
       @Override
       public String endpointRoot() {
