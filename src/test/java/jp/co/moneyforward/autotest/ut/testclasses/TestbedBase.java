@@ -1,5 +1,6 @@
 package jp.co.moneyforward.autotest.ut.testclasses;
 
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.ca_web.core.ExecutionEnvironmentForCa;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
@@ -34,4 +35,8 @@ public abstract class TestbedBase implements AutotestRunner {
     return new Scene.Builder().build();
   }
   
+  @Override
+  public ReportingActionPerformer actionPerformer() {
+    return ReportingActionPerformer.create();
+  }
 }
