@@ -3,6 +3,7 @@ package jp.co.moneyforward.autotest.sandbox;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.WaitForSelectorState;
 
 import java.io.FileInputStream;
@@ -45,23 +46,31 @@ public class PlaywrightSandbox {
           //page.navigate("https://ca-web-ca-app-ai-ocr-bulk-upload.idev.test.musubu.co.in/voucher_journals/journal_candidates");
           page.navigate("https://ca-web-ca-app-ai-ocr-bulk-upload.idev.test.musubu.co.in");
           System.out.println(page.title());
+          page.click("text=ログインはこちらから");
           page.focus("input[name='mfid_user[email]']");
           page.keyboard().type("ukai.hiroshi@moneyforward.co.jp");
           page.click("button[id='submitto']");
           page.focus("input[name='mfid_user[password]']");
           page.keyboard().type("!QAZ@WSX");
           page.click("button[id='submitto']");
-          page.click("text=スキップする");
+          //var x = page.getByRole(null, new Page.GetByRoleOptions().set);
+          page.click("text=データ連携");
+          page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("新規登録").setExact(true)).click();
+          page.click("text=【法人】楽天銀行");
+          
+          //page.click("click,#tab1 > ul.account-list > li:nth-child(1) > a");
+          //page.click("text=データ連携");
+          //page.click("text=新規登録");
+          //page.click("text=【法人】楽天銀行");
           //Thread.sleep(1000);
           //page.waitForSelector("button[id='submitto']", new Page.WaitForSelectorOptions().setState(WaitForSelectorState.HIDDEN));
           //page.click("button[id='submitto']");
           //Thread.sleep(1000);
         } finally {
-          page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("example.png")));
+          page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("target/example.png")));
         }
       }
     }
-    
     System.out.println(new PlaywrightSandbox().process("hello"));
   }
   

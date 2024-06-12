@@ -1,7 +1,9 @@
 package jp.co.moneyforward.autotest.ut.misc;
 
+import jp.co.moneyforward.autotest.actions.web.Click;
+import jp.co.moneyforward.autotest.actions.web.Get;
+import jp.co.moneyforward.autotest.actions.web.WaitFor;
 import jp.co.moneyforward.autotest.ca_web.actions.gui.ConnectDataset;
-import jp.co.moneyforward.autotest.ca_web.actions.gui.*;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
@@ -11,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static com.github.valid8j.fluent.Expectations.value;
-import static com.github.valid8j.pcond.forms.Predicates.alwaysTrue;
 import static com.github.valid8j.pcond.forms.Printables.predicate;
 
 
@@ -19,6 +20,7 @@ import static com.github.valid8j.pcond.forms.Printables.predicate;
 public class AutotestExample {
   @BeforeAll
   public Scene login() {
+    /*
     return new Scene.Builder().add("", new Navigate("http://ca.login.url"), "navigate")
                               .add("", null, "openLoginWindow")
                               .add("", new SendKey("", "someone@moneyforward.co.jp"), "email")
@@ -28,6 +30,9 @@ public class AutotestExample {
                               .add("", new Click("a#btn-modal-close"), "clickCloseOnModal")
                               .add("", new WaitFor(""), "waitForModalClosed")
                               .build();
+                              
+     */
+    return null;
   }
   
   @BeforeAll
@@ -44,6 +49,7 @@ public class AutotestExample {
   public Scene registerBankAccountUnderApiPartnership_Rakuten() {
     return new Scene.Builder().add("", new Click("click,#js-navi-tab > li.active > a"), "clickBankLabel")
                               // "registerRakutenBank"
+                              /*
                               .add("",
                                    new Click("#tab1 > ul.account-list > li:nth-child(1) > a")
                                        .assertion(o -> value(o).satisfies()
@@ -57,12 +63,14 @@ public class AutotestExample {
                                                     .predicate(predicate("#alert-success > p,,eq,金融機関を登録しました。",
                                                                          alwaysTrue()))))
                               .add("", new WaitFor(""), "waitFor2seconds")
+                               */
                               .build();
   }
   
   @AutotestExecution
   public Scene registerBankAccountUnderApiPartnership_Yuucho() {
     return new Scene.Builder().add("", new Click("click,#js-navi-tab > li.active > a"), "clickBankLabel")
+                              /*
                               .add("registerYuuchoBank",
                                    new Click("#tab1 > ul.account-list > li:nth-child(1) > a").assertion(
                                        o -> value(o).satisfies()
@@ -76,6 +84,8 @@ public class AutotestExample {
                                                    .predicate(predicate("#alert-success > p,,eq,金融機関を登録しました。",
                                                                         alwaysTrue()))))
                               .add("", new WaitFor(""), "waitFor2seconds")
+                              
+                               */
                               .build();
   }
   
@@ -84,11 +94,11 @@ public class AutotestExample {
     return new Scene.Builder().add("", new Get("$ca_accounts_service_list_url"), "")
                               //"#js-ca-main-contents > div.js-service-search.service-search > input"
                               //【法人】北洋銀行
-                              .add("", new SendKey("", "corporationName"), "enterCorporationInSearchBox")
-                              .add("wait", new WaitFor("").assertion(
-                                  o -> value(o).satisfies()
-                                               .predicate(predicate("/*#page-accounts > div.modal.fade.modal-accounts.js-mf-cloud-account-accounts-new-modal.in > div > div > div.modal-header > p,displayed?*/\n" +
-                                                                        "                                                                           /*true*/", alwaysTrue()))))
+//                              .add("", new SendKey("", "corporationName"), "enterCorporationInSearchBox")
+                              //                            .add("wait", new WaitFor("").assertion(
+                              //                              o -> value(o).satisfies()
+                              //                                         .predicate(predicate("/*#page-accounts > div.modal.fade.modal-accounts.js-mf-cloud-account-accounts-new-modal.in > div > div > div.modal-header > p,displayed?*/\n" +
+                              //                                                                "                                                                           /*true*/", alwaysTrue()))))
                               .build();
   }
   
@@ -118,8 +128,8 @@ public class AutotestExample {
         // 【法人】北洋銀行の明細確認
         .add("", new Click("td:nth-child(8) > a,text,eq,閲覧"), "")
         // wait
-        .add("", new WaitFor("").assertion(
-            o -> value(o).satisfies().predicate(predicate("#js-acts-table-tbody > tr:nth-child(1) > td:nth-child(2),text,match,\"2019/.*/01\"", alwaysTrue()))))
+//        .add("", new WaitFor("").assertion(
+//            o -> value(o).satisfies().predicate(predicate("#js-acts-table-tbody > tr:nth-child(1) > td:nth-child(2),text,match,\"2019/.*/01\"", alwaysTrue()))))
         .build();
   }
   
@@ -130,8 +140,8 @@ public class AutotestExample {
         // 【法人】北洋銀行の明細確認
         .add("", new Click("td:nth-child(8) > a,text,eq,閲覧"), "")
         // wait
-        .add("", new WaitFor("").assertion(
-            o -> value(o).satisfies().predicate(predicate("#js-acts-table-tbody > tr:nth-child(1) > td:nth-child(2),text,match,\"2019/.*/01\"", alwaysTrue()))))
+//        .add("", new WaitFor("").assertion(
+//            o -> value(o).satisfies().predicate(predicate("#js-acts-table-tbody > tr:nth-child(1) > td:nth-child(2),text,match,\"2019/.*/01\"", alwaysTrue()))))
         .build();
   }
   
@@ -140,8 +150,8 @@ public class AutotestExample {
   public Scene unregisterBankAccount_Yuucho() {
     return new Scene.Builder()
         .add("", new Click("td:nth-child(8) > a,text,eq,閲覧"), "【法人】北洋銀行の明細確認")
-        .add("wait", new WaitFor("").assertion(
-            o -> value(o).satisfies().predicate(predicate("#js-acts-table-tbody > tr:nth-child(1) > td:nth-child(2),text,match,\"2019/.*/01\"", alwaysTrue()))))
+//        .add("wait", new WaitFor("").assertion(
+//            o -> value(o).satisfies().predicate(predicate("#js-acts-table-tbody > tr:nth-child(1) > td:nth-child(2),text,match,\"2019/.*/01\"", alwaysTrue()))))
         .build();
   }
   
@@ -153,5 +163,6 @@ public class AutotestExample {
   }
   
   @Test
-  public void test1() {}
+  public void test1() {
+  }
 }

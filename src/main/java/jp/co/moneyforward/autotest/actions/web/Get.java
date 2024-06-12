@@ -1,9 +1,9 @@
-package jp.co.moneyforward.autotest.ca_web.actions.gui;
+package jp.co.moneyforward.autotest.actions.web;
 
-import jp.co.moneyforward.autotest.framework.action.Act;
+import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
-public class Get implements Act<Object, Object> {
+public class Get implements LeafAct<Object, Object> {
   private final String url;
   
   public Get(String url) {
