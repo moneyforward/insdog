@@ -92,7 +92,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                                        .filter(m -> m.isAnnotationPresent(Named.class))
                                                        .filter(m -> !m.isAnnotationPresent(Disabled.class))
                                                        .map(this::validateSceneProvidingMethod)
-                                                       .map(m -> new Entry<String, Call.SceneCall>(nameOf(m), invokeMethod(m, runner)))
+                                                       .map(m -> new Entry<>(nameOf(m), invokeMethod(m, runner)))
                                                        .collect(Collectors.toMap(Entry::key, Entry::value));
       AutotestExecution execution = runner.getClass().getAnnotation(AutotestExecution.class);
       AutotestExecution.Spec executionSpec = instantiateExecutionSpecLoader(execution).load(execution.defaultExecution());
@@ -112,8 +112,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     AutotestExecution.Spec executionSpec = executionSpec(context);
     Map<String, Call.SceneCall> sceneCallMap = sceneCallMap(context);
     return toActions(sceneCallMap,
-                     createActionComposer(createExecutionEnvironment(executionSpec,
-                                                                     context.getTestClass()
+                     createActionComposer(createExecutionEnvironment(
+                         context.getTestClass()
                                                                             .map(Class::getCanonicalName)
                                                                             .orElse("Unknown-" + System.currentTimeMillis()))
                                               .withSceneName(context.getDisplayName())),
@@ -131,14 +131,9 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return actionComposer.create(sceneCall);
   }
   
-  private static ExecutionEnvironment createExecutionEnvironment(AutotestExecution.Spec executionSpec, String testClassName) {
-    require(value(executionSpec).toBe().notNull(),
-            value(testClassName).toBe().notNull());
+  public static ExecutionEnvironment createExecutionEnvironment(String testClassName) {
+    require(value(testClassName).toBe().notNull());
     return new ExecutionEnvironment() {
-      AutotestExecution.Spec executionSpec() {
-        return executionSpec;
-      }
-      
       @Override
       public String testClassName() {
         return testClassName;

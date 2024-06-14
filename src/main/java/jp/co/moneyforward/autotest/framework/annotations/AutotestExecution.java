@@ -70,8 +70,6 @@ public @interface AutotestExecution {
      */
     String[] afterAll() default {};
     
-    Class<? extends Loader.ExecutionEnvironmentFactory> executionEnvironmentFactory() default Loader.ExecutionEnvironmentFactory.class;
-    
     /**
      * An interface to be implemented by custom loader class for {@link Spec} instance.
      * An implementation of this interface must have a public constructor without parameter to be used as

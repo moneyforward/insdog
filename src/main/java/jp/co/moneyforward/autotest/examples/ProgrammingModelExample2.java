@@ -2,7 +2,6 @@ package jp.co.moneyforward.autotest.examples;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import jp.co.moneyforward.autotest.ca_web.core.ExecutionEnvironmentForCa;
 import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
@@ -18,8 +17,7 @@ import java.util.HashMap;
         beforeEach = {},
         value = {"scene1", "scene2", "scene3", "scene4"},
         afterEach = {},
-        afterAll = {},
-        executionEnvironmentFactory = ExecutionEnvironmentForCa.ExecutionEnvironmentFactory.class))
+        afterAll = {}))
 public class ProgrammingModelExample2 implements AutotestRunner {
   private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(Context.create(), new HashMap<>());
   

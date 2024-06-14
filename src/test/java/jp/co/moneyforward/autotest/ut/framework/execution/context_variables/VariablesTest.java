@@ -10,6 +10,7 @@ import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.facade.AutotestSupport;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
 import jp.co.moneyforward.autotest.ututils.ActUtils;
+import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,7 @@ import static jp.co.moneyforward.autotest.framework.facade.AutotestSupport.*;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.*;
 import static jp.co.moneyforward.autotest.ututils.ActionUtils.*;
 
-public class VariablesTest {
+public class VariablesTest extends TestBase {
   @Test
   public void givenSceneWithVariableReadingAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
     LinkedList<String> out = new LinkedList<>();

@@ -3,10 +3,10 @@ package jp.co.moneyforward.autotest.ut.framework.scene;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.valid8j.fluent.Expectations;
-import jp.co.moneyforward.autotest.ca_web.core.ExecutionEnvironmentForCa;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
+import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import jp.co.moneyforward.autotest.ututils.ActionUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
@@ -126,7 +126,7 @@ public class SceneTest extends TestBase {
   }
   
   public static ExecutionEnvironment createExecutionEnvironment() {
-    return new ExecutionEnvironmentForCa();
+    return AutotestEngine.createExecutionEnvironment(SceneTest.class.getCanonicalName());
   }
   
   private static Writer createWriter(List<String> out) {

@@ -1,4 +1,4 @@
-package jp.co.moneyforward.autotest.examples;
+package jp.co.moneyforward.autotest.ca_web.tests;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.Context.Impl;
@@ -44,7 +44,7 @@ import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
         afterEach = {"screenshot"},
         afterAll = {"close"}))
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ProgrammingModelExample implements AutotestRunner {
+public class CawebAccessingModel implements AutotestRunner {
   private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(getContext(), new HashMap<>());
   
   private static final ExecutionProfile EXECUTION_PROFILE = new ExecutionProfile();
