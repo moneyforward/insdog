@@ -8,7 +8,7 @@ import com.github.valid8j.fluent.Expectations;
 import jp.co.moneyforward.autotest.framework.action.Call;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.facade.AutotestSupport;
-import jp.co.moneyforward.autotest.framework.facade.Resolver;
+import jp.co.moneyforward.autotest.framework.core.Resolver;
 import jp.co.moneyforward.autotest.ututils.ActUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ public class VariablesTest {
     
     Action action = sceneCall("output", scene, List.of()).toAction(createActionComposer());
     
-    performAction(action);
+    performAction(action, Writer.Std.OUT);
     
     Expectations.assertStatement(Expectations.value(out).elementAt(0).asString().toBe().containing("HELLO").containing("Scott Tiger"));
   }
@@ -82,7 +82,7 @@ public class VariablesTest {
                   List.of(new Resolver("in", valueFrom("SCENE1", "x"))))));
     
     Action action = sceneCall("OUT", scene, List.of()).toAction(createActionComposer());
-    performAction(action);
+    performAction(action, Writer.Std.OUT);
   }
   
   @Test
@@ -92,7 +92,7 @@ public class VariablesTest {
                                                  leafCall("var", helloAct(), "var"),
                                                  leafCall("var", printlnAct(), "var")),
                                          List.of());
-    performAction(createActionComposer().create(sceneCall));
+    performAction(createActionComposer().create(sceneCall), Writer.Std.OUT);
   }
   
   
@@ -110,8 +110,8 @@ public class VariablesTest {
                                           List.of(new Resolver("foo", valueFrom("S1", "var"))));
     
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
-    performAction(createActionComposer().create(sceneCall1), actionPerformer);
-    performAction(createActionComposer().create(sceneCall2), actionPerformer);
+    performAction(createActionComposer().create(sceneCall1), actionPerformer, Writer.Std.OUT);
+    performAction(createActionComposer().create(sceneCall2), actionPerformer, Writer.Std.OUT);
   }
   
   @Test
@@ -135,8 +135,8 @@ public class VariablesTest {
                                                    }});
     
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
-    performAction(createActionComposer().create(sceneCall1), actionPerformer);
-    performAction(createActionComposer().create(sceneCall2), actionPerformer);
+    performAction(createActionComposer().create(sceneCall1), actionPerformer, Writer.Std.OUT);
+    performAction(createActionComposer().create(sceneCall2), actionPerformer, Writer.Std.OUT);
   }
   
   private static Call.AssertionActCall<String, String> getStringStringAssertionActCall() {

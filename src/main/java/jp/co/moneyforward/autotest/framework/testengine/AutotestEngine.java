@@ -10,22 +10,20 @@ import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.facade.AutotestSupport;
-import jp.co.moneyforward.autotest.framework.facade.Resolver;
+import jp.co.moneyforward.autotest.framework.core.Resolver;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.github.valid8j.fluent.Expectations.require;
+import static com.github.valid8j.fluent.Expectations.value;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static jp.co.moneyforward.autotest.framework.facade.AutotestSupport.sceneCall;
 
 public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, TestTemplateInvocationContextProvider, AfterEachCallback, AfterAllCallback {
@@ -114,7 +112,11 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     AutotestExecution.Spec executionSpec = executionSpec(context);
     Map<String, Call.SceneCall> sceneCallMap = sceneCallMap(context);
     return toActions(sceneCallMap,
-                     createActionComposer(executionSpec),
+                     createActionComposer(createExecutionEnvironment(executionSpec,
+                                                                     context.getTestClass()
+                                                                            .map(Class::getCanonicalName)
+                                                                            .orElse("Unknown-" + System.currentTimeMillis()))
+                                              .withSceneName(context.getDisplayName())),
                      toSceneNames.apply(executionSpec));
   }
   
@@ -129,17 +131,24 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return actionComposer.create(sceneCall);
   }
   
-  private static ExecutionEnvironment createExecutionEnvironment(AutotestExecution.Spec executionSpec) {
-    return executionEnvironmentFactory(executionSpec).create();
-  }
-  
-  @SuppressWarnings("unchecked")
-  private static <E extends ExecutionEnvironment> AutotestExecution.Spec.Loader.ExecutionEnvironmentFactory<E> executionEnvironmentFactory(AutotestExecution.Spec executionSpec) {
-    try {
-      return executionSpec.executionEnvironmentFactory().getConstructor().newInstance();
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      throw new RuntimeException(e);
-    }
+  private static ExecutionEnvironment createExecutionEnvironment(AutotestExecution.Spec executionSpec, String testClassName) {
+    require(value(executionSpec).toBe().notNull(),
+            value(testClassName).toBe().notNull());
+    return new ExecutionEnvironment() {
+      AutotestExecution.Spec executionSpec() {
+        return executionSpec;
+      }
+      
+      @Override
+      public String testClassName() {
+        return testClassName;
+      }
+      
+      @Override
+      public Optional<String> testSceneName() {
+        return Optional.empty();
+      }
+    };
   }
   
   @SuppressWarnings("unchecked")
@@ -200,8 +209,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   private record Entry<K, V>(K key, V value) {
   }
   
-  public static ActionComposer createActionComposer(AutotestExecution.Spec executionSpec) {
-    return ActionComposer.createActionComposer("IN", "WORK", "OUT", createExecutionEnvironment(executionSpec), emptyMap());
+  public static ActionComposer createActionComposer(ExecutionEnvironment executionEnvironment) {
+    return ActionComposer.createActionComposer(executionEnvironment);
   }
-  
 }

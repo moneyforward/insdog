@@ -5,19 +5,13 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
-import static com.github.valid8j.pcond.forms.Printables.function;
-import static java.lang.String.format;
-import static jp.co.moneyforward.autotest.framework.action.Utils.action;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
 
 public interface ActionComposer {
@@ -48,14 +42,14 @@ public interface ActionComposer {
   }
   
   private static Action beginSceneCall(Call.SceneCall sceneCall) {
-    return Utils.action("BEGIN:", c -> {
+    return InternalUtils.action("BEGIN:", c -> {
       System.err.println(c);
       c.assignTo(sceneCall.workAreaName(), sceneCall.initializeWorkArea(c));
     });
   }
   
   private static Action endSceneCall(Call.SceneCall sceneCall) {
-    return Utils.action("END:", c -> {
+    return InternalUtils.action("END:", c -> {
       c.assignTo(sceneCall.outputFieldName(), c.valueOf(sceneCall.workAreaName()));
       c.unassign(sceneCall.workAreaName());
       System.err.println(c);
@@ -73,20 +67,20 @@ public interface ActionComposer {
   default Action create(Call.LeafActCall<?, ?> actCall) {
     Call.SceneCall currentSceneCall = this.currentSceneCall().orElseThrow();
     
-    return Utils.action(actCall.act().name() + "[" + actCall.inputFieldName() + "]",
-                        toContextConsumerFromAct(this, currentSceneCall, actCall));
+    return InternalUtils.action(actCall.act().name() + "[" + actCall.inputFieldName() + "]",
+                                toContextConsumerFromAct(currentSceneCall, actCall, this.executionEnvironment()));
   }
   
-  private <T, R> Consumer<Context> toContextConsumerFromAct(ActionComposer actionComposer, Call.SceneCall currentSceneCall, Call.LeafActCall<T, R> actCall) {
+  private <T, R> Consumer<Context> toContextConsumerFromAct(Call.SceneCall currentSceneCall, Call.LeafActCall<T, R> actCall, ExecutionEnvironment executionEnvironment) {
     return c -> {
       System.out.println(actCall.act().name() + ":" + c);
       var v = actCall.act().perform(actCall.value(currentSceneCall, c),
-                                    actionComposer.executionEnvironment());
+                                    executionEnvironment);
       currentSceneCall.workArea(c).put(actCall.outputFieldName(), v);
     };
   }
   
-  static ActionComposer createActionComposer(String inputFieldName, String workingFieldName, String outputFieldName, final ExecutionEnvironment executionEnvironment, Map<String, String> stringStringMap) {
+  static ActionComposer createActionComposer(final ExecutionEnvironment executionEnvironment) {
     return new ActionComposer() {
       Call.SceneCall currentSceneCall = null;
       
@@ -98,12 +92,6 @@ public interface ActionComposer {
       @Override
       public ExecutionEnvironment executionEnvironment() {
         return executionEnvironment;
-      }
-      
-      private static Map<String, Object> store(Context c, String fieldName) {
-        if (!c.defined(fieldName))
-          c.assignTo(fieldName, new HashMap<>());
-        return c.valueOf(fieldName);
       }
       
       @Override

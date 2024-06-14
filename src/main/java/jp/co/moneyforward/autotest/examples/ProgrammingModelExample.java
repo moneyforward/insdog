@@ -4,12 +4,11 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.Context.Impl;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-import com.microsoft.playwright.options.AriaRole;
 import jp.co.moneyforward.autotest.actions.web.*;
-import jp.co.moneyforward.autotest.ca_web.ExecutionProfile;
 import jp.co.moneyforward.autotest.ca_web.core.ExecutionEnvironmentForCa;
+import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
+import jp.co.moneyforward.autotest.actions.web.LocatorFunctions;
 import jp.co.moneyforward.autotest.framework.action.LeafAct.Func;
 import jp.co.moneyforward.autotest.framework.action.LeafAct.Let;
 import jp.co.moneyforward.autotest.framework.action.Scene;
@@ -23,7 +22,8 @@ import org.junit.jupiter.api.TestInstance;
 
 import java.util.HashMap;
 
-import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.*;
+import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
+import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.byText;
 
 /**
  * // @formatter:off
@@ -43,7 +43,7 @@ import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.*;
         beforeAll = {"open"},
         beforeEach = {},
         value = {"login", "connect", "disconnect", "logout"},
-        afterEach = {"snapshot"},
+        afterEach = {"screenshot"},
         afterAll = {"close"},
         executionEnvironmentFactory = ExecutionEnvironmentForCa.ExecutionEnvironmentFactory.class))
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -77,9 +77,9 @@ public class ProgrammingModelExample implements AutotestRunner {
   public static Scene login() {
     return new Scene.Builder()
         .add("page", new Navigate(EXECUTION_PROFILE.homeUrl()), "page")
-        .add("page", new SendKey(LocatorFunctions.getByPlaceholder("example@moneyforward.com"), EXECUTION_PROFILE.userEmail()), "page")
+        .add("page", new SendKey(PageFunctions.getByPlaceholder("example@moneyforward.com"), EXECUTION_PROFILE.userEmail()), "page")
         .add("page", new Click(getButtonByName("ログインする")), "page")
-        .add("page", new SendKey(LocatorFunctions.getByLabel("パスワード"), EXECUTION_PROFILE.userPassword()), "page")
+        .add("page", new SendKey(PageFunctions.getByLabel("パスワード"), EXECUTION_PROFILE.userPassword()), "page")
         .add("page", new Click("button[id='submitto']"), "page")
         .build();
   }
@@ -124,8 +124,8 @@ public class ProgrammingModelExample implements AutotestRunner {
       @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
   public static Scene disconnect() {
     return new Scene.Builder()
-        .add("page", new Click(p -> p.locator("#js-sidebar-opener").getByText("データ連携")), "page")
-        .add("page", new Click((Page p) -> p.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("登録済一覧")).nth(1)), "page")
+        .add("page", new Click(getBySelector("#js-sidebar-opener").andThen(byText("データ連携"))), "page")
+        .add("page", new Click(getLinkByName("登録済一覧").andThen(LocatorFunctions.nth(1))), "page")
         .build();
   }
   
@@ -134,7 +134,7 @@ public class ProgrammingModelExample implements AutotestRunner {
       @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
   public static Scene logout() {
     return new Scene.Builder()
-        .add("page", new Click(getLinkByName("スペシャルサンドボックス合同会社 (法人)", true)),"page")
+        .add("page", new Click(getLinkByName("スペシャルサンドボックス合同会社 (法人)", true)), "page")
         .add("page", new Click(getLinkByName("ログアウト")), "page")
         .build();
   }
@@ -142,9 +142,9 @@ public class ProgrammingModelExample implements AutotestRunner {
   @Named
   @DependsOn(
       @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
-  public static Scene snapshot() {
+  public static Scene screenshot() {
     return new Scene.Builder()
-        .add("NONE", new Screenshot("target/screenshot.png"), "page")
+        .add("NONE", new Screenshot("target/testResult"), "page")
         .build();
   }
   
@@ -156,7 +156,6 @@ public class ProgrammingModelExample implements AutotestRunner {
   )
   public static Scene close() {
     return new Scene.Builder()
-        .add("NONE", new Screenshot("target/screenshot.png"), "page")
         .add("NONE", new CloseBrowser(), "browser")
         .add("NONE", new CloseWindow(), "window")
         .build();

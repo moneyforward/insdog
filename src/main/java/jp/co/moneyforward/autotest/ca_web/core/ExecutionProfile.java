@@ -1,4 +1,4 @@
-package jp.co.moneyforward.autotest.ca_web;
+package jp.co.moneyforward.autotest.ca_web.core;
 
 public class ExecutionProfile {
   public String homeUrl() {
@@ -10,7 +10,7 @@ public class ExecutionProfile {
   }
   
   public String userPassword() {
-    return "!QAZ@WSX";
+    return "MASK!!QAZ@WSX";
   }
   
   /**
@@ -20,7 +20,7 @@ public class ExecutionProfile {
    * @return An ID for the "account service".
    */
   public String accountServiceId() {
-    return "WgeiXfUgHsPn90t5kQtS";
+    return "MASK!WgeiXfUgHsPn90t5kQtS";
   }
   
   /**
@@ -30,6 +30,6 @@ public class ExecutionProfile {
    * @return A password for the "account service".
    */
   public String accountServicePassword() {
-    return "eQCZmxlS1DlmB8Moe710";
+    return "MASK!eQCZmxlS1DlmB8Moe710";
   }
 }

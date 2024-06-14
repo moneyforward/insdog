@@ -1,4 +1,4 @@
-package jp.co.moneyforward.autotest.framework.facade;
+package jp.co.moneyforward.autotest.framework.core;
 
 import com.github.dakusui.actionunit.core.Context;
 

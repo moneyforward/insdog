@@ -21,6 +21,5 @@ module jp.co.moneyforward.autotest {
   exports jp.co.moneyforward.autotest.ca_web.actions.gui;
   exports jp.co.moneyforward.autotest.ca_web.core;
   exports jp.co.moneyforward.autotest.framework.facade;
-  exports jp.co.moneyforward.autotest.ca_web;
   exports jp.co.moneyforward.autotest.actions.web;
 }

@@ -6,6 +6,7 @@ import com.github.dakusui.printables.PrintableFunction;
 import com.github.valid8j.pcond.fluent.Statement;
 import com.github.valid8j.pcond.forms.Printables;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -16,14 +17,6 @@ import java.util.function.Function;
 public interface LeafAct<T, R> extends Act<T, R> {
   R perform(T value, ExecutionEnvironment executionEnvironment);
   
-
-  
-  default Action toAction(Function<Context, T> inputProvider, Function<Context, Consumer<R>> outputConsumerProvider, ExecutionEnvironment executionEnvironment) {
-    return Utils.action("  " + outputConsumerProvider + ":=" + this.name() + "[" + inputProvider + "]",
-                        c -> outputConsumerProvider.apply(c)
-                                                   .accept(perform(inputProvider.apply(c),
-                                                                   executionEnvironment)));
-  }
   
   /**
    * @param assertion An assertion to be
@@ -34,7 +27,7 @@ public interface LeafAct<T, R> extends Act<T, R> {
   }
   
   
-  class Let<T> implements LeafAct<Void, T> {
+  class Let<T> implements LeafAct<Object, T> {
     private final T value;
     
     public Let(T value) {
@@ -47,7 +40,7 @@ public interface LeafAct<T, R> extends Act<T, R> {
     }
     
     @Override
-    public T perform(Void value, ExecutionEnvironment executionEnvironment) {
+    public T perform(Object value, ExecutionEnvironment executionEnvironment) {
       return this.value;
     }
   }

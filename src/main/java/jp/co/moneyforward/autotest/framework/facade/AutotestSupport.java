@@ -2,10 +2,10 @@ package jp.co.moneyforward.autotest.framework.facade;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.pcond.fluent.Statement;
-import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.action.Call;
 import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.action.Scene;
+import jp.co.moneyforward.autotest.framework.core.Resolver;
 
 import java.util.HashMap;
 import java.util.List;
