@@ -25,7 +25,6 @@ import static jp.co.moneyforward.autotest.framework.facade.AutotestSupport.*;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.*;
 import static jp.co.moneyforward.autotest.ututils.ActionUtils.*;
 
-@Disabled
 public class VariablesTest {
   @Test
   public void givenSceneWithVariableReadingAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
