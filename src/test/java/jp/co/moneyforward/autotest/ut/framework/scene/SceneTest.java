@@ -25,7 +25,7 @@ import static jp.co.moneyforward.autotest.ututils.ActionUtils.createActionCompos
 public class SceneTest extends TestBase {
   @Test
   public void givenEmptyScene_whenToActionExecuted_thenActionTreeLooksCorrect() {
-    Scene scene = new Scene.Builder().build();
+    Scene scene = new Scene.Builder("scene").build();
     
     
     List<String> out = new LinkedList<>();
@@ -40,7 +40,7 @@ public class SceneTest extends TestBase {
   
   @Test
   public void givenSceneWithSingleAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
-    Scene scene = new Scene.Builder()
+    Scene scene = new Scene.Builder("scene")
         .add("out", helloAct(), "in")
         .build();
     
@@ -65,7 +65,7 @@ public class SceneTest extends TestBase {
   
   @Test
   public void givenSceneWithVariableReadingAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
-    Scene scene = new Scene.Builder()
+    Scene scene = new Scene.Builder("scene")
         .add("in", let("Scott Tiger"), "in")
         .add("out", helloAct(), "in")
         .build();
@@ -86,9 +86,12 @@ public class SceneTest extends TestBase {
   
   @Test
   public void givenSceneWithVariableReadingActPassingAssertionAppended_whenToActionExecuted_thenActionTreeThatPassesIfPerformed() {
-    Scene scene = new Scene.Builder()
+    Scene scene = new Scene.Builder("scene")
         .add("out", let("John Doe"), "in")
-        .add("out", helloAct().assertion(x -> value(x).toBe().equalTo("HELLO:John Doe")), "out")
+        .add("out",
+             helloAct().assertion(x -> value(x).toBe().equalTo("HELLO:John Doe"))
+                       .assertion(x -> value(x).toBe().containing("HELLO")),
+             "out")
         .build();
     
     
@@ -101,13 +104,14 @@ public class SceneTest extends TestBase {
                               .containingElementsInOrder(List.of(containsString("BEGIN"),
                                                                  containsString("let"),
                                                                  containsString("helloAct"),
-                                                                 containsString("assertion"),
+                                                                 containsString("assertion").and(containsString("stringIsEqualTo")),
+                                                                 containsString("assertion").and(containsString("containsString")),
                                                                  containsString("END"))));
   }
   
   @Test
   public void givenSceneWithVariableReadingActFailingAssertionAppended_whenToActionExecuted_thenActionTreeThatPassesIfPerformed() {
-    Scene scene = new Scene.Builder()
+    Scene scene = new Scene.Builder("scene")
         .add("out", let("John Doe"), "in")
         .add("out", helloAct().assertion(x -> value(x).toBe().equalTo("HELLO:Scott Tiger")), "in")
         .build();

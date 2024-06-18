@@ -23,30 +23,30 @@ public class ProgrammingModelExample2 implements AutotestRunner {
   
   @Named
   public static Scene scene1() {
-    return new Scene.Builder()
+    return new Scene.Builder("scene1")
         .add("var1", new LeafAct.Let<>("Hello!")).build();
   }
   
   @Disabled
   @Named
   public static Scene scene2() {
-    return new Scene.Builder()
-        .add("", new Scene.Builder().add("", new LeafAct.Sink<>(System.out::println)).build())
+    return new Scene.Builder("scene2")
+        .add("", new Scene.Builder("scene2-1").add("", new LeafAct.Sink<>(System.out::println)).build())
         .build();
   }
   
   @Disabled
   @Named
   public static Scene scene3() {
-    return new Scene.Builder()
+    return new Scene.Builder("scene3")
         .add("", new LeafAct.Sink<>(System.out::println), "var")
         .build();
   }
   
   @Named
   public static Scene scene4() {
-    return new Scene.Builder()
-        .add("", new Scene.Builder().add("", new LeafAct.Sink<>(System.out::println), "var").build())
+    return new Scene.Builder("scene4")
+        .add("", new Scene.Builder("scene4-1").add("", new LeafAct.Sink<>(System.out::println), "var").build())
         .build();
   }
   

@@ -36,7 +36,7 @@ public enum PageFunctions {
   }
   
   public static Function<Page, Locator> getByText(String text, boolean lenient) {
-    return Printables.function("@[text" + (lenient ? "~" : "=") + "]",
+    return Printables.function("@[text" + (lenient ? "~" : "=") + text + "]",
                                p -> p.getByText(text, new Page.GetByTextOptions().setExact(!lenient)));
   }
   
@@ -57,5 +57,13 @@ public enum PageFunctions {
   public static Function<Page, Locator> getBySelector(String selector) {
     requireNonNull(selector);
     return Printables.function("@[" + selector + "]", p -> p.locator(selector));
+  }
+  
+  public static Function<Page, String> getTitle() {
+    return Printables.function("title", Page::title);
+  }
+  
+  public static Function<Page, Locator> getCellByName(String name) {
+    return Printables.function("cell[name=" + name + "]", (Page p) -> p.getByRole(AriaRole.CELL, new Page.GetByRoleOptions().setName(name).setExact(true)));
   }
 }

@@ -4,8 +4,10 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestTemplate;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutotestExecution
 public interface AutotestRunner {
   default void beforeAll(Action action) {

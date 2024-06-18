@@ -12,7 +12,7 @@ import jp.co.moneyforward.autotest.framework.annotations.Named;
 public class AllPassingTestbed extends TestbedBase {
   @Named
   public static Scene fail() {
-    return new Scene.Builder().add("out", (LeafAct<Object, Object>) (value, executionEnvironment) -> {
+    return new Scene.Builder("fail").add("out", (LeafAct<Object, Object>) (value, executionEnvironment) -> {
       throw new ActionException("Intentional Exception!");
     }).build();
   }

@@ -17,7 +17,7 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
 public interface ActionComposer {
   Optional<Call.SceneCall> currentSceneCall();
   
-  default <T, R> Action create(ActionFactory<T, R> actionFactory, String inputFieldName, String outputFieldName) {
+  default <A extends ActionFactory<T, R>, T, R> Action create(ActionFactory<T, R> actionFactory, String inputFieldName, String outputFieldName) {
     throw new UnsupportedOperationException(inputFieldName + ":=" + actionFactory + "[" + outputFieldName + "]");
   }
   
@@ -59,9 +59,10 @@ public interface ActionComposer {
   
   default Action create(Call.AssertionActCall<?, ?> call) {
     return ActionSupport.sequential(
-        call.target().toAction(this),
-        call.assertion().toAction(this)
-    );
+        Stream.concat(
+            Stream.of(call.target().toAction(this)),
+            call.assertionAsLeafActCalls().stream().map(each -> each.toAction(this))
+        ).toList());
   }
   
   default Action create(Call.LeafActCall<?, ?> actCall) {

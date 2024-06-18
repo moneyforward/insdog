@@ -12,15 +12,20 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
+import static java.util.Collections.singletonList;
 
 public class AssertionAct<T, R> implements Act<T, R> {
-  private final Function<R, Statement<R>> assertion;
+  private final List<Function<R, Statement<R>>> assertions;
   private final String name;
   private final LeafAct<T, R> parent;
   
   public AssertionAct(LeafAct<T, R> parent, String name, Function<R, Statement<R>> assertion) {
+    this(parent, name, singletonList(assertion));
+  }
+  
+  public AssertionAct(LeafAct<T, R> parent, String name, List<Function<R, Statement<R>>> assertion) {
     this.parent = parent;
-    this.assertion = requireNonNull(assertion);
+    this.assertions = requireNonNull(assertion);
     this.name = requireNonNull(name);
   }
   
@@ -28,16 +33,18 @@ public class AssertionAct<T, R> implements Act<T, R> {
     return this.parent;
   }
   
-  public Function<R, Statement<R>> assertion() {
-    return this.assertion;
+  public List<Function<R, Statement<R>>> assertions() {
+    return this.assertions;
   }
   
+  
   @Override
-  public Action toAction(ActionComposer actionComposer, String inputFieldName, String outputFieldName) {
-    return sequential(
-        Stream.concat(
-            toListIfSequential(parent.toAction(actionComposer, inputFieldName, outputFieldName)).stream(),
-            Stream.of(assertionAct(assertion).toAction(actionComposer, outputFieldName, outputFieldName))).toList());
+  public AssertionAct<T, R> assertion(Function<R, Statement<R>> assertion) {
+    return new AssertionAct<>(this.parent(),
+                              this.name(),
+                              Stream.concat(
+                                  this.assertions().stream(),
+                                  Stream.of(assertion)).toList());
   }
   
   private List<Action> toListIfSequential(Action action) {
@@ -46,7 +53,20 @@ public class AssertionAct<T, R> implements Act<T, R> {
     return List.of(action);
   }
   
-  private static <R> LeafAct<R, R> assertionAct(Function<R, Statement<R>> assertion) {
+  @Override
+  public Action toAction(ActionComposer actionComposer, String inputFieldName, String outputFieldName) {
+    return sequential(
+        Stream.concat(
+            toListIfSequential(parent.toAction(actionComposer, inputFieldName, outputFieldName)).stream(),
+            assertions().stream().map(each -> toLeafAct(each).toAction(actionComposer, outputFieldName, outputFieldName))).toList());
+  }
+  
+  @Override
+  public String name() {
+    return this.name;
+  }
+  
+  private static <R> LeafAct<R, R> toLeafAct(Function<R, Statement<R>> assertion) {
     return new LeafAct<>() {
       @Override
       public String name() {
@@ -60,10 +80,5 @@ public class AssertionAct<T, R> implements Act<T, R> {
         return value;
       }
     };
-  }
-  
-  @Override
-  public String name() {
-    return this.name;
   }
 }

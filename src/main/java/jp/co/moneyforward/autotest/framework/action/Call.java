@@ -7,8 +7,8 @@ import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
@@ -79,29 +79,35 @@ public interface Call {
   }
   
   class AssertionActCall<T, R> extends ActCall<T, R> {
-    
-    private final Function<R, Statement<R>> assertion;
+    private final List<Function<R, Statement<R>>> assertions;
     private final ActCall<T, R> target;
     
-    public AssertionActCall(ActCall<T, R> target, Function<R, Statement<R>> assertion) {
+    public AssertionActCall(ActCall<T, R> target, List<Function<R, Statement<R>>> assertion) {
       super(target.inputFieldName, target.outputFieldName());
       this.target = target;
-      this.assertion = requireNonNull(assertion);
+      this.assertions = requireNonNull(assertion);
     }
     
-    LeafActCall<R, R> assertion() {
-      return new LeafActCall<>(outputFieldName(), new LeafAct<R, R>() {
+    List<LeafActCall<R, R>> assertionAsLeafActCalls() {
+      return assertions.stream()
+                       .map(assertion -> new LeafActCall<>(outputFieldName(), assertionAsLeafAct(assertion), outputFieldName()))
+                       .toList();
+    }
+    
+    private LeafAct<R, R> assertionAsLeafAct(Function<R, Statement<R>> assertion) {
+      return new LeafAct<R, R>() {
         @Override
         public R perform(R value, ExecutionEnvironment executionEnvironment) {
           Expectations.assertStatement(assertion.apply(value));
           return value;
         }
+        
         @Override
         public String name() {
           // This is a hack to compose a human-readable string.
           return "assertion:" + assertion.apply(null).statementPredicate();
         }
-      }, outputFieldName());
+      };
     }
     
     ActCall<T, R> target() {

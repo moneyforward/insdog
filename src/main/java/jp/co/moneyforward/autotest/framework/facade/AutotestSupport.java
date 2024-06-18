@@ -7,6 +7,7 @@ import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ public enum AutotestSupport {
   }
   
   public static Scene scene(List<Call> children) {
-    var builder = new Scene.Builder();
+    var builder = new Scene.Builder("default");
     children.forEach(builder::addCall);
     return builder.build();
   }
@@ -47,7 +48,7 @@ public enum AutotestSupport {
     return new Call.LeafActCall<>(outputVariableName, leaf, inputFieldName);
   }
   
-  public static <T, R> Call.AssertionActCall<T, R> assertionCall(String outputVariableName, LeafAct<T, R> leafAct, Function<R, Statement<R>> assertion, String inputVariableName) {
-    return new Call.AssertionActCall<>(leafCall(outputVariableName, leafAct, inputVariableName), assertion);
+  public static <T, R> Call.AssertionActCall<T, R> assertionCall(String outputVariableName, LeafAct<T, R> leafAct, List<Function<R, Statement<R>>> assertions, String inputVariableName) {
+    return new Call.AssertionActCall<>(leafCall(outputVariableName, leafAct, inputVariableName), assertions);
   }
 }

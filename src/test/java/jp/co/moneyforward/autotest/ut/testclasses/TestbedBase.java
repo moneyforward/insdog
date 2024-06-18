@@ -14,22 +14,22 @@ import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 public abstract class TestbedBase implements AutotestRunner {
   @Named
   public static Scene login() {
-    return new Scene.Builder().build();
+    return new Scene.Builder("login").build();
   }
   
   @Named
   public static Scene connect() {
-    return new Scene.Builder().build();
+    return new Scene.Builder("connect").build();
   }
   
   @Named
   public static Scene disconnect() {
-    return new Scene.Builder().build();
+    return new Scene.Builder("disconnect").build();
   }
   
   @Named
   public static Scene logout() {
-    return new Scene.Builder().build();
+    return new Scene.Builder("logout").build();
   }
   
   @Override

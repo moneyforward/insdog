@@ -40,7 +40,11 @@ public class VariablesTest extends TestBase {
     
     performAction(action, Writer.Std.OUT);
     
-    Expectations.assertStatement(Expectations.value(out).elementAt(0).asString().toBe().containing("HELLO").containing("Scott Tiger"));
+    assertStatement(value(out).elementAt(0)
+                              .asString()
+                              .toBe()
+                              .containing("HELLO")
+                              .containing("Scott Tiger"));
   }
   
   @Test
@@ -76,9 +80,11 @@ public class VariablesTest extends TestBase {
                           leafCall("x", helloAct(), "out")),
                   List.of()),
         sceneCall("SCENE2",
-                  List.of(AutotestSupport.assertionCall("y", helloAct(), x -> value(x).toBe()
-                                                                                      .startingWith("HELLO:")
-                                                                                      .containing("Scott"), "in")),
+                  List.of(AutotestSupport.assertionCall("y",
+                                                        helloAct(),
+                                                        List.of(x -> value(x).toBe()
+                                                                             .startingWith("HELLO:")
+                                                                             .containing("Scott")), "in")),
                   List.of(new Resolver("in", valueFrom("SCENE1", "x"))))));
     
     Action action = sceneCall("OUT", scene, List.of()).toAction(createActionComposer());
@@ -117,14 +123,14 @@ public class VariablesTest extends TestBase {
   @Test
   public void action3() {
     Call.SceneCall sceneCall1 = new Call.SceneCall("S1",
-                                                   new Scene.Builder().addCall(leafCall("var", let("Scott"), "NONE"))
-                                                                      .addCall(leafCall("var", helloAct(), "var"))
-                                                                      .addCall(leafCall("var", printlnAct(), "var"))
-                                                                      .build(), new HashMap<>());
+                                                   new Scene.Builder("sceneCall1").addCall(leafCall("var", let("Scott"), "NONE"))
+                                                                                  .addCall(leafCall("var", helloAct(), "var"))
+                                                                                  .addCall(leafCall("var", printlnAct(), "var"))
+                                                                                  .build(), new HashMap<>());
     Call.SceneCall sceneCall2 = new Call.SceneCall("S2",
-                                                   new Scene.Builder().addCall(leafCall("foo", helloAct(), "foo"))
-                                                                      .addCall(getStringStringAssertionActCall())
-                                                                      .build(),
+                                                   new Scene.Builder("sceneCall2").addCall(leafCall("foo", helloAct(), "foo"))
+                                                                                  .addCall(getStringStringAssertionActCall())
+                                                                                  .build(),
                                                    new HashMap<>() {{
                                                      this.put("foo", new Function<Context, Object>() {
                                                        @Override
@@ -140,10 +146,9 @@ public class VariablesTest extends TestBase {
   }
   
   private static Call.AssertionActCall<String, String> getStringStringAssertionActCall() {
-    return new Call.AssertionActCall<>(new Call.LeafActCall<>("foo", printlnAct(), "foo"), s -> Expectations.value(s)
-                                                                                                            .toBe()
-                                                                                                            .containing("HELLO")
-                                                                                                            .containing("Scott"));
+    return new Call.AssertionActCall<>(new Call.LeafActCall<>("foo", printlnAct(), "foo"),
+                                       List.of(s -> value(s).toBe()
+                                                            .containing("HELLO")
+                                                            .containing("Scott")));
   }
-  
 }

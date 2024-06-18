@@ -114,8 +114,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return toActions(sceneCallMap,
                      createActionComposer(createExecutionEnvironment(
                          context.getTestClass()
-                                                                            .map(Class::getCanonicalName)
-                                                                            .orElse("Unknown-" + System.currentTimeMillis()))
+                                .map(Class::getCanonicalName)
+                                .orElse("Unknown-" + System.currentTimeMillis()))
                                               .withSceneName(context.getDisplayName())),
                      toSceneNames.apply(executionSpec));
   }
@@ -171,7 +171,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return aClass;
   }
   
-  private static String nameOf(Method m) {
+  public static String nameOf(Method m) {
     Named annotation = m.getAnnotation(Named.class);
     assert annotation != null : Objects.toString(m);
     if (!Objects.equals(annotation.value(), Named.DEFAULT_VALUE))

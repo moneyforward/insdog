@@ -60,7 +60,7 @@ public class ProgrammingModelExample implements AutotestRunner {
   
   @Named
   public static Scene open() {
-    return new Scene.Builder()
+    return new Scene.Builder("session")
         .add("window", new Let<>(Playwright.create()))
         .add("browser", new Func<>("Playwright::chromium", (Playwright p) -> p.chromium().launch()), "window")
         .add("page", new Func<>("Browser::newPage", (Browser b) -> b.newPage()), "browser")
@@ -72,12 +72,12 @@ public class ProgrammingModelExample implements AutotestRunner {
   @DependsOn(
       @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
   public static Scene login() {
-    return new Scene.Builder()
-        .add("page", new Navigate(EXECUTION_PROFILE.homeUrl()), "page")
-        .add("page", new SendKey(PageFunctions.getByPlaceholder("example@moneyforward.com"), EXECUTION_PROFILE.userEmail()), "page")
-        .add("page", new Click(getButtonByName("ログインする")), "page")
-        .add("page", new SendKey(PageFunctions.getByLabel("パスワード"), EXECUTION_PROFILE.userPassword()), "page")
-        .add("page", new Click("button[id='submitto']"), "page")
+    return new Scene.Builder("page")
+        .add(new Navigate(EXECUTION_PROFILE.homeUrl()))
+        .add(new SendKey(PageFunctions.getByPlaceholder("example@moneyforward.com"), EXECUTION_PROFILE.userEmail()))
+        .add(new Click(getButtonByName("ログインする")))
+        .add(new SendKey(PageFunctions.getByLabel("パスワード"), EXECUTION_PROFILE.userPassword()))
+        .add(new Click("button[id='submitto']"))
         .build();
   }
   
@@ -103,16 +103,16 @@ public class ProgrammingModelExample implements AutotestRunner {
   await page.locator('#account_service_form_PW1').fill('asdf');
   await page.getByRole('button', { name: '連携登録' }).click();
      */
-    return new Scene.Builder()
-        .add("page", new Click(getByText("データ連携")), "page")
-        .add("page", new Click(getLinkByName("新規登録")), "page")
-        .add("page", new Click(getByText("銀行 (", true)), "page")
-        .add("page", new Click(getByText("【個人】ゆうちょ銀行（投資信託）")), "page")
-        .add("page", new Click("#account_service_form_ID1"), "page")
-        .add("page", new SendKey("#account_service_form_ID1", EXECUTION_PROFILE.accountServiceId()), "page")
-        .add("page", new Click("#account_service_form_PW1"), "page")
-        .add("page", new SendKey("#account_service_form_PW1", EXECUTION_PROFILE.accountServicePassword()), "page")
-        .add("page", new Click(getButtonByName("連携登録")), "page")
+    return new Scene.Builder("page")
+        .add(new Click(getByText("データ連携")))
+        .add(new Click(getLinkByName("新規登録")))
+        .add(new Click(getByText("銀行 (", true)))
+        .add(new Click(getByText("【個人】ゆうちょ銀行（投資信託）")))
+        .add(new Click("#account_service_form_ID1"))
+        .add(new SendKey("#account_service_form_ID1", EXECUTION_PROFILE.accountServiceId()))
+        .add(new Click("#account_service_form_PW1"))
+        .add(new SendKey("#account_service_form_PW1", EXECUTION_PROFILE.accountServicePassword()))
+        .add(new Click(getButtonByName("連携登録")))
         .build();
   }
   
@@ -120,9 +120,9 @@ public class ProgrammingModelExample implements AutotestRunner {
   @DependsOn(
       @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
   public static Scene disconnect() {
-    return new Scene.Builder()
-        .add("page", new Click(getBySelector("#js-sidebar-opener").andThen(byText("データ連携"))), "page")
-        .add("page", new Click(getLinkByName("登録済一覧").andThen(LocatorFunctions.nth(1))), "page")
+    return new Scene.Builder("page")
+        .add(new Click(getBySelector("#js-sidebar-opener").andThen(byText("データ連携"))))
+        .add(new Click(getLinkByName("登録済一覧").andThen(LocatorFunctions.nth(1))))
         .build();
   }
   
@@ -130,9 +130,9 @@ public class ProgrammingModelExample implements AutotestRunner {
   @DependsOn(
       @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
   public static Scene logout() {
-    return new Scene.Builder()
-        .add("page", new Click(getLinkByName("スペシャルサンドボックス合同会社 (法人)", true)), "page")
-        .add("page", new Click(getLinkByName("ログアウト")), "page")
+    return new Scene.Builder("page")
+        .add(new Click(getLinkByName("スペシャルサンドボックス合同会社 (法人)", true)))
+        .add(new Click(getLinkByName("ログアウト")))
         .build();
   }
   
@@ -140,8 +140,8 @@ public class ProgrammingModelExample implements AutotestRunner {
   @DependsOn(
       @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
   public static Scene screenshot() {
-    return new Scene.Builder()
-        .add("NONE", new Screenshot("target/testResult"), "page")
+    return new Scene.Builder("page")
+        .add(new Screenshot("target/testResult"))
         .build();
   }
   
@@ -152,7 +152,7 @@ public class ProgrammingModelExample implements AutotestRunner {
       @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page")}
   )
   public static Scene close() {
-    return new Scene.Builder()
+    return new Scene.Builder("close")
         .add("NONE", new CloseBrowser(), "browser")
         .add("NONE", new CloseWindow(), "window")
         .build();

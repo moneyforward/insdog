@@ -1,11 +1,14 @@
 package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Context;
+import com.github.valid8j.pcond.fluent.Statement;
+import jp.co.moneyforward.autotest.actions.web.Value;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
 
 import java.util.*;
 import java.util.function.Function;
 
+import static com.github.valid8j.classic.Requires.requireNonNull;
 import static jp.co.moneyforward.autotest.framework.facade.AutotestSupport.*;
 
 /**
@@ -18,27 +21,63 @@ public interface Scene extends ActionFactory<Map<String, Object>, Map<String, Ob
   List<Call> children();
   
   class Builder {
+    final String defaultFieldName;
     private final List<Call> children = new LinkedList<>();
     
-    public Builder() {
+    public Builder(String defaultFieldName) {
+      this.defaultFieldName = requireNonNull(defaultFieldName);
     }
     
+    public final <T, R> Builder add(LeafAct<T, R> leafAct) {
+      return this.add(defaultFieldName, leafAct, defaultFieldName);
+    }
+    
+    
+    public final <T, R> Builder add(LeafAct<T, R> leafAct, String inputFieldName) {
+      return this.add(defaultFieldName, leafAct, inputFieldName);
+    }
     
     public final <T, R> Builder add(String outputFieldName, LeafAct<T, R> leafAct) {
-      return this.addCall(leafCall(outputFieldName, leafAct));
-    }
-    
-    public final <T, R> Builder add(String outputFieldName, AssertionAct<T, R> leafAct, String inputFieldName) {
-      return this.addCall(assertionCall(outputFieldName, leafAct.parent(), leafAct.assertion(), inputFieldName));
+      return this.add(outputFieldName, leafAct, defaultFieldName);
     }
     
     public final <T, R> Builder add(String outputFieldName, LeafAct<T, R> leafAct, String inputFieldName) {
       return this.addCall(leafCall(outputFieldName, leafAct, inputFieldName));
     }
     
+    public final <T, R> Builder add(AssertionAct<T, R> assertionAct) {
+      return this.add(defaultFieldName, assertionAct, defaultFieldName);
+    }
+    
+    public final <T, R> Builder add(AssertionAct<T, R> assertionAct, String inputFieldName) {
+      return this.add(defaultFieldName, assertionAct, inputFieldName);
+    }
+    
+    public final <T, R> Builder add(String outputFieldName, AssertionAct<T, R> assertionAct) {
+      return this.add(outputFieldName, assertionAct, defaultFieldName);
+    }
+    
+    public final <T, R> Builder add(String outputFieldName, AssertionAct<T, R> assertionAct, String inputFieldName) {
+      return this.addCall(assertionCall(outputFieldName, assertionAct.parent(), assertionAct.assertions(), inputFieldName));
+    }
+    
+    public final <T, R> Builder assertion(Function<R, Statement<R>> assertion) {
+      return this.assertion(defaultFieldName, assertion, defaultFieldName);
+    }
+    
+    public final <T, R> Builder assertion(Function<R, Statement<R>> assertionAct, String inputFieldName) {
+      return this.assertion(defaultFieldName, assertionAct, inputFieldName);
+    }
+    
+    public final <T, R> Builder assertion(String outputFieldName, Function<R, Statement<R>> assertionAct) {
+      return this.assertion(outputFieldName, assertionAct, defaultFieldName);
+    }
+    
+    public final <T, R> Builder assertion(String outputFieldName, Function<R, Statement<R>> assertionAct, String inputFieldName) {
+      return this.addCall(assertionCall(outputFieldName, new Value<>(), Collections.singletonList(assertionAct), inputFieldName));
+    }
+    
     public final Builder add(String outputFieldName, Scene scene, Resolver... resolvers) {
-      var resolverMap = new HashMap<String, Function<Context, Object>>();
-      Arrays.stream(resolvers).forEach(r -> resolverMap.put(r.parameterName(), r.resolverFunction()));
       return this.addCall(sceneCall(outputFieldName, scene, Arrays.asList(resolvers)));
     }
     
