@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="8">
+    <list size="11">
       <item index="0" class="java.lang.String" itemvalue="jp.co.moneyforward.autotest.framework.CompileScenarioWith" />
       <item index="1" class="java.lang.String" itemvalue="jp.co.moneyforward.autotest.framework.annotations.AutotestExecution" />
       <item index="2" class="java.lang.String" itemvalue="jp.co.moneyforward.autotest.framework.annotations.Named" />
@@ -10,7 +10,14 @@
       <item index="5" class="java.lang.String" itemvalue="jp.co.moneyforward.ngauto.framework.annotations.RegisterAsAction" />
       <item index="6" class="java.lang.String" itemvalue="org.junit.jupiter.api.AfterAll" />
       <item index="7" class="java.lang.String" itemvalue="org.junit.jupiter.api.BeforeAll" />
+      <item index="8" class="java.lang.String" itemvalue="picocli.CommandLine.Command" />
+      <item index="9" class="java.lang.String" itemvalue="picocli.CommandLine.Option" />
+      <item index="10" class="java.lang.String" itemvalue="picocli.CommandLine.Parameters" />
     </list>
+    <writeAnnotations>
+      <writeAnnotation name="picocli.CommandLine.Parameters" />
+      <writeAnnotation name="picocli.CommandLine.Option" />
+    </writeAnnotations>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="MavenProjectsManager">
@@ -20,5 +27,5 @@
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="21" project-jdk-type="JavaSDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" project-jdk-name="21" project-jdk-type="JavaSDK" />
 </project>

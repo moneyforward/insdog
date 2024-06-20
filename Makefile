@@ -55,8 +55,17 @@ _publish-techdocs:
 clean-mfdoc:
 	$(BASH) -eu $(PROJ_DIR)/src/build_tools/mfdoc.sh clean
 
+## Generate Javadoc under `target/site/apidocs` dir.
 javadoc:
 	mvn clean compile test javadoc:javadoc
+
+## Run
+run-all-tests:
+	java -jar target/autotest-caweb.jar -q 'classname:~.*' run
+
+## Creates a autotest-caweb.jar without javadoc to save time
+package_without_javadoc: target/autotest-caweb.jar
+	mvn -Dmaven.javadoc.skip=true clean compile package
 
 help:
 	make2help $(MAKEFILE_LIST)

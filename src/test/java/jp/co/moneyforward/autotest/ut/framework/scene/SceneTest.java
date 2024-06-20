@@ -17,7 +17,7 @@ import java.util.List;
 import static com.github.valid8j.fluent.Expectations.assertStatement;
 import static com.github.valid8j.fluent.Expectations.value;
 import static com.github.valid8j.pcond.forms.Predicates.containsString;
-import static jp.co.moneyforward.autotest.framework.facade.AutotestSupport.sceneCall;
+import static jp.co.moneyforward.autotest.framework.utils.AutotestSupport.sceneCall;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.helloAct;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.let;
 import static jp.co.moneyforward.autotest.ututils.ActionUtils.createActionComposer;

@@ -9,7 +9,7 @@ import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
-import jp.co.moneyforward.autotest.framework.facade.AutotestSupport;
+import jp.co.moneyforward.autotest.framework.utils.AutotestSupport;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.*;
@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import static com.github.valid8j.fluent.Expectations.require;
 import static com.github.valid8j.fluent.Expectations.value;
 import static java.util.Collections.emptyList;
-import static jp.co.moneyforward.autotest.framework.facade.AutotestSupport.sceneCall;
+import static jp.co.moneyforward.autotest.framework.utils.AutotestSupport.sceneCall;
 
 public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, TestTemplateInvocationContextProvider, AfterEachCallback, AfterAllCallback {
   @Override

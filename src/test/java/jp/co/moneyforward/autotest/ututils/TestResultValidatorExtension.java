@@ -1,15 +1,14 @@
 package jp.co.moneyforward.autotest.ututils;
 
 import com.github.valid8j.classic.TestAssertions;
-import com.github.valid8j.pcond.core.printable.PrintablePredicateFactory;
 import com.github.valid8j.pcond.forms.Predicates;
+import jp.co.moneyforward.autotest.framework.utils.Transform;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.TestExecutionResult.Status;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestIdentifier;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.github.valid8j.pcond.forms.Predicates.equalTo;
@@ -38,14 +37,6 @@ public class TestResultValidatorExtension implements TestExecutionListener {
                                     Transform.$(function("status", TestExecutionResult::getStatus))
                                              .check(equalTo(status)));
       }
-    }
-  }
-  
-  enum Transform {
-    ;
-    
-    private static <T, R> PrintablePredicateFactory.TransformingPredicate.Factory<R, T> $(Function<T, R> function) {
-      return Predicates.transform(function);
     }
   }
   

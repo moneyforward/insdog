@@ -4,14 +4,12 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import com.github.valid8j.fluent.Expectations;
 import jp.co.moneyforward.autotest.framework.action.Call;
 import jp.co.moneyforward.autotest.framework.action.Scene;
-import jp.co.moneyforward.autotest.framework.facade.AutotestSupport;
+import jp.co.moneyforward.autotest.framework.utils.AutotestSupport;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
 import jp.co.moneyforward.autotest.ututils.ActUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -22,7 +20,7 @@ import java.util.function.Function;
 
 import static com.github.valid8j.fluent.Expectations.assertStatement;
 import static com.github.valid8j.fluent.Expectations.value;
-import static jp.co.moneyforward.autotest.framework.facade.AutotestSupport.*;
+import static jp.co.moneyforward.autotest.framework.utils.AutotestSupport.*;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.*;
 import static jp.co.moneyforward.autotest.ututils.ActionUtils.*;
 

@@ -1,19 +1,22 @@
-package jp.co.moneyforward.autotest.ca_web.tests;
+package jp.co.moneyforward.autotest.ca_web.tests.pages;
 
 import com.microsoft.playwright.Page;
 import jp.co.moneyforward.autotest.actions.web.Click;
 import jp.co.moneyforward.autotest.actions.web.LocatorFunctions;
 import jp.co.moneyforward.autotest.actions.web.PageFunctions;
+import jp.co.moneyforward.autotest.ca_web.tests.CawebAccessingModel;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
+import org.junit.jupiter.api.Tag;
 
 import static com.github.valid8j.fluent.Expectations.value;
 import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.byText;
 import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
 
 
+@Tag("smoke")
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
         beforeAll = {"open", "login"},
@@ -35,7 +38,7 @@ public class VisitAllMenuItemsTest extends CawebAccessingModel {
           */
         .add(new Click(getByText("自動で仕訳")))
         .add(new Click(getLinkByName("連携サービスから入力")))
-        .add(new Click(getLinkByName("この説明をスキップ")))
+        //.add(new Click(getLinkByName("この説明をスキップ")))
         .assertion((Page p) -> value(p).function(PageFunctions.getBySelector("ul.ca-tab-large li.active a"))
                                        .function(LocatorFunctions.textContent())
                                        .toBe()
@@ -71,7 +74,7 @@ public class VisitAllMenuItemsTest extends CawebAccessingModel {
           ,assert,,assert_title,,,eq,登録済一覧｜マネーフォワード クラウド会計
          */
         .add(new Click(getByText("自動仕訳に戻る")))
-        .add(new Click(getLinkByName("この説明をスキップ")))
+        //.add(new Click(getLinkByName("この説明をスキップ")))
         .add(new Click(getBySelector("div.ca-table-header a.ca-caret-right.mf-ml10").andThen(byText("登録済一覧"))))
         .assertion((Page p) -> value(p).function(PageFunctions.getTitle())
                                        .toBe()

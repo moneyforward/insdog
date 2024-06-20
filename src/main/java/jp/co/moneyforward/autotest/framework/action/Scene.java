@@ -1,6 +1,5 @@
 package jp.co.moneyforward.autotest.framework.action;
 
-import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.actions.web.Value;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
@@ -9,7 +8,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
-import static jp.co.moneyforward.autotest.framework.facade.AutotestSupport.*;
+import static jp.co.moneyforward.autotest.framework.utils.AutotestSupport.*;
 
 /**
  * An interface that represents a reusable unit of an action in autotest-ca's programming model.

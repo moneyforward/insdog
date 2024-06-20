@@ -1,7 +1,9 @@
-package jp.co.moneyforward.autotest.ca_web.tests;
+package jp.co.moneyforward.autotest.ca_web.tests.bankaccount;
 
 import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
+import jp.co.moneyforward.autotest.ca_web.tests.CawebAccessingModel;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
+import org.junit.jupiter.api.Tag;
 
 /**
  * This test assumes the account returned by the profile is clean.
@@ -14,6 +16,8 @@ import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
  * @see ExecutionProfile#userPassword()
  * @see ExecutionProfile#accountServiceId()
  */
+@Tag("bank")
+@Tag("smoke")
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
         beforeAll = {"open"},
