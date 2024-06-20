@@ -1,4 +1,4 @@
-package jp.co.moneyforward.autotest.ca_web.cli;
+package jp.co.moneyforward.autotest.framework.cli;
 
 import com.github.valid8j.pcond.forms.Predicates;
 import com.github.valid8j.pcond.forms.Printables;
