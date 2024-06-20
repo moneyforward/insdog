@@ -155,13 +155,6 @@ public class CawebAccessingModel implements AutotestRunner {
                 .click();
           }
         })
-        //.add(new Click(getCellByName("\uF142").andThen(LocatorFunctions.bySelector("a"))))
-//        .add(new Click(PageFunctions.getByText("削除", true)))
-//        .add(new Click("#alert-success > p"))
-//        .add(new Click(getBySelector("input.ca-btn-delete-icon")))
-//        .add(new Click(getBySelector("#alert-success > p")))
-//        .add("page", new Click(getBySelector("#js-sidebar-opener").andThen(byText("データ連携"))), "page")
-//        .add("page", new Click(getLinkByName("登録済一覧").andThen(LocatorFunctions.nth(1))), "page")
         .build();
   }
   
@@ -180,7 +173,7 @@ public class CawebAccessingModel implements AutotestRunner {
       @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
   public static Scene screenshot() {
     return new Scene.Builder("screenshot")
-        .add("NONE", new Screenshot("target/testResult"), "page")
+        .add("NONE", new Screenshot(), "page")
         .build();
   }
   

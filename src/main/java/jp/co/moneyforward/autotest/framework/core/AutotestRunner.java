@@ -42,6 +42,6 @@ public interface AutotestRunner {
   }
   
   default Writer createWriter() {
-    return Writer.Std.OUT;
+    return Writer.Slf4J.INFO;
   }
 }

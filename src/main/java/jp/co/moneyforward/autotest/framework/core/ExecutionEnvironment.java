@@ -1,7 +1,10 @@
 package jp.co.moneyforward.autotest.framework.core;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
@@ -23,5 +26,20 @@ public interface ExecutionEnvironment {
         return Optional.of(sceneName);
       }
     };
+  }
+  
+  default Path testResultDirectory() {
+    return Paths.get("target/testResult",
+                     this.testClassName(),
+                     this.testSceneName().orElse("unknown-" + Utils.counter.getAndIncrement()));
+  }
+  
+  default Path testOutputFilenameFor(String fileName) {
+    return Paths.get(testResultDirectory().toString(), fileName);
+  }
+  
+  enum Utils {
+    ;
+    private static final AtomicInteger counter = new AtomicInteger(0);
   }
 }

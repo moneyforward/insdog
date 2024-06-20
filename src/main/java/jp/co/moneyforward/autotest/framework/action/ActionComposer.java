@@ -43,7 +43,6 @@ public interface ActionComposer {
   
   private static Action beginSceneCall(Call.SceneCall sceneCall) {
     return InternalUtils.action("BEGIN:", c -> {
-      System.err.println(c);
       c.assignTo(sceneCall.workAreaName(), sceneCall.initializeWorkArea(c));
     });
   }
@@ -52,7 +51,6 @@ public interface ActionComposer {
     return InternalUtils.action("END:", c -> {
       c.assignTo(sceneCall.outputFieldName(), c.valueOf(sceneCall.workAreaName()));
       c.unassign(sceneCall.workAreaName());
-      System.err.println(c);
     });
   }
   
@@ -74,7 +72,6 @@ public interface ActionComposer {
   
   private <T, R> Consumer<Context> toContextConsumerFromAct(Call.SceneCall currentSceneCall, Call.LeafActCall<T, R> actCall, ExecutionEnvironment executionEnvironment) {
     return c -> {
-      System.out.println(actCall.act().name() + ":" + c);
       var v = actCall.act().perform(actCall.value(currentSceneCall, c),
                                     executionEnvironment);
       currentSceneCall.workArea(c).put(actCall.outputFieldName(), v);

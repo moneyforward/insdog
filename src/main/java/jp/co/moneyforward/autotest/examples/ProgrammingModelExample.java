@@ -140,9 +140,7 @@ public class ProgrammingModelExample implements AutotestRunner {
   @DependsOn(
       @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
   public static Scene screenshot() {
-    return new Scene.Builder("page")
-        .add(new Screenshot("target/testResult"))
-        .build();
+    return new Scene.Builder("page").add(new Screenshot()).build();
   }
   
   @Named

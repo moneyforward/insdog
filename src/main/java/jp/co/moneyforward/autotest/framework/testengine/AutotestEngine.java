@@ -9,13 +9,25 @@ import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
-import jp.co.moneyforward.autotest.framework.utils.AutotestSupport;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
+import jp.co.moneyforward.autotest.framework.utils.AutotestSupport;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.*;
+import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,58 +39,23 @@ import static java.util.Collections.emptyList;
 import static jp.co.moneyforward.autotest.framework.utils.AutotestSupport.sceneCall;
 
 public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, TestTemplateInvocationContextProvider, AfterEachCallback, AfterAllCallback {
+  //private static final Logger LOGGER = LoggerFactory.getLogger(AutotestEngine.class);
+  private static final Logger LOGGER = LogManager.getLogger(AutotestEngine.class);
+  
+  
   @Override
   public boolean supportsTestTemplate(ExtensionContext extensionContext) {
     return true;
   }
   
   @Override
-  public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext extensionContext) {
-    return actions(extensionContext, AutotestExecution.Spec::value)
-        .stream()
-        .map(AutotestEngine::toTestTemplateInvocationContext);
-  }
-  
-  private static TestTemplateInvocationContext toTestTemplateInvocationContext(Entry<String, Action> actionEntry) {
-    return new TestTemplateInvocationContext() {
-      @Override
-      public List<Extension> getAdditionalExtensions() {
-        return List.of(new ParameterResolver() {
-          @Override
-          public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-            return parameterContext.getIndex() == 0 && parameterContext.getParameter().getType().isAssignableFrom(Action.class);
-          }
-          
-          @Override
-          public Action resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-            return actionEntry.value();
-          }
-        });
-      }
-      
-      @Override
-      public String getDisplayName(int invocationIndex) {
-        return TestTemplateInvocationContext.super.getDisplayName(invocationIndex) + ":" + actionEntry.key();
-      }
-    };
-  }
-  
-  @Override
-  public void afterAll(ExtensionContext context) {
-    AutotestRunner runner = autotestRunner(context);
-    actions(context, AutotestExecution.Spec::afterAll).forEach(each -> runner.afterAll(each.value()));
-  }
-  
-  @Override
-  public void afterEach(ExtensionContext context) {
-    AutotestRunner runner = autotestRunner(context);
-    actions(context, AutotestExecution.Spec::afterEach).forEach(each -> runner.afterEach(each.value()));
-  }
-  
-  @Override
-  public void beforeEach(ExtensionContext context) {
-    AutotestRunner runner = autotestRunner(context);
-    actions(context, AutotestExecution.Spec::beforeEach).forEach(each -> runner.beforeEach(each.value()));
+  public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext context) {
+    ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
+    return actions(executionSpec(context),
+                   AutotestExecution.Spec::value,
+                   sceneCallMap(context),
+                   executionEnvironment).stream()
+                                        .map(AutotestEngine::toTestTemplateInvocationContext);
   }
   
   @Override
@@ -100,23 +77,64 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
       executionContextStore.put("runner", runner);
       executionContextStore.put("sceneCallMap", sceneCallMap);
       executionContextStore.put("executionSpec", executionSpec);
+      
     }
     
     {
       AutotestRunner runner = autotestRunner(context);
-      actions(context, AutotestExecution.Spec::beforeAll).forEach(each -> runner.beforeAll(each.value()));
+      ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
+      actions(executionSpec(context),
+              AutotestExecution.Spec::beforeAll,
+              sceneCallMap(context),
+              executionEnvironment)
+          .forEach(each -> runner.beforeAll(each.value()));
     }
   }
   
-  private static List<Entry<String, Action>> actions(ExtensionContext context, Function<AutotestExecution.Spec, String[]> toSceneNames) {
-    AutotestExecution.Spec executionSpec = executionSpec(context);
-    Map<String, Call.SceneCall> sceneCallMap = sceneCallMap(context);
+  @Override
+  public void beforeEach(ExtensionContext context) {
+    ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
+    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-before.log"), Level.INFO);
+    AutotestRunner runner = autotestRunner(context);
+    actions(executionSpec(context),
+            AutotestExecution.Spec::beforeEach,
+            sceneCallMap(context),
+            executionEnvironment)
+        .forEach(each -> runner.beforeEach(each.value()));
+    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-main.log"), Level.INFO);
+  }
+  
+  @Override
+  public void afterEach(ExtensionContext context) {
+    ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
+    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-after.log"), Level.INFO);
+    AutotestRunner runner = autotestRunner(context);
+    actions(executionSpec(context),
+            AutotestExecution.Spec::afterEach,
+            sceneCallMap(context),
+            executionEnvironment)
+        .forEach(each -> runner.afterEach(each.value()));
+  }
+  
+  @Override
+  public void afterAll(ExtensionContext context) {
+    AutotestRunner runner = autotestRunner(context);
+    ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
+    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-afterAll.log"), Level.INFO);
+    actions(executionSpec(context),
+            AutotestExecution.Spec::afterAll,
+            sceneCallMap(context),
+            executionEnvironment)
+        .forEach(each -> runner.afterAll(each.value()));
+  }
+  
+  
+  private static List<Entry<String, Action>> actions(AutotestExecution.Spec executionSpec,
+                                                     Function<AutotestExecution.Spec, String[]> toSceneNames,
+                                                     Map<String, Call.SceneCall> sceneCallMap,
+                                                     ExecutionEnvironment executionEnvironment) {
     return toActions(sceneCallMap,
-                     createActionComposer(createExecutionEnvironment(
-                         context.getTestClass()
-                                .map(Class::getCanonicalName)
-                                .orElse("Unknown-" + System.currentTimeMillis()))
-                                              .withSceneName(context.getDisplayName())),
+                     createActionComposer(executionEnvironment),
                      toSceneNames.apply(executionSpec));
   }
   
@@ -144,6 +162,13 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         return Optional.empty();
       }
     };
+  }
+  
+  private static ExecutionEnvironment createExecutionEnvironment(ExtensionContext extensionContext) {
+    return createExecutionEnvironment(
+        extensionContext.getTestClass()
+                        .map(Class::getCanonicalName)
+                        .orElse("Unknown-" + System.currentTimeMillis()));
   }
   
   @SuppressWarnings("unchecked")
@@ -201,10 +226,73 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return m;
   }
   
-  private record Entry<K, V>(K key, V value) {
-  }
-  
   public static ActionComposer createActionComposer(ExecutionEnvironment executionEnvironment) {
     return ActionComposer.createActionComposer(executionEnvironment);
+  }
+  
+  public static void configureLogging(Path logFilePath, Level logLevel) {
+    LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+    Configuration config = ctx.getConfiguration();
+    
+    logFilePath.getParent().toFile().mkdirs();
+    
+    
+    PatternLayout layout = PatternLayout.newBuilder()
+                                        .withPattern("%d{ISO8601} [%t] %-5p %c %x - %m%n")
+                                        .build();
+    
+    FileAppender appender = FileAppender.newBuilder()
+                                        .withFileName(logFilePath.toString())
+                                        .withAppend(true)
+                                        .withLocking(false)
+                                        .setName("FileAppender")
+                                        .setImmediateFlush(true)
+                                        .setLayout(layout)
+                                        .setConfiguration(config)
+                                        .build();
+    
+    appender.start();
+    
+    // Remove all existing appenders
+    config.getRootLogger()
+          .getAppenders()
+          .forEach((s, appender1) -> config.getRootLogger().removeAppender(s));
+    
+    // Add the new appender
+    config.getRootLogger().addAppender(appender, logLevel, null);
+    
+    // Set the log level
+    LoggerConfig loggerConfig = config.getRootLogger();
+    loggerConfig.setLevel(logLevel);
+    
+    // Apply changes
+    ctx.updateLoggers();
+  }
+  
+  private static TestTemplateInvocationContext toTestTemplateInvocationContext(Entry<String, Action> actionEntry) {
+    return new TestTemplateInvocationContext() {
+      @Override
+      public List<Extension> getAdditionalExtensions() {
+        return List.of(new ParameterResolver() {
+          @Override
+          public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+            return parameterContext.getIndex() == 0 && parameterContext.getParameter().getType().isAssignableFrom(Action.class);
+          }
+          
+          @Override
+          public Action resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+            return actionEntry.value();
+          }
+        });
+      }
+      
+      @Override
+      public String getDisplayName(int invocationIndex) {
+        return TestTemplateInvocationContext.super.getDisplayName(invocationIndex) + ":" + actionEntry.key();
+      }
+    };
+  }
+  
+  private record Entry<K, V>(K key, V value) {
   }
 }

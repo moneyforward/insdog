@@ -11,6 +11,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.Callable;
