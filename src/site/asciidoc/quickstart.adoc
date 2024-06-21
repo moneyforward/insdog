@@ -14,7 +14,7 @@ In the project root directory, run:
 
 [source, bash]
 ----
-$ /bin/bash -eu bootstrap.sh
+$ ./bootstrap.sh
 ----
 
 NOTE:: In case you want to re-try the set-up, in the project root directory for some reason, you can do:

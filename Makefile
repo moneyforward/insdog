@@ -64,7 +64,7 @@ run-all-tests:
 	java -jar target/autotest-caweb.jar -q 'classname:~.*' run
 
 ## Creates a autotest-caweb.jar without javadoc to save time
-package_without_javadoc:
+package-without-javadoc:
 	mvn -Dmaven.javadoc.skip=true clean compile package
 
 help:
