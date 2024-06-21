@@ -106,6 +106,8 @@ public abstract class CliBase implements Callable<Integer> {
                  .forEach(new Consumer<Class<?>>() {
                    @Override
                    public void accept(Class<?> c) {
+                     System.err.println("Running tests in:[" + c.getCanonicalName() + "]");
+                     System.err.println("----");
                      TestExecutionSummary testExecutionSummary = TestClassRunner.create()
                                                                                 .runTestClass((Class<?>) c);
                      failed.set(failed.get() + testExecutionSummary.getFailures().size());

@@ -1,0 +1,11 @@
+{
+  "name": "autotest-ca",
+  "version": "0.0.0",
+  "description": "An automated testing tool for caweb",
+  "main": "src/main/js/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "MoneyForward.co.jp",
+  "license": "ISC"
+}

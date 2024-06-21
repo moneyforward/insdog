@@ -3,7 +3,6 @@ package jp.co.moneyforward.autotest.ca_web.tests;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.Context.Impl;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import com.github.valid8j.fluent.Expectations;
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.AriaRole;
 import jp.co.moneyforward.autotest.actions.web.*;
@@ -17,13 +16,15 @@ import jp.co.moneyforward.autotest.framework.annotations.DependsOn.Parameter;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import static com.github.valid8j.fluent.Expectations.value;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.byText;
 import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.*;
 
 /**
  * // @formatter:off
@@ -55,11 +56,11 @@ public class CawebAccessingModel implements AutotestRunner {
   public static Scene open() {
     TimeUnit timeUnit = SECONDS;
     int time = 30;
-    return new Scene.Builder("open")
+    return new Scene.Builder("NONE")
         .add("window", new Let<>(Playwright.create()))
         .add("browser", new Func<>("Playwright::chromium", (Playwright p) -> p.chromium().launch()), "window")
         .add("browserContext", new Func<>("Browser::newContext->setDefaultTimeout(" + time + timeUnit + ")", (Browser b) -> {
-          BrowserContext c = b.newContext();
+          BrowserContext c = ExecutionProfile.browserContextFrom(b, EXECUTION_PROFILE);
           c.setDefaultTimeout(timeUnit.toMillis(time));
           return c;
         }), "browser")
@@ -112,11 +113,11 @@ public class CawebAccessingModel implements AutotestRunner {
         .add(new Click("#account_service_form_PW1"))
         .add(new SendKey("#account_service_form_PW1", EXECUTION_PROFILE.accountServicePassword()))
         .add(new Click(getButtonByName("連携登録")))
-        .assertion((Page p) -> Expectations.value(p)
-                                           .function(PageFunctions.getBySelector("#alert-success > p"))
-                                           .function(LocatorFunctions.textContent())
-                                           .toBe()
-                                           .equalTo("金融機関を登録しました。"))
+        .assertion((Page p) -> value(p)
+            .function(PageFunctions.getBySelector("#alert-success > p"))
+            .function(LocatorFunctions.textContent())
+            .toBe()
+            .equalTo("金融機関を登録しました。"))
         // Could not come up with any better way than this...
         .add(new Wait<>(10, SECONDS))
         .build();
@@ -162,9 +163,21 @@ public class CawebAccessingModel implements AutotestRunner {
   @DependsOn(
       @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
   public static Scene logout() {
-    return new Scene.Builder("logout")
-        .add("page", new Click(getLinkByName("スペシャルサンドボックス合同会社 (法人)", true)), "page")
-        .add("page", new Click(getLinkByName("ログアウト")), "page")
+    return new Scene.Builder("page")
+        .add(new PageAct("""
+                             Disable logout since BASIC-auth workaround shouldn't be used once self-hosted GitHub.
+                             Check https://app.asana.com/0/1206402209253009/1207606779915586/f for more detail.
+                             """) {
+          @Override
+          protected void action(Page page,
+                                ExecutionEnvironment executionEnvironment) {
+            assumeStatement(value(today()).toBe()
+                                          .predicate(dateAfter(date(EXECUTION_PROFILE.plannedDateForSettingUpSelfhostedGitHubActions())))
+                                          .$());
+          }
+        })
+        .add(new Click(getLinkByName("スペシャルサンドボックス合同会社 (法人)", true)))
+        .add(new Click(getLinkByName("ログアウト")))
         .build();
   }
   

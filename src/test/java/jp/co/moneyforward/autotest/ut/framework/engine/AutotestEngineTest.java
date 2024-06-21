@@ -5,6 +5,7 @@ import jp.co.moneyforward.autotest.ut.testclasses.AllPassingTestbed;
 import jp.co.moneyforward.autotest.ut.testclasses.EmptyTestbed;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import jp.co.moneyforward.autotest.ututils.TestResultValidatorExtension;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.Launcher;
@@ -16,9 +17,15 @@ import org.junit.platform.launcher.listeners.TestExecutionSummary;
 
 import java.io.PrintWriter;
 
+import static jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment.PROPERTY_KEY_FOR_TEST_RESULT_DIRECTORY;
 import static jp.co.moneyforward.autotest.ututils.TestResultValidatorExtension.forTestMatching;
 
 public class AutotestEngineTest extends TestBase {
+  @BeforeAll
+  public static void beforeAll() {
+    System.setProperty(PROPERTY_KEY_FOR_TEST_RESULT_DIRECTORY, "target/unitTest/testResult");
+  }
+  
   @Test
   public  void examineAutotestEngineCanRunAndReportSuccessfulTestResultsAsDesigned() {
     // Create a custom listener that will validate test results

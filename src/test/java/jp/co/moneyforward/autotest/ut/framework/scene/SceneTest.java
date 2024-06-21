@@ -9,6 +9,7 @@ import jp.co.moneyforward.autotest.framework.core.Resolver;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import jp.co.moneyforward.autotest.ututils.ActionUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
@@ -32,11 +33,11 @@ public class SceneTest extends TestBase {
     ActionUtils.performAction(createActionComposer().create(sceneCall("out",
                                                                       scene,
                                                                       List.of(new Resolver("in", c -> "Scott Tiger")))), createWriter(out));
+    Assumptions.assumeFalse(false);
     assertStatement(value(out).toBe()
                               .containingElementsInOrder(List.of(containsString("BEGIN"),
                                                                  containsString("END"))));
   }
-  
   
   @Test
   public void givenSceneWithSingleAct_whenToActionExecuted_thenActionTreeLooksCorrect() {

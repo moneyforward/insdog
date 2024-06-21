@@ -13,6 +13,7 @@ import jp.co.moneyforward.autotest.framework.core.Resolver;
 import jp.co.moneyforward.autotest.framework.utils.AutotestSupport;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -20,14 +21,10 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.*;
-import org.apache.logging.log4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,7 +36,6 @@ import static java.util.Collections.emptyList;
 import static jp.co.moneyforward.autotest.framework.utils.AutotestSupport.sceneCall;
 
 public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, TestTemplateInvocationContextProvider, AfterEachCallback, AfterAllCallback {
-  //private static final Logger LOGGER = LoggerFactory.getLogger(AutotestEngine.class);
   private static final Logger LOGGER = LogManager.getLogger(AutotestEngine.class);
   
   
