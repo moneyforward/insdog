@@ -4,7 +4,7 @@ import com.microsoft.playwright.Page;
 import jp.co.moneyforward.autotest.actions.web.Click;
 import jp.co.moneyforward.autotest.actions.web.LocatorFunctions;
 import jp.co.moneyforward.autotest.actions.web.PageFunctions;
-import jp.co.moneyforward.autotest.ca_web.tests.CawebAccessingModel;
+import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.annotations.DependsOn;

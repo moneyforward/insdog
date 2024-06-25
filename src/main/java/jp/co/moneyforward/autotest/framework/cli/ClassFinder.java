@@ -5,7 +5,7 @@ import com.github.valid8j.pcond.forms.Printables;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
-import jp.co.moneyforward.autotest.ca_web.tests.CawebAccessingModel;
+import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
 import jp.co.moneyforward.autotest.ca_web.tests.Index;
 import jp.co.moneyforward.autotest.framework.utils.Transform;
 import org.junit.jupiter.api.Tag;

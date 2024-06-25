@@ -263,6 +263,7 @@
                             --require asciidoctor-diagram
                             --gem-path ${env.GEM_PATH}
                             --attribute data-uri
+                            --source-path ${project.build.sourceDirectory}
                         </additionalOptions>
                     </configuration>
                 </plugin>
@@ -283,9 +284,9 @@
                     <version>${maven-jar-plugin.version}</version>
                     <configuration>
                         <archive>
-                            <manifestFile>
-                                src/main/resources/META-INF/MANIFEST.MF
-                            </manifestFile>
+                            <manifestEntries>
+                                <Automatic-Module-Name>jp.co.moneyforward.autotest</Automatic-Module-Name>
+                            </manifestEntries>
                         </archive>
                     </configuration>
                 </plugin>

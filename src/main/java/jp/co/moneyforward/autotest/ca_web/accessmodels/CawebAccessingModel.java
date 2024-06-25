@@ -1,4 +1,4 @@
-package jp.co.moneyforward.autotest.ca_web.tests;
+package jp.co.moneyforward.autotest.ca_web.accessmodels;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.Context.Impl;
@@ -16,7 +16,6 @@ import jp.co.moneyforward.autotest.framework.annotations.DependsOn.Parameter;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
-import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -119,7 +118,7 @@ public class CawebAccessingModel implements AutotestRunner {
             .toBe()
             .equalTo("金融機関を登録しました。"))
         // Could not come up with any better way than this...
-        .add(new Wait<>(10, SECONDS))
+        .add(new Wait<>(10, SECONDS, "no good way to make sure back registration is finished"))
         .build();
   }
   

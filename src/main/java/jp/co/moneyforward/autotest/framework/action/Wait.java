@@ -14,10 +14,19 @@ import static java.util.Objects.requireNonNull;
 public class Wait<T> implements LeafAct<T, T> {
   private final int time;
   private final TimeUnit unit;
+  private final String excuse;
   
-  public Wait(int time, TimeUnit unit) {
+  /**
+   * Creates an instance of this class.
+   *
+   * @param time Time to wait.
+   * @param unit Unit of the time.
+   * @param excuse An excuse to use this class.
+   */
+  public Wait(int time, TimeUnit unit, String excuse) {
     this.time = time;
     this.unit = requireNonNull(unit);
+    this.excuse = requireNonNull(excuse);
   }
   @Override
   public T perform(T value, ExecutionEnvironment executionEnvironment) {
@@ -31,6 +40,6 @@ public class Wait<T> implements LeafAct<T, T> {
   
   @Override
   public String name() {
-    return "Wait[" + time + " " + unit + "]";
+    return "Wait(because:" + this.excuse + ")[" + time + " " + unit + "]";
   }
 }

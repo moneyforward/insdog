@@ -12,7 +12,6 @@ ABOUT: help
 ## Cleans all intermediate files, which should be generated only under `target` directory.
 clean: clean-mfdoc
 	mvn clean
-
 ## Compiles production source code only
 compile:
 	mvn clean compile
