@@ -33,12 +33,14 @@ publish-wiki: clean-mfdoc compile-wiki _publish-wiki
 _publish-wiki:
 	$(BASH) -eu $(PROJ_DIR)/src/build_tools/mfdoc.sh publish-wiki
 
-## Generates wiki-site on your local.
-## Generated site is found under .work/doc/wiki
-## Please upgrade your local bash version by using `brew install bash`.
+## Generates techdocs on your local.
+## Generated site is found under .work/doc/techdocs
+## Please upgrade your local bash version by using `brew install bash` before trying this target.
 compile-techdocs:
-	$(BASH) -eu $(PROJ_DIR)/src/build_tools/mfdoc.sh compile-techdocs \
-	                                                 -- "*.md:src/site/markdown:"
+	mvn pre-site
+	$(BASH) -eu $(PROJ_DIR)/src/build_tools/mfdoc.sh compile-techdocs -- \
+	                                                 "*.md:src/site/markdown:" \
+	                                                 "*.md:target/classes/JavaMarkdown:3-APISpecification"
 
 ## Publishes generated site to the techdocs branch
 ## Use with caution.

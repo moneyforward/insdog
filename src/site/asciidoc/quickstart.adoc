@@ -4,6 +4,9 @@ include::attributes.adoc[]
 
 `autotest-ca` is a tool to test `ca_web` in an automated fashion.
 
+You can access the full documentation of this project at https://backstage.test.musubu.co.in/docs/default/Component/autotest-ca[autotest-ca@backstage/techdocs].
+Backstage portal of this project is found at https://backstage.test.musubu.co.in/catalog/default/component/autotest-ca[autotest-ca@backstage]
+
 == Contributing
 
 Check https://github.com/moneyforward/autotest-ca/wiki/developmentGuide[developmentGuide].

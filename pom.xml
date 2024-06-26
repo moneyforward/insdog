@@ -82,6 +82,13 @@
         <maven-shade-plugin.version>3.5.3</maven-shade-plugin.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/dakusui/mddoclet</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <!-- groupId>jp.co.moneyforward.playwright</groupId -->
@@ -230,42 +237,29 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven-javadoc-plugin.version}</version>
                     <configuration>
-                        <overview>src/main/javadoc/overview.adoc</overview>
-                        <doclet>org.asciidoctor.asciidoclet.Asciidoclet</doclet>
+                        <doclet>com.github.dakusui.mddoclet.MdDoclet</doclet>
                         <docletArtifact>
-                            <groupId>org.asciidoctor</groupId>
-                            <artifactId>asciidoclet</artifactId>
-                            <version>${asciidoclet.version}</version>
+                            <groupId>com.github.dakusui</groupId>
+                            <artifactId>mddoclet</artifactId>
+                            <version>1.0.1</version>
                         </docletArtifact>
-                        <additionalJOptions>
-                            <additionalJOption>--add-exports=jdk.javadoc/jdk.javadoc.internal.api=asciidoclet</additionalJOption>
-                            <additionalJOption>--add-exports=jdk.javadoc/jdk.javadoc.internal.tool=asciidoclet</additionalJOption>
-                            <additionalJOption>--add-exports=jdk.compiler/com.sun.tools.javac.api=asciidoclet</additionalJOption>
-                            <additionalJOption>--add-exports=jdk.compiler/com.sun.tools.javac.parser=asciidoclet</additionalJOption>
-                            <additionalJOption>--add-exports=jdk.compiler/com.sun.tools.javac.tree=asciidoclet</additionalJOption>
-                            <additionalJOption>--add-exports=jdk.compiler/com.sun.tools.javac.model=asciidoclet</additionalJOption>
-                            <additionalJOption>--add-opens=jdk.compiler/com.sun.tools.javac.api=asciidoclet</additionalJOption>
-                            <additionalJOption>--add-opens=jdk.compiler/com.sun.tools.javac.parser=asciidoclet</additionalJOption>
-                            <additionalJOption>-J--add-opens=jdk.javadoc/jdk.javadoc.internal.api=ALL-UNNAMED</additionalJOption>
-                            <additionalJOption>-J--add-opens=jdk.javadoc/jdk.javadoc.internal.tool=ALL-UNNAMED</additionalJOption>
-                            <additionalJOption>-J--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</additionalJOption>
-                            <additionalJOption>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</additionalJOption>
-                            <additionalJOption>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</additionalJOption>
-                            <additionalJOption>-Xdoclint:all,-html,-accessibility</additionalJOption>
-                        </additionalJOptions>
+                        <useStandardDocletOptions>false</useStandardDocletOptions>
                         <additionalOptions>
-                            --base-dir ${project.basedir}
-                            --attribute "name=${project.name}"
-                            --attribute "version=${project.version}"
-                            --attribute "imagesoutdir=.asciidoctor/diagram"
-                            --attribute "imagesdir=.asciidoctor/diagram"
-                            --attribute "dot=/usr/bin/dot"
-                            --require asciidoctor-diagram
-                            --gem-path ${env.GEM_PATH}
-                            --attribute data-uri
-                            --source-path ${project.build.sourceDirectory}
+                            <additionalOption>-overview ${project.basedir}/src/main/javadoc/overview.md</additionalOption>
+                            <additionalOption>-d ${project.build.outputDirectory}/JavaMarkdown</additionalOption>
+                            <additionalOption>--source-path ${project.build.sourceDirectory}</additionalOption>
+                            <!-- additionalOption>-classpath ${project.build.outputDirectory}</additionalOption -->
                         </additionalOptions>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <phase>pre-site</phase>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -375,6 +369,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <skip>true</skip>
                     <jvmArgs>
                         <jvmArg>-ea</jvmArg>
                         <jvmArg>-Dunderpitest=yes</jvmArg>

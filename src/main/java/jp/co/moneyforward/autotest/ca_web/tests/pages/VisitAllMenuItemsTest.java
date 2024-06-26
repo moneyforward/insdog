@@ -19,11 +19,11 @@ import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
 @Tag("smoke")
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
-        beforeAll = {"open", "login"},
+        beforeAll = {"open"},
         beforeEach = {},
-        value = {"自動で仕訳_連携サービスから入力"},
+        value = {"login", "自動で仕訳_連携サービスから入力", "logout"},
         afterEach = {"screenshot"},
-        afterAll = {"logout", "close"}))
+        afterAll = {"close"}))
 public class VisitAllMenuItemsTest extends CawebAccessingModel {
   @Named("自動で仕訳_連携サービスから入力")
   @DependsOn(

@@ -49,7 +49,7 @@ public abstract class CliBase implements Callable<Integer> {
             '~' (OP): Partial match
           """,
       defaultValue = "classname:~.*")
-  private String[] queries = new String[]{"classname:~.*"};
+  private String[] queries;
   
   @CommandLine.Option(names = {"--execution-descriptor"},
       description = """
