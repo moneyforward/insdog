@@ -49,6 +49,12 @@
         <!-- END: project settings -->
         <!-- BEGIN: compilation dependencies -->
         <playwright.version>1.44.0</playwright.version>
+        <picocli.version>4.7.6</picocli.version>
+        <classgraph.version>4.8.174</classgraph.version>
+        <valid8j.version>2.1.2</valid8j.version>
+        <actionunit.version>6.0.1</actionunit.version>
+        <slf4j-api.version>1.7.36</slf4j-api.version>
+        <apache-log4j.version>2.17.2</apache-log4j.version>
         <!-- END: compilation dependencies -->
         <!-- BEGIN: test dependencies -->
         <opentest4j.version>1.2.0</opentest4j.version>
@@ -78,8 +84,10 @@
         <maven-install-plugin.version>3.1.1</maven-install-plugin.version>
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
-        <!-- BEGIN: build dependencies -->
         <maven-shade-plugin.version>3.5.3</maven-shade-plugin.version>
+        <mddoclet-doclet-plugin.version>1.0.2</mddoclet-doclet-plugin.version>
+        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+        <!-- BEGIN: build dependencies -->
     </properties>
 
     <repositories>
@@ -105,7 +113,7 @@
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
-            <version>4.7.6</version>
+            <version>${picocli.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -116,7 +124,7 @@
         <dependency>
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
-            <version>4.8.174</version>
+            <version>${classgraph.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -127,12 +135,12 @@
         <dependency>
             <groupId>com.github.dakusui</groupId>
             <artifactId>valid8j</artifactId>
-            <version>2.1.2</version>
+            <version>${valid8j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.dakusui</groupId>
             <artifactId>actionunit</artifactId>
-            <version>6.0.1</version>
+            <version>${actionunit.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -170,24 +178,24 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.36</version>
+            <version>${slf4j-api.version}</version>
         </dependency>
         <!-- Log4j2 API and Core -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.17.2</version>
+            <version>${apache-log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.17.2</version>
+            <version>${apache-log4j.version}</version>
         </dependency>
         <!-- SLF4J binding for Log4j2 -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.17.2</version>
+            <version>${apache-log4j.version}</version>
         </dependency>
     </dependencies>
 
@@ -241,7 +249,7 @@
                         <docletArtifact>
                             <groupId>com.github.dakusui</groupId>
                             <artifactId>mddoclet</artifactId>
-                            <version>1.0.1</version>
+                            <version>${mddoclet-doclet-plugin.version}</version>
                         </docletArtifact>
                         <useStandardDocletOptions>false</useStandardDocletOptions>
                         <additionalOptions>
@@ -326,7 +334,7 @@
                         <path>
                             <groupId>info.picocli</groupId>
                             <artifactId>picocli-codegen</artifactId>
-                            <version>4.7.6</version>
+                            <version>${picocli.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -714,7 +722,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.4</version>
+                        <version>${maven-gpg-plugin.version}</version>
                         <configuration>
                             <passphrase>${gpg.passphrase}</passphrase>
                         </configuration>
