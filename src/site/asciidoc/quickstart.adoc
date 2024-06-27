@@ -39,7 +39,7 @@ NOTE:: In case you want to re-try the set-up, in the project root directory for 
 ----
 $ sudo rm -fr .homebrew/ .rc/ .go/ .sdkman/
 ----
-Then, `/bin/bash -eu bootstrap.sh`.
+Then, do `./bootstrap.sh`.
 
 === Building `autotest-ca`
 
@@ -50,6 +50,35 @@ To compile the source code and test it, you can do:
 ----
 $ ./build.sh compile test
 ----
+
+=== Running tests
+
+Do, 
+[source, bash]
+----
+$ ./build.sh package-without-javadoc 
+----
+
+to build the executable.
+Then,
+
+[source, bash]
+----
+$ ./build.sh run-all-tests
+java -jar target/autotest-caweb.jar -q 'classname:~.*' run
+Running tests in:[jp.co.moneyforward.autotest.ca_web.tests.bankaccount.BankConnectingTest]
+
+WARNING: sun.reflect.Reflection.getCallerClass is not supported. This will impact performance.
+2024-06-27T16:15:51,117 [main] INFO  jp.co.moneyforward.autotest.framework.action.ActionComposer [] - ENTERING: :Navigate[https://accounting-stg1.ebisubook.com/]
+2024-06-27T16:15:52,655 [main] INFO  jp.co.moneyforward.autotest.framework.action.ActionComposer [] - LEAVING:  :Navigate[https://accounting-stg1.ebisubook.com/]
+2024-06-27T16:15:52,655 [main] INFO  jp.co.moneyforward.autotest.framework.action.ActionComposer [] - ENTERING: :SendKey[@[placeholder=example@moneyforward.com]][ukai.hiroshi+autotest1@moneyforward.co.jp]
+2024-06-27T16:15:52,722 [main] INFO  j
+...
+----
+
+You will find test results under `target/testResult` directory after execution.
+
+=== Showing a help
 
 To know what other targets are defined and their usages, just do:
 
