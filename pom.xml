@@ -85,7 +85,7 @@
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <maven-shade-plugin.version>3.5.3</maven-shade-plugin.version>
-        <mddoclet-doclet-plugin.version>1.0.3</mddoclet-doclet-plugin.version>
+        <mddoclet-doclet-plugin.version>1.0.4</mddoclet-doclet-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <!-- BEGIN: build dependencies -->
     </properties>
@@ -256,7 +256,7 @@
                             <additionalOption>-overview ${project.basedir}/src/main/javadoc/overview.md</additionalOption>
                             <additionalOption>-d ${project.build.outputDirectory}/JavaMarkdown</additionalOption>
                             <additionalOption>--source-path ${project.build.sourceDirectory}</additionalOption>
-                            <!-- additionalOption>-classpath ${project.build.outputDirectory}</additionalOption -->
+                            <additionalOption>-target-packages '.*#.*autotest.*'</additionalOption>
                         </additionalOptions>
                     </configuration>
                     <executions>

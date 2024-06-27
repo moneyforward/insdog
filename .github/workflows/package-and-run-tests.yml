@@ -44,6 +44,7 @@ jobs:
         run: mvn -Dmaven.javadoc.skip=true clean package
 
       - name: Run all the tests
+        id: main
         run: java -jar target/autotest-caweb.jar -q 'classname:~.*' run
         continue-on-error: true
 
@@ -60,11 +61,7 @@ jobs:
       - name: Check for failures
         if: always()
         run: |
-          if [ "${{ steps.build.outcome }}" != "success" ]; then
+          if [ "${{ steps.main.outcome }}" != "success" ]; then
             echo "Build failed" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          fi
-          if [ "${{ steps.test.outcome }}" != "success" ]; then
-            echo "Tests failed" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
