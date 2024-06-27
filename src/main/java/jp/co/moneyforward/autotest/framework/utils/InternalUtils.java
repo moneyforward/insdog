@@ -7,6 +7,7 @@ import com.github.valid8j.pcond.fluent.Statement;
 import com.github.valid8j.pcond.forms.Printables;
 import com.github.valid8j.pcond.validator.Validator;
 import org.opentest4j.TestAbortedException;
+import org.opentest4j.TestSkippedException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,12 +15,19 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 
 public enum InternalUtils {
   ;
+  public static class AssumptionViolation extends TestAbortedException {
+    public AssumptionViolation(String message) {
+      super(message);
+    }
+  }
+  private static final Logger LOGGER = Logger.getLogger(InternalUtils.class.getName());
   
   public static Date date(String dateString) {
     try {
@@ -54,25 +62,13 @@ public enum InternalUtils {
       
       @Override
       public String toString() {
-        return consumerName;
+        return consumerName.replaceAll("\n", " ");
       }
     };
   }
   
   public static Action action(String name, Consumer<Context> contextConsumer) {
     return leaf(printableConsumer(name, contextConsumer));
-  }
-  
-  public static Action rethrow() {
-    return action("rethrow", context -> {
-      try {
-        throw context.thrownException();
-      } catch (Error | RuntimeException e) {
-        throw e;
-      } catch (Throwable e) {
-        throw new ActionException(e);
-      }
-    });
   }
   
   public static Predicate<Date> dateAfter(Date date) {
@@ -91,7 +87,7 @@ public enum InternalUtils {
     Validator.INSTANCE.get().validate(statement.statementValue(),
                                       statement.statementPredicate(),
                                       msg -> {
-                                        throw new TestAbortedException(msg);
+                                        throw new AssumptionViolation(msg);
                                       });
   }
   

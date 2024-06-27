@@ -22,7 +22,6 @@ public interface LeafAct<T, R> extends Act<T, R> {
     return new AssertionAct<>(this, this.name(), assertion);
   }
   
-  
   class Let<T> implements LeafAct<Object, T> {
     private final T value;
     

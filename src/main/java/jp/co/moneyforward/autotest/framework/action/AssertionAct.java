@@ -47,20 +47,6 @@ public class AssertionAct<T, R> implements Act<T, R> {
                                   Stream.of(assertion)).toList());
   }
   
-  private List<Action> toListIfSequential(Action action) {
-    if (action instanceof Composite && !((Composite) action).isParallel())
-      return ((Composite) action).children();
-    return List.of(action);
-  }
-  
-  @Override
-  public Action toAction(ActionComposer actionComposer, String inputFieldName, String outputFieldName) {
-    return sequential(
-        Stream.concat(
-            toListIfSequential(parent.toAction(actionComposer, inputFieldName, outputFieldName)).stream(),
-            assertions().stream().map(each -> toLeafAct(each).toAction(actionComposer, outputFieldName, outputFieldName))).toList());
-  }
-  
   @Override
   public String name() {
     return this.name;

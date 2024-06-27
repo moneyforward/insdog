@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -22,6 +23,7 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.*;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
@@ -230,14 +232,15 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     Configuration config = ctx.getConfiguration();
     
-    logFilePath.getParent().toFile().mkdirs();
-    
+    File logDirectory = logFilePath.getParent().toFile();
+    if (logDirectory.mkdirs())
+      System.err.println("Directory: <" + logDirectory.getAbsolutePath() + "> was created for logging.");
     
     PatternLayout layout = PatternLayout.newBuilder()
                                         .withPattern("%d{ISO8601} [%t] %-5p %c %x - %m%n")
                                         .build();
     
-    FileAppender appender = FileAppender.newBuilder()
+    FileAppender fileAppender = FileAppender.newBuilder()
                                         .withFileName(logFilePath.toString())
                                         .withAppend(true)
                                         .withLocking(false)
@@ -246,16 +249,27 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                         .setLayout(layout)
                                         .setConfiguration(config)
                                         .build();
+    fileAppender.start();
+    // Create a Console Appender
+    ConsoleAppender consoleAppender = ConsoleAppender.newBuilder()
+                                                     .setTarget(ConsoleAppender.Target.SYSTEM_ERR)
+                                                     .setName("ConsoleLogger")
+                                                     .setLayout(layout)
+                                                     .build();
+    consoleAppender.start();
     
-    appender.start();
     
     // Remove all existing appenders
     config.getRootLogger()
           .getAppenders()
           .forEach((s, appender1) -> config.getRootLogger().removeAppender(s));
     
-    // Add the new appender
-    config.getRootLogger().addAppender(appender, logLevel, null);
+    config.addAppender(fileAppender);
+    config.addAppender(consoleAppender);
+    
+    // Add the new fileAppender
+    config.getRootLogger().addAppender(fileAppender, logLevel, null);
+    config.getRootLogger().addAppender(consoleAppender, logLevel, null);
     
     // Set the log level
     LoggerConfig loggerConfig = config.getRootLogger();

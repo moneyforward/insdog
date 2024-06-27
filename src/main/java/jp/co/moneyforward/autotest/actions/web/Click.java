@@ -3,7 +3,6 @@ package jp.co.moneyforward.autotest.actions.web;
 import com.github.valid8j.pcond.forms.Printables;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import jp.co.moneyforward.autotest.framework.action.ActionFactory;
 import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 

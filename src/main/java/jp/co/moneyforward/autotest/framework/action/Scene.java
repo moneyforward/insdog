@@ -16,21 +16,44 @@ import static jp.co.moneyforward.autotest.framework.utils.AutotestSupport.*;
  *
  * Note that `Scene` uses the same map for both input and output.
  */
-public interface Scene extends ActionFactory<Map<String, Object>, Map<String, Object>> {
+public interface Scene extends ActionFactory {
+  /**
+   * Returns members of this scene object, which are executed as "children".
+   * @return members of this scene object.
+   */
   List<Call> children();
   
+  /**
+   * A builder for `Scene` class.
+   *
+   * @see Scene
+   */
   class Builder {
     final String defaultFieldName;
     private final List<Call> children = new LinkedList<>();
     
+    /**
+     * Creates an instance of this class.
+     *
+     * @param defaultFieldName A name of field used when use `add` methods without explicit input/output target field names.
+     */
     public Builder(String defaultFieldName) {
       this.defaultFieldName = requireNonNull(defaultFieldName);
     }
     
+    /**
+     * Adds `leafAct` to this builder.
+     * `defaultFieldName` is used for both input and output.
+     * Note that in case `T` and `R` are different, the field will have a different type after `leafAct` execution from the value before it is executed.
+     *
+     * @param leafAct An act object to be added to this builder.
+     * @return This object.
+     * @param <T> Type of input parameter field.
+     * @param <R> Type of output parameter field.
+     */
     public final <T, R> Builder add(LeafAct<T, R> leafAct) {
       return this.add(defaultFieldName, leafAct, defaultFieldName);
     }
-    
     
     public final <T, R> Builder add(LeafAct<T, R> leafAct, String inputFieldName) {
       return this.add(defaultFieldName, leafAct, inputFieldName);

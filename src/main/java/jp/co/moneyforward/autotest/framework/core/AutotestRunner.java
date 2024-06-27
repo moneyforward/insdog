@@ -6,10 +6,14 @@ import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutotestExecution
 public interface AutotestRunner {
+  Logger LOGGER = LoggerFactory.getLogger(AutotestRunner.class);
+  
   default void beforeAll(Action action) {
     performAction(action);
   }
@@ -38,10 +42,15 @@ public interface AutotestRunner {
   ReportingActionPerformer actionPerformer();
   
   default void performAction(Action action) {
-    action.accept(actionPerformer());
+    try {
+      action.accept(actionPerformer());
+    } catch (RuntimeException | Error e) {
+      LOGGER.error(e.getMessage(), e);
+      throw e;
+    }
   }
   
   default Writer createWriter() {
-    return Writer.Slf4J.TRACE;
+    return Writer.Slf4J.INFO::writeLine;
   }
 }

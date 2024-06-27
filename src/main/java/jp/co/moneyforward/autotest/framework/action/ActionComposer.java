@@ -6,6 +6,9 @@ import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.spi.LocationAwareLogger;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -15,15 +18,9 @@ import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
 
 public interface ActionComposer {
+  Logger LOGGER = LoggerFactory.getLogger(ActionComposer.class);
+  
   Optional<Call.SceneCall> currentSceneCall();
-  
-  default <A extends ActionFactory<T, R>, T, R> Action create(ActionFactory<T, R> actionFactory, String inputFieldName, String outputFieldName) {
-    throw new UnsupportedOperationException(inputFieldName + ":=" + actionFactory + "[" + outputFieldName + "]");
-  }
-  
-  default Action create(Call call) {
-    throw new UnsupportedOperationException("Not supported:" + call);
-  }
   
   default Action create(Call.SceneCall sceneCall) {
     return sequential(concat(Stream.of(beginSceneCall(sceneCall)),
@@ -72,9 +69,17 @@ public interface ActionComposer {
   
   private <T, R> Consumer<Context> toContextConsumerFromAct(Call.SceneCall currentSceneCall, Call.LeafActCall<T, R> actCall, ExecutionEnvironment executionEnvironment) {
     return c -> {
-      var v = actCall.act().perform(actCall.value(currentSceneCall, c),
-                                    executionEnvironment);
-      currentSceneCall.workArea(c).put(actCall.outputFieldName(), v);
+      LOGGER.info("ENTERING: {}:{}", currentSceneCall.scene.name(), actCall.act().name());
+      try {
+        var v = actCall.act().perform(actCall.value(currentSceneCall, c),
+                                      executionEnvironment);
+        currentSceneCall.workArea(c).put(actCall.outputFieldName(), v);
+      } catch (Error | RuntimeException e) {
+        LOGGER.error(e.getMessage(), e);
+        throw e;
+      } finally {
+        LOGGER.info("LEAVING:  {}:{}", currentSceneCall.scene.name(), actCall.act().name());
+      }
     };
   }
   
