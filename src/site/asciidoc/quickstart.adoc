@@ -13,6 +13,20 @@ Check https://github.com/moneyforward/autotest-ca/wiki/developmentGuide[developm
 
 === Setting Up local development environment
 
+Clone the repository:
+
+[source, bash]
+----
+$ git clone https://github.com/moneyforward/autotest-ca.git
+----
+
+Then `cd` to the directory:
+
+[source, bash]
+----
+$ cd autotest-ca
+----
+
 In the project root directory, run:
 
 [source, bash]
