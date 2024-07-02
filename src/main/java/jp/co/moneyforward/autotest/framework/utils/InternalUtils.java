@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
+import static com.github.valid8j.pcond.internals.InternalUtils.getMethod;
 
 public enum InternalUtils {
   ;
@@ -89,6 +90,10 @@ public enum InternalUtils {
                                       msg -> {
                                         throw new AssumptionViolation(msg);
                                       });
+  }
+  
+  public static boolean isToStringOverridden(Object object) {
+    return getMethod(object.getClass(), "toString").getDeclaringClass() != Object.class;
   }
   
   private static RuntimeException wrap(ParseException e) {

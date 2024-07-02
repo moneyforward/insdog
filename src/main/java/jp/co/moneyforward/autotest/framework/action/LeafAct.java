@@ -1,9 +1,9 @@
 package jp.co.moneyforward.autotest.framework.action;
 
-import com.github.dakusui.printables.PrintableFunction;
 import com.github.valid8j.pcond.fluent.Statement;
 import com.github.valid8j.pcond.forms.Printables;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -22,7 +22,7 @@ public interface LeafAct<T, R> extends Act<T, R> {
     return new AssertionAct<>(this, this.name(), assertion);
   }
   
-  class Let<T> implements LeafAct<Object, T> {
+  class Let<T> extends Source<T> implements LeafAct<Object, T> {
     private final T value;
     
     public Let(T value) {
@@ -30,14 +30,14 @@ public interface LeafAct<T, R> extends Act<T, R> {
     }
     
     @Override
-    public String name() {
-      return String.format("let[%s]", this.value);
-    }
-    
-    @Override
-    public T perform(Object value, ExecutionEnvironment executionEnvironment) {
+    protected T value() {
       return this.value;
     }
+    
+    public String name() {
+      return String.format("let[%s]", this.value());
+    }
+    
   }
   
   class Func<T, R> implements LeafAct<T, R> {
@@ -58,8 +58,8 @@ public interface LeafAct<T, R> extends Act<T, R> {
     
     @Override
     public String name() {
-      return this.func instanceof PrintableFunction<T, R> ? this.func.toString()
-                                                          : "func";
+      return InternalUtils.isToStringOverridden(this.func) ? this.func.toString()
+                                                           : "func";
     }
   }
   
@@ -75,5 +75,16 @@ public interface LeafAct<T, R> extends Act<T, R> {
         return null;
       }));
     }
+  }
+  
+  abstract class Source<T> implements LeafAct<Object, T> {
+
+    
+    @Override
+    public T perform(Object value, ExecutionEnvironment executionEnvironment) {
+      return this.value();
+    }
+    
+    abstract protected T value();
   }
 }

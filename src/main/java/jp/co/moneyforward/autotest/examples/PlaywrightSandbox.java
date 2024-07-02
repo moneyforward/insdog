@@ -68,7 +68,6 @@ public class PlaywrightSandbox {
         }
       }
     }
-    System.out.println(new PlaywrightSandbox().process("hello"));
   }
   
   /**

@@ -11,9 +11,9 @@ To create the executable, please do `package-without-javadoc` at the project roo
 **NOTE:** As of today (June/2024), not a few features in this list are yet to be implemented.  
 
 ```text
-Usage: java -jar target/autotest-caweb.jar [-hV] [--execution-profile=<executionProfile>]
-                                           [--execution-descriptor=<executionDescriptors>]...
-                                           [-q=<queries>]... [<subcommands>...] [COMMAND]
+Usage: autotest-cli [-hV] [--execution-profile=<executionProfile>]
+                    [--execution-descriptor=<executionDescriptors>]...
+                    [-q=<queries>]... [<subcommands>...] [COMMAND]
 A command line interface of 'autotest-ca', an automated testing tool for
 'caweb'.
       [<subcommands>...]   Subcommands of this CLI.
@@ -68,7 +68,7 @@ A command line interface of 'autotest-ca', an automated testing tool for
                            CLASS_NAME ::= {Java-wise valid character sequence}
                            TAG_NAME   ::= (Any string)
 
-                           This should be used with run, list-tests, and
+                           This should be used with run, list-testclasses, and
                              list-tags subcommands.
 
                            NOTE:
@@ -89,7 +89,7 @@ Commands:
                                         "tag:<tag>" query given to -q, --query=
                                         options.
 
-  list-tests                          Prints all known tests.
+  list-testclasses                    Prints all known tests.
                                       A <testname> in the result can be used in
                                         a "classname:<testname>" given to -q,
                                         --query options
@@ -114,7 +114,6 @@ Commands:
   show-default-execution-profile      Show default execution profile.
 
                                       NOTE: Not yet implemented!
-
 ```
 
 ## Examples

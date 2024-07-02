@@ -11,6 +11,7 @@ import jp.co.moneyforward.autotest.framework.action.LeafAct.Func;
 import jp.co.moneyforward.autotest.framework.action.LeafAct.Let;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.action.Wait;
+import jp.co.moneyforward.autotest.framework.annotations.ClosedBy;
 import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.DependsOn.Parameter;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
@@ -26,14 +27,12 @@ import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.*;
 
 /**
- * // @formatter:off
  * This test assumes that the user provided by `EXECUTION_PROFILE` has already been registered and associated with
  * a corporation to which they belong.
  *
  * A test that translated link:https://github.com/moneyforward/ca_web_e2e_test_d/blob/main/action_files/scenarios/ca/login_check/ca_login_check.csv[ca_login_check.csv] in
- * link:https://github.com/moneyforward/ca_web_e2e_test_d[駄犬くん].
+ * [駄犬くん](https://github.com/moneyforward/ca_web_e2e_test_d).
  *
- * // @formatter:on
  *
  */
 @SuppressWarnings("JavadocLinkAsPlainText")
@@ -52,6 +51,7 @@ public class CawebAccessingModel implements AutotestRunner {
   }
   
   @Named
+  @ClosedBy("close")
   public static Scene open() {
     TimeUnit timeUnit = SECONDS;
     int time = 30;
@@ -68,6 +68,7 @@ public class CawebAccessingModel implements AutotestRunner {
   }
   
   @Named
+  @ClosedBy("logout")
   @DependsOn(
       @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
   public static Scene login() {
@@ -80,9 +81,14 @@ public class CawebAccessingModel implements AutotestRunner {
         .build();
   }
   
+  /**
+   * Returns a scenario to connect a back with a user account.
+   *
+   * @return A scenario to be performed.
+   */
   @Named
   @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+      @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
   public static Scene connectBank() {
     /*
 ,銀行ラベルを押す,,click,#js-navi-tab > li.active > a,,,
@@ -122,6 +128,11 @@ public class CawebAccessingModel implements AutotestRunner {
         .build();
   }
   
+  /**
+   * Performs an action to disconnect a bank from an account.
+   *
+   * @return A scenario to be performed.
+   */
   @Named
   @DependsOn(
       @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))

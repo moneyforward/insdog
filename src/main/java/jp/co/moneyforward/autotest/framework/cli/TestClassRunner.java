@@ -25,19 +25,4 @@ public interface TestClassRunner {
       return listener.getSummary();
     };
   }
-  
-  static void main(String... args) {
-    create().runTestClass(ExampleTestClass.class).printTo(new PrintWriter(System.err));
-  }
-  
-  class ExampleTestClass {
-    @Test
-    public void passingTest() {
-    }
-    
-    @Test
-    public void failingTest() {
-      throw new RuntimeException();
-    }
-  }
 }

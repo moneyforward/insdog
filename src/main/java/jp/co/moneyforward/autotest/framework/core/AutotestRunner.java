@@ -45,7 +45,7 @@ public interface AutotestRunner {
     try {
       action.accept(actionPerformer());
     } catch (RuntimeException | Error e) {
-      LOGGER.error(e.getMessage(), e);
+      LOGGER.debug(e.getMessage(), e);
       throw e;
     }
   }

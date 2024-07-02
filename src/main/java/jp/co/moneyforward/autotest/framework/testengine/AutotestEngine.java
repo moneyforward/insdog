@@ -1,10 +1,12 @@
 package jp.co.moneyforward.autotest.framework.testengine;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.valid8j.fluent.Expectations;
 import jp.co.moneyforward.autotest.framework.action.ActionComposer;
 import jp.co.moneyforward.autotest.framework.action.Call;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
+import jp.co.moneyforward.autotest.framework.annotations.ClosedBy;
 import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
@@ -13,7 +15,6 @@ import jp.co.moneyforward.autotest.framework.core.Resolver;
 import jp.co.moneyforward.autotest.framework.utils.AutotestSupport;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.appender.FileAppender;
@@ -22,6 +23,8 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -29,17 +32,16 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.valid8j.fluent.Expectations.require;
-import static com.github.valid8j.fluent.Expectations.value;
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toMap;
 import static jp.co.moneyforward.autotest.framework.utils.AutotestSupport.sceneCall;
 
 public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, TestTemplateInvocationContextProvider, AfterEachCallback, AfterAllCallback {
-  private static final Logger LOGGER = LogManager.getLogger(AutotestEngine.class);
-  
+  private static final Logger LOGGER = LoggerFactory.getLogger(AutotestEngine.class);
   
   @Override
   public boolean supportsTestTemplate(ExtensionContext extensionContext) {
@@ -49,8 +51,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   @Override
   public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext context) {
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
-    return actions(executionSpec(context),
-                   AutotestExecution.Spec::value,
+    return actions(executionPlan(context),
+                   ExecutionPlan::value,
                    sceneCallMap(context),
                    executionEnvironment).stream()
                                         .map(AutotestEngine::toTestTemplateInvocationContext);
@@ -63,30 +65,75 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                      .filter(o -> o instanceof AutotestRunner)
                                      .map(o -> (AutotestRunner) o)
                                      .orElseThrow(RuntimeException::new);
+      validateTestClass(runner.getClass());
       Map<String, Call.SceneCall> sceneCallMap = Arrays.stream(validateTestClass(runner.getClass()).getMethods())
                                                        .filter(m -> m.isAnnotationPresent(Named.class))
                                                        .filter(m -> !m.isAnnotationPresent(Disabled.class))
                                                        .map(this::validateSceneProvidingMethod)
                                                        .map(m -> new Entry<>(nameOf(m), invokeMethod(m, runner)))
-                                                       .collect(Collectors.toMap(Entry::key, Entry::value));
-      AutotestExecution execution = runner.getClass().getAnnotation(AutotestExecution.class);
-      AutotestExecution.Spec executionSpec = instantiateExecutionSpecLoader(execution).load(execution.defaultExecution());
+                                                       .collect(toMap(Entry::key, Entry::value));
+      
+      ExecutionPlan executionPlan = planExecution(loadExecutionSpec(runner),
+                                                  sceneCallGraph(runner.getClass()),
+                                                  closers(runner.getClass()));
       ExtensionContext.Store executionContextStore = executionContextStore(context);
+      
       executionContextStore.put("runner", runner);
       executionContextStore.put("sceneCallMap", sceneCallMap);
-      executionContextStore.put("executionSpec", executionSpec);
-      
+      executionContextStore.put("executionPlan", executionPlan);
     }
     
     {
       AutotestRunner runner = autotestRunner(context);
       ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
-      actions(executionSpec(context),
-              AutotestExecution.Spec::beforeAll,
+      configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-beforeAll.log"), Level.INFO);
+      actions(executionPlan(context),
+              ExecutionPlan::beforeAll,
               sceneCallMap(context),
               executionEnvironment)
           .forEach(each -> runner.beforeAll(each.value()));
     }
+  }
+  
+  private static AutotestExecution.Spec loadExecutionSpec(AutotestRunner runner) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+    AutotestExecution execution = runner.getClass()
+                                        .getAnnotation(AutotestExecution.class);
+    return instantiateExecutionSpecLoader(execution).load(execution.defaultExecution());
+  }
+  
+  private static ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, String> closers) {
+    return executionSpec.planExecutionWith().planExecution(executionSpec, sceneCallGraph, closers);
+  }
+  
+  private static Map<String, List<String>> sceneCallGraph(Class<?> accessModelClass) {
+    Map<String, List<String>> sceneCallGraph = new LinkedHashMap<>();
+    Arrays.stream(accessModelClass.getMethods())
+          .filter(m -> m.isAnnotationPresent(Named.class))
+          .filter(m -> !m.isAnnotationPresent(Disabled.class))
+          .forEach(m -> {
+            if (m.isAnnotationPresent(DependsOn.class)) {
+              sceneCallGraph.put(nameOf(m), Arrays.stream(m.getAnnotation(DependsOn.class).value())
+                                                  .map(DependsOn.Parameter::sourceSceneName)
+                                                  .toList());
+            } else {
+              sceneCallGraph.put(nameOf(m), emptyList());
+            }
+          });
+    return sceneCallGraph;
+  }
+  
+  private static Map<String, String> closers(Class<?> accessModelClass) {
+    Map<String, String> closers = new LinkedHashMap<>();
+    Arrays.stream(accessModelClass.getMethods())
+          .filter(m -> m.isAnnotationPresent(Named.class))
+          .filter(m -> !m.isAnnotationPresent(Disabled.class))
+          .forEach(m -> {
+            if (m.isAnnotationPresent(ClosedBy.class)) {
+              closers.put(nameOf(m), m.getAnnotation(ClosedBy.class).value());
+            }
+          });
+    
+    return closers;
   }
   
   @Override
@@ -94,8 +141,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-before.log"), Level.INFO);
     AutotestRunner runner = autotestRunner(context);
-    actions(executionSpec(context),
-            AutotestExecution.Spec::beforeEach,
+    actions(executionPlan(context),
+            ExecutionPlan::beforeEach,
             sceneCallMap(context),
             executionEnvironment)
         .forEach(each -> runner.beforeEach(each.value()));
@@ -107,11 +154,15 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-after.log"), Level.INFO);
     AutotestRunner runner = autotestRunner(context);
-    actions(executionSpec(context),
-            AutotestExecution.Spec::afterEach,
+    List<ExceptionEntry> errors = new ArrayList<>();
+    actions(executionPlan(context),
+            ExecutionPlan::afterEach,
             sceneCallMap(context),
             executionEnvironment)
-        .forEach(each -> runner.afterEach(each.value()));
+        .forEach(each -> runActionEntryRollingForwardOnErrors(each,
+                                                              errors,
+                                                              () -> runner.afterEach(each.value())));
+    if (!errors.isEmpty()) reportErrors(errors);
   }
   
   @Override
@@ -119,28 +170,51 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     AutotestRunner runner = autotestRunner(context);
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-afterAll.log"), Level.INFO);
-    actions(executionSpec(context),
-            AutotestExecution.Spec::afterAll,
+    List<ExceptionEntry> errors = new ArrayList<>();
+    actions(executionPlan(context),
+            ExecutionPlan::afterAll,
             sceneCallMap(context),
             executionEnvironment)
-        .forEach(each -> runner.afterAll(each.value()));
+        .forEach(each -> runActionEntryRollingForwardOnErrors(each,
+                                                              errors,
+                                                              () -> runner.afterAll(each.value())));
+    if (!errors.isEmpty()) reportErrors(errors);
+  }
+  
+  private static void runActionEntryRollingForwardOnErrors(Entry<String, Action> each, List<ExceptionEntry> errors, Runnable runnable) {
+    try {
+      LOGGER.info("Executing: {}", each.key());
+      runnable.run();
+    } catch (OutOfMemoryError e) {
+      throw e;
+    } catch (Throwable e) {
+      errors.add(new ExceptionEntry(each.key(), e));
+    }
+  }
+  
+  private static void reportErrors(List<ExceptionEntry> errors) {
+    errors.forEach(each -> {
+      LOGGER.error("{} {}", each.name, each.exception.getMessage());
+      LOGGER.debug("{}", each.exception.getMessage(), each.exception);
+    });
+    throw wrap(errors.getFirst().exception);
   }
   
   
-  private static List<Entry<String, Action>> actions(AutotestExecution.Spec executionSpec,
-                                                     Function<AutotestExecution.Spec, String[]> toSceneNames,
+  private static List<Entry<String, Action>> actions(ExecutionPlan executionPlan,
+                                                     Function<ExecutionPlan, List<String>> toSceneNames,
                                                      Map<String, Call.SceneCall> sceneCallMap,
                                                      ExecutionEnvironment executionEnvironment) {
     return toActions(sceneCallMap,
                      createActionComposer(executionEnvironment),
-                     toSceneNames.apply(executionSpec));
+                     toSceneNames.apply(executionPlan));
   }
   
-  private static List<Entry<String, Action>> toActions(Map<String, Call.SceneCall> sceneCallMap, ActionComposer actionComposer, String[] sceneNames) {
-    return Arrays.stream(sceneNames)
-                 .filter(sceneCallMap::containsKey)
-                 .map((String each) -> new Entry<>(each, toAction(sceneCallMap.get(each), actionComposer)))
-                 .toList();
+  private static List<Entry<String, Action>> toActions(Map<String, Call.SceneCall> sceneCallMap, ActionComposer actionComposer, List<String> sceneNames) {
+    return sceneNames.stream()
+                     .filter(sceneCallMap::containsKey)
+                     .map((String each) -> new Entry<>(each, toAction(sceneCallMap.get(each), actionComposer)))
+                     .toList();
   }
   
   private static Action toAction(Call.SceneCall sceneCall, ActionComposer actionComposer) {
@@ -148,7 +222,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   public static ExecutionEnvironment createExecutionEnvironment(String testClassName) {
-    require(value(testClassName).toBe().notNull());
+    require(Expectations.value(testClassName).toBe().notNull());
     return new ExecutionEnvironment() {
       @Override
       public String testClassName() {
@@ -174,8 +248,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return (Map<String, Call.SceneCall>) executionContextStore(context).get("sceneCallMap");
   }
   
-  private static AutotestExecution.Spec executionSpec(ExtensionContext context) {
-    return (AutotestExecution.Spec) executionContextStore(context).get("executionSpec");
+  private static ExecutionPlan executionPlan(ExtensionContext context) {
+    return (ExecutionPlan) executionContextStore(context).get("executionPlan");
   }
   
   private static AutotestRunner autotestRunner(ExtensionContext context) {
@@ -237,18 +311,18 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
       System.err.println("Directory: <" + logDirectory.getAbsolutePath() + "> was created for logging.");
     
     PatternLayout layout = PatternLayout.newBuilder()
-                                        .withPattern("%d{ISO8601} [%t] %-5p %c %x - %m%n")
+                                        .withPattern("[%-5p] [%d{yyyy/MM/dd HH:mm:ss.SSS}] [%t] - %m%n")
                                         .build();
     
     FileAppender fileAppender = FileAppender.newBuilder()
-                                        .withFileName(logFilePath.toString())
-                                        .withAppend(true)
-                                        .withLocking(false)
-                                        .setName("FileAppender")
-                                        .setImmediateFlush(true)
-                                        .setLayout(layout)
-                                        .setConfiguration(config)
-                                        .build();
+                                            .withFileName(logFilePath.toString())
+                                            .withAppend(true)
+                                            .withLocking(false)
+                                            .setName("FileAppender")
+                                            .setImmediateFlush(true)
+                                            .setLayout(layout)
+                                            .setConfiguration(config)
+                                            .build();
     fileAppender.start();
     // Create a Console Appender
     ConsoleAppender consoleAppender = ConsoleAppender.newBuilder()
@@ -304,5 +378,15 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   private record Entry<K, V>(K key, V value) {
+  }
+  
+  public record ExecutionPlan(List<String> beforeAll,
+                              List<String> beforeEach,
+                              List<String> value,
+                              List<String> afterEach,
+                              List<String> afterAll) {
+  }
+  
+  record ExceptionEntry(String name, Throwable exception) {
   }
 }

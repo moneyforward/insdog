@@ -35,14 +35,28 @@ public class ExecutionProfile {
     return c;
   }
   
+  /**
+   * Returns a "home" url of the application, from which a test starts at the beginning (login).
+   * @return a "home" url of the application.
+   */
   public String homeUrl() {
     return String.format("https://%s/", domain());
   }
   
+  /**
+   * Returns an account with which the **autotest-ca** logs in to the application.
+   * @return A user email for an account used in the test.
+   */
   public String userEmail() {
     return "ukai.hiroshi+autotest1@moneyforward.co.jp";
   }
   
+  /**
+   * A password for an account specified by the returned value of `userEmail()` method.
+   *
+   * @return A password for `userEmail()`.
+   * @see ExecutionProfile#userEmail()
+   */
   public String userPassword() {
     return "MASK!!QAZ@WSX";
   }
@@ -76,10 +90,6 @@ public class ExecutionProfile {
    */
   public String accountsUrl() {
     return String.format("https://%s/accounts", domain());
-  }
-  
-  public boolean isOnGitHubActions() {
-    return "true".equals(System.getenv("GITHUB_ACTIONS"));
   }
   
   private String domain() {

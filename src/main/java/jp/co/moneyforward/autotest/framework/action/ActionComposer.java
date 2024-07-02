@@ -75,7 +75,7 @@ public interface ActionComposer {
                                       executionEnvironment);
         currentSceneCall.workArea(c).put(actCall.outputFieldName(), v);
       } catch (Error | RuntimeException e) {
-        LOGGER.error(e.getMessage(), e);
+        LOGGER.debug(e.getMessage(), e);
         throw e;
       } finally {
         LOGGER.info("LEAVING:  {}:{}", currentSceneCall.scene.name(), actCall.act().name());

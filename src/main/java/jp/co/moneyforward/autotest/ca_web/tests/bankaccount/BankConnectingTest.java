@@ -3,6 +3,7 @@ package jp.co.moneyforward.autotest.ca_web.tests.bankaccount;
 import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
+import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 import org.junit.jupiter.api.Tag;
 
 /**
@@ -22,10 +23,9 @@ import org.junit.jupiter.api.Tag;
 @Tag("smoke")
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
-        beforeAll = {"open"},
-        beforeEach = {},
-        value = {"login", "connectBank", "disconnectBank", "logout"},
-        afterEach = {"screenshot"},
-        afterAll = {"close"}))
+        planExecutionWith = PlanningStrategy.DEPENDENCY_BASED,
+        value = {"connectBank", "disconnectBank"},
+        afterEach = {"screenshot"}
+    ))
 public class BankConnectingTest extends CawebAccessingModel {
 }
