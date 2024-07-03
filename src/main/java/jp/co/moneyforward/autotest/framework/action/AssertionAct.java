@@ -1,7 +1,5 @@
 package jp.co.moneyforward.autotest.framework.action;
 
-import com.github.dakusui.actionunit.actions.Composite;
-import com.github.dakusui.actionunit.core.Action;
 import com.github.valid8j.fluent.Expectations;
 import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
@@ -10,7 +8,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 import static java.util.Collections.singletonList;
 

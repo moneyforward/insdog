@@ -8,6 +8,7 @@ import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
+import jp.co.moneyforward.autotest.framework.annotations.DependsOn.Parameter;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import org.junit.jupiter.api.Tag;
 
@@ -26,8 +27,7 @@ import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
         afterAll = {"close"}))
 public class VisitAllMenuItemsTest extends CawebAccessingModel {
   @Named("自動で仕訳_連携サービスから入力")
-  @DependsOn(
-      @DependsOn.Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
+  @DependsOn(@Parameter(name = "page", sourceSceneName = "login"))
   public static Scene visitPagesUnderAutomaticJournalEntry() {
     return new Scene.Builder("page")
         /*

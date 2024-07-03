@@ -38,6 +38,7 @@ import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.valid8j.fluent.Expectations.require;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
+import static jp.co.moneyforward.autotest.framework.annotations.DependsOn.Parameter.DEFAULT_FIELD_NAME_IN_SOURCE_SCENE;
 import static jp.co.moneyforward.autotest.framework.utils.AutotestSupport.sceneCall;
 
 public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, TestTemplateInvocationContextProvider, AfterEachCallback, AfterAllCallback {
@@ -180,7 +181,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     
     return closers;
   }
-
+  
   private static void runActionEntryRollingForwardOnErrors(Entry<String, Action> each, List<ExceptionEntry> errors, Runnable runnable) {
     try {
       LOGGER.info("Executing: {}", each.key());
@@ -290,8 +291,15 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     if (!m.isAnnotationPresent(DependsOn.class))
       return emptyList();
     return Arrays.stream(m.getAnnotation(DependsOn.class).value())
-                 .map(v -> new Resolver(v.name(), AutotestSupport.valueFrom(v.sourceSceneName(), v.fieldNameInSourceScene())))
+                 .map(v -> new Resolver(v.name(),
+                                        AutotestSupport.valueFrom(v.sourceSceneName(),
+                                                                  fieldNameInSourceScene(v))))
                  .toList();
+  }
+  
+  private static String fieldNameInSourceScene(DependsOn.Parameter v) {
+    return DEFAULT_FIELD_NAME_IN_SOURCE_SCENE.equals(v.fieldNameInSourceScene()) ? v.name()
+                                                                                 : v.fieldNameInSourceScene();
   }
   
   private Method validateSceneProvidingMethod(Method m) {

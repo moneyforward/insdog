@@ -30,26 +30,31 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.*;
  * This test assumes that the user provided by `EXECUTION_PROFILE` has already been registered and associated with
  * a corporation to which they belong.
  *
- * A test that translated link:https://github.com/moneyforward/ca_web_e2e_test_d/blob/main/action_files/scenarios/ca/login_check/ca_login_check.csv[ca_login_check.csv] in
+ * A test that translated [ca_login_check.csv](https://github.com/moneyforward/ca_web_e2e_test_d/blob/main/action_files/scenarios/ca/login_check/ca_login_check.csv) in
  * [駄犬くん](https://github.com/moneyforward/ca_web_e2e_test_d).
- *
- *
  */
 @SuppressWarnings("JavadocLinkAsPlainText")
 public class CawebAccessingModel implements AutotestRunner {
   private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(getContext(), new HashMap<>());
   
+  /**
+   * An execution profile, which hosts variables in test executions.
+   *
+   * The variables in a profile should not change their values in one test execution.
+   *
+   */
   public static final ExecutionProfile EXECUTION_PROFILE = new ExecutionProfile();
   
-  private static Context getContext() {
-    return new Impl() {
-      @Override
-      public Context createChild() {
-        return this;
-      }
-    };
-  }
-  
+  /**
+   * Returns a scene that performs **open** operation.
+   *
+   * The returned scene should be closed by **close** operation.
+   * This is a general action, that can be used for various applications because it internally does only create **Playwright**
+   * instance, open a **Browser** object, and then create a new **Browser** context, all of which are necessary to almost all
+   * web applications.
+   *
+   * @return A scene that performs **open** operation.
+   */
   @Named
   @ClosedBy("close")
   public static Scene open() {
@@ -67,10 +72,15 @@ public class CawebAccessingModel implements AutotestRunner {
         .build();
   }
   
+  /**
+   * Returns an action for logging in the **ca_web** application using the variables defined in the `EXECUTION_PROFILE`.
+   *
+   * @return A login action.
+   * @see CawebAccessingModel#EXECUTION_PROFILE
+   */
   @Named
   @ClosedBy("logout")
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  @DependsOn(@Parameter(name = "page", sourceSceneName = "open"))
   public static Scene login() {
     return new Scene.Builder("login")
         .add("page", new Navigate(EXECUTION_PROFILE.homeUrl()), "page")
@@ -87,26 +97,25 @@ public class CawebAccessingModel implements AutotestRunner {
    * @return A scenario to be performed.
    */
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
+  @DependsOn(@Parameter(name = "page", sourceSceneName = "login"))
   public static Scene connectBank() {
     /*
-,銀行ラベルを押す,,click,#js-navi-tab > li.active > a,,,
-,【法人】楽天銀行を登録,,click,#tab1 > ul.account-list > li:nth-child(1) > a,,,
-,,,wait,#page-accounts > div.modal.fade.modal-accounts.js-mf-cloud-account-accounts-new-modal.in > div > div > div.modal-header > p,displayed?,,true
-,assert,,assert_text,#page-accounts > div.modal.fade.modal-accounts.js-mf-cloud-account-accounts-new-modal.in > div > div > div.modal-header > p,,eq,【法人】楽天銀行
-,ID1入力,,send_key,#account_service_form_ID1,,,$account_service_form_id1
-,PW1入力,,send_key,#account_service_form_PW1,,,$account_service_form_pw1
-,submit,,click,#js-account-edit-form > div > input,,,
-,assert,,assert_text,#alert-success > p,,eq,金融機関を登録しました。
+    ,銀行ラベルを押す,,click,#js-navi-tab > li.active > a,,,
+    ,【法人】楽天銀行を登録,,click,#tab1 > ul.account-list > li:nth-child(1) > a,,,
+    ,,,wait,#page-accounts > div.modal.fade.modal-accounts.js-mf-cloud-account-accounts-new-modal.in > div > div > div.modal-header > p,displayed?,,true
+    ,assert,,assert_text,#page-accounts > div.modal.fade.modal-accounts.js-mf-cloud-account-accounts-new-modal.in > div > div > div.modal-header > p,,eq,【法人】楽天銀行
+    ,ID1入力,,send_key,#account_service_form_ID1,,,$account_service_form_id1
+    ,PW1入力,,send_key,#account_service_form_PW1,,,$account_service_form_pw1
+    ,submit,,click,#js-account-edit-form > div > input,,,
+    ,assert,,assert_text,#alert-success > p,,eq,金融機関を登録しました。
     
      */
     /*
       await page.locator('#account_service_form_ID1').click();
-  await page.locator('#account_service_form_ID1').fill('asdf');
-  await page.locator('#account_service_form_PW1').click();
-  await page.locator('#account_service_form_PW1').fill('asdf');
-  await page.getByRole('button', { name: '連携登録' }).click();
+      await page.locator('#account_service_form_ID1').fill('asdf');
+      await page.locator('#account_service_form_PW1').click();
+      await page.locator('#account_service_form_PW1').fill('asdf');
+      await page.getByRole('button', { name: '連携登録' }).click();
      */
     return new Scene.Builder("page")
         .add(new Click(getByText("データ連携")))
@@ -134,8 +143,7 @@ public class CawebAccessingModel implements AutotestRunner {
    * @return A scenario to be performed.
    */
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
+  @DependsOn(@Parameter(name = "page", sourceSceneName = "login"))
   public static Scene disconnectBank() {
    /*
       ,登録済一覧を開く,,get,$ca_accounts_url,,,
@@ -170,8 +178,7 @@ public class CawebAccessingModel implements AutotestRunner {
   }
   
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
+  @DependsOn(@Parameter(name = "page", sourceSceneName = "login"))
   public static Scene logout() {
     return new Scene.Builder("page")
         .add(new PageAct("""
@@ -192,8 +199,7 @@ public class CawebAccessingModel implements AutotestRunner {
   }
   
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  @DependsOn(@Parameter(name = "page", sourceSceneName = "open"))
   public static Scene screenshot() {
     return new Scene.Builder("screenshot")
         .add("NONE", new Screenshot(), "page")
@@ -202,9 +208,9 @@ public class CawebAccessingModel implements AutotestRunner {
   
   @Named
   @DependsOn({
-      @Parameter(name = "browser", sourceSceneName = "open", fieldNameInSourceScene = "browser"),
-      @Parameter(name = "window", sourceSceneName = "open", fieldNameInSourceScene = "window"),
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page")}
+      @Parameter(name = "browser", sourceSceneName = "open"),
+      @Parameter(name = "window", sourceSceneName = "open"),
+      @Parameter(name = "page", sourceSceneName = "open")}
   )
   public static Scene close() {
     return new Scene.Builder("close")
@@ -216,5 +222,14 @@ public class CawebAccessingModel implements AutotestRunner {
   @Override
   public ReportingActionPerformer actionPerformer() {
     return actionPerformer;
+  }
+  
+  private static Context getContext() {
+    return new Impl() {
+      @Override
+      public Context createChild() {
+        return this;
+      }
+    };
   }
 }

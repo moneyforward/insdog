@@ -11,8 +11,15 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface DependsOn {
   Parameter[] value() default {};
   @interface Parameter {
+    final String DEFAULT_FIELD_NAME_IN_SOURCE_SCENE="";
     String name();
     String sourceSceneName();
-    String fieldNameInSourceScene();
+    
+    /**
+     * By default, the same value as `Parameter#name` will be used.
+     *
+     * @return The name of the field, from which the parameter value is taken.
+     */
+    String fieldNameInSourceScene() default DEFAULT_FIELD_NAME_IN_SOURCE_SCENE;
   }
 }
