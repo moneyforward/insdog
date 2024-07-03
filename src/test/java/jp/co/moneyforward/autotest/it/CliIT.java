@@ -2,6 +2,7 @@ package jp.co.moneyforward.autotest.it;
 
 import jp.co.moneyforward.autotest.ca_web.cli.Cli;
 import jp.co.moneyforward.autotest.framework.cli.CliUtils;
+import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,18 +22,7 @@ import java.util.NoSuchElementException;
 import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.forms.Printables.function;
 
-public class CliIT {
-  private static final PrintStream stdout = System.out;
-  private static final PrintStream stderr = System.err;
-  
-  ByteArrayOutputStream baosForStderr = new ByteArrayOutputStream();
-  ByteArrayOutputStream baosForStdout = new ByteArrayOutputStream();
-  
-  @BeforeEach
-  public void beforeEach() {
-    System.setErr(new PrintStream(baosForStderr));
-    System.setOut(new PrintStream(baosForStdout));
-  }
+public class CliIT extends TestBase {
   
   @Test
   public void testHelp() {
@@ -47,6 +37,21 @@ public class CliIT {
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
+  
+  @Test
+  public void runListTestClasses() {
+    int exitCode = new CommandLine(new Cli()).execute("list-testclasses");
+    
+    assertStatement(value(exitCode).toBe().equalTo(0));
+  }
+  
+  @Test
+  public void runListTags() {
+    int exitCode = new CommandLine(new Cli()).execute("list-tags");
+    
+    assertStatement(value(exitCode).toBe().equalTo(0));
+  }
+  
   
   /**
    * This test just checks if the CommandLine#execute finishes without an error.
@@ -118,11 +123,5 @@ public class CliIT {
                                          .map(TestIdentifier::getDisplayName).toList();
     assertAll(value(numFailures).toBe().equalTo(1),
               value(failedTests).elementAt(0).asString().toBe().containing("fail"));
-  }
-  
-  @AfterEach
-  public void afterEach() {
-    System.setErr(stderr);
-    System.setOut(stdout);
   }
 }
