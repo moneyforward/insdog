@@ -95,47 +95,6 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     }
   }
   
-  private static AutotestExecution.Spec loadExecutionSpec(AutotestRunner runner) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-    AutotestExecution execution = runner.getClass()
-                                        .getAnnotation(AutotestExecution.class);
-    return instantiateExecutionSpecLoader(execution).load(execution.defaultExecution());
-  }
-  
-  private static ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, String> closers) {
-    return executionSpec.planExecutionWith().planExecution(executionSpec, sceneCallGraph, closers);
-  }
-  
-  private static Map<String, List<String>> sceneCallGraph(Class<?> accessModelClass) {
-    Map<String, List<String>> sceneCallGraph = new LinkedHashMap<>();
-    Arrays.stream(accessModelClass.getMethods())
-          .filter(m -> m.isAnnotationPresent(Named.class))
-          .filter(m -> !m.isAnnotationPresent(Disabled.class))
-          .forEach(m -> {
-            if (m.isAnnotationPresent(DependsOn.class)) {
-              sceneCallGraph.put(nameOf(m), Arrays.stream(m.getAnnotation(DependsOn.class).value())
-                                                  .map(DependsOn.Parameter::sourceSceneName)
-                                                  .toList());
-            } else {
-              sceneCallGraph.put(nameOf(m), emptyList());
-            }
-          });
-    return sceneCallGraph;
-  }
-  
-  private static Map<String, String> closers(Class<?> accessModelClass) {
-    Map<String, String> closers = new LinkedHashMap<>();
-    Arrays.stream(accessModelClass.getMethods())
-          .filter(m -> m.isAnnotationPresent(Named.class))
-          .filter(m -> !m.isAnnotationPresent(Disabled.class))
-          .forEach(m -> {
-            if (m.isAnnotationPresent(ClosedBy.class)) {
-              closers.put(nameOf(m), m.getAnnotation(ClosedBy.class).value());
-            }
-          });
-    
-    return closers;
-  }
-  
   @Override
   public void beforeEach(ExtensionContext context) {
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
@@ -181,6 +140,47 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     if (!errors.isEmpty()) reportErrors(errors);
   }
   
+  private static AutotestExecution.Spec loadExecutionSpec(AutotestRunner runner) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+    AutotestExecution execution = runner.getClass()
+                                        .getAnnotation(AutotestExecution.class);
+    return instantiateExecutionSpecLoader(execution).load(execution.defaultExecution());
+  }
+  
+  private static ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, String> closers) {
+    return executionSpec.planExecutionWith().planExecution(executionSpec, sceneCallGraph, closers);
+  }
+  
+  private static Map<String, List<String>> sceneCallGraph(Class<?> accessModelClass) {
+    Map<String, List<String>> sceneCallGraph = new LinkedHashMap<>();
+    Arrays.stream(accessModelClass.getMethods())
+          .filter(m -> m.isAnnotationPresent(Named.class))
+          .filter(m -> !m.isAnnotationPresent(Disabled.class))
+          .forEach(m -> {
+            if (m.isAnnotationPresent(DependsOn.class)) {
+              sceneCallGraph.put(nameOf(m), Arrays.stream(m.getAnnotation(DependsOn.class).value())
+                                                  .map(DependsOn.Parameter::sourceSceneName)
+                                                  .toList());
+            } else {
+              sceneCallGraph.put(nameOf(m), emptyList());
+            }
+          });
+    return sceneCallGraph;
+  }
+  
+  private static Map<String, String> closers(Class<?> accessModelClass) {
+    Map<String, String> closers = new LinkedHashMap<>();
+    Arrays.stream(accessModelClass.getMethods())
+          .filter(m -> m.isAnnotationPresent(Named.class))
+          .filter(m -> !m.isAnnotationPresent(Disabled.class))
+          .forEach(m -> {
+            if (m.isAnnotationPresent(ClosedBy.class)) {
+              closers.put(nameOf(m), m.getAnnotation(ClosedBy.class).value());
+            }
+          });
+    
+    return closers;
+  }
+
   private static void runActionEntryRollingForwardOnErrors(Entry<String, Action> each, List<ExceptionEntry> errors, Runnable runnable) {
     try {
       LOGGER.info("Executing: {}", each.key());
@@ -188,6 +188,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     } catch (OutOfMemoryError e) {
       throw e;
     } catch (Throwable e) {
+      LOGGER.warn("Error executing action: {}", each.key(), e);
       errors.add(new ExceptionEntry(each.key(), e));
     }
   }

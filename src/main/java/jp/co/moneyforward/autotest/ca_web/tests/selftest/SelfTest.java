@@ -32,6 +32,7 @@ public class SelfTest implements AutotestRunner {
   }
   
   @Named
+  @ClosedBy("logout")
   @DependsOn(@Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
   public static Scene login() {
     return new Scene.Builder("page")
@@ -63,10 +64,11 @@ public class SelfTest implements AutotestRunner {
         .build();
   }
   
-  @DependsOn(@Parameter(name = "page", sourceSceneName = "close", fieldNameInSourceScene = "page"))
+  @Named
+  @DependsOn(@Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
   public static Scene close() {
     return new Scene.Builder("page")
-        .add(new LeafAct.Let<>("OPEN"))
+        .add(new LeafAct.Let<>("CLOSE"))
         .build();
   }
 
