@@ -5,8 +5,6 @@ import com.github.valid8j.pcond.forms.Printables;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
-import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
-import jp.co.moneyforward.autotest.ca_web.tests.Index;
 import jp.co.moneyforward.autotest.framework.utils.Transform;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
@@ -66,7 +64,7 @@ public interface ClassFinder {
    * @return A predicate which matches a class whose name is equal to `value`.
    */
   static Predicate<Class<?>> classNameIsEqualTo(String value) {
-    return Transform.$(functionCanonicalName())
+    return Transform.$(functionSimpleName())
                     .check(isEqualTo(value));
   }
   
@@ -77,7 +75,7 @@ public interface ClassFinder {
    * @return A predicate which matches a class whose name is containing `value`.
    */
   static Predicate<Class<?>> classNameContaining(String value) {
-    return Transform.$(functionCanonicalName())
+    return Transform.$(functionSimpleName())
                     .check(containsString(value));
   }
   
@@ -88,7 +86,7 @@ public interface ClassFinder {
    * @return A predicate which matches a class whose name matches a regular expression `value`.
    */
   static Predicate<Class<?>> classNameMatchesRegex(String value) {
-    return Transform.$(functionCanonicalName())
+    return Transform.$(functionSimpleName())
                     .check(Predicates.matchesRegex(value));
   }
   
@@ -149,7 +147,7 @@ public interface ClassFinder {
     return hasTagMatching(Printables.predicate("valueMatchingRegex[" + value + "]", t -> t.value().matches(value)));
   }
   
-  private static Function<Class<?>, String> functionCanonicalName() {
-    return function("canonicalName", Class::getSimpleName);
+  static Function<Class<?>, String> functionSimpleName() {
+    return function("simpleName", Class::getSimpleName);
   }
 }
