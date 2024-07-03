@@ -11,13 +11,13 @@ ABOUT: help
 
 ## Cleans all intermediate files, which should be generated only under `target` directory.
 clean: clean-mfdoc
-	mvn clean
+	mvn -B clean
 ## Compiles production source code only
 compile:
-	mvn clean compile
+	mvn -B clean compile
 ## Executes unit tests
 test:
-	mvn clean compile test
+	mvn -B clean compile test
 ## Generates wiki-site on your local.
 ## Generated site is found under .work/doc/wiki
 ## Please upgrade your local bash version by using `brew install bash`.
@@ -37,7 +37,7 @@ _publish-wiki:
 ## Generated site is found under .work/doc/techdocs
 ## Please upgrade your local bash version by using `brew install bash` before trying this target.
 compile-techdocs:
-	mvn pre-site
+	mvn -B pre-site
 	$(BASH) -eu $(PROJ_DIR)/src/build_tools/mfdoc.sh compile-techdocs -- \
 	                                                 "*.md:src/site/markdown:" \
 	                                                 "*.md:target/classes/JavaMarkdown:3-APISpecification"
@@ -58,7 +58,7 @@ clean-mfdoc:
 
 ## Generate Javadoc under `target/site/apidocs` dir.
 javadoc:
-	mvn clean compile test javadoc:javadoc
+	mvn -B clean compile test javadoc:javadoc
 
 ## Run
 run-all-tests:
@@ -66,7 +66,7 @@ run-all-tests:
 
 ## Creates a autotest-caweb.jar without javadoc to save time
 package-without-javadoc:
-	mvn -Dmaven.javadoc.skip=true clean compile package
+	mvn -B -Dmaven.javadoc.skip=true clean compile package
 
 help:
 	make2help $(MAKEFILE_LIST)

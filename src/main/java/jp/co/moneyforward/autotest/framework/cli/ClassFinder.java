@@ -22,10 +22,25 @@ import static com.github.valid8j.pcond.forms.Predicates.containsString;
 import static com.github.valid8j.pcond.forms.Predicates.isEqualTo;
 import static com.github.valid8j.pcond.forms.Printables.function;
 
+/**
+ * An interface to find classes on the class-path.
+ */
 public interface ClassFinder {
-  
+  /**
+   * Returns a stream of classes on the class-path, each of which matches the `query`.
+   *
+   * @param query A query to check if a given class matches.
+   *
+   * @return A stream of matching classes.
+   */
   Stream<Class<?>> findMatchingClasses(Predicate<Class<?>> query);
   
+  /**
+   * Returns a `ClassFinder`, which checks all the classes under `rootPackage` with a given `query` predicate.
+   *
+   * @param rootPackage A root package.
+   * @return A new `ClassFinder` object.
+   */
   static ClassFinder create(String rootPackage) {
     return query -> {
       try (ScanResult result = new ClassGraph().enableClassInfo()
@@ -44,36 +59,77 @@ public interface ClassFinder {
     };
   }
   
+  /**
+   * A utility method to return a `Predicate`, which can be used with `findMatchingClasses` method.
+   *
+   * @param value A string value from which the returned predicate is created.
+   * @return A predicate which matches a class whose name is equal to `value`.
+   */
   static Predicate<Class<?>> classNameIsEqualTo(String value) {
     return Transform.$(functionCanonicalName())
                     .check(isEqualTo(value));
   }
   
+  /**
+   * A utility method to return a `Predicate`, which can be used with `findMatchingClasses` method.
+   *
+   * @param value A string value from which the returned predicate is created.
+   * @return A predicate which matches a class whose name is containing `value`.
+   */
   static Predicate<Class<?>> classNameContaining(String value) {
     return Transform.$(functionCanonicalName())
                     .check(containsString(value));
   }
   
+  /**
+   * A utility method to return a `Predicate`, which can be used with `findMatchingClasses` method.
+   *
+   * @param value A string value from which the returned predicate is created.
+   * @return A predicate which matches a class whose name matches a regular expression `value`.
+   */
   static Predicate<Class<?>> classNameMatchesRegex(String value) {
     return Transform.$(functionCanonicalName())
                     .check(Predicates.matchesRegex(value));
   }
   
+  /**
+   * A utility method to return a `Predicate`, which can be used with `findMatchingClasses` method.
+   *
+   * @return A predicate which matches any class.
+   */
   static Predicate<Class<?>> alwaysTrue() {
     return Predicates.alwaysTrue();
   }
   
+  /**
+   * A utility method to return a `Predicate`, which can be used with `findMatchingClasses` method.
+   *
+   * @param klass A class object from which the returned predicate is created.
+   * @return A predicate which matches a class which is assignable from `klass`.
+   */
   static Predicate<Class<?>> isAssignableTo(Class<?> klass) {
     return Printables.predicate("isAssignableTo[" + klass.getSimpleName() + "]",
                                 klass::isAssignableFrom);
   }
   
+  /**
+   * A utility method to return a `Predicate`, which can be used with `findMatchingClasses` method.
+   *
+   * @param annotationClasses classes from which the returned predicate is created.
+   * @return A predicate which matches any of `annotationClasses` is present.
+   */
   @SafeVarargs
   static Predicate<Class<?>> hasTags(Class<? extends Annotation>... annotationClasses) {
     return Printables.predicate("hasAnnotation" + Arrays.stream(annotationClasses).map(c -> "@" + c.getSimpleName()).toList(),
                                 (Class<?> c) -> Arrays.stream(annotationClasses).anyMatch(c::isAnnotationPresent));
   }
   
+  /**
+   * A utility method to return a `Predicate`, which can be used with `findMatchingClasses` method.
+   *
+   * @param value A string value from which the returned predicate is created.
+   * @return A predicate which matches a class whose `@Tag` annotation value is equal to `value`.
+   */
   static Predicate<Class<?>> hasTagValueEqualTo(String value) {
     return hasTagMatching(Printables.predicate("valueEqualTo[" + value + "]", t -> Objects.equals(t.value(), value)));
   }
@@ -85,7 +141,6 @@ public interface ClassFinder {
                                                                                     .anyMatch(predicate));
   }
   
-  
   static Predicate<Class<?>> hasTagValueContaining(String value) {
     return hasTagMatching(Printables.predicate("valueContaining[" + value + "]", t -> t.value().contains(value)));
   }
@@ -96,88 +151,5 @@ public interface ClassFinder {
   
   private static Function<Class<?>, String> functionCanonicalName() {
     return function("canonicalName", Class::getSimpleName);
-  }
-  
-  static void main(String... args) {
-    {
-      System.out.println("====");
-      Predicate<Class<?>> query = alwaysTrue();
-      System.out.println(query);
-      create(Index.class.getPackageName()).findMatchingClasses(query)
-                                          .forEach(System.out::println);
-      System.out.println("----");
-    }
-    {
-      System.out.println("====");
-      Predicate<Class<?>> query = classNameMatchesRegex(".*Test");
-      System.out.println(query);
-      create(Index.class.getPackageName()).findMatchingClasses(query)
-                                          .forEach(System.out::println);
-      System.out.println("----");
-    }
-    {
-      System.out.println("====");
-      Predicate<Class<?>> query = classNameContaining("Test");
-      System.out.println(query);
-      create(Index.class.getPackageName()).findMatchingClasses(query)
-                                          .forEach(System.out::println);
-      System.out.println("----");
-    }
-    {
-      System.out.println("====");
-      Predicate<Class<?>> query = isAssignableTo(CawebAccessingModel.class);
-      System.out.println(query);
-      create(Index.class.getPackageName()).findMatchingClasses(query)
-                                          .forEach(System.out::println);
-      System.out.println("----");
-    }
-    {
-      System.out.println("====");
-      Predicate<Class<?>> query = hasTags(Tags.class);
-      System.out.println(query);
-      create(Index.class.getPackageName()).findMatchingClasses(query)
-                                          .forEach(System.out::println);
-      System.out.println("----");
-    }
-    {
-      System.out.println("====");
-      Predicate<Class<?>> query = hasTags(Tag.class);
-      System.out.println(query);
-      create(Index.class.getPackageName()).findMatchingClasses(query)
-                                          .forEach(System.out::println);
-      System.out.println("----");
-    }
-    {
-      System.out.println("====");
-      Predicate<Class<?>> query = hasTagValueEqualTo("bank");
-      System.out.println(query);
-      create(Index.class.getPackageName()).findMatchingClasses(query)
-                                          .forEach(System.out::println);
-      System.out.println("----");
-    }
-    {
-      System.out.println("====");
-      Predicate<Class<?>> query = hasTagValueContaining("smok");
-      System.out.println(query);
-      create(Index.class.getPackageName()).findMatchingClasses(query)
-                                          .forEach(System.out::println);
-      System.out.println("----");
-    }
-    {
-      System.out.println("====");
-      Predicate<Class<?>> query = hasTagValueMatchesRegex("smok.");
-      System.out.println(query);
-      create(Index.class.getPackageName()).findMatchingClasses(query)
-                                          .forEach(System.out::println);
-      System.out.println("----");
-    }
-    {
-      System.out.println("====");
-      Predicate<Class<?>> query = classNameIsEqualTo(Index.class.getCanonicalName());
-      System.out.println(query);
-      create(Index.class.getPackageName()).findMatchingClasses(query)
-                                          .forEach(System.out::println);
-      System.out.println("----");
-    }
   }
 }
