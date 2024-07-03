@@ -271,6 +271,7 @@
                             <additionalOption>-overview ${project.basedir}/src/main/javadoc/overview.md</additionalOption>
                             <additionalOption>-d ${project.build.outputDirectory}/JavaMarkdown</additionalOption>
                             <additionalOption>--source-path ${project.build.sourceDirectory}</additionalOption>
+                            <additionalOption>-base-path /docs/default/Component/autotest-ca/3-APISpecification</additionalOption>
                             <additionalOption>-target-packages '.*#.*autotest.*'</additionalOption>
                         </additionalOptions>
                     </configuration>
