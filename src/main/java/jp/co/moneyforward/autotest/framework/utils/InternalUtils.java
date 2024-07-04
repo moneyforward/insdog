@@ -13,6 +13,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -32,7 +33,7 @@ public enum InternalUtils {
   
   public static Date date(String dateString) {
     try {
-      return new SimpleDateFormat("MMM/dd/yyyy").parse(dateString);
+      return new SimpleDateFormat("MMM/dd/yyyy", Locale.US).parse(dateString);
     } catch (ParseException e) {
       throw wrap(e);
     }

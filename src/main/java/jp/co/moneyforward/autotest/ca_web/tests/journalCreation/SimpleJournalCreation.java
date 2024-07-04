@@ -1,8 +1,9 @@
 package jp.co.moneyforward.autotest.ca_web.tests.journalCreation;
 
-import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
+import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
+import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 import org.junit.jupiter.api.Tag;
 
 /**
@@ -22,10 +23,9 @@ import org.junit.jupiter.api.Tag;
 @Tag("smoke")
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
-        beforeAll = {"open"},
+        planExecutionWith = PlanningStrategy.DEPENDENCY_BASED,
         beforeEach = {},
-        value = {"login", "accessSimpleJournals","createJournalInSimpleJournals"},
-        afterEach = {"screenshot"},
-        afterAll = {"close"}))
+        value = {"accessSimpleJournals","createJournalInSimpleJournals"},
+        afterEach = {"screenshot"}))
 public class SimpleJournalCreation extends CawebAccessingModel {
 }

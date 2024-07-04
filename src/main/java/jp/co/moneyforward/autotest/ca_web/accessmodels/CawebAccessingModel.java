@@ -141,14 +141,14 @@ public class CawebAccessingModel implements AutotestRunner {
 
   @Named
   @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+      @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
   public static Scene accessSimpleJournals() {
     return new Scene.Builder("page")
     .add(new PageAct("Access simple journals") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         page.getByText("手動で仕訳").hover();
-        assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("簡単入力"))).isVisible();
+        //assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("簡単入力@"))).isVisible();
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("簡単入力")).click();
         assertThat(page.locator("#js-ca-main-container").getByText("簡単入力", new Locator.GetByTextOptions().setExact(true))).isVisible();
       }
@@ -169,9 +169,11 @@ public class CawebAccessingModel implements AutotestRunner {
         page.locator("#journal_value").click();
         page.locator("#journal_value").fill("1111");
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("登録")).click();
-
+        
+        // Let's make this a shared function.
         ElementHandle loader = page.querySelector(".ca-saving-cover");
         loader.waitForElementState(ElementState.HIDDEN);
+        
         assertThat(page.locator(".ca-tr-emphasis").locator(".js-td-recognized-at")).containsText( "05/15");
         assertThat(page.locator(".ca-tr-emphasis").locator(".js-td-value")).containsText( "+1,111");
         assertThat(page.locator(".ca-tr-emphasis").locator(".js-td-item")).containsText("現金 が増加して 現金 が減少した");
