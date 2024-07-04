@@ -5,10 +5,7 @@ import com.github.valid8j.fluent.Expectations;
 import jp.co.moneyforward.autotest.framework.action.ActionComposer;
 import jp.co.moneyforward.autotest.framework.action.Call;
 import jp.co.moneyforward.autotest.framework.action.Scene;
-import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
-import jp.co.moneyforward.autotest.framework.annotations.ClosedBy;
-import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
-import jp.co.moneyforward.autotest.framework.annotations.Named;
+import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
@@ -76,7 +73,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
       
       ExecutionPlan executionPlan = planExecution(loadExecutionSpec(runner),
                                                   sceneCallGraph(runner.getClass()),
-                                                  closers(runner.getClass()));
+                                                  closers(runner.getClass()),
+                                                  assertions(runner.getClass()));
       ExtensionContext.Store executionContextStore = executionContextStore(context);
       
       executionContextStore.put("runner", runner);
@@ -147,8 +145,12 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return instantiateExecutionSpecLoader(execution).load(execution.defaultExecution());
   }
   
-  private static ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, String> closers) {
-    return executionSpec.planExecutionWith().planExecution(executionSpec, sceneCallGraph, closers);
+  private static ExecutionPlan planExecution(AutotestExecution.Spec executionSpec,
+                                             Map<String, List<String>> sceneCallGraph,
+                                             Map<String, String> closers,
+                                             Map<String, List<String>> assertions) {
+    return executionSpec.planExecutionWith()
+                        .planExecution(executionSpec, sceneCallGraph, closers, assertions);
   }
   
   private static Map<String, List<String>> sceneCallGraph(Class<?> accessModelClass) {
@@ -178,9 +180,25 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
               closers.put(nameOf(m), m.getAnnotation(ClosedBy.class).value());
             }
           });
-    
     return closers;
   }
+  
+  private static Map<String, List<String>> assertions(Class<? extends AutotestRunner> accessModelClass) {
+    Map<String, List<String>> ret = new LinkedHashMap<>();
+    Arrays.stream(accessModelClass.getMethods())
+          .filter(m -> m.isAnnotationPresent(Named.class))
+          .filter(m -> !m.isAnnotationPresent(Disabled.class))
+          .forEach(m -> {
+            if (m.isAnnotationPresent(When.class)) {
+              for (String each : m.getAnnotation(When.class).value()) {
+                ret.putIfAbsent(each, new LinkedList<>());
+                ret.get(each).add(nameOf(m));
+              }
+            }
+          });
+    return ret;
+  }
+  
   
   private static void runActionEntryRollingForwardOnErrors(Entry<String, Action> each, List<ExceptionEntry> errors, Runnable runnable) {
     try {

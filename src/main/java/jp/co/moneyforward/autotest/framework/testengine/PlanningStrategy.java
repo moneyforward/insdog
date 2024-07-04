@@ -4,6 +4,7 @@ import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.annotations.ClosedBy;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngineUtils.mergeListsByInsertingMissedOnes;
@@ -21,7 +22,7 @@ public enum PlanningStrategy {
    */
   PASSTHROUGH {
     @Override
-    AutotestEngine.ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, String> closers) {
+    AutotestEngine.ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, String> closers, Map<String, List<String>> assertions) {
       return new AutotestEngine.ExecutionPlan(
           asList(executionSpec.beforeAll()),
           asList(executionSpec.beforeEach()),
@@ -51,7 +52,7 @@ public enum PlanningStrategy {
    */
   DEPENDENCY_BASED {
     @Override
-    AutotestEngine.ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, String> closers) {
+    AutotestEngine.ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, String> closers, Map<String, List<String>> assertions) {
       List<String> explicitlySpecified = List.of(executionSpec.value());
       List<String> sorted = AutotestEngineUtils.topologicalSort(explicitlySpecified, sceneCallGraph);
       String firstSpecified = sorted.stream()
@@ -60,12 +61,12 @@ public enum PlanningStrategy {
                                     .orElseThrow(NoSuchElementException::new);
       List<String> beforeAll = sorted.subList(0, sorted.indexOf(firstSpecified));
       List<String> main = sorted.subList(sorted.indexOf(firstSpecified), sorted.size());
-      return ensureClosersAreIncluded(new AutotestEngine.ExecutionPlan(
+      return includeAssertions(ensureClosersAreIncluded(new AutotestEngine.ExecutionPlan(
           AutotestEngineUtils.mergeListsByAppendingMissedOnes(List.of(executionSpec.beforeAll()), beforeAll),
           asList(executionSpec.beforeEach()),
           main,
           asList(executionSpec.afterEach()),
-          asList(executionSpec.afterAll())), closers);
+          asList(executionSpec.afterAll())), closers), assertions);
     }
     
     private static AutotestEngine.ExecutionPlan ensureClosersAreIncluded(AutotestEngine.ExecutionPlan executionPlan, Map<String, String> closers) {
@@ -89,7 +90,25 @@ public enum PlanningStrategy {
           mergeListsByInsertingMissedOnes(executionPlan.afterAll(), afterAll)
       );
     }
+    
+    private static AutotestEngine.ExecutionPlan includeAssertions(AutotestEngine.ExecutionPlan executionPlan, Map<String, List<String>> assertions) {
+      return new AutotestEngine.ExecutionPlan(
+          executionPlan.beforeAll(),
+          executionPlan.beforeEach(),
+          includeAssertions(executionPlan.value(), assertions),
+          executionPlan.afterEach(),
+          executionPlan.afterAll()
+      );
+    }
+    
+    private static List<String> includeAssertions(List<String> value, Map<String, List<String>> assertions) {
+      return value.stream()
+                  .flatMap(s -> Stream.concat(Stream.of(s),
+                                              assertions.containsKey(s) ? assertions.get(s).stream()
+                                                                        : Stream.empty()))
+                  .toList();
+    }
   };
   
-  abstract AutotestEngine.ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, String> closers);
+  abstract AutotestEngine.ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, String> closers, Map<String, List<String>> assertions);
 }
