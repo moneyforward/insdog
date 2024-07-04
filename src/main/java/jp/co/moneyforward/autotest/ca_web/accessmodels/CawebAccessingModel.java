@@ -5,6 +5,8 @@ import com.github.dakusui.actionunit.core.Context.Impl;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.ElementState;
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import jp.co.moneyforward.autotest.actions.web.*;
 import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.framework.action.LeafAct.Func;
@@ -135,6 +137,57 @@ public class CawebAccessingModel implements AutotestRunner {
         // Could not come up with any better way than this...
         .add(new Wait<>(10, SECONDS, "no good way to make sure back registration is finished"))
         .build();
+  }
+
+  @Named
+  @DependsOn(
+      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  public static Scene accessSimpleJournals() {
+    return new Scene.Builder("page")
+    .add(new PageAct("Access simple journals") {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        page.getByText("手動で仕訳").hover();
+        assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("簡単入力"))).isVisible();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("簡単入力")).click();
+        assertThat(page.locator("#js-ca-main-container").getByText("簡単入力", new Locator.GetByTextOptions().setExact(true))).isVisible();
+      }
+    })
+    .build();
+  }
+
+  @Named
+  @DependsOn(
+      @Parameter(name = "page", sourceSceneName = "accessSimpleJournals", fieldNameInSourceScene = "page"))
+  public static Scene createJournalInSimpleJournals() {
+    return new Scene.Builder("page")
+    .add(new PageAct("Create a journal with easy input") {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        page.locator("#journal_recognized_at").click();
+        page.locator("#journal_recognized_at").fill("05/15");
+        page.locator("#journal_value").click();
+        page.locator("#journal_value").fill("1111");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("登録")).click();
+
+        ElementHandle loader = page.querySelector(".ca-saving-cover");
+        loader.waitForElementState(ElementState.HIDDEN);
+        assertThat(page.locator(".ca-tr-emphasis").locator(".js-td-recognized-at")).containsText( "05/15");
+        assertThat(page.locator(".ca-tr-emphasis").locator(".js-td-value")).containsText( "+1,111");
+        assertThat(page.locator(".ca-tr-emphasis").locator(".js-td-item")).containsText("現金 が増加して 現金 が減少した");
+
+        page.locator(".ca-tr-emphasis").locator("a").click();
+        page.onceDialog(dialog -> {
+          System.out.println(String.format("Dialog message: %s", dialog.message()));
+          dialog.dismiss();
+        });
+        page.getByText("削除", new Page.GetByTextOptions().setExact(true)).click();
+
+        loader.waitForElementState(ElementState.HIDDEN);
+        assertThat(page.locator("ca-tr-emphasis")).not().isAttached();
+      }
+    })
+    .build();
   }
   
   /**
