@@ -84,7 +84,7 @@
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <maven-shade-plugin.version>3.5.3</maven-shade-plugin.version>
-        <mddoclet-doclet-plugin.version>1.0.4</mddoclet-doclet-plugin.version>
+        <mddoclet-doclet-plugin.version>1.0.5</mddoclet-doclet-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <!-- BEGIN: build dependencies -->
     </properties>

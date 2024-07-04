@@ -161,6 +161,9 @@ It is suggested to create reusable **acts** (functions to create **acts**, class
   }
 ```
 
+You can write the implementation of the `action` method with a help of [`codegen`](https://playwright.dev/java/docs/codegen) tool of **Playwright**.
+
+
 * **(1):** An example of "preset" acts.
 You can find pre-defined acts and utilities (classes and functions) to create acts under `jp.co.moneyforward.autotest.actions.web` package.
 Please consider using them to define your `Scene`.
