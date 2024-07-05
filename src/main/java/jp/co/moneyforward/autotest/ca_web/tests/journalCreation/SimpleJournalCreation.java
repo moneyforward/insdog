@@ -74,10 +74,6 @@ public class SimpleJournalCreation extends CawebAccessingModel {
         .build();
   }
   
-  private static int journalValue() {
-    return 1111;
-  }
-  
   @Named
   @When("enterJournalRecordWithSimpleInput")
   @Export("page")
@@ -87,10 +83,6 @@ public class SimpleJournalCreation extends CawebAccessingModel {
                                                       String.format("+%,d", journalValue()),
                                                       "現金 が増加して 現金 が減少した"))
         .build();
-  }
-  
-  private static String journalDate() {
-    return "05/15";
   }
   
   @Named
@@ -159,5 +151,13 @@ public class SimpleJournalCreation extends CawebAccessingModel {
         });
       }
     };
+  }
+  
+  private static String journalDate() {
+    return "05/15";
+  }
+  
+  private static int journalValue() {
+    return 1111;
   }
 }
