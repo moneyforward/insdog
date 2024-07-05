@@ -26,6 +26,9 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
 
+/**
+ * A utility class for **autotest** CLI.
+ */
 public enum CliUtils {
   ;
   private static final Logger LOGGER = LoggerFactory.getLogger(CliUtils.class);

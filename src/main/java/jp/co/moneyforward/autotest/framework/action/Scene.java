@@ -8,11 +8,11 @@ import java.util.*;
 import java.util.function.Function;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
-import static jp.co.moneyforward.autotest.framework.utils.AutotestSupport.*;
+import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
 
 /**
  * An interface that represents a reusable unit of an action in autotest-ca's programming model.
- * An instance of this object may contain {@link LeafAct} instances.
+ * An instance of this object contains 0 or more {@link Act} instances.
  *
  * Note that `Scene` uses the same map for both input and output.
  */

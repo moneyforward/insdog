@@ -5,6 +5,9 @@ import jp.co.moneyforward.autotest.framework.cli.CliBase;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+/**
+ * A CLI for **autotest-ca**.
+ */
 @Command(
     name = "autotest-cli", mixinStandardHelpOptions = true,
     version = "0.0",

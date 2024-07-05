@@ -9,6 +9,9 @@ import picocli.CommandLine.Option;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+/**
+ * A base class of CLI for **autotest-ca**.
+ */
 public abstract class CliBase implements Callable<Integer> {
   private static final Logger LOGGER = LoggerFactory.getLogger(CliBase.class);
   

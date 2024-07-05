@@ -8,6 +8,9 @@ import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import static com.microsoft.playwright.options.AriaRole.LINK;
 
+/**
+ * A utilitiy class for **caweb** application.
+ */
 public enum CawebUtils {
   ;
   

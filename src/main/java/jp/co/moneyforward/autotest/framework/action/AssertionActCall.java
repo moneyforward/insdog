@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
-public class AssertionActCall<T, R> extends Call.ActCall<T, R> {
+public class AssertionActCall<T, R> extends ActCall<T, R> {
   private final List<Function<R, Statement<R>>> assertions;
   private final ActCall<T, R> target;
   

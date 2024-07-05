@@ -7,6 +7,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
+/**
+ * An interface to model the execution environment.
+ */
 public interface ExecutionEnvironment {
   
   String PROPERTY_KEY_FOR_TEST_RESULT_DIRECTORY = "jp.co.moneyforward.autotest.testResultDirectory";

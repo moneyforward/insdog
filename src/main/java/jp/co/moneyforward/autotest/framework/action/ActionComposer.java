@@ -60,10 +60,6 @@ public interface ActionComposer {
               .toList());
   }
   
-  default <T, R> Action create(Call.PipelinedActCall<T, R> pipelinedActCall) {
-    throw new UnsupportedOperationException();
-  }
-  
   default Action create(LeafActCall<?, ?> actCall) {
     SceneCall currentSceneCall = this.currentSceneCall().orElseThrow();
     

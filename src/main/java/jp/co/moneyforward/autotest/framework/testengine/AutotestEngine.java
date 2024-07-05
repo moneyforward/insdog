@@ -35,9 +35,12 @@ import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.valid8j.fluent.Expectations.require;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
+import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneCall;
 import static jp.co.moneyforward.autotest.framework.core.Resolver.valueFrom;
-import static jp.co.moneyforward.autotest.framework.utils.AutotestSupport.sceneCall;
 
+/**
+ * The test execution engine of the **autotest-ca**.
+ */
 public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, TestTemplateInvocationContextProvider, AfterEachCallback, AfterAllCallback {
   private static final Logger LOGGER = LoggerFactory.getLogger(AutotestEngine.class);
   
@@ -322,26 +325,30 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return Stream.concat(variableResolversFor(method,
                                               accessModelClass,
                                               DependsOn.class,
-                                              m -> m.getAnnotation(DependsOn.class)
-                                                    .value()).stream(),
+                                              m -> m.getAnnotation(DependsOn.class).value()).stream(),
                          variableResolversFor(method,
                                               accessModelClass,
                                               When.class,
-                                              m -> m.getAnnotation(When.class)
-                                                    .value()).stream())
+                                              m -> m.getAnnotation(When.class).value()).stream())
                  .toList();
   }
   
   private static List<Resolver> variableResolversFor(Method m,
                                                      Class<?> accessModelClass,
                                                      Class<? extends Annotation> dependencyAnnotationClass,
-                                                     Function<Method, String[]> dependencies) {
+                                                     Function<Method, String[]> dependenciesResolver) {
     if (!m.isAnnotationPresent(dependencyAnnotationClass))
       return emptyList();
-    return Arrays.stream(dependencies.apply(m))
-                 .flatMap((String dependencySceneName)
-                              -> exportedVariablesOf(accessModelClass, dependencySceneName).stream()
-                                                                                           .map(e -> resolverFor(dependencySceneName, e)))
+    return variableResolversFor(dependenciesResolver.apply(m),
+                                dependencySceneName -> exportedVariablesOf(accessModelClass, dependencySceneName));
+  }
+  
+  private static List<Resolver> variableResolversFor(String[] dependencySceneNames,
+                                                     Function<String, List<String>> exportedVariables) {
+    return Arrays.stream(dependencySceneNames)
+                 .flatMap((String dependencySceneName) -> exportedVariables.apply(dependencySceneName).stream()
+                                                                           .map(e -> resolverFor(dependencySceneName,
+                                                                                                 e)))
                  .toList();
   }
   

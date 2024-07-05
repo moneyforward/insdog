@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.framework.action.*;
-import jp.co.moneyforward.autotest.framework.utils.AutotestSupport;
+import jp.co.moneyforward.autotest.framework.action.AutotestSupport;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
 import jp.co.moneyforward.autotest.ututils.ActUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
@@ -19,11 +19,16 @@ import java.util.function.Function;
 
 import static com.github.valid8j.fluent.Expectations.assertStatement;
 import static com.github.valid8j.fluent.Expectations.value;
-import static jp.co.moneyforward.autotest.framework.utils.AutotestSupport.*;
+import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.*;
 import static jp.co.moneyforward.autotest.ututils.ActionUtils.*;
 
 public class VariablesTest extends TestBase {
+  public static SceneCall sceneCall(String outputFieldName, List<Call> children, List<Resolver> assignments) {
+    var scene = scene(children);
+    return AutotestSupport.sceneCall(outputFieldName, scene, assignments);
+  }
+  
   @Test
   public void givenSceneWithVariableReadingAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
     LinkedList<String> out = new LinkedList<>();
@@ -34,7 +39,7 @@ public class VariablesTest extends TestBase {
                                 leafCall("x", addToListAct(out), "x")));
     
     
-    Action action = sceneCall("output", scene, List.of()).toAction(createActionComposer());
+    Action action = AutotestSupport.sceneCall("output", scene, List.of()).toAction(createActionComposer());
     
     performAction(action, Writer.Std.OUT);
     
@@ -59,7 +64,7 @@ public class VariablesTest extends TestBase {
                   List.of(new Resolver("in", Resolver.valueFrom("SCENE1", "x"))))));
     
     
-    Action action = sceneCall("output", scene, List.of()).toAction(createActionComposer());
+    Action action = AutotestSupport.sceneCall("output", scene, List.of()).toAction(createActionComposer());
     
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
     actionPerformer.performAndReport(action, Writer.Std.OUT);
@@ -87,7 +92,7 @@ public class VariablesTest extends TestBase {
                                                                              .containing("Scott")), "in")),
                   List.of(new Resolver("in", Resolver.valueFrom("SCENE1", "x"))))));
     
-    Action action = sceneCall("OUT", scene, List.of()).toAction(createActionComposer());
+    Action action = AutotestSupport.sceneCall("OUT", scene, List.of()).toAction(createActionComposer());
     performAction(action, Writer.Std.OUT);
   }
   

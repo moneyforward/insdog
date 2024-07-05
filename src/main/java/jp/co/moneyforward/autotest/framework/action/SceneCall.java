@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.nop;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
 public class SceneCall implements Call {

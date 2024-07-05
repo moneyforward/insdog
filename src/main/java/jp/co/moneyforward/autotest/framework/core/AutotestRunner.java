@@ -41,15 +41,6 @@ public interface AutotestRunner {
   
   ReportingActionPerformer actionPerformer();
   
-  default void performAction(Action action) {
-    try {
-      action.accept(actionPerformer());
-    } catch (RuntimeException | Error e) {
-      LOGGER.debug(e.getMessage(), e);
-      throw e;
-    }
-  }
-  
   default Writer createWriter() {
     return Writer.Slf4J.INFO::writeLine;
   }

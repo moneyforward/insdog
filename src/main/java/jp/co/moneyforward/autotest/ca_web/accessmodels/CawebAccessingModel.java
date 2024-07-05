@@ -90,6 +90,11 @@ public class CawebAccessingModel implements AutotestRunner {
         .build();
   }
   
+  /**
+   * Returns a scene, which performs a "logout" action.
+   *
+   * @return A scene to perform a "logout" action.
+   */
   @Named
   @Export("page")
   @DependsOn("login")
@@ -112,6 +117,12 @@ public class CawebAccessingModel implements AutotestRunner {
         .build();
   }
   
+  /**
+   * Returns a scene object, which performs a screenshot.
+   *
+   * @return A scene object which performs a screenshot.
+   * @see Screenshot
+   */
   @Named
   @Export("page")
   @DependsOn("open")
@@ -121,6 +132,11 @@ public class CawebAccessingModel implements AutotestRunner {
         .build();
   }
   
+  /**
+   * Returns a `Scene`, which closes the ongoing session.
+   *
+   * @return A `Scene`, which closes the ongoing session.
+   */
   @Named
   @DependsOn("open")
   public static Scene close() {

@@ -2,7 +2,7 @@ package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Action;
 
-public class LeafActCall<T, R> extends Call.ActCall<T, R> {
+public class LeafActCall<T, R> extends ActCall<T, R> {
   
   private final LeafAct<T, R> act;
   
