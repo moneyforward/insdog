@@ -15,7 +15,9 @@ public interface ExecutionEnvironment {
   
   Optional<String> testSceneName();
   
-  default ExecutionEnvironment withSceneName(String sceneName) {
+  String stepName();
+  
+  default ExecutionEnvironment withSceneName(String sceneName, String stepName) {
     requireNonNull(sceneName);
     return new ExecutionEnvironment() {
       @Override
@@ -26,6 +28,11 @@ public interface ExecutionEnvironment {
       @Override
       public Optional<String> testSceneName() {
         return Optional.of(sceneName);
+      }
+      
+      @Override
+      public String stepName() {
+        return stepName;
       }
     };
   }

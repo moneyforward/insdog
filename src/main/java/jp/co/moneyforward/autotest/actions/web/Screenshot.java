@@ -4,11 +4,6 @@ import com.microsoft.playwright.Page;
 import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
-import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.github.valid8j.classic.Requires.requireNonNull;
-
 public class Screenshot implements LeafAct<Page, Page> {
   
   public Screenshot() {
@@ -16,7 +11,7 @@ public class Screenshot implements LeafAct<Page, Page> {
   
   @Override
   public Page perform(Page value, ExecutionEnvironment executionEnvironment) {
-    value.screenshot(new Page.ScreenshotOptions().setPath(executionEnvironment.testOutputFilenameFor("screenshot.png")));
+    value.screenshot(new Page.ScreenshotOptions().setPath(executionEnvironment.testOutputFilenameFor(String.format("screenshot-%s.png", executionEnvironment.stepName()))));
     return value;
   }
 }
