@@ -15,11 +15,11 @@ public interface AutotestRunner {
   Logger LOGGER = LoggerFactory.getLogger(AutotestRunner.class);
   
   default void beforeAll(Action action) {
-    performAction(action);
+    performActionWithReporting(action);
   }
   
   default void beforeEach(Action action) {
-    performAction(action);
+    performActionWithReporting(action);
   }
   
   @TestTemplate
@@ -28,11 +28,11 @@ public interface AutotestRunner {
   }
   
   default void afterEach(Action action) {
-    performAction(action);
+    performActionWithReporting(action);
   }
   
   default void afterAll(Action action) {
-    performAction(action);
+    performActionWithReporting(action);
   }
   
   default void performActionWithReporting(Action action) {

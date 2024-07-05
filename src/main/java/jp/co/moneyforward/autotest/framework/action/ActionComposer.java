@@ -8,19 +8,37 @@ import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.spi.LocationAwareLogger;
 
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
 
+/**
+ * An interface that models a factory of actions.
+ *
+ * This interface is designed to be a "visitor" of "calls", each of which represents a call of an action (`ActionFactory`).
+ *
+ * A call is a model of an occurrence of an action, and it has input and output.
+ *
+ * Calls can be categorized into two.
+ * Calls for scenes (`Scene`) and calls for acts (`Act`).
+ * Corresponding to the subclasses of `Act`, there are subcategories of it, which are `LeafAct`, `AssertionAct`, and `PipelinedAct`.
+ *
+ * @see Call
+ * @see Scene
+ * @see Act
+ * @see ActionFactory
+ */
 public interface ActionComposer {
   Logger LOGGER = LoggerFactory.getLogger(ActionComposer.class);
   
   Optional<Call.SceneCall> currentSceneCall();
+  
+  ExecutionEnvironment executionEnvironment();
   
   default Action create(Call.SceneCall sceneCall) {
     return sequential(concat(Stream.of(beginSceneCall(sceneCall)),
@@ -33,52 +51,56 @@ public interface ActionComposer {
                           .toList());
   }
   
-  private static Stream<Action> flattenIfSequential(Action a) {
-    return a instanceof Composite && !((Composite) a).isParallel() ? ((Composite) a).children().stream()
-                                                                   : Stream.of(a);
-  }
-  
-  private static Action beginSceneCall(Call.SceneCall sceneCall) {
-    return InternalUtils.action("BEGIN:", c -> {
-      c.assignTo(sceneCall.workAreaName(), sceneCall.initializeWorkArea(c));
-    });
-  }
-  
-  private static Action endSceneCall(Call.SceneCall sceneCall) {
-    return InternalUtils.action("END:", c -> {
-      c.assignTo(sceneCall.outputFieldName(), c.valueOf(sceneCall.workAreaName()));
-      c.unassign(sceneCall.workAreaName());
-    });
-  }
-  
-  
   default Action create(Call.AssertionActCall<?, ?> call) {
     return ActionSupport.sequential(
         Stream.concat(
-            Stream.of(call.target().toAction(this)),
-            call.assertionAsLeafActCalls().stream().map(each -> each.toAction(this))
-        ).toList());
+                  Stream.of(call.target().toAction(this)),
+                  call.assertionAsLeafActCalls()
+                      .stream()
+                      .map(each -> each.toAction(this)))
+              .toList());
+  }
+  
+  default <T, R> Action create(Call.PipelinedActCall<T, R> pipelinedActCall) {
+    throw new UnsupportedOperationException();
   }
   
   default Action create(Call.LeafActCall<?, ?> actCall) {
     Call.SceneCall currentSceneCall = this.currentSceneCall().orElseThrow();
     
     return InternalUtils.action(actCall.act().name() + "[" + actCall.inputFieldName() + "]",
-                                toContextConsumerFromAct(currentSceneCall, actCall, this.executionEnvironment()));
+                                toContextConsumerFromAct(currentSceneCall,
+                                                         actCall,
+                                                         this.executionEnvironment()));
   }
   
-  private <T, R> Consumer<Context> toContextConsumerFromAct(Call.SceneCall currentSceneCall, Call.LeafActCall<T, R> actCall, ExecutionEnvironment executionEnvironment) {
+  private static <T, R> Consumer<Context> toContextConsumerFromAct(Call.SceneCall currentSceneCall,
+                                                            Call.LeafActCall<T, R> actCall,
+                                                            ExecutionEnvironment executionEnvironment) {
+    return toContextConsumerFromAct(c -> actCall.inputFieldValue(currentSceneCall, c),
+                                    actCall.act(),
+                                    actCall.outputFieldName(),
+                                    currentSceneCall,
+                                    executionEnvironment);
+  }
+  
+  private static <T, R> Consumer<Context> toContextConsumerFromAct(Function<Context, T> inputFieldValueResolver,
+                                                                   LeafAct<T, R> act,
+                                                                   String outputFieldName,
+                                                                   Call.SceneCall currentSceneCall,
+                                                                   ExecutionEnvironment executionEnvironment) {
     return c -> {
-      LOGGER.info("ENTERING: {}:{}", currentSceneCall.scene.name(), actCall.act().name());
+      LOGGER.info("ENTERING: {}:{}", currentSceneCall.scene.name(), act.name());
       try {
-        var v = actCall.act().perform(actCall.value(currentSceneCall, c),
-                                      executionEnvironment);
-        currentSceneCall.workArea(c).put(actCall.outputFieldName(), v);
+        var v = act.perform(inputFieldValueResolver.apply(c),
+                            executionEnvironment);
+        currentSceneCall.workArea(c).put(outputFieldName, v);
       } catch (Error | RuntimeException e) {
+        LOGGER.error(e.getMessage());
         LOGGER.debug(e.getMessage(), e);
         throw e;
       } finally {
-        LOGGER.info("LEAVING:  {}:{}", currentSceneCall.scene.name(), actCall.act().name());
+        LOGGER.info("LEAVING:  {}:{}", currentSceneCall.scene.name(), act.name());
       }
     };
   }
@@ -110,5 +132,21 @@ public interface ActionComposer {
     };
   }
   
-  ExecutionEnvironment executionEnvironment();
+  private static Stream<Action> flattenIfSequential(Action a) {
+    return a instanceof Composite && !((Composite) a).isParallel() ? ((Composite) a).children().stream()
+                                                                   : Stream.of(a);
+  }
+  
+  private static Action beginSceneCall(Call.SceneCall sceneCall) {
+    return InternalUtils.action("BEGIN:", c -> {
+      c.assignTo(sceneCall.workAreaName(), sceneCall.initializeWorkArea(c));
+    });
+  }
+  
+  private static Action endSceneCall(Call.SceneCall sceneCall) {
+    return InternalUtils.action("END:", c -> {
+      c.assignTo(sceneCall.outputFieldName(), c.valueOf(sceneCall.workAreaName()));
+      c.unassign(sceneCall.workAreaName());
+    });
+  }
 }

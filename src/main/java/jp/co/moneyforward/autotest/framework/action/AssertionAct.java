@@ -14,19 +14,19 @@ import static java.util.Collections.singletonList;
 public class AssertionAct<T, R> implements Act<T, R> {
   private final List<Function<R, Statement<R>>> assertions;
   private final String name;
-  private final LeafAct<T, R> parent;
+  private final Act<T, R> parent;
   
-  public AssertionAct(LeafAct<T, R> parent, String name, Function<R, Statement<R>> assertion) {
+  public AssertionAct(Act<T, R> parent, String name, Function<R, Statement<R>> assertion) {
     this(parent, name, singletonList(assertion));
   }
   
-  public AssertionAct(LeafAct<T, R> parent, String name, List<Function<R, Statement<R>>> assertion) {
+  public AssertionAct(Act<T, R> parent, String name, List<Function<R, Statement<R>>> assertion) {
     this.parent = parent;
     this.assertions = requireNonNull(assertion);
     this.name = requireNonNull(name);
   }
   
-  public LeafAct<T, R> parent() {
+  public Act<T, R> parent() {
     return this.parent;
   }
   

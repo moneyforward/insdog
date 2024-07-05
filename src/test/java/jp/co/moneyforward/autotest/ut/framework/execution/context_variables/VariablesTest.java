@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.framework.action.Call;
+import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.utils.AutotestSupport;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
@@ -28,7 +29,8 @@ public class VariablesTest extends TestBase {
   @Test
   public void givenSceneWithVariableReadingAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
     LinkedList<String> out = new LinkedList<>();
-    Scene scene = scene(List.of(leafCall("x", ActUtils.let("Scott Tiger")),
+    LeafAct<?, String> leaf = ActUtils.let("Scott Tiger");
+    Scene scene = scene(List.of(leafCall("x", leaf, "NONE"),
                                 leafCall("x", helloAct(), "x"),
                                 leafCall("x", printlnAct(), "x"),
                                 leafCall("x", addToListAct(out), "x")));
@@ -48,9 +50,10 @@ public class VariablesTest extends TestBase {
   @Test
   public void takeOvers() {
     LinkedList<String> out = new LinkedList<>();
+    LeafAct<?, String> leaf = let("Scott Tiger");
     Scene scene = scene(List.of(
         sceneCall("SCENE1",
-                  List.of(leafCall("out", let("Scott Tiger")),
+                  List.of(leafCall("out", leaf, "NONE"),
                           leafCall("x", helloAct(), "out")),
                   List.of()),
         sceneCall("SCENE2",
@@ -72,9 +75,10 @@ public class VariablesTest extends TestBase {
   
   @Test
   public void takeOvers2() {
+    LeafAct<?, String> leaf = let("Scott Tiger");
     Scene scene = scene(List.of(
         sceneCall("SCENE1",
-                  List.of(leafCall("out", let("Scott Tiger")),
+                  List.of(leafCall("out", leaf, "NONE"),
                           leafCall("x", helloAct(), "out")),
                   List.of()),
         sceneCall("SCENE2",
@@ -102,9 +106,10 @@ public class VariablesTest extends TestBase {
   
   @Test
   public void action2() {
+    LeafAct<?, String> leaf = let("Scott");
     Call.SceneCall sceneCall1 = sceneCall("S1",
                                           List.of(
-                                              leafCall("var", let("Scott")),
+                                              leafCall("var", leaf, "NONE"),
                                               leafCall("var", helloAct(), "var"),
                                               leafCall("var", printlnAct(), "var")),
                                           List.of());

@@ -13,9 +13,27 @@ import java.util.function.Function;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
+/**
+ * An interface that models an occurrence of an action in a test scenario.
+ *
+ */
 public interface Call {
+  /**
+   * A method to return output field name.
+   *
+   * @return An output field name of this object.
+   */
   String outputFieldName();
   
+  /**
+   * Converts this call to action to an action object.
+   *
+   * This is an `Node#accept` method in the **Visitor** pattern.
+   * Usually implementations of this method should call back by `actionComposer#create(this)` to make a double dispatch happen.
+   *
+   * @param actionComposer A visitor, which creates an action from this object.
+   * @return An action created by `actionComposer`.
+   */
   Action toAction(ActionComposer actionComposer);
   
   class SceneCall implements Call {
@@ -70,6 +88,18 @@ public interface Call {
     
     String inputFieldName() {
       return this.inputFieldName;
+    }
+
+    /**
+     * Returns an input field's value of the `sceneCall`.
+     *
+     * @param sceneCall A `sceneCall` whose input field value is returned.
+     * @param context A context, in which the `sceneCall` 's input field value is resolved.
+     * @return A value of an input field name of a `sceneCall`.
+     */
+    @SuppressWarnings("unchecked")
+    T inputFieldValue(SceneCall sceneCall, Context context) {
+      return (T) sceneCall.workArea(context).get(inputFieldName());
     }
     
     @Override
@@ -133,10 +163,23 @@ public interface Call {
       return this.act;
     }
     
+    @Override
+    public Action toAction(ActionComposer actionComposer) {
+      return actionComposer.create(this);
+    }
+  }
+  
+  class PipelinedActCall<T, R> extends ActCall<T, R> {
     
-    @SuppressWarnings("unchecked")
-    T value(SceneCall sceneCall, Context context) {
-      return (T) sceneCall.workArea(context).get(inputFieldName());
+    private final PipelinedAct<T, ?, R> act;
+    
+    public PipelinedActCall(String inputFieldName, PipelinedAct<T, ?, R> act, String outputFieldName) {
+      super(inputFieldName, outputFieldName);
+      this.act = act;
+    }
+    
+    public PipelinedAct<T, ?, R> act() {
+      return this.act;
     }
     
     @Override
