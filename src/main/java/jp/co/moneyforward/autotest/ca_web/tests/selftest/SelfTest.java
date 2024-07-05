@@ -2,10 +2,9 @@ package jp.co.moneyforward.autotest.ca_web.tests.selftest;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.action.Scene;
-import jp.co.moneyforward.autotest.framework.annotations.DependsOn.Parameter;
+import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 
@@ -24,6 +23,7 @@ public class SelfTest implements AutotestRunner {
   private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(Context.create(), new HashMap<>());
   
   @Named
+  @Export("page")
   @ClosedBy("close")
   public static Scene open() {
     return new Scene.Builder("page")
@@ -33,7 +33,8 @@ public class SelfTest implements AutotestRunner {
   
   @Named
   @ClosedBy("logout")
-  @DependsOn(@Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  @Export("page")
+  @DependsOn("open")
   public static Scene login() {
     return new Scene.Builder("page")
         .add(new LeafAct.Let<>("LOGIN"))
@@ -41,7 +42,8 @@ public class SelfTest implements AutotestRunner {
   }
   
   @Named
-  @DependsOn(@Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
+  @Export("page")
+  @DependsOn("login")
   public static Scene connect() {
     return new Scene.Builder("page")
         .add(new LeafAct.Let<>("CONNECT"))
@@ -49,7 +51,8 @@ public class SelfTest implements AutotestRunner {
   }
   
   @Named
-  @DependsOn(@Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
+  @Export("page")
+  @DependsOn("login")
   public static Scene disconnect() {
     return new Scene.Builder("page")
         .add(new LeafAct.Let<>("DISCONNECT"))
@@ -57,7 +60,7 @@ public class SelfTest implements AutotestRunner {
   }
   
   @Named
-  @DependsOn(@Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
+  @DependsOn("login")
   public static Scene logout() {
     return new Scene.Builder("page")
         .add(new LeafAct.Let<>("LOGOUT"))
@@ -65,7 +68,7 @@ public class SelfTest implements AutotestRunner {
   }
   
   @Named
-  @DependsOn(@Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  @DependsOn("open")
   public static Scene close() {
     return new Scene.Builder("page")
         .add(new LeafAct.Let<>("CLOSE"))

@@ -6,12 +6,9 @@ import jp.co.moneyforward.autotest.actions.web.PageAct;
 import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
 import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.framework.action.Scene;
-import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
-import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
-import jp.co.moneyforward.autotest.framework.annotations.DependsOn.Parameter;
-import jp.co.moneyforward.autotest.framework.annotations.Named;
-import jp.co.moneyforward.autotest.framework.annotations.When;
+import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
+import jp.co.moneyforward.autotest.framework.core.Resolver;
 import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 import org.junit.jupiter.api.Tag;
 
@@ -49,7 +46,8 @@ import static jp.co.moneyforward.autotest.ca_web.accessmodels.CawebUtils.*;
         afterEach = {"screenshot"}))
 public class SimpleJournalCreation extends CawebAccessingModel {
   @Named
-  @DependsOn(@Parameter(name = "page", sourceSceneName = "login"))
+  @DependsOn("login")
+  @Export("page")
   public static Scene clickEasyInputUnderManualEntry() {
     return new Scene.Builder("page")
         .add(clickSidebarItem("手動で仕訳", "簡単入力"))
@@ -58,7 +56,7 @@ public class SimpleJournalCreation extends CawebAccessingModel {
   
   @Named
   @When("clickEasyInputUnderManualEntry")
-  @DependsOn(@Parameter(name = "page", sourceSceneName = "clickEasyInputUnderManualEntry"))
+  @Export("page")
   public static Scene thenClickedItemIsVisible() {
     return new Scene.Builder("page")
         .add(assertMainContainerHasItemNamed("簡単入力"))
@@ -66,41 +64,52 @@ public class SimpleJournalCreation extends CawebAccessingModel {
   }
   
   @Named
-  @DependsOn(@Parameter(name = "page", sourceSceneName = "clickEasyInputUnderManualEntry"))
+  @DependsOn("clickEasyInputUnderManualEntry")
+  @Export("page")
   public static Scene enterJournalRecordWithSimpleInput() {
     return new Scene.Builder("page")
-        .add(clickAndFill("#journal_recognized_at", "05/15"))
-        .add(clickAndFill("#journal_value", "1111"))
+        .add(clickAndFill("#journal_recognized_at", journalDate()))
+        .add(clickAndFill("#journal_value", String.format("%s", journalValue())))
         .add(clickAndWaitForCompletion("登録"))
         .build();
   }
   
+  private static int journalValue() {
+    return 1111;
+  }
+  
   @Named
   @When("enterJournalRecordWithSimpleInput")
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "enterJournalRecordWithSimpleInput"))
+  @Export("page")
   public static Scene thenJournalRecordUpdated() {
     return new Scene.Builder("page")
-        .add(assertEmphasizedRecordHasExpectedContent("05/15",
-                                                      "+1,111",
+        .add(assertEmphasizedRecordHasExpectedContent(journalDate(),
+                                                      String.format("+%,d", journalValue()),
                                                       "現金 が増加して 現金 が減少した"))
         .build();
   }
   
+  private static String journalDate() {
+    return "05/15";
+  }
+  
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "enterJournalRecordWithSimpleInput"))
+  @DependsOn("enterJournalRecordWithSimpleInput")
+  @Export("page")
   public static Scene deleteJournalRecord() {
     return new Scene.Builder("page")
-        .add(deleteCreatedJournalEntryAndDismissDialog())
-        .add(clickAndWaitForCompletion("削除"))
+        .add(
+            new Scene.Builder("page")
+                .add(deleteCreatedJournalEntryAndDismissDialog())
+                .add(clickAndWaitForCompletion("削除"))
+                .build(),
+            Resolver.parameterFromScene("page", "enterJournalRecordWithSimpleInput"))
         .build();
   }
   
   @Named
   @When("deleteJournalRecord")
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "deleteJournalRecord"))
+  @Export("page")
   public static Scene thenJournalRecordDeleted() {
     return new Scene.Builder("page")
         .add(new PageAct("Delete the created journal") {

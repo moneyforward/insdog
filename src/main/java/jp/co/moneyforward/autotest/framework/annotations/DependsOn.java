@@ -9,9 +9,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 public @interface DependsOn {
-  Parameter[] value() default {};
+  String[] value() default {};
+  Parameter[] variables() default {};
+
+  @Deprecated
   @interface Parameter {
-    final String DEFAULT_FIELD_NAME_IN_SOURCE_SCENE="";
+    String DEFAULT_FIELD_NAME_IN_SOURCE_SCENE="";
     String name();
     String sourceSceneName();
     

@@ -99,8 +99,8 @@ public interface Scene extends ActionFactory {
       return this.addCall(assertionCall(outputFieldName, new Value<>(), Collections.singletonList(assertionAct), inputFieldName));
     }
     
-    public final Builder add(String outputFieldName, Scene scene, Resolver... resolvers) {
-      return this.addCall(sceneCall(outputFieldName, scene, Arrays.asList(resolvers)));
+    public final Builder add(Scene scene, Resolver... resolvers) {
+      return this.addCall(sceneCall(scene, Arrays.asList(resolvers)));
     }
     
     public Builder addCall(Call call) {
@@ -118,6 +118,11 @@ public interface Scene extends ActionFactory {
         @Override
         public String toString() {
           return name() + "@" + System.identityHashCode(this);
+        }
+        
+        @Override
+        public String name() {
+          return "Scene[" + defaultFieldName + "]";
         }
       };
     }

@@ -121,7 +121,8 @@ public class SceneTest extends TestBase {
     List<String> out = new LinkedList<>();
     ActionUtils.performAction(createActionComposer().create(sceneCall("out",
                                                                       scene,
-                                                                      List.of(new Resolver("in", c -> "Scott Tiger")))), createWriter(out));
+                                                                      List.of(new Resolver("in", c -> "Scott Tiger")))),
+                              createWriter(out));
     assertStatement(value(out).toBe()
                               .containingElementsInOrder(List.of(containsString("BEGIN"),
                                                                  containsString("let"),

@@ -12,7 +12,7 @@ import jp.co.moneyforward.autotest.framework.action.LeafAct.Let;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
-import jp.co.moneyforward.autotest.framework.annotations.DependsOn.Parameter;
+import jp.co.moneyforward.autotest.framework.annotations.Export;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import org.junit.jupiter.api.Tag;
@@ -39,7 +39,6 @@ import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
         beforeAll = {"open"},
-        beforeEach = {},
         value = {"login", "connect", "disconnect", "logout"},
         afterEach = {"screenshot"},
         afterAll = {"close"}))
@@ -59,6 +58,7 @@ public class ProgrammingModelExample implements AutotestRunner {
   }
   
   @Named
+  @Export({"page", "browser", "window"})
   public static Scene open() {
     return new Scene.Builder("session")
         .add("window", new Let<>(Playwright.create()))
@@ -69,8 +69,8 @@ public class ProgrammingModelExample implements AutotestRunner {
   
   
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  @DependsOn("open")
+  @Export("page")
   public static Scene login() {
     return new Scene.Builder("page")
         .add(new Navigate(EXECUTION_PROFILE.homeUrl()))
@@ -82,8 +82,8 @@ public class ProgrammingModelExample implements AutotestRunner {
   }
   
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  @DependsOn("open")
+  @Export("page")
   public static Scene connect() {
     /*
 ,銀行ラベルを押す,,click,#js-navi-tab > li.active > a,,,
@@ -117,8 +117,8 @@ public class ProgrammingModelExample implements AutotestRunner {
   }
   
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
+  @DependsOn("login")
+  @Export("page")
   public static Scene disconnect() {
     return new Scene.Builder("page")
         .add(new Click(getBySelector("#js-sidebar-opener").andThen(byText("データ連携"))))
@@ -127,8 +127,8 @@ public class ProgrammingModelExample implements AutotestRunner {
   }
   
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
+  @DependsOn("login")
+  @Export("page")
   public static Scene logout() {
     return new Scene.Builder("page")
         .add(new Click(getLinkByName("スペシャルサンドボックス合同会社 (法人)", true)))
@@ -137,18 +137,14 @@ public class ProgrammingModelExample implements AutotestRunner {
   }
   
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  @DependsOn("open")
+  @Export("page")
   public static Scene screenshot() {
     return new Scene.Builder("page").add(new Screenshot()).build();
   }
   
   @Named
-  @DependsOn({
-      @Parameter(name = "browser", sourceSceneName = "open", fieldNameInSourceScene = "browser"),
-      @Parameter(name = "window", sourceSceneName = "open", fieldNameInSourceScene = "window"),
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page")}
-  )
+  @DependsOn("open")
   public static Scene close() {
     return new Scene.Builder("close")
         .add("NONE", new CloseBrowser(), "browser")

@@ -17,7 +17,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * ````java
  *
  * @Named
- * @DependsOn(@Parameter(name="page", source="login"))
+ * @DependsOn("login")
  * Scene targetMethod() {
  *   return scene;
  * }
