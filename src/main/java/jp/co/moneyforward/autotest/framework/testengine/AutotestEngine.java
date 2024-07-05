@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
@@ -306,25 +307,33 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                  .findFirst();
   }
   
-  private static SceneCall methodToSceneCall(Class<?> accessModelClass, Method m, AutotestRunner runner) {
+  private static SceneCall methodToSceneCall(Class<?> accessModelClass, Method method, AutotestRunner runner) {
     try {
-      Scene scene = (Scene) m.invoke(runner);
-      return sceneCall(nameOf(m), scene, dependenciesOf(m, accessModelClass));
+      Scene scene = (Scene) method.invoke(runner);
+      return sceneCall(nameOf(method),
+                       scene,
+                       Stream.concat(
+                           variableResolversOf(method, accessModelClass, DependsOn.class, m -> m.getAnnotation(DependsOn.class).value()).stream(),
+                           variableResolversOf(method, accessModelClass, When.class, m -> m.getAnnotation(When.class).value()).stream()).toList());
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
   }
   
-  private static List<Resolver> dependenciesOf(Method m, Class<?> accessModelClass) {
-    if (!m.isAnnotationPresent(DependsOn.class))
+  private static List<Resolver> variableResolversOf(Method m, Class<?> accessModelClass, Class<? extends Annotation> dependencyAnnotationClass, Function<Method, String[]> dependencies) {
+    if (!m.isAnnotationPresent(dependencyAnnotationClass))
       return emptyList();
-    return Arrays.stream(m.getAnnotation(DependsOn.class).value())
+    return Arrays.stream(dependencies.apply(m))
                  .flatMap((String dependency) -> exportedFromDependency(accessModelClass,
                                                                         dependency).stream()
-                                                                                   .map(e -> new Resolver(e,
-                                                                                                          valueFrom(dependency,
-                                                                                                                    e))))
+                                                                                   .map(e -> resolverFor(dependency, e)))
                  .toList();
+  }
+  
+  private static Resolver resolverFor(String dependency, String e) {
+    return new Resolver(e,
+                        valueFrom(dependency,
+                                  e));
   }
   
   private static List<String> exportedFromDependency(Class<?> accessModelClass, String methodName) {
