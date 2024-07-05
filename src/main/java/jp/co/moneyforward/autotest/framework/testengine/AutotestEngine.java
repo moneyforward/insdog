@@ -48,7 +48,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   
   @Override
   public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext context) {
-    ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
+    ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), "main");
     return actions(executionPlan(context),
                    ExecutionPlan::value,
                    sceneCallMap(context),
@@ -84,7 +84,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     
     {
       AutotestRunner runner = autotestRunner(context);
-      ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
+      ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), "beforeAll");
       configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-beforeAll.log"), Level.INFO);
       actions(executionPlan(context),
               ExecutionPlan::beforeAll,
@@ -96,7 +96,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   
   @Override
   public void beforeEach(ExtensionContext context) {
-    ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
+    ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), "beforeEach");
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-before.log"), Level.INFO);
     AutotestRunner runner = autotestRunner(context);
     actions(executionPlan(context),
@@ -109,7 +109,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   
   @Override
   public void afterEach(ExtensionContext context) {
-    ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
+    ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), "afterEach");
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-after.log"), Level.INFO);
     AutotestRunner runner = autotestRunner(context);
     List<ExceptionEntry> errors = new ArrayList<>();
@@ -126,7 +126,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   @Override
   public void afterAll(ExtensionContext context) {
     AutotestRunner runner = autotestRunner(context);
-    ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName());
+    ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), "afterAll");
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-afterAll.log"), Level.INFO);
     List<ExceptionEntry> errors = new ArrayList<>();
     actions(executionPlan(context),
@@ -252,6 +252,11 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
       @Override
       public Optional<String> testSceneName() {
         return Optional.empty();
+      }
+      
+      @Override
+      public String stepName() {
+        return "unknown";
       }
     };
   }
