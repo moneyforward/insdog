@@ -116,7 +116,7 @@ public class CawebAccessingModel implements AutotestRunner {
   @Export("page")
   @DependsOn("open")
   public static Scene screenshot() {
-    return new Scene.Builder("screenshot")
+    return new Scene.Builder("page")
         .add("NONE", new Screenshot(), "page")
         .build();
   }

@@ -139,6 +139,27 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     if (!errors.isEmpty()) reportErrors(errors);
   }
   
+  public static ExecutionEnvironment createExecutionEnvironment(String testClassName) {
+    require(Expectations.value(testClassName).toBe().notNull());
+    return new ExecutionEnvironment() {
+      @Override
+      public String testClassName() {
+        return testClassName;
+      }
+      
+      @Override
+      public Optional<String> testSceneName() {
+        return Optional.empty();
+      }
+      
+      @Override
+      public String stepName() {
+        return "unknown";
+      }
+    };
+  }
+  
+  
   private static AutotestExecution.Spec loadExecutionSpec(AutotestRunner runner) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
     AutotestExecution execution = runner.getClass()
                                         .getAnnotation(AutotestExecution.class);
@@ -198,7 +219,6 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return ret;
   }
   
-  
   private static void runActionEntryRollingForwardOnErrors(Entry<String, Action> each, List<ExceptionEntry> errors, Runnable runnable) {
     try {
       LOGGER.info("Executing: {}", each.key());
@@ -240,26 +260,6 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return actionComposer.create(sceneCall);
   }
   
-  public static ExecutionEnvironment createExecutionEnvironment(String testClassName) {
-    require(Expectations.value(testClassName).toBe().notNull());
-    return new ExecutionEnvironment() {
-      @Override
-      public String testClassName() {
-        return testClassName;
-      }
-      
-      @Override
-      public Optional<String> testSceneName() {
-        return Optional.empty();
-      }
-      
-      @Override
-      public String stepName() {
-        return "unknown";
-      }
-    };
-  }
-  
   private static ExecutionEnvironment createExecutionEnvironment(ExtensionContext extensionContext) {
     return createExecutionEnvironment(
         extensionContext.getTestClass()
@@ -292,7 +292,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return aClass;
   }
   
-  public static String nameOf(Method m) {
+  private static String nameOf(Method m) {
     Named annotation = m.getAnnotation(Named.class);
     assert annotation != null : Objects.toString(m);
     if (!Objects.equals(annotation.value(), Named.DEFAULT_VALUE))
@@ -300,7 +300,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return m.getName();
   }
   
-  public static Optional<Method> findMethodByName(String name, Class<?> klass) {
+  private static Optional<Method> findMethodByName(String name, Class<?> klass) {
     return Arrays.stream(klass.getMethods())
                  .filter(m -> m.isAnnotationPresent(Named.class))
                  .filter(m -> Objects.equals(nameOf(m), name))
@@ -312,31 +312,44 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
       Scene scene = (Scene) method.invoke(runner);
       return sceneCall(nameOf(method),
                        scene,
-                       Stream.concat(
-                           variableResolversOf(method, accessModelClass, DependsOn.class, m -> m.getAnnotation(DependsOn.class).value()).stream(),
-                           variableResolversOf(method, accessModelClass, When.class, m -> m.getAnnotation(When.class).value()).stream()).toList());
+                       variableResolversFor(accessModelClass, method));
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
   }
   
-  private static List<Resolver> variableResolversOf(Method m, Class<?> accessModelClass, Class<? extends Annotation> dependencyAnnotationClass, Function<Method, String[]> dependencies) {
-    if (!m.isAnnotationPresent(dependencyAnnotationClass))
-      return emptyList();
-    return Arrays.stream(dependencies.apply(m))
-                 .flatMap((String dependency) -> exportedFromDependency(accessModelClass,
-                                                                        dependency).stream()
-                                                                                   .map(e -> resolverFor(dependency, e)))
+  private static List<Resolver> variableResolversFor(Class<?> accessModelClass, Method method) {
+    return Stream.concat(variableResolversFor(method,
+                                              accessModelClass,
+                                              DependsOn.class,
+                                              m -> m.getAnnotation(DependsOn.class)
+                                                    .value()).stream(),
+                         variableResolversFor(method,
+                                              accessModelClass,
+                                              When.class,
+                                              m -> m.getAnnotation(When.class)
+                                                    .value()).stream())
                  .toList();
   }
   
-  private static Resolver resolverFor(String dependency, String e) {
-    return new Resolver(e,
-                        valueFrom(dependency,
-                                  e));
+  private static List<Resolver> variableResolversFor(Method m,
+                                                     Class<?> accessModelClass,
+                                                     Class<? extends Annotation> dependencyAnnotationClass,
+                                                     Function<Method, String[]> dependencies) {
+    if (!m.isAnnotationPresent(dependencyAnnotationClass))
+      return emptyList();
+    return Arrays.stream(dependencies.apply(m))
+                 .flatMap((String dependencySceneName)
+                              -> exportedVariablesOf(accessModelClass, dependencySceneName).stream()
+                                                                                           .map(e -> resolverFor(dependencySceneName, e)))
+                 .toList();
   }
   
-  private static List<String> exportedFromDependency(Class<?> accessModelClass, String methodName) {
+  private static Resolver resolverFor(String sceneName, String variableName) {
+    return new Resolver(variableName, valueFrom(sceneName, variableName));
+  }
+  
+  private static List<String> exportedVariablesOf(Class<?> accessModelClass, String methodName) {
     return List.of(findMethodByName(methodName, accessModelClass)
                        .orElseThrow()
                        .getAnnotation(Export.class)
