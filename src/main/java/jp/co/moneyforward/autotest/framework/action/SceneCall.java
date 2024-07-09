@@ -6,6 +6,7 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
@@ -22,20 +23,25 @@ public class SceneCall implements Call {
     this.assignmentResolvers = requireNonNull(assignmentResolvers);
   }
   
-  public SceneCall(Scene scene, Map<String, Function<Context, Object>> assignmentResolvers) {
+  public SceneCall(Scene scene) {
     this.outputFieldName = null;
     this.scene = requireNonNull(scene);
-    this.assignmentResolvers = requireNonNull(assignmentResolvers);
+    this.assignmentResolvers = null;
   }
   
   String workAreaName() {
     return "work-" + objectId();
   }
   
-  Map<String, Object> initializeWorkArea(Context context) {
+  Map<String, Object> initializeWorkArea(Context context, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     var ret = new HashMap<String, Object>();
-    assignmentResolvers.forEach((k, r) -> ret.put(k, r.apply(context)));
+    assignmentResolvers().orElse(assignmentResolversFromCurrentCall)
+                         .forEach((k, r) -> ret.put(k, r.apply(context)));
     return ret;
+  }
+  
+  public Optional<Map<String, Function<Context, Object>>> assignmentResolvers() {
+    return Optional.ofNullable(assignmentResolvers);
   }
   
   Map<String, Object> workArea(Context context) {
@@ -52,12 +58,12 @@ public class SceneCall implements Call {
   }
   
   @Override
-  public Action toAction(ActionComposer actionComposer) {
-    return actionComposer.create(this);
+  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+    return actionComposer.create(this, assignmentResolversFromCurrentCall);
   }
   
-  public Action begin() {
-    return beginSceneCall(this);
+  public Action begin(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+    return beginSceneCall(this, assignmentResolversFromCurrentCall);
   }
   
   public Action end() {
@@ -66,10 +72,11 @@ public class SceneCall implements Call {
     return endSceneCallDismissingOutput(this);
   }
   
-  private static Action beginSceneCall(SceneCall sceneCall) {
-    return InternalUtils.action("BEGIN@" + sceneCall.scene.name(), c -> {
-      c.assignTo(sceneCall.workAreaName(), sceneCall.initializeWorkArea(c));
-    });
+  private static Action beginSceneCall(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+    return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
+                                c -> c.assignTo(sceneCall.workAreaName(),
+                                                sceneCall.initializeWorkArea(c,
+                                                                             assignmentResolversFromCurrentCall)));
   }
   
   private static Action endSceneCall(SceneCall sceneCall) {

@@ -1,6 +1,10 @@
 package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
+
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * An interface that models an occurrence of an action in a test scenario.
@@ -20,7 +24,8 @@ public interface Call {
    * Usually implementations of this method should call back by `actionComposer#create(this)` to make a double dispatch happen.
    *
    * @param actionComposer A visitor, which creates an action from this object.
+   * @param assignmentResolversFromCurrentCall Resolvers to assign values to context variables referenced by a created action.
    * @return An action created by `actionComposer`.
    */
-  Action toAction(ActionComposer actionComposer);
+  Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall);
 }

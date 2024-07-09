@@ -36,7 +36,6 @@ import static com.github.valid8j.fluent.Expectations.require;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneCall;
-import static jp.co.moneyforward.autotest.framework.core.Resolver.valueFrom;
 
 /**
  * The test execution engine of the **autotest-ca**.
@@ -255,12 +254,14 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   private static List<Entry<String, Action>> toActions(Map<String, SceneCall> sceneCallMap, ActionComposer actionComposer, List<String> sceneNames) {
     return sceneNames.stream()
                      .filter(sceneCallMap::containsKey)
-                     .map((String each) -> new Entry<>(each, toAction(sceneCallMap.get(each), actionComposer)))
+                     .map((String each) -> new Entry<>(each,
+                                                       toAction(sceneCallMap.get(each),
+                                                                actionComposer)))
                      .toList();
   }
   
-  private static Action toAction(SceneCall sceneCall, ActionComposer actionComposer) {
-    return actionComposer.create(sceneCall);
+  private static Action toAction(SceneCall currentSceneCall, ActionComposer actionComposer) {
+    return actionComposer.create(currentSceneCall, currentSceneCall.assignmentResolvers().orElseThrow());
   }
   
   private static ExecutionEnvironment createExecutionEnvironment(ExtensionContext extensionContext) {
@@ -311,11 +312,14 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   private static SceneCall methodToSceneCall(Class<?> accessModelClass, Method method, AutotestRunner runner) {
+    return sceneCall(nameOf(method),
+                     createSceneFromMethod(method, runner),
+                     variableResolversFor(accessModelClass, method));
+  }
+  
+  private static Scene createSceneFromMethod(Method method, AutotestRunner runner) {
     try {
-      Scene scene = (Scene) method.invoke(runner);
-      return sceneCall(nameOf(method),
-                       scene,
-                       variableResolversFor(accessModelClass, method));
+      return (Scene) method.invoke(runner);
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
@@ -347,13 +351,9 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                                      Function<String, List<String>> exportedVariables) {
     return Arrays.stream(dependencySceneNames)
                  .flatMap((String dependencySceneName) -> exportedVariables.apply(dependencySceneName).stream()
-                                                                           .map(e -> resolverFor(dependencySceneName,
-                                                                                                 e)))
+                                                                           .map(e -> Resolver.resolverFor(dependencySceneName,
+                                                                                                          e)))
                  .toList();
-  }
-  
-  private static Resolver resolverFor(String sceneName, String variableName) {
-    return new Resolver(variableName, valueFrom(sceneName, variableName));
   }
   
   private static List<String> exportedVariablesOf(Class<?> accessModelClass, String methodName) {

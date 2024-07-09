@@ -90,12 +90,10 @@ public class SimpleJournalCreation extends CawebAccessingModel {
   @Export("page")
   public static Scene deleteJournalRecord() {
     return new Scene.Builder("page")
-        .add(
-            new Scene.Builder("page")
-                .add(deleteCreatedJournalEntryAndDismissDialog())
-                .add(clickAndWaitForCompletion("削除"))
-                .build(),
-            Resolver.parameterFromScene("page", "enterJournalRecordWithSimpleInput"))
+        .add(new Scene.Builder("page")
+                 .add(deleteCreatedJournalEntryAndDismissDialog())
+                 .add(clickAndWaitForCompletion("削除"))
+                 .build())
         .build();
   }
   

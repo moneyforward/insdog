@@ -8,6 +8,7 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -39,24 +40,24 @@ public interface ActionComposer {
   
   ExecutionEnvironment executionEnvironment();
   
-  default Action create(SceneCall sceneCall) {
-    return sequential(concat(Stream.of(sceneCall.begin()),
+  default Action create(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+    return sequential(concat(Stream.of(sceneCall.begin(assignmentResolversFromCurrentCall)),
                              Stream.of(sequential(sceneCall.scene.children()
                                                                  .stream()
-                                                                 .map((Call each) -> each.toAction(this))
+                                                                 .map((Call each) -> each.toAction(this, assignmentResolversFromCurrentCall))
                                                                  .flatMap(ActionComposer::flattenIfSequential)
                                                                  .toList())),
                              Stream.of(sceneCall.end()))
                           .toList());
   }
   
-  default Action create(AssertionActCall<?, ?> call) {
+  default Action create(AssertionActCall<?, ?> call, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     return sequential(
         Stream.concat(
-                  Stream.of(call.target().toAction(this)),
+                  Stream.of(call.target().toAction(this, assignmentResolversFromCurrentCall)),
                   call.assertionAsLeafActCalls()
                       .stream()
-                      .map(each -> each.toAction(this)))
+                      .map(each -> each.toAction(this, assignmentResolversFromCurrentCall)))
               .toList());
   }
   
@@ -115,11 +116,11 @@ public interface ActionComposer {
       }
       
       @Override
-      public Action create(SceneCall sceneCall) {
+      public Action create(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
         var before = currentSceneCall;
         try {
           currentSceneCall = sceneCall;
-          return ActionComposer.super.create(sceneCall);
+          return ActionComposer.super.create(sceneCall, assignmentResolversFromCurrentCall);
         } finally {
           currentSceneCall = before;
         }

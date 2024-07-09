@@ -1,6 +1,10 @@
 package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.Context;
+
+import java.util.Map;
+import java.util.function.Function;
 
 public class LeafActCall<T, R> extends ActCall<T, R> {
   
@@ -16,7 +20,7 @@ public class LeafActCall<T, R> extends ActCall<T, R> {
   }
   
   @Override
-  public Action toAction(ActionComposer actionComposer) {
+  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     return actionComposer.create(this);
   }
 }

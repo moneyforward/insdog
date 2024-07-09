@@ -2,7 +2,6 @@ package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.actions.web.Value;
-import jp.co.moneyforward.autotest.framework.core.Resolver;
 
 import java.util.*;
 import java.util.function.Function;
@@ -19,6 +18,7 @@ import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
 public interface Scene extends ActionFactory {
   /**
    * Returns members of this scene object, which are executed as "children".
+   *
    * @return members of this scene object.
    */
   List<Call> children();
@@ -47,9 +47,9 @@ public interface Scene extends ActionFactory {
      * Note that in case `T` and `R` are different, the field will have a different type after `leafAct` execution from the value before it is executed.
      *
      * @param leafAct An act object to be added to this builder.
+     * @param <T>     Type of input parameter field.
+     * @param <R>     Type of output parameter field.
      * @return This object.
-     * @param <T> Type of input parameter field.
-     * @param <R> Type of output parameter field.
      */
     public final <T, R> Builder add(LeafAct<T, R> leafAct) {
       return this.add(defaultFieldName, leafAct, defaultFieldName);
@@ -99,8 +99,9 @@ public interface Scene extends ActionFactory {
       return this.addCall(assertionCall(outputFieldName, new Value<>(), Collections.singletonList(assertionAct), inputFieldName));
     }
     
-    public final Builder add(Scene scene, Resolver... resolvers) {
-      return this.addCall(sceneCall(scene, Arrays.asList(resolvers)));
+    public final Builder add(Scene scene) {
+      //return this.addCall(sceneCall(scene, Arrays.asList(resolvers)));
+      return this.addCall(sceneCall(scene));
     }
     
     public Builder addCall(Call call) {

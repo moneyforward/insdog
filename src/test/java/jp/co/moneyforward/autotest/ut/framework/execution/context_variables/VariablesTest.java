@@ -39,7 +39,7 @@ public class VariablesTest extends TestBase {
                                 leafCall("x", addToListAct(out), "x")));
     
     
-    Action action = AutotestSupport.sceneCall("output", scene, List.of()).toAction(createActionComposer());
+    Action action = AutotestSupport.sceneCall("output", scene, List.of()).toAction(createActionComposer(), AutotestSupport.sceneCall("output", scene, List.of()).assignmentResolvers().orElseThrow());
     
     performAction(action, Writer.Std.OUT);
     
@@ -64,7 +64,7 @@ public class VariablesTest extends TestBase {
                   List.of(new Resolver("in", Resolver.valueFrom("SCENE1", "x"))))));
     
     
-    Action action = AutotestSupport.sceneCall("output", scene, List.of()).toAction(createActionComposer());
+    Action action = AutotestSupport.sceneCall("output", scene, List.of()).toAction(createActionComposer(), AutotestSupport.sceneCall("output", scene, List.of()).assignmentResolvers().orElseThrow());
     
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
     actionPerformer.performAndReport(action, Writer.Std.OUT);
@@ -92,7 +92,7 @@ public class VariablesTest extends TestBase {
                                                                              .containing("Scott")), "in")),
                   List.of(new Resolver("in", Resolver.valueFrom("SCENE1", "x"))))));
     
-    Action action = AutotestSupport.sceneCall("OUT", scene, List.of()).toAction(createActionComposer());
+    Action action = AutotestSupport.sceneCall("OUT", scene, List.of()).toAction(createActionComposer(), AutotestSupport.sceneCall("OUT", scene, List.of()).assignmentResolvers().orElseThrow());
     performAction(action, Writer.Std.OUT);
   }
   
@@ -103,7 +103,7 @@ public class VariablesTest extends TestBase {
                                                  leafCall("var", helloAct(), "var"),
                                                  leafCall("var", printlnAct(), "var")),
                                     List.of());
-    performAction(createActionComposer().create(sceneCall), Writer.Std.OUT);
+    performAction(createActionComposer().create(sceneCall, sceneCall.assignmentResolvers().orElseThrow()), Writer.Std.OUT);
   }
   
   
@@ -122,8 +122,8 @@ public class VariablesTest extends TestBase {
                                      List.of(new Resolver("foo", Resolver.valueFrom("S1", "var"))));
     
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
-    performAction(createActionComposer().create(sceneCall1), actionPerformer, Writer.Std.OUT);
-    performAction(createActionComposer().create(sceneCall2), actionPerformer, Writer.Std.OUT);
+    performAction(createActionComposer().create(sceneCall1, sceneCall1.assignmentResolvers().orElseThrow()), actionPerformer, Writer.Std.OUT);
+    performAction(createActionComposer().create(sceneCall2, sceneCall2.assignmentResolvers().orElseThrow()), actionPerformer, Writer.Std.OUT);
   }
   
   @Test
@@ -147,8 +147,8 @@ public class VariablesTest extends TestBase {
                                                    }});
     
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
-    performAction(createActionComposer().create(sceneCall1), actionPerformer, Writer.Std.OUT);
-    performAction(createActionComposer().create(sceneCall2), actionPerformer, Writer.Std.OUT);
+    performAction(createActionComposer().create(sceneCall1, sceneCall1.assignmentResolvers().orElseThrow()), actionPerformer, Writer.Std.OUT);
+    performAction(createActionComposer().create(sceneCall2, sceneCall2.assignmentResolvers().orElseThrow()), actionPerformer, Writer.Std.OUT);
   }
   
   private static AssertionActCall<String, String> getStringStringAssertionActCall() {

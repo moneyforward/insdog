@@ -18,4 +18,8 @@ public record Resolver(String parameterName, Function<Context, Object> resolverF
   public static Function<Context, Object> valueFrom(String sourceSceneName, String fieldNameInSourceScene) {
     return context -> context.<Map<String, Object>>valueOf(sourceSceneName).get(fieldNameInSourceScene);
   }
+  
+  public static Resolver resolverFor(String sceneName, String variableName) {
+    return new Resolver(variableName, valueFrom(sceneName, variableName));
+  }
 }
