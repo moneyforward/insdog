@@ -15,7 +15,9 @@ public abstract class PageAct implements LeafAct<Page, Page> {
   
   /**
    * Creates a new instance of this class.
+   *
    * It is advised to give a concise and descriptive string to `description` parameter as it is printed the test report.
+   * The `description` should be concise but informative enough for a reader to reproduce the same action that this `Act` performs.
    *
    * @param description A string that describes this object.
    */

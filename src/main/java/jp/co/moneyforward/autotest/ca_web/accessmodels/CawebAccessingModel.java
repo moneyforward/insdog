@@ -60,7 +60,10 @@ public class CawebAccessingModel implements AutotestRunner {
     int time = 30;
     return new Scene.Builder("NONE")
         .add("window", new Let<>(Playwright.create()))
-        .add("browser", new Func<>("Playwright::chromium", (Playwright p) -> p.chromium().launch()), "window")
+        .add("browser", new Func<>("Playwright::chromium",
+                                   (Playwright p) -> p.chromium()
+                                                      .launch(new BrowserType.LaunchOptions().setHeadless(EXECUTION_PROFILE.setHeadless()))),
+             "window")
         .add("browserContext", new Func<>("Browser::newContext->setDefaultTimeout(" + time + timeUnit + ")", (Browser b) -> {
           BrowserContext c = ExecutionProfile.browserContextFrom(b, EXECUTION_PROFILE);
           c.setDefaultTimeout(timeUnit.toMillis(time));

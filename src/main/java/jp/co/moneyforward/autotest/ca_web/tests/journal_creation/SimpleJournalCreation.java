@@ -1,5 +1,6 @@
-package jp.co.moneyforward.autotest.ca_web.tests.journalCreation;
+package jp.co.moneyforward.autotest.ca_web.tests.journal_creation;
 
+import com.microsoft.playwright.Dialog;
 import com.microsoft.playwright.Locator.GetByTextOptions;
 import com.microsoft.playwright.Page;
 import jp.co.moneyforward.autotest.actions.web.PageAct;
@@ -8,7 +9,6 @@ import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
-import jp.co.moneyforward.autotest.framework.core.Resolver;
 import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 import org.junit.jupiter.api.Tag;
 
@@ -50,7 +50,7 @@ public class SimpleJournalCreation extends CawebAccessingModel {
   @Export("page")
   public static Scene clickEasyInputUnderManualEntry() {
     return new Scene.Builder("page")
-        .add(clickSidebarItem("手動で仕訳", "簡単入力"))
+        .add(navigateToMenuItemUnderSidebarItem("簡単入力", "手動で仕訳"))
         .build();
   }
   
@@ -91,7 +91,7 @@ public class SimpleJournalCreation extends CawebAccessingModel {
   public static Scene deleteJournalRecord() {
     return new Scene.Builder("page")
         .add(new Scene.Builder("page")
-                 .add(deleteCreatedJournalEntryAndDismissDialog())
+                 .add(deleteCreatedJournalEntryAndAcceptDialog())
                  .add(clickAndWaitForCompletion("削除"))
                  .build())
         .build();
@@ -138,15 +138,12 @@ public class SimpleJournalCreation extends CawebAccessingModel {
     };
   }
   
-  private static PageAct deleteCreatedJournalEntryAndDismissDialog() {
+  static PageAct deleteCreatedJournalEntryAndAcceptDialog() {
     return new PageAct("Delete the created journal") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         page.locator(".ca-tr-emphasis").locator("a").click();
-        page.onceDialog(dialog -> {
-          System.out.printf("Dialog message: %s%n", dialog.message());
-          dialog.dismiss();
-        });
+        page.onceDialog(Dialog::accept);
       }
     };
   }

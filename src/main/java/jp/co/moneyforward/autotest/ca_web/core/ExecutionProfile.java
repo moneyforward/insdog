@@ -16,14 +16,16 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.today;
 public class ExecutionProfile {
   /**
    * Creates a browser context object from the browser `b`.
-   * @param b A browser.
+   *
+   * @param b                A browser.
    * @param executionProfile An execution profile.
    * @return A browser context object.
    */
   public static BrowserContext browserContextFrom(Browser b, ExecutionProfile executionProfile) {
     BrowserContext c;
     if (today().after(date(executionProfile.plannedDateForSettingUpSelfhostedGitHubActions()))) {
-      c = b.newContext();
+      c = b.newContext(new Browser.NewContextOptions()
+                           .setLocale(executionProfile.locale()));
     } else {
       // Base64 encode the credentials
       String username = "money-book";
@@ -34,8 +36,8 @@ public class ExecutionProfile {
       Browser.NewContextOptions contextOptions = new Browser.NewContextOptions();
       Map<String, String> headers = new HashMap<>();
       headers.put("Authorization", "Basic " + basicAuth);
-      contextOptions.setExtraHTTPHeaders(headers);
-      
+      contextOptions.setExtraHTTPHeaders(headers)
+                    .setLocale(executionProfile.locale());
       c = b.newContext(contextOptions);
     }
     return c;
@@ -43,6 +45,7 @@ public class ExecutionProfile {
   
   /**
    * Returns a "home" url of the application, from which a test starts at the beginning (login).
+   *
    * @return a "home" url of the application.
    */
   public String homeUrl() {
@@ -51,6 +54,7 @@ public class ExecutionProfile {
   
   /**
    * Returns an account with which the **autotest-ca** logs in to the application.
+   *
    * @return A user email for an account used in the test.
    */
   public String userEmail() {
@@ -98,11 +102,41 @@ public class ExecutionProfile {
     return String.format("https://%s/accounts", domain());
   }
   
-  private String domain() {
-    return "accounting-stg1.ebisubook.com";
-  }
-  
+  /**
+   * Returns the anticipated date, where "self-hosted" GitHub Actions is provided.
+   *
+   * @return The date, where the "self-hosted" GitHub Actions becomes available.
+   */
   public String plannedDateForSettingUpSelfhostedGitHubActions() {
     return "Jul/10/2024";
+  }
+  
+  /**
+   * Returns if **autotest** should be executed in headless or head-ful.
+   * The head-ful is useful for developing and debugging the **autotest** not intended for using it in the C/I environment.
+   *
+   * @return `true` - headless (default) / `false` - head-ful mode.
+   */
+  public boolean setHeadless() {
+    return false;
+  }
+  
+  
+  /**
+   * Returns a locale to open a browser for the execution of **autotest**.
+   * I.e., the value will be passed to `ContextOptions#setLocale` of **Playwright-java**.
+   *
+   * Currently, this always returns `ja-JP`.
+   *
+   *
+   * @return The locale, in which the tests should be executed.
+   *
+   */
+  public String locale() {
+    return "ja-JP";
+  }
+  
+  private String domain() {
+    return "accounting-stg1.ebisubook.com";
   }
 }
