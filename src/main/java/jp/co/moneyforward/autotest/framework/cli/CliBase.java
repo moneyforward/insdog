@@ -28,7 +28,7 @@ public abstract class CliBase implements Callable<Integer> {
           QUERY      ::= QUERY_TERM
           QUERY_TERM ::= ATTR ':' OP COND
           ATTR       ::= ('classname'|'tag')
-          OP         ::= ('=' | '~')
+          OP         ::= ('=' | '~' | '%')
           COND       ::= ('*'|CLASS_NAME|TAG_NAME)
           CLASS_NAME ::= {Java-wise valid character sequence for a class name}
           TAG_NAME   ::= (Any string)
@@ -37,7 +37,8 @@ public abstract class CliBase implements Callable<Integer> {
           
           NOTE:
             '=' (OP): Exact match
-            '~' (OP): Partial match
+            '~' (OP): Regular expression match
+            '%' (OP): Partial match
           """,
       defaultValue = "classname:~.*")
   private String[] queries;

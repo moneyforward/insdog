@@ -42,6 +42,6 @@ public interface AutotestRunner {
   ReportingActionPerformer actionPerformer();
   
   default Writer createWriter() {
-    return Writer.Slf4J.INFO::writeLine;
+    return Writer.Slf4J.INFO;
   }
 }

@@ -6,23 +6,18 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * An annotation to define a dependency of a method to which this is attached.
+ * This and `@When` annotations are used mutually exclusively.
+ *
+ * @see When
  */
 @Retention(RUNTIME)
 public @interface DependsOn {
+  /**
+   * Returns names of scenes on which attached scene method is depending.
+   *
+   * @return Names of scenes on which attached scene method is depending.
+   *
+   * @see Named
+   */
   String[] value() default {};
-  Parameter[] variables() default {};
-
-  @Deprecated
-  @interface Parameter {
-    String DEFAULT_FIELD_NAME_IN_SOURCE_SCENE="";
-    String name();
-    String sourceSceneName();
-    
-    /**
-     * By default, the same value as `Parameter#name` will be used.
-     *
-     * @return The name of the field, from which the parameter value is taken.
-     */
-    String fieldNameInSourceScene() default DEFAULT_FIELD_NAME_IN_SOURCE_SCENE;
-  }
 }
