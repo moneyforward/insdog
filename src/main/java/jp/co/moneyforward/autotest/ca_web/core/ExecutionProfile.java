@@ -14,6 +14,12 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.today;
  * A class that holds information, which doesn't change throughout an execution session of "autotest-ca"
  */
 public class ExecutionProfile {
+  /**
+   * Creates a browser context object from the browser `b`.
+   * @param b A browser.
+   * @param executionProfile An execution profile.
+   * @return A browser context object.
+   */
   public static BrowserContext browserContextFrom(Browser b, ExecutionProfile executionProfile) {
     BrowserContext c;
     if (today().after(date(executionProfile.plannedDateForSettingUpSelfhostedGitHubActions()))) {

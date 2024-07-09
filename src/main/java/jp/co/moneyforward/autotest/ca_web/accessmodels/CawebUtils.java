@@ -4,11 +4,13 @@ import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.ElementState;
 import jp.co.moneyforward.autotest.actions.web.PageAct;
-import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import static com.microsoft.playwright.options.AriaRole.LINK;
 
+/**
+ * A utilitiy class for **caweb** application.
+ */
 public enum CawebUtils {
   ;
   
@@ -32,8 +34,8 @@ public enum CawebUtils {
   /**
    * An action that clicks an element specified by `selector` and then fills a `value` in it.
    *
-   * @param selector    A selector string to specify an element in a `page`.
-   * @param value       A value to be filled in into the selected item.
+   * @param selector A selector string to specify an element in a `page`.
+   * @param value    A value to be filled in into the selected item.
    * @return An action to perform the click and the text entry.
    */
   public static PageAct clickAndFill(String selector, String value) {
@@ -61,7 +63,8 @@ public enum CawebUtils {
   }
   
   public static PageAct clickAndWaitForCompletion(final String elementTextToClick) {
-    return clickAndWaitForCompletion("Click '%s' and wait for completion", elementTextToClick);
+    return clickAndWaitForCompletion(String.format("Click '%s' and wait for completion", elementTextToClick),
+                                     elementTextToClick);
   }
   
   public static PageAct clickAndWaitForCompletion(final String description, final String elementTextToClick) {

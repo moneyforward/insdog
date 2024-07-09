@@ -8,7 +8,13 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Named {
-  
+  /**
+   * A default value.
+   *
+   * The name of the annotated method is recognized using the method name itself.
+   * The signature will not be taken into account.
+   * To avoid ambiguity, specify the name explicitly.
+   */
   String DEFAULT_VALUE = "";
   
   /**

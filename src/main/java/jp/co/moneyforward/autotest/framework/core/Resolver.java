@@ -6,8 +6,20 @@ import java.util.Map;
 import java.util.function.Function;
 
 public record Resolver(String parameterName, Function<Context, Object> resolverFunction) {
+  public static Resolver parameterFromScene(String parameterName, String sourceSceneName) {
+    return parameterFromScene(parameterName, sourceSceneName, parameterName);
+  }
+  
   @SuppressWarnings("unchecked")
   public static Resolver parameterFromScene(String parameterName, String sourceSceneName, String fieldNameInSourceScene) {
     return new Resolver(parameterName, c -> ((Map<String, Object>) c.valueOf(sourceSceneName)).get(fieldNameInSourceScene));
+  }
+  
+  public static Function<Context, Object> valueFrom(String sourceSceneName, String fieldNameInSourceScene) {
+    return context -> context.<Map<String, Object>>valueOf(sourceSceneName).get(fieldNameInSourceScene);
+  }
+  
+  public static Resolver resolverFor(String sceneName, String variableName) {
+    return new Resolver(variableName, valueFrom(sceneName, variableName));
   }
 }

@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * This interface represents the smallest and indivisible unit of action in ngauto-mf's programming model.
+ * This interface represents the smallest and indivisible unit of action in **autotest-ca** 's programming model.
  */
 public interface LeafAct<T, R> extends Act<T, R> {
   R perform(T value, ExecutionEnvironment executionEnvironment);
@@ -22,18 +22,37 @@ public interface LeafAct<T, R> extends Act<T, R> {
     return new AssertionAct<>(this, this.name(), assertion);
   }
   
+  /**
+   * A leaf act, which represents a value assignment behavior.
+   *
+   * @param <T> The type of the value to be assigned.
+   */
   class Let<T> extends Source<T> implements LeafAct<Object, T> {
     private final T value;
     
+    /**
+     * Creates an instance of this class.
+     *
+     * @param value The value to be assigned to the target variable.
+     */
     public Let(T value) {
       this.value = value;
     }
     
+    /**
+     * Returns a value to be assigned to the target variable.
+     *
+     * @returna A value to be assigned to the target variable.
+     */
     @Override
     protected T value() {
       return this.value;
     }
     
+    /**
+     * A name of this act.
+     * @return A name of this act.
+     */
     public String name() {
       return String.format("let[%s]", this.value());
     }
@@ -64,9 +83,12 @@ public interface LeafAct<T, R> extends Act<T, R> {
   }
   
   class Sink<T> extends Func<T, Void> {
-    
+    /**
+     * Creates an instance of this class.
+     * @param sink A consumer that processes a target value in the context
+     */
     public Sink(Consumer<T> sink) {
-      this("sink[x]", sink);
+      this("sink", sink);
     }
     
     public Sink(String name, Consumer<T> sink) {
@@ -78,8 +100,6 @@ public interface LeafAct<T, R> extends Act<T, R> {
   }
   
   abstract class Source<T> implements LeafAct<Object, T> {
-
-    
     @Override
     public T perform(Object value, ExecutionEnvironment executionEnvironment) {
       return this.value();
