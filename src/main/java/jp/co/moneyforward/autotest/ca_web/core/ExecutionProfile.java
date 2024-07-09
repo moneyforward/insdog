@@ -118,7 +118,7 @@ public class ExecutionProfile {
    * @return `true` - headless (default) / `false` - head-ful mode.
    */
   public boolean setHeadless() {
-    return false;
+    return true;
   }
   
   
