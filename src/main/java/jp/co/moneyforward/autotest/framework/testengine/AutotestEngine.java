@@ -26,14 +26,16 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
+import static com.github.valid8j.classic.Requires.requireNonNull;
 import static com.github.valid8j.fluent.Expectations.require;
+import static com.github.valid8j.pcond.internals.InternalUtils.wrapIfNecessary;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneCall;
@@ -62,6 +64,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   @Override
   public void beforeAll(ExtensionContext context) throws Exception {
     {
+      LOGGER.info("hello, beforeAll: 1");
       AutotestRunner runner = context.getTestInstance()
                                      .filter(o -> o instanceof AutotestRunner)
                                      .map(o -> (AutotestRunner) o)
@@ -86,14 +89,27 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     }
     
     {
+      LOGGER.info("hello, beforeAll: 2");
       AutotestRunner runner = autotestRunner(context);
       ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), "beforeAll");
       configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-beforeAll.log"), Level.INFO);
+      AtomicInteger i = new AtomicInteger(0);
+      System.out.println(this.getClass());
       actions(executionPlan(context),
               ExecutionPlan::beforeAll,
               sceneCallMap(context),
               executionEnvironment)
-          .forEach(each -> runner.beforeAll(each.value()));
+          .stream()
+          .map(each -> runActionEntryWith(each, a -> runner.beforeAll(a.value())))
+          .peek(SceneExecutionResult::throwIfFailed)
+          // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
+          // Then, stream again. Otherwise, the log will not become so readable.
+          .toList()
+          .forEach(r -> {
+            int ii = i.getAndIncrement();
+            LOGGER.info(r.composeMessageHeader(ii));
+            r.composeMessageBody(ii).forEach(LOGGER::info);
+          });
     }
   }
   
@@ -448,6 +464,16 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     };
   }
   
+  private static SceneExecutionResult runActionEntryWith(Entry<String, Action> actionEntry, Function<Entry<String, Action>, List<String>> runner) {
+    try {
+      return new SceneExecutionResult(actionEntry.key(), runner.apply(actionEntry), null);
+    } catch (OutOfMemoryError e) {
+      throw e;
+    } catch (Throwable e) {
+      return new SceneExecutionResult(actionEntry.key(), new LinkedList<>(), e);
+    }
+  }
+  
   private record Entry<K, V>(K key, V value) {
   }
   
@@ -477,6 +503,66 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                               List<String> value,
                               List<String> afterEach,
                               List<String> afterAll) {
+  }
+  
+  /**
+   * A class that models a result of a scene execution.
+   */
+  static class SceneExecutionResult {
+    private final String name;
+    private final Throwable exception;
+    private final List<String> out;
+    
+    SceneExecutionResult(String name, List<String> out, Throwable exception) {
+      this.name = requireNonNull(name);
+      this.out = requireNonNull(out);
+      this.exception = exception;
+    }
+    
+    
+    public String name() {
+      return this.name;
+    }
+    
+    public Optional<Throwable> exception() {
+      return Optional.ofNullable(this.exception);
+    }
+    
+    public boolean hasSucceeded() {
+      return this.exception == null;
+    }
+    
+    public void throwIfFailed() {
+      if (hasSucceeded())
+        return;
+      throw wrapIfNecessary(this.exception);
+    }
+    
+    private String composeMessageHeader(int i) {
+      return composeMessageHeader(this, i);
+    }
+    
+    private static String composeMessageHeader(SceneExecutionResult r, int i) {
+      return String.format("%2d: [%1s] %-20s %-40s",
+                           i,
+                           r.hasSucceeded() ? "o"
+                                            : "E",
+                           r.name(),
+                           r.exception()
+                            .map(Throwable::getMessage)
+                            .orElse("passed"));
+    }
+    
+    private List<String> composeMessageBody(int i) {
+      return composeMessageBody(this, i);
+    }
+    
+    private static List<String> composeMessageBody(SceneExecutionResult r, int i) {
+      return r.out
+          .stream()
+          .map(each -> String.format("%2d:     %s", i, each))
+          .toList();
+    }
   }
   
   record ExceptionEntry(String name, Throwable exception) {

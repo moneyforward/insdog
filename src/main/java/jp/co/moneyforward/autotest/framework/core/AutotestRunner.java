@@ -9,17 +9,21 @@ import org.junit.jupiter.api.TestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutotestExecution
 public interface AutotestRunner {
   Logger LOGGER = LoggerFactory.getLogger(AutotestRunner.class);
   
-  default void beforeAll(Action action) {
-    performActionWithReporting(action);
+  default List<String> beforeAll(Action action) {
+    System.out.println(this.getClass());
+    return performActionWithReporting(action);
   }
   
-  default void beforeEach(Action action) {
-    performActionWithReporting(action);
+  default List<String> beforeEach(Action action) {
+    return performActionWithReporting(action);
   }
   
   @TestTemplate
@@ -27,21 +31,26 @@ public interface AutotestRunner {
     performActionWithReporting(action);
   }
   
-  default void afterEach(Action action) {
-    performActionWithReporting(action);
+  default List<String> afterEach(Action action) {
+    return performActionWithReporting(action);
   }
   
-  default void afterAll(Action action) {
-    performActionWithReporting(action);
+  default List<String> afterAll(Action action) {
+    return performActionWithReporting(action);
   }
   
-  default void performActionWithReporting(Action action) {
-    actionPerformer().performAndReport(action, createWriter());
+  default List<String> performActionWithReporting(Action action) {
+    var out = new ArrayList<String>();
+    actionPerformer().performAndReport(action, createWriter(out));
+    return out;
+  }
+  
+  default Writer createWriter(List<String> out) {
+    return s -> {
+      Writer.Slf4J.DEBUG.writeLine(s);
+      out.add(s);
+    };
   }
   
   ReportingActionPerformer actionPerformer();
-  
-  default Writer createWriter() {
-    return Writer.Slf4J.INFO;
-  }
 }
