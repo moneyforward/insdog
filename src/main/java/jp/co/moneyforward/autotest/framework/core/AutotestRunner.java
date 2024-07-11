@@ -26,8 +26,13 @@ public interface AutotestRunner {
   }
   
   @TestTemplate
-  default void runTestAction(Action action) {
-    performActionWithReporting(action);
+  default void runTestAction(String name, Action action) {
+    boolean succeeded = false;
+    try {
+      performActionWithReporting(action).forEach(s -> LOGGER.info("{}: {}", name, s));
+    } finally {
+    
+    }
   }
   
   default List<String> afterEach(Action action) {
