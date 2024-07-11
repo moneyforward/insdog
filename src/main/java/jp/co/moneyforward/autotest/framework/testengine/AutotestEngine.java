@@ -26,6 +26,7 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
@@ -119,9 +120,9 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
             ExecutionPlan::afterEach,
             sceneCallMap(context),
             executionEnvironment)
-        .forEach(each -> runActionEntryRollingForwardOnErrors(each,
-                                                              errors,
-                                                              () -> runner.afterEach(each.value())));
+        .forEach((Entry<String, Action> each) -> runActionEntryRollingForwardOnErrors(each,
+                                                                                      errors,
+                                                                                      () -> runner.afterEach(each.value())));
     if (!errors.isEmpty()) reportErrors(errors);
   }
   
@@ -135,9 +136,9 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
             ExecutionPlan::afterAll,
             sceneCallMap(context),
             executionEnvironment)
-        .forEach(each -> runActionEntryRollingForwardOnErrors(each,
-                                                              errors,
-                                                              () -> runner.afterAll(each.value())));
+        .forEach((Entry<String, Action> each) -> runActionEntryRollingForwardOnErrors(each,
+                                                                                      errors,
+                                                                                      () -> runner.afterAll(each.value())));
     if (!errors.isEmpty()) reportErrors(errors);
   }
   
@@ -221,15 +222,15 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return ret;
   }
   
-  private static void runActionEntryRollingForwardOnErrors(Entry<String, Action> each, List<ExceptionEntry> errors, Runnable runnable) {
+  private static void runActionEntryRollingForwardOnErrors(Entry<String, Action> actionEntry, List<ExceptionEntry> errors, Runnable runnable) {
     try {
-      LOGGER.info("Executing: {}", each.key());
+      LOGGER.info("Executing: {}", actionEntry.key());
       runnable.run();
     } catch (OutOfMemoryError e) {
       throw e;
     } catch (Throwable e) {
-      LOGGER.warn("Error executing action: {}", each.key(), e);
-      errors.add(new ExceptionEntry(each.key(), e));
+      LOGGER.warn("Error executing action: {}", actionEntry.key(), e);
+      errors.add(new ExceptionEntry(actionEntry.key(), e));
     }
   }
   
@@ -450,6 +451,27 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   private record Entry<K, V>(K key, V value) {
   }
   
+  /**
+   * This record models an execution plan created from the requirement given by user.
+   *
+   * The framework executes the scenes returned by each method.
+   * It is a design concern of the test engine (`AutotestEngine`) how scenes within the stage.
+   * For instance, whether they should be executed sequentially or concurrently, although sequential execution will be preferred in most cases.
+   * The engine should execute each state as an instance of this record gives.
+   * All scenes in `beforeAll` should be executed in the `beforeAll` stage, nothing else at all, in the order, where they are returned,
+   * as long as they give no errors, and as such.
+   *
+   * In situations, where a non-directly required scenes need to be executed for some reason (E.g., a scene in a stage requires some others to be executed beforehand),
+   * including the scenes implicitly and sorting out the execution order appropriately is the responsibility of the `PlanningStrategy`, not the engine.
+   *
+   * @param beforeAll  The names of the scenes to be executed in the `beforeAll` scene.
+   * @param beforeEach The names of the scenes to be executed in the `beforeEach` scene.
+   * @param value      The names of the scenes to be executed as real tests.
+   * @param afterEach  The names of the scenes to be executed in the `afterEach` scene.
+   * @param afterAll   The names of the scenes to be executed in the `afterAll` scene.
+   * @see AutotestEngine
+   * @see PlanningStrategy
+   */
   public record ExecutionPlan(List<String> beforeAll,
                               List<String> beforeEach,
                               List<String> value,
