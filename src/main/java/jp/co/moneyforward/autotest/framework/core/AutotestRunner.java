@@ -18,7 +18,6 @@ public interface AutotestRunner {
   Logger LOGGER = LoggerFactory.getLogger(AutotestRunner.class);
   
   default List<String> beforeAll(Action action) {
-    System.out.println(this.getClass());
     return performActionWithReporting(action);
   }
   

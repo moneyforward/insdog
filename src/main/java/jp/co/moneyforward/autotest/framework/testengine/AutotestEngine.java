@@ -94,7 +94,6 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
       ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), "beforeAll");
       configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-beforeAll.log"), Level.INFO);
       AtomicInteger i = new AtomicInteger(0);
-      System.out.println(this.getClass());
       actions(executionPlan(context),
               ExecutionPlan::beforeAll,
               sceneCallMap(context),

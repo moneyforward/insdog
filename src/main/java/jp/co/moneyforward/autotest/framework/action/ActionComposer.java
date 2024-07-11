@@ -86,7 +86,7 @@ public interface ActionComposer {
                                                                    SceneCall currentSceneCall,
                                                                    ExecutionEnvironment executionEnvironment) {
     return c -> {
-      LOGGER.info("ENTERING: {}:{}", currentSceneCall.scene.name(), act.name());
+      LOGGER.debug("ENTERING: {}:{}", currentSceneCall.scene.name(), act.name());
       try {
         var v = act.perform(inputFieldValueResolver.apply(c),
                             executionEnvironment);
@@ -96,7 +96,7 @@ public interface ActionComposer {
         LOGGER.debug(e.getMessage(), e);
         throw e;
       } finally {
-        LOGGER.info("LEAVING:  {}:{}", currentSceneCall.scene.name(), act.name());
+        LOGGER.debug("LEAVING:  {}:{}", currentSceneCall.scene.name(), act.name());
       }
     };
   }
