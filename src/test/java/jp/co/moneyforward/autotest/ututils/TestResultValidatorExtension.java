@@ -2,7 +2,7 @@ package jp.co.moneyforward.autotest.ututils;
 
 import com.github.valid8j.classic.TestAssertions;
 import com.github.valid8j.pcond.forms.Predicates;
-import jp.co.moneyforward.autotest.framework.utils.Transform;
+import jp.co.moneyforward.autotest.framework.utils.Valid8JCliches;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.TestExecutionResult.Status;
 import org.junit.platform.launcher.TestExecutionListener;
@@ -34,15 +34,15 @@ public class TestResultValidatorExtension implements TestExecutionListener {
       
       public ExpectationEntry shouldBe(Status status) {
         return new ExpectationEntry(this.testIdentifierPredicate,
-                                    Transform.$(function("status", TestExecutionResult::getStatus))
-                                             .check(equalTo(status)));
+                                    Valid8JCliches.Transform.$(function("status", TestExecutionResult::getStatus))
+                                                            .check(equalTo(status)));
       }
     }
   }
   
   public static ExpectationEntry.Builder forTestMatching(String regex) {
-    return new ExpectationEntry.Builder(Transform.$(function("displayName", TestIdentifier::getDisplayName))
-                                                 .check(Predicates.matchesRegex(regex)));
+    return new ExpectationEntry.Builder(Valid8JCliches.Transform.$(function("displayName", TestIdentifier::getDisplayName))
+                                                                .check(Predicates.matchesRegex(regex)));
   }
   
   private final List<ExpectationEntry> expectedResults = new LinkedList<>();

@@ -17,36 +17,38 @@ import java.util.List;
 public interface AutotestRunner {
   Logger LOGGER = LoggerFactory.getLogger(AutotestRunner.class);
   
-  default List<String> beforeAll(Action action) {
-    return performActionWithReporting(action);
+  default void beforeAll(Action action, Writer writer) {
+    performActionWithReporting(action, writer);
   }
   
-  default List<String> beforeEach(Action action) {
-    return performActionWithReporting(action);
+  default void beforeEach(Action action, Writer writer) {
+    performActionWithReporting(action, writer);
   }
   
   @TestTemplate
   default void runTestAction(String name, Action action) {
+    var out = new ArrayList<String>();
+    String stageName = "value:";
     boolean succeeded = false;
     try {
-      performActionWithReporting(action).forEach(s -> LOGGER.info("{}: {}", name, s));
+      performActionWithReporting(action, createWriter(out));
+      succeeded = true;
     } finally {
-    
+      LOGGER.info(String.format("%-11s [%s]%s", stageName, succeeded ? "o" : "E", name));
+      out.forEach(l -> LOGGER.info(String.format("%-11s %s", stageName, l)));
     }
   }
   
-  default List<String> afterEach(Action action) {
-    return performActionWithReporting(action);
+  default void afterEach(Action action, Writer writer) {
+    performActionWithReporting(action, writer);
   }
   
-  default List<String> afterAll(Action action) {
-    return performActionWithReporting(action);
+  default void afterAll(Action action, Writer writer) {
+    performActionWithReporting(action, writer);
   }
   
-  default List<String> performActionWithReporting(Action action) {
-    var out = new ArrayList<String>();
-    actionPerformer().performAndReport(action, createWriter(out));
-    return out;
+  default void performActionWithReporting(Action action, Writer writer) {
+    actionPerformer().performAndReport(action, writer);
   }
   
   default Writer createWriter(List<String> out) {

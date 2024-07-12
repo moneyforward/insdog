@@ -1,6 +1,7 @@
 package jp.co.moneyforward.autotest.framework.testengine;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.io.Writer;
 import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.framework.action.ActionComposer;
 import jp.co.moneyforward.autotest.framework.action.Scene;
@@ -29,6 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -95,19 +97,20 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
       ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), "beforeAll");
       configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-beforeAll.log"), Level.INFO);
       String stageName = "beforeAll";
+      List<String> out = new ArrayList<>();
       actions(executionPlan(context),
               ExecutionPlan::beforeAll,
               sceneCallMap(context),
               executionEnvironment)
           .stream()
-          .map(each -> runActionEntryWith(each, a -> runner.beforeAll(a.value())))
+          .map(each -> runActionEntryWith(each, a -> runner.beforeAll(a.value(), runner.createWriter(out))))
           .peek(SceneExecutionResult::throwIfFailed)
           // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
           // Then, stream again. Otherwise, the log will not become so readable.
           .toList()
           .forEach(r -> {
             LOGGER.info(r.composeMessageHeader(stageName));
-            r.composeMessageBody(stageName).forEach(LOGGER::info);
+            out.forEach(l -> LOGGER.info(String.format("%-11s %s", stageName + ":", l)));
           });
     }
   }
@@ -118,19 +121,20 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-before.log"), Level.INFO);
     AutotestRunner runner = autotestRunner(context);
     String stageName = "beforeEach";
+    List<String> out = new ArrayList<>();
     actions(executionPlan(context),
             ExecutionPlan::beforeEach,
             sceneCallMap(context),
             executionEnvironment)
         .stream()
-        .map(each -> runActionEntryWith(each, a -> runner.beforeEach(a.value())))
+        .map(each -> runActionEntryWith(each, a -> runner.beforeEach(a.value(), runner.createWriter(out))))
         .peek(SceneExecutionResult::throwIfFailed)
         // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
         // Then, stream again. Otherwise, the log will not become so readable.
         .toList()
         .forEach(r -> {
           LOGGER.info(r.composeMessageHeader(stageName));
-          r.composeMessageBody(stageName).forEach(LOGGER::info);
+          out.forEach(l -> LOGGER.info(String.format("%-11s %s", stageName + ":", l)));
         });
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-main.log"), Level.INFO);
   }
@@ -142,12 +146,13 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     AutotestRunner runner = autotestRunner(context);
     List<ExceptionEntry> errors = new ArrayList<>();
     String stageName = "afterEach";
+    List<String> out = new ArrayList<>();
     actions(executionPlan(context),
             ExecutionPlan::afterEach,
             sceneCallMap(context),
             executionEnvironment)
         .stream()
-        .map(each -> runActionEntryWith(each, a -> runner.afterEach(a.value())))
+        .map(each -> runActionEntryWith(each, a -> runner.afterEach(a.value(), runner.createWriter(out))))
         .peek(r -> r.exception()
                     .ifPresent(t -> errors.add(new ExceptionEntry(r.name(), t))))
         // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
@@ -155,7 +160,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         .toList()
         .forEach(r -> {
           LOGGER.info(r.composeMessageHeader(stageName));
-          r.composeMessageBody(stageName).forEach(LOGGER::info);
+          out.forEach(l -> LOGGER.info(String.format("%-11s %s", stageName + ":", l)));
         });
     if (!errors.isEmpty()) reportErrors(errors);
   }
@@ -167,12 +172,13 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-afterAll.log"), Level.INFO);
     List<ExceptionEntry> errors = new ArrayList<>();
     String stageName = "afterAll";
+    List<String> out = new ArrayList<>();
     actions(executionPlan(context),
             ExecutionPlan::afterAll,
             sceneCallMap(context),
             executionEnvironment)
         .stream()
-        .map(each -> runActionEntryWith(each, a -> runner.afterAll(a.value())))
+        .map(each -> runActionEntryWith(each, a -> runner.afterAll(a.value(), runner.createWriter(out))))
         .peek(r -> r.exception()
                     .ifPresent(t -> errors.add(new ExceptionEntry(r.name(), t))))
         // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
@@ -180,7 +186,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         .toList()
         .forEach(r -> {
           LOGGER.info(r.composeMessageHeader(stageName));
-          r.composeMessageBody(stageName).forEach(LOGGER::info);
+          out.forEach(l -> LOGGER.info(String.format("%-11s %s", stageName + ":", l)));
         });
     if (!errors.isEmpty()) reportErrors(errors);
   }
@@ -438,7 +444,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     // Remove all existing appenders
     config.getRootLogger()
           .getAppenders()
-          .forEach((s, appender1) -> config.getRootLogger().removeAppender(s));
+          .forEach((s, appender) -> config.getRootLogger().removeAppender(s));
     
     config.addAppender(fileAppender);
     config.addAppender(consoleAppender);
@@ -463,7 +469,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
           @Override
           public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
             return parameterContext.getParameter().getType().isAssignableFrom(Action.class) ||
-                parameterContext.getParameter().getType().isAssignableFrom(String.class);
+                parameterContext.getParameter().getType().isAssignableFrom(String.class) ||
+                parameterContext.getParameter().getType().isAssignableFrom(Writer.class);
           }
           
           @Override
@@ -472,6 +479,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
               return actionEntry.value();
             } else if (parameterContext.getParameter().getType().isAssignableFrom(String.class)) {
               return actionEntry.key();
+            } else if (parameterContext.getParameter().getType().isAssignableFrom(Writer.class)) {
+              return autotestRunner(extensionContext).createWriter(new ArrayList<>());
             }
             throw new AssertionError();
           }
@@ -485,13 +494,14 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     };
   }
   
-  private static SceneExecutionResult runActionEntryWith(Entry<String, Action> actionEntry, Function<Entry<String, Action>, List<String>> runner) {
+  private static SceneExecutionResult runActionEntryWith(Entry<String, Action> actionEntry, Consumer<Entry<String, Action>> runner) {
     try {
-      return new SceneExecutionResult(actionEntry.key(), runner.apply(actionEntry), null);
+      runner.accept(actionEntry);
+      return new SceneExecutionResult(actionEntry.key(), null);
     } catch (OutOfMemoryError e) {
       throw e;
     } catch (Throwable e) {
-      return new SceneExecutionResult(actionEntry.key(), new LinkedList<>(), e);
+      return new SceneExecutionResult(actionEntry.key(), e);
     }
   }
   
@@ -532,11 +542,9 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   static class SceneExecutionResult {
     private final String name;
     private final Throwable exception;
-    private final List<String> out;
     
-    SceneExecutionResult(String name, List<String> out, Throwable exception) {
+    SceneExecutionResult(String name, Throwable exception) {
       this.name = requireNonNull(name);
-      this.out = requireNonNull(out);
       this.exception = exception;
     }
     
@@ -572,17 +580,6 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                            r.exception()
                             .map(Throwable::getMessage)
                             .orElse(""));
-    }
-    
-    private List<String> composeMessageBody(String stageName) {
-      return composeMessageBody(this, stageName);
-    }
-    
-    private static List<String> composeMessageBody(SceneExecutionResult r, String stageName) {
-      return r.out
-          .stream()
-          .map(each -> String.format("%-10s:     %s", stageName, each))
-          .toList();
     }
   }
   

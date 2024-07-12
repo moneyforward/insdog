@@ -1,13 +1,26 @@
 package jp.co.moneyforward.autotest.framework.utils;
 
+import com.github.valid8j.pcond.core.printable.PrintablePredicateFactory;
+import com.github.valid8j.pcond.forms.Predicates;
 import com.github.valid8j.pcond.forms.Printables;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+/**
+ * A container class for utility classes for **valid8j** usages.
+ *
+ * This class may hold utility methods and various inner classes.
+ * They should be fed back to the **valid8j** community and once those are implemented as its out-of-box features,
+ * usages of them should be replaced with the new features in **valid8j**.
+ *
+ */
 public enum Valid8JCliches {
   ;
   
+  /**
+   * A utility class to make an existing `Function` s  and `Predicate` s "printable".
+   */
   public enum MakePrintable {
     ;
     
@@ -29,6 +42,14 @@ public enum Valid8JCliches {
       default Predicate<T> $(String fmt, Object... args) {
         return Printables.predicate(String.format(fmt, args), this);
       }
+    }
+  }
+  
+  public enum Transform {
+    ;
+    
+    public static <T, R> PrintablePredicateFactory.TransformingPredicate.Factory<R, T> $(Function<T, R> function) {
+      return Predicates.transform(function);
     }
   }
 }
