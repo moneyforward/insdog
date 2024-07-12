@@ -52,7 +52,7 @@ function progress() {
 
 function caveats() {
   # FIXME
-  # brew install uses unsual line breaks in Caveats.
+  # brew install uses unusual line breaks in Caveats.
   # To ensure comment-out happens correctly, we do the sed twice.
   sed -n '/==> Caveats/,/END/p' | grep -v '==>'            \
                                 | grep -v '🍺'             \
