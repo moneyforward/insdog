@@ -5,7 +5,7 @@ import com.github.valid8j.pcond.forms.Printables;
 import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
 import jp.co.moneyforward.autotest.ca_web.tests.Index;
 import jp.co.moneyforward.autotest.framework.cli.ClassFinder;
-import jp.co.moneyforward.autotest.framework.utils.Transform;
+import jp.co.moneyforward.autotest.framework.utils.Valid8JCliches;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.Test;
@@ -36,8 +36,8 @@ public class ClassFinderTest {
                         .notEmpty(),
               value(out).stream()
                         .toBe()
-                        .allMatch(Transform.$(functionCanonicalName())
-                                           .check(containsString(Index.class.getPackageName()))));
+                        .allMatch(Valid8JCliches.Transform.$(functionCanonicalName())
+                                                          .check(containsString(Index.class.getPackageName()))));
   }
   
   @Test
@@ -52,8 +52,8 @@ public class ClassFinderTest {
                         .notEmpty(),
               value(out).stream()
                         .toBe()
-                        .allMatch(Transform.$(functionCanonicalName())
-                                           .check(containsString(Index.class.getPackageName()).and(endsWith("Test")))));
+                        .allMatch(Valid8JCliches.Transform.$(functionCanonicalName())
+                                                          .check(containsString(Index.class.getPackageName()).and(endsWith("Test")))));
   }
   
   @Test
@@ -68,8 +68,8 @@ public class ClassFinderTest {
                         .notEmpty(),
               value(out).stream()
                         .toBe()
-                        .allMatch(Transform.$(functionCanonicalName())
-                                           .check(containsString(Index.class.getPackageName()).and(containsString("Test")))));
+                        .allMatch(Valid8JCliches.Transform.$(functionCanonicalName())
+                                                          .check(containsString(Index.class.getPackageName()).and(containsString("Test")))));
   }
   
   @Test
@@ -83,8 +83,8 @@ public class ClassFinderTest {
                         .notEmpty(),
               value(out).stream()
                         .toBe()
-                        .allMatch(Transform.$(functionCanonicalName())
-                                           .check(containsString(Index.class.getPackageName()))),
+                        .allMatch(Valid8JCliches.Transform.$(functionCanonicalName())
+                                                          .check(containsString(Index.class.getPackageName()))),
               value(out).stream()
                         .toBe()
                         .allMatch(predicateIsAssignableFrom(CawebAccessingModel.class)));
@@ -127,7 +127,7 @@ public class ClassFinderTest {
     assertAll(value(out).toBe().notEmpty(),
               value(out).stream()
                         .toBe()
-                        .allMatch(Transform.$(functionTags()).check(predicateAnyMatchInTagList(predicateTagValueIs("bank")))));
+                        .allMatch(Valid8JCliches.Transform.$(functionTags()).check(predicateAnyMatchInTagList(predicateTagValueIs("bank")))));
   }
   
   
@@ -142,7 +142,7 @@ public class ClassFinderTest {
     assertAll(value(out).toBe().notEmpty(),
               value(out).stream()
                         .toBe()
-                        .allMatch(Transform.$(functionTags()).check(predicateAnyMatchInTagList(predicateTagValueContains("smok")))));
+                        .allMatch(Valid8JCliches.Transform.$(functionTags()).check(predicateAnyMatchInTagList(predicateTagValueContains("smok")))));
   }
   
   @Test
@@ -156,7 +156,7 @@ public class ClassFinderTest {
     assertAll(value(out).toBe().notEmpty(),
               value(out).stream()
                         .toBe()
-                        .allMatch(Transform.$(functionTags()).check(predicateAnyMatchInTagList(predicateTagValueMatchesRegex("smok.")))));
+                        .allMatch(Valid8JCliches.Transform.$(functionTags()).check(predicateAnyMatchInTagList(predicateTagValueMatchesRegex("smok.")))));
   }
   
   @Test

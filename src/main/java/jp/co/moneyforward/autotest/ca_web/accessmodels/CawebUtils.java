@@ -15,7 +15,7 @@ public enum CawebUtils {
   ;
   
   /**
-   * An action that hovers a specified sidebar item, then clicks a specified menu item.
+   * Returns an action that hovers a specified sidebar item, then clicks a specified menu item.
    *
    * @param menuItem        A name of a menu item which is shown when a mouse is hovering over the item specified by `sidebarItemName`.
    * @param sidebarItemName A name of sidebar item to hover over.
@@ -32,7 +32,7 @@ public enum CawebUtils {
   }
   
   /**
-   * An action that clicks an element specified by `selector` and then fills a `value` in it.
+   * Returns an action that clicks an element specified by `selector` and then fills a `value` in it.
    *
    * @param selector A selector string to specify an element in a `page`.
    * @param value    A value to be filled in into the selected item.

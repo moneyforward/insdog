@@ -4,6 +4,7 @@ import com.github.valid8j.fluent.Expectations;
 import jp.co.moneyforward.autotest.framework.cli.CliBase;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
+import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine.ExecutionPlan;
 import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,8 +19,9 @@ import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.
 import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.PASSTHROUGH;
 
 /**
- * An annotation to let JUnit5 know the class to which this is attached is a test class to be executed by {@link AutotestEngine}
+ * An annotation to let JUnit5 know the class to which this is attached is a test class to be executed by `AutotestEngine`
  * extension.
+ *
  */
 @Retention(RUNTIME)
 @ExtendWith(AutotestEngine.class)
@@ -46,6 +48,10 @@ public @interface AutotestExecution {
    * For each attribute in this annotation interface, user can specify names of `public`, `static`, and `@Named` methods that
    * return `Scene` instance in the test class.
    *
+   * This interface models the execution requirement made by a tester.
+   * Based on the information that this interface provides, the framework will create a plan, which is modeled by `ExecutionPlan`.
+   *
+   * @see ExecutionPlan
    * @see Named
    */
   @interface Spec {

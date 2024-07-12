@@ -5,7 +5,7 @@ import com.github.valid8j.pcond.forms.Printables;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
-import jp.co.moneyforward.autotest.framework.utils.Transform;
+import jp.co.moneyforward.autotest.framework.utils.Valid8JCliches;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
 
@@ -64,8 +64,8 @@ public interface ClassFinder {
    * @return A predicate which matches a class whose name is equal to `value`.
    */
   static Predicate<Class<?>> classNameIsEqualTo(String value) {
-    return Transform.$(functionSimpleName())
-                    .check(isEqualTo(value));
+    return Valid8JCliches.Transform.$(functionSimpleName())
+                                   .check(isEqualTo(value));
   }
   
   /**
@@ -75,8 +75,8 @@ public interface ClassFinder {
    * @return A predicate which matches a class whose name is containing `value`.
    */
   static Predicate<Class<?>> classNameContaining(String value) {
-    return Transform.$(functionSimpleName())
-                    .check(containsString(value));
+    return Valid8JCliches.Transform.$(functionSimpleName())
+                                   .check(containsString(value));
   }
   
   /**
@@ -86,8 +86,8 @@ public interface ClassFinder {
    * @return A predicate which matches a class whose name matches a regular expression `value`.
    */
   static Predicate<Class<?>> classNameMatchesRegex(String value) {
-    return Transform.$(functionSimpleName())
-                    .check(Predicates.matchesRegex(value));
+    return Valid8JCliches.Transform.$(functionSimpleName())
+                                   .check(Predicates.matchesRegex(value));
   }
   
   /**
