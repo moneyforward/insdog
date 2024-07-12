@@ -24,6 +24,7 @@ import static com.github.valid8j.pcond.internals.InternalUtils.getMethod;
  */
 public enum InternalUtils {
   ;
+  
   public static class AssumptionViolation extends TestAbortedException {
     public AssumptionViolation(String message) {
       super(message);

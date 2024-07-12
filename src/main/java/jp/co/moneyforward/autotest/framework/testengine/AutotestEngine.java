@@ -1,7 +1,7 @@
 package jp.co.moneyforward.autotest.framework.testengine;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.valid8j.fluent.Expectations;
+import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.framework.action.ActionComposer;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.action.SceneCall;
@@ -9,6 +9,7 @@ import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
+import jp.co.moneyforward.autotest.framework.utils.Valid8JCliches.MakePrintable;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -29,11 +30,12 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.valid8j.classic.Requires.requireNonNull;
-import static com.github.valid8j.fluent.Expectations.require;
+import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.internals.InternalUtils.wrapIfNecessary;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
@@ -75,10 +77,12 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                                   .map(m -> new Entry<>(nameOf(m), methodToSceneCall(accessModelClass, m, runner)))
                                                   .collect(toMap(Entry::key, Entry::value));
       
-      ExecutionPlan executionPlan = planExecution(loadExecutionSpec(runner),
+      AutotestExecution.Spec spec = loadExecutionSpec(runner);
+      ExecutionPlan executionPlan = planExecution(spec,
                                                   sceneCallGraph(runner.getClass()),
                                                   closers(runner.getClass()),
                                                   assertions(runner.getClass()));
+      assert Contracts.explicitlySpecifiedScenesAreAllCoveredInCorrespondingPlannedStage(spec, executionPlan);
       ExtensionContext.Store executionContextStore = executionContextStore(context);
       
       executionContextStore.put("runner", runner);
@@ -182,7 +186,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   public static ExecutionEnvironment createExecutionEnvironment(String testClassName) {
-    require(Expectations.value(testClassName).toBe().notNull());
+    require(value(testClassName).toBe().notNull());
     return new ExecutionEnvironment() {
       @Override
       public String testClassName() {
@@ -583,5 +587,47 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   record ExceptionEntry(String name, Throwable exception) {
+  }
+  
+  enum Contracts {
+    ;
+    
+    private static boolean explicitlySpecifiedScenesAreAllCoveredInCorrespondingPlannedStage(AutotestExecution.Spec spec, ExecutionPlan executionPlan) {
+      return all(plannedScenesCoverAllSpecifiedScenes(spec,
+                                                      specifiedScenesInStage("beforeAll", (AutotestExecution.Spec v) -> Arrays.asList(v.beforeAll())),
+                                                      predicatePlannedScenesContainsSpecifiedScene("beforeAll", executionPlan.beforeAll())),
+                 plannedScenesCoverAllSpecifiedScenes(spec,
+                                                      specifiedScenesInStage("beforeEach", (AutotestExecution.Spec v) -> Arrays.asList(v.beforeEach())),
+                                                      predicatePlannedScenesContainsSpecifiedScene("beforeEach", executionPlan.beforeEach())),
+                 plannedScenesCoverAllSpecifiedScenes(spec,
+                                                      specifiedScenesInStage("value", (AutotestExecution.Spec v) -> Arrays.asList(v.value())),
+                                                      predicatePlannedScenesContainsSpecifiedScene("value", executionPlan.value())),
+                 plannedScenesCoverAllSpecifiedScenes(spec,
+                                                      specifiedScenesInStage("afterEach", (AutotestExecution.Spec v) -> Arrays.asList(v.afterEach())),
+                                                      predicatePlannedScenesContainsSpecifiedScene("afterEach", executionPlan.afterEach())),
+                 plannedScenesCoverAllSpecifiedScenes(spec,
+                                                      specifiedScenesInStage("afterAll", (AutotestExecution.Spec v) -> Arrays.asList(v.afterAll())),
+                                                      predicatePlannedScenesContainsSpecifiedScene("afterAll", executionPlan.afterAll()))
+      );
+    }
+    
+    private static Predicate<String> predicatePlannedScenesContainsSpecifiedScene(String stageName, List<String> plannedScenes) {
+      return MakePrintable.<String>predicate(plannedScenes::contains).$("executionPlan." + stageName + ".contains");
+    }
+    
+    private static Function<AutotestExecution.Spec, List<String>> specifiedScenesInStage(String stageName, Function<AutotestExecution.Spec, List<String>> scenesInStage) {
+      return MakePrintable.function(scenesInStage)
+                          .$("spec." + stageName);
+    }
+    
+    private static Statement<AutotestExecution.Spec> plannedScenesCoverAllSpecifiedScenes(AutotestExecution.Spec spec,
+                                                                                          Function<AutotestExecution.Spec, List<String>> specifiedScenesInSpec,
+                                                                                          Predicate<String> plannedScenesContains) {
+      return value(spec).function(specifiedScenesInSpec)
+                        .asListOf(String.class)
+                        .stream()
+                        .toBe()
+                        .allMatch(plannedScenesContains);
+    }
   }
 }
