@@ -2,11 +2,14 @@ package jp.co.moneyforward.autotest.framework.testengine;
 
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.annotations.ClosedBy;
+import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
+import jp.co.moneyforward.autotest.framework.annotations.When;
 
 import java.util.*;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
+import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngineUtils.mergeListsByAppendingMissedOnes;
 import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngineUtils.mergeListsByInsertingMissedOnes;
 
 /**
@@ -38,6 +41,8 @@ public enum PlanningStrategy {
    *
    * If an action is annotated with `@ClosedBy` and it is in `beforeAll` step, the referenced action will be included in `afterAll` step.
    * This addition is done in the reverse order, where actions which have `@ClosedBy` are found.
+   * At this addition, the target action (an action by specified by `@ClosedBy` annotation) should be wrapped by the **actionunit** 's `When` action, so that it will be performed the original action has succeeded.
+   * (Without this mechanism, a releasing action will be executed even if a resource to be released is not allocated because of a failure)
    *
    * Similarly, if an action in `beforeEach` has `@ClosedBy`, the referenced action will be included in `afterEach` step.
    *
@@ -49,6 +54,8 @@ public enum PlanningStrategy {
    * This feature is useful to ensure allocated resources are released.
    *
    * @see ClosedBy
+   * @see When
+   * @see DependsOn
    */
   DEPENDENCY_BASED {
     @Override
@@ -61,34 +68,13 @@ public enum PlanningStrategy {
                                     .orElseThrow(NoSuchElementException::new);
       List<String> beforeAll = sorted.subList(0, sorted.indexOf(firstSpecified));
       List<String> main = sorted.subList(sorted.indexOf(firstSpecified), sorted.size());
-      return includeAssertions(ensureClosersAreIncluded(new AutotestEngine.ExecutionPlan(
-          AutotestEngineUtils.mergeListsByAppendingMissedOnes(List.of(executionSpec.beforeAll()), beforeAll),
-          asList(executionSpec.beforeEach()),
-          main,
-          asList(executionSpec.afterEach()),
-          asList(executionSpec.afterAll())), closers), assertions);
-    }
-    
-    private static AutotestEngine.ExecutionPlan ensureClosersAreIncluded(AutotestEngine.ExecutionPlan executionPlan, Map<String, String> closers) {
-      List<String> afterAll = new LinkedList<>();
-      executionPlan.beforeAll()
-                   .stream()
-                   .filter(closers::containsKey)
-                   .map(closers::get)
-                   .forEach(afterAll::addFirst);
-      List<String> afterEach = new LinkedList<>();
-      executionPlan.beforeEach()
-                   .stream()
-                   .filter(closers::containsKey)
-                   .map(closers::get)
-                   .forEach(afterEach::addFirst);
-      return new AutotestEngine.ExecutionPlan(
-          executionPlan.beforeAll(),
-          executionPlan.beforeEach(),
-          executionPlan.value(),
-          mergeListsByInsertingMissedOnes(executionPlan.afterEach(), afterEach),
-          mergeListsByInsertingMissedOnes(executionPlan.afterAll(), afterAll)
-      );
+      return includeAssertions(new AutotestEngine.ExecutionPlan(
+                                   mergeListsByAppendingMissedOnes(List.of(executionSpec.beforeAll()), beforeAll),
+                                   asList(executionSpec.beforeEach()),
+                                   main,
+                                   asList(executionSpec.afterEach()),
+                                   asList(executionSpec.afterAll())),
+                               assertions);
     }
     
     private static AutotestEngine.ExecutionPlan includeAssertions(AutotestEngine.ExecutionPlan executionPlan, Map<String, List<String>> assertions) {
@@ -97,8 +83,7 @@ public enum PlanningStrategy {
           executionPlan.beforeEach(),
           includeAssertions(executionPlan.value(), assertions),
           executionPlan.afterEach(),
-          executionPlan.afterAll()
-      );
+          executionPlan.afterAll());
     }
     
     private static List<String> includeAssertions(List<String> value, Map<String, List<String>> assertions) {

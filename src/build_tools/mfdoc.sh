@@ -21,7 +21,7 @@ function _render_index_md_content() {
     _ret="$(printf "%s\n\n%s" "${_ret}" "$(cat "${_f}")")"
     _ret="$(printf "%s\n\n" "${_ret}")"
   fi
-  _ret="$(printf "%s\n\n# Files\n\n" "${_ret}")"
+  _ret="$(printf "%s\n\n## Files\n\n" "${_ret}")"
   if [[ "${_dirname}" != "${_basedir}" ]]; then
     _ret="$(printf "%s\n- [..](../index.md)\n" "${_ret}")"
   fi
