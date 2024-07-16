@@ -125,6 +125,26 @@ function _generate_indices() {
   done
 }
 
+# This function generates a mkdocs.yml from already generated techdocs files.
+function _generate_mkdocs_yml() {
+  local _techdocs_dir="${1}" _basedir="${2}"
+  local _project_name
+  _project_name="$(basename "$(pwd)")"
+  rm "${_techdocs_dir}/mkdocs.yml"
+  {
+    echo "site_name: ${_project_name}"
+    echo "nav:"
+    echo "  - index.md"
+    mapfile -t _dirs < <(ls "${_techdocs_dir}/${_basedir}/"*"/index.md")
+    for _i in "${_dirs[@]}"; do
+      local _n="${_i#${_techdocs_dir}/${_basedir}/}"
+      _n=${_n%/index.md}
+      echo "  - '${_n}': '${_i#${_techdocs_dir}/${_basedir}/}'"
+      echo "  - '${_n}': '${_i#${_techdocs_dir}/${_basedir}/}'" >&2
+    done
+  } >> "${_techdocs_dir}/mkdocs.yml"
+}
+
 function _generate_index_for_manually_written_wiki_pages() {
   local _wiki_dir="${1}"
   mapfile -t _wiki_pages < <(find "${_wiki_dir}" -maxdepth 1 -not -type d | sed -E 's/\.md$//')
@@ -155,7 +175,7 @@ function _to_techdocs_md_file() {
   cat "${_path_to_src_file}" >> "${_dest_filename}"
 }
 
-# Copy files whose names math $1 (glob) under a directory specified by $2 unto $3 keeping the directory structure.
+# Copy files whose names match $1 (glob) under a directory specified by $2 unto $3 keeping the directory structure.
 #
 # Example:
 #   Given:
@@ -245,9 +265,21 @@ function clean() {
   rm -fr "${_wiki_dir}"
 }
 
+# This function does a "step-1" compilation of the documentation and this is in common for the techdocs and the wiki
+# site generations.
+#
+# In this step the following things will be done.
+# 1. Copies files based on the directives givens as the second and the following parameter values.
+#    A directive looks like "{pattern}:{src}:{dest}"
+#    The pattern is a glob, src is a directory's relative path from the project's root directory and the `dest` is a
+#    relative path from the `_doc_dest_dir`.
+# 2. Generates indices (generated) files under `_doc_dest_dir` (, which is specified by the first argument).
+#
+# See also _copy_files function.
+# See also _generate_indices function.
 function compile-docs() {
-  local _wiki_dir="${1}"  _doc_dest_dir="${2}"
-  shift; shift
+  local _doc_dest_dir="${1}"
+  shift
   local _doc_dirs=("${@}")
   message "BEGIN: compile-docs"
   for _i in "${_doc_dirs[@]}"; do
@@ -277,6 +309,7 @@ function compile-techdocs() {
   _clone_techdocs "${_techdocs_dir}"
   _empty_compiled_doc_dir "${_dir_for_generated_docs_in_techdocs}"
   _render_techdocs_files "${_doc_dest_dir}" "${_techdocs_dir}"
+  _generate_mkdocs_yml "${_techdocs_dir}" "docs"
 }
 
 function publish-wiki() {
@@ -324,18 +357,27 @@ function _parse_subcommands() {
 
 # Parses the given arguments and prints option values.
 #
-# [0]: --local-wiki-dir=: Directory to store wiki site's contents.
+# [0]: --local-wiki-dir=:
+#                         Directory to store wiki site's contents.
 #                         (default: .work/wiki)
-# [1]: --local-doc-dir=:  Directory to store documentation files in this repository temporarily.
+# [1]: --local-techdocs-dir=:
+#                         Directory to store techdocs site's contents.
+#                         (default: .work/techdocs)
+# [2]: --local-doc-dir=:  Directory to store documentation files in this repository temporarily.
 #                         (default: .work/doc)
-# [2]: --generated-doc-base-in-local-wiki-dir:
+# [3]: --generated-doc-base-in-local-wiki-dir:
 #                         Relative path from --local-wiki-dir= to a directory which stores
 #                         documentation files in this repository.
 #                         (default: doc)
+# [4]: --generated-doc-base-in-local-techdocs-dir
+#                         Relative path from --local-doc-dir= to a directory which stores
+#                         documentation files in this repository.
+#                         (default: docs)
 function _parse_options() {
   local _i
   local _s="subcommands"
-  local _local_wiki_dir=".work/wiki" _local_techdocs_dir=".work/techdocs" _local_doc_dir=".work/doc" _generated_doc_base_in_local_wiki_dir="doc"
+  local _local_wiki_dir=".work/wiki" _local_techdocs_dir=".work/techdocs" _local_doc_dir=".work/doc"
+  local _generated_doc_base_in_local_wiki_dir="doc" _generated_doc_base_in_local_techdocs_dir="docs"
   for _i in "${@}"; do
     if [[ "${_i}" == "--" ]]; then
       if [[ "${_s}" == "subcommands" ]]; then
@@ -354,10 +396,14 @@ function _parse_options() {
     if [[ "${_i}" == "--"* ]]; then
       if [[ "${_i}" == "--local-wiki-dir="* ]]; then
         _local_wiki_dir="${_i#*=}"
+      elif [[ "${_i}" == "--local-techdocs-dir="* ]]; then
+        _local_techdocs_dir="${_i#*=}"
       elif [[ "${_i}" == "--local-doc-dir="* ]]; then
         _local_doc_dir="${_i#*=}"
       elif [[ "${_i}" == "--generated-doc-base-in-local-wiki-dir="* ]]; then
         _generated_doc_base_in_local_wiki_dir="${_i#*=}"
+      elif [[ "${_i}" == "--generated-doc-base-in-local-techdocs-dir="* ]]; then
+        _generated_doc_base_in_local_techdocs_dir="${_i#*=}"
       fi
     fi
   done
@@ -365,6 +411,7 @@ function _parse_options() {
   echo "${_local_techdocs_dir}"
   echo "${_local_doc_dir}"
   echo "${_generated_doc_base_in_local_wiki_dir}"
+  echo "${_generated_doc_base_in_local_techdocs_dir}"
 }
 
 # Parses the given arguments and prints the directory mappings.
@@ -417,16 +464,16 @@ function main() {
   _pwd="$(pwd)"
   local _wiki_dir="${_options[0]}" _techdocs_dir="${_options[1]}" _doc_dest_dir="${_options[2]}"
   local _dir_for_staged_wiki_files="${_wiki_dir}/${_options[3]}"
-  local _dir_for_staged_techdocs_files="${_techdocs_dir}/${_options[3]}"
+  local _dir_for_staged_techdocs_files="${_techdocs_dir}/${_options[4]}"
 
   for _each in "${_subcommands[@]}"; do
     if [[ "${_each}" == "clean" ]]; then
       clean "${_pwd}/${_wiki_dir}" "${_pwd}/${_techdocs_dir}" "${_pwd}/${_doc_dest_dir}"
     elif [[ "${_each}" == "compile-wiki" ]]; then
-      compile-docs "${_wiki_dir}" "${_doc_dest_dir}" "${_mappings[@]}"
+      compile-docs "${_doc_dest_dir}" "${_mappings[@]}"
       compile-wiki "${_wiki_dir}" "${_doc_dest_dir}" "${_dir_for_staged_wiki_files}"
     elif [[ "${_each}" == "compile-techdocs" ]]; then
-      compile-docs "${_techdocs_dir}" "${_doc_dest_dir}" "${_mappings[@]}"
+      compile-docs "${_doc_dest_dir}" "${_mappings[@]}"
       compile-techdocs "${_techdocs_dir}" "${_doc_dest_dir}" "${_dir_for_staged_techdocs_files}"
     elif [[ "${_each}" == "publish-wiki" ]]; then
       # Deploy the generated github-wiki site.

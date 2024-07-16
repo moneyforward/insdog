@@ -1,8 +1,0 @@
-site_name: 'autotest-ca-docs'
-site_encoding: 'utf-8'
-
-nav:
-  - Home: src/site/markdown/README.md
-
-plugins:
-  - techdocs-core
