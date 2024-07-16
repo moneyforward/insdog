@@ -9,9 +9,7 @@ import org.opentest4j.TestAbortedException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -59,8 +57,8 @@ public enum InternalUtils {
    * Concatenates given streams.
    *
    * @param streams Streams to be concatenated.
+   * @param <T>     The type of the values streamed by the given `streams`.
    * @return Concatenated stream.
-   * @param <T> The type of the values streamed by the given `streams`.
    */
   @SafeVarargs
   public static <T> Stream<T> concat(Stream<T>... streams) {
@@ -78,7 +76,7 @@ public enum InternalUtils {
    * Creates a consumer, which gives a `consumerName`, when `toString` method is called.
    *
    * @param consumerName A name of the created consumer. Returned from `toString`.
-   * @param consumer A consumer from which the returned object is created.
+   * @param consumer     A consumer from which the returned object is created.
    * @return A consumer which executes the `accept` method of the consumer and returns `consumerName` for `toString`.
    */
   public static Consumer<Context> printableConsumer(final String consumerName, Consumer<Context> consumer) {
@@ -100,7 +98,7 @@ public enum InternalUtils {
    * Inside this method, the given `contextConsumer` method is made printable using the `printableConsumer` method.
    * Then it will be passed to `ActionSupport#leaf` method to turn it into an action.
    *
-   * @param name A name of the action.
+   * @param name            A name of the action.
    * @param contextConsumer A consumer to define the behavior of the returned action.
    * @return A leaf action created from the `contextConsumer`.
    */
@@ -123,7 +121,7 @@ public enum InternalUtils {
    * Once it is fixed, usages of this method should be replaced with `Expectations.assumeStatement`.
    *
    * @param statement A statement
-   * @param <T> Type of the value
+   * @param <T>       Type of the value
    */
   @SuppressWarnings("JavadocLinkAsPlainText")
   public static <T> void assumeStatement(Statement<T> statement) {
@@ -146,5 +144,11 @@ public enum InternalUtils {
   
   private static RuntimeException wrap(ParseException e) {
     throw new RuntimeException(e);
+  }
+  
+  public static <T> List<T> reverse(List<T> list) {
+    ArrayList<T> reversed = new ArrayList<>(list);
+    Collections.reverse(reversed);
+    return reversed;
   }
 }

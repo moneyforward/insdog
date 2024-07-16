@@ -10,6 +10,7 @@ import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import jp.co.moneyforward.autotest.framework.utils.Valid8JCliches.MakePrintable;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -42,6 +43,7 @@ import static com.github.valid8j.pcond.internals.InternalUtils.wrapIfNecessary;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneCall;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.reverse;
 
 /**
  * The test execution engine of the **autotest-ca**.
@@ -101,21 +103,24 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
       Map<String, SceneCall> sceneCallMap = Arrays.stream(accessModelClass.getMethods())
                                                   .filter(m -> m.isAnnotationPresent(Named.class))
                                                   .filter(m -> !m.isAnnotationPresent(Disabled.class))
-                                                  .map(this::validateSceneProvidingMethod)
+                                                  .map(AutotestEngine::validateSceneProvidingMethod)
                                                   .map(m -> new Entry<>(nameOf(m), methodToSceneCall(accessModelClass, m, runner)))
                                                   .collect(toMap(Entry::key, Entry::value));
       
       AutotestExecution.Spec spec = loadExecutionSpec(runner);
       ExecutionPlan executionPlan = planExecution(spec,
                                                   sceneCallGraph(runner.getClass()),
-                                                  closers(runner.getClass()),
+                                                  Map.of(),
                                                   assertions(runner.getClass()));
+      var closers = closers(runner.getClass());
       assert Contracts.explicitlySpecifiedScenesAreAllCoveredInCorrespondingPlannedStage(spec, executionPlan);
       ExtensionContext.Store executionContextStore = executionContextStore(context);
       
       executionContextStore.put("runner", runner);
       executionContextStore.put("sceneCallMap", sceneCallMap);
+      executionContextStore.put("sceneClosers", closers);
       executionContextStore.put("executionPlan", executionPlan);
+      newPassedInBeforeAll(context);
     }
     
     {
@@ -130,6 +135,10 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
               executionEnvironment)
           .stream()
           .map(each -> runActionEntryWith(each, a -> runner.beforeAll(a.value(), runner.createWriter(out))))
+          .peek(each -> {
+            if (each.hasSucceeded())
+              passedInBeforeAll(context).add(each.name());
+          })
           .peek(SceneExecutionResult::throwIfFailed)
           // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
           // Then, stream again. Otherwise, the log will not become so readable.
@@ -145,6 +154,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   public void beforeEach(ExtensionContext context) {
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), "beforeEach");
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-before.log"), Level.INFO);
+    newPassedInBeforeEach(context);
     AutotestRunner runner = autotestRunner(context);
     String stageName = "beforeEach";
     List<String> out = new ArrayList<>();
@@ -154,6 +164,10 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
             executionEnvironment)
         .stream()
         .map(each -> runActionEntryWith(each, a -> runner.beforeEach(a.value(), runner.createWriter(out))))
+        .peek(each -> {
+          if (each.hasSucceeded())
+            passedInBeforeEach(context).add(each.name());
+        })
         .peek(SceneExecutionResult::throwIfFailed)
         // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
         // Then, stream again. Otherwise, the log will not become so readable.
@@ -174,7 +188,14 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     String stageName = "afterEach";
     List<String> out = new ArrayList<>();
     actions(executionPlan(context),
-            ExecutionPlan::afterEach,
+            p -> Stream.concat(p.afterEach()
+                                .stream(),
+                               reverse(p.beforeEach())
+                                   .stream()
+                                   .filter(passedInBeforeEach(context)::contains)
+                                   .map(x -> sceneClosers(context).get(x))
+                                   .filter(x -> !p.afterEach().contains(x)))
+                       .toList(),
             sceneCallMap(context),
             executionEnvironment)
         .stream()
@@ -200,7 +221,14 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     String stageName = "afterAll";
     List<String> out = new ArrayList<>();
     actions(executionPlan(context),
-            ExecutionPlan::afterAll,
+            p -> Stream.concat(p.afterAll()
+                                .stream(),
+                               reverse(p.beforeAll())
+                                   .stream()
+                                   .filter(passedInBeforeAll(context)::contains)
+                                   .map(x -> sceneClosers(context).get(x))
+                                   .filter(x -> !p.afterAll().contains(x)))
+                       .toList(),
             sceneCallMap(context),
             executionEnvironment)
         .stream()
@@ -336,6 +364,29 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   @SuppressWarnings("unchecked")
+  private static Map<String, String> sceneClosers(ExtensionContext context) {
+    return (Map<String, String>) executionContextStore(context).get("sceneClosers");
+  }
+  
+  private static void newPassedInBeforeAll(ExtensionContext context) {
+    executionContextStore(context).put("passedInBeforeAll", new HashSet<>());
+  }
+  
+  @SuppressWarnings("unchecked")
+  private static Set<String> passedInBeforeAll(ExtensionContext context) {
+    return (Set<String>) executionContextStore(context).get("passedInBeforeAll");
+  }
+  
+  private static void newPassedInBeforeEach(ExtensionContext context) {
+    executionContextStore(context).put("passedInBeforeEach", new HashSet<>());
+  }
+  
+  @SuppressWarnings("unchecked")
+  private static Set<String> passedInBeforeEach(ExtensionContext context) {
+    return (Set<String>) executionContextStore(context).get("passedInBeforeEach");
+  }
+  
+  @SuppressWarnings("unchecked")
   private static Map<String, SceneCall> sceneCallMap(ExtensionContext context) {
     return (Map<String, SceneCall>) executionContextStore(context).get("sceneCallMap");
   }
@@ -427,7 +478,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                        .value());
   }
   
-  private Method validateSceneProvidingMethod(Method m) {
+  private static Method validateSceneProvidingMethod(Method m) {
     // TODO: https://app.asana.com/0/1206402209253009/1207418182714921/f
     return m;
   }

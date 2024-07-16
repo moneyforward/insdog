@@ -40,6 +40,8 @@ public enum PlanningStrategy {
    *
    * If an action is annotated with `@ClosedBy` and it is in `beforeAll` step, the referenced action will be included in `afterAll` step.
    * This addition is done in the reverse order, where actions which have `@ClosedBy` are found.
+   * At this addition, the target action (an action by specified by `@ClosedBy` annotation) should be wrapped by the **actionunit** 's `When` action, so that it will be performed the original action has succeeded.
+   * (Without this mechanism, a releasing action will be executed even if a resource to be released is not allocated because of a failure)
    *
    * Similarly, if an action in `beforeEach` has `@ClosedBy`, the referenced action will be included in `afterEach` step.
    *
@@ -73,6 +75,12 @@ public enum PlanningStrategy {
           asList(executionSpec.afterAll())), closers), assertions);
     }
     
+    /**
+     *
+     * @param executionPlan An original execution plan
+     * @param closers A mapping from a scene in beforeEach or beforeAll to closer scenes.
+     * @return Updated execution plan.
+     */
     private static AutotestEngine.ExecutionPlan ensureClosersAreIncluded(AutotestEngine.ExecutionPlan executionPlan, Map<String, String> closers) {
       List<String> afterAll = new LinkedList<>();
       executionPlan.beforeAll()
