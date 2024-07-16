@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
+import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngineUtils.mergeListsByAppendingMissedOnes;
 import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngineUtils.mergeListsByInsertingMissedOnes;
 
 /**
@@ -67,40 +68,13 @@ public enum PlanningStrategy {
                                     .orElseThrow(NoSuchElementException::new);
       List<String> beforeAll = sorted.subList(0, sorted.indexOf(firstSpecified));
       List<String> main = sorted.subList(sorted.indexOf(firstSpecified), sorted.size());
-      return includeAssertions(ensureClosersAreIncluded(new AutotestEngine.ExecutionPlan(
-          AutotestEngineUtils.mergeListsByAppendingMissedOnes(List.of(executionSpec.beforeAll()), beforeAll),
-          asList(executionSpec.beforeEach()),
-          main,
-          asList(executionSpec.afterEach()),
-          asList(executionSpec.afterAll())), closers), assertions);
-    }
-    
-    /**
-     *
-     * @param executionPlan An original execution plan
-     * @param closers A mapping from a scene in beforeEach or beforeAll to closer scenes.
-     * @return Updated execution plan.
-     */
-    private static AutotestEngine.ExecutionPlan ensureClosersAreIncluded(AutotestEngine.ExecutionPlan executionPlan, Map<String, String> closers) {
-      List<String> afterAll = new LinkedList<>();
-      executionPlan.beforeAll()
-                   .stream()
-                   .filter(closers::containsKey)
-                   .map(closers::get)
-                   .forEach(afterAll::addFirst);
-      List<String> afterEach = new LinkedList<>();
-      executionPlan.beforeEach()
-                   .stream()
-                   .filter(closers::containsKey)
-                   .map(closers::get)
-                   .forEach(afterEach::addFirst);
-      return new AutotestEngine.ExecutionPlan(
-          executionPlan.beforeAll(),
-          executionPlan.beforeEach(),
-          executionPlan.value(),
-          mergeListsByInsertingMissedOnes(executionPlan.afterEach(), afterEach),
-          mergeListsByInsertingMissedOnes(executionPlan.afterAll(), afterAll)
-      );
+      return includeAssertions(new AutotestEngine.ExecutionPlan(
+                                   mergeListsByAppendingMissedOnes(List.of(executionSpec.beforeAll()), beforeAll),
+                                   asList(executionSpec.beforeEach()),
+                                   main,
+                                   asList(executionSpec.afterEach()),
+                                   asList(executionSpec.afterAll())),
+                               assertions);
     }
     
     private static AutotestEngine.ExecutionPlan includeAssertions(AutotestEngine.ExecutionPlan executionPlan, Map<String, List<String>> assertions) {
@@ -109,8 +83,7 @@ public enum PlanningStrategy {
           executionPlan.beforeEach(),
           includeAssertions(executionPlan.value(), assertions),
           executionPlan.afterEach(),
-          executionPlan.afterAll()
-      );
+          executionPlan.afterAll());
     }
     
     private static List<String> includeAssertions(List<String> value, Map<String, List<String>> assertions) {

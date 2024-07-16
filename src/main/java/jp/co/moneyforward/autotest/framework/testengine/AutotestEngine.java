@@ -10,7 +10,6 @@ import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
-import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import jp.co.moneyforward.autotest.framework.utils.Valid8JCliches.MakePrintable;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -112,6 +111,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                                   sceneCallGraph(runner.getClass()),
                                                   Map.of(),
                                                   assertions(runner.getClass()));
+      logExecutionPlan(executionPlan);
       var closers = closers(runner.getClass());
       assert Contracts.explicitlySpecifiedScenesAreAllCoveredInCorrespondingPlannedStage(spec, executionPlan);
       ExtensionContext.Store executionContextStore = executionContextStore(context);
@@ -148,6 +148,19 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
             out.forEach(l -> LOGGER.info(String.format("%-11s %s", stageName + ":", l)));
           });
     }
+  }
+  
+  private static void logExecutionPlan(ExecutionPlan executionPlan) {
+    LOGGER.info("executionPlan#beforeAll: {}", executionPlan.beforeAll());
+    LOGGER.info("executionPlan#beforeEach: {}", executionPlan.beforeEach());
+    LOGGER.info("executionPlan#value: {}", executionPlan.value());
+    LOGGER.info("executionPlan#afterEach: {}", executionPlan.afterEach());
+    LOGGER.info("executionPlan#afterAll: {}", executionPlan.afterAll());
+    System.out.printf("executionPlan#beforeAll: %s%n", executionPlan.beforeAll());
+    System.out.printf("executionPlan#beforeEach:  %s%n", executionPlan.beforeEach());
+    System.out.printf("executionPlan#value:  %s%n", executionPlan.value());
+    System.out.printf("executionPlan#afterEach:  %s%n", executionPlan.afterEach());
+    System.out.printf("executionPlan#afterAll:  %s%n", executionPlan.afterAll());
   }
   
   @Override
