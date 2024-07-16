@@ -2,6 +2,8 @@ package jp.co.moneyforward.autotest.framework.testengine;
 
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.annotations.ClosedBy;
+import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
+import jp.co.moneyforward.autotest.framework.annotations.When;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -49,6 +51,8 @@ public enum PlanningStrategy {
    * This feature is useful to ensure allocated resources are released.
    *
    * @see ClosedBy
+   * @see When
+   * @see DependsOn
    */
   DEPENDENCY_BASED {
     @Override

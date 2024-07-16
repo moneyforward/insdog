@@ -45,6 +45,32 @@ import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.scene
 
 /**
  * The test execution engine of the **autotest-ca**.
+ *
+ * In the implementation of this engine, the steps performed during a test class execution are following:
+ *
+ * 1. **beforeAll:** Every scene in this step is executed in the order they are shown in the execution plan.
+ * 2. **beforeEach:** For each scene in the **value (main)** step, every scene in this step is executed in the order.
+ * When a failure occurs, the rest will not be executed.
+ * 3. **value (or main):** This step is the main part of the entire test.
+ * This stage was named **value** to make the user test scenario class as simple as possible.
+ * (In Java, in order to omit typing an annotation's method name, we need to name it `value`)
+ * In the future, we may change it to `main`.
+ * 4. **afterEach:** Scenes in this step are executed in the provided order, after each **value (or main)** scene is performed even if on a failure.
+ * In this step, even if a failure happens in an **afterEach** scene, the subsequent scenes should still be executed.
+ * 5. **afterAll:** Scenes in this step are executed in the provided order, after all the scenes in the **afterEach** for the last of the **value (or main)** is executed.
+ * In this step, even if a failure happens in an **afterAll** scene, the subsequent scenes should still be executed.
+ *
+ * Note that the "execution plan" and which scenes a user specifies to execute are not the same.
+ * The former is modeled by `ExecutionPlan` and the latter is modeled by the `AutotestExecution.Spec`.
+ * The `PlanningStrategy` instance interprets the `AutotestExecution.Spec` and creates an `ExecutionPlan`.
+ * The discussion above is about the `ExecutionPlan`.
+ *
+ * Also, a `PlanningStrategy` should be designed in a way where scenes that a user specifies explicitly are included in its resulting execution plan.
+ *
+ * With this separation, **autotest-ca** allows users to specify scenes that really want to execute directly.
+ *
+ * @see AutotestExecution.Spec
+ * @see PlanningStrategy
  */
 public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, TestTemplateInvocationContextProvider, AfterEachCallback, AfterAllCallback {
   private static final Logger LOGGER = LoggerFactory.getLogger(AutotestEngine.class);
