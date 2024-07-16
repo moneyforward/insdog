@@ -18,11 +18,11 @@ public interface AutotestRunner {
   Logger LOGGER = LoggerFactory.getLogger(AutotestRunner.class);
   
   default void beforeAll(Action action, Writer writer) {
-    performActionWithReporting(action, writer);
+    actionPerformer().performAndReport(action, writer);
   }
   
   default void beforeEach(Action action, Writer writer) {
-    performActionWithReporting(action, writer);
+    actionPerformer().performAndReport(action, writer);
   }
   
   @TestTemplate
@@ -31,7 +31,8 @@ public interface AutotestRunner {
     String stageName = "value:";
     boolean succeeded = false;
     try {
-      performActionWithReporting(action, createWriter(out));
+      Writer writer = createWriter(out);
+      actionPerformer().performAndReport(action, writer);
       succeeded = true;
     } finally {
       LOGGER.info(String.format("%-11s [%s]%s", stageName, succeeded ? "o" : "E", name));
@@ -40,14 +41,10 @@ public interface AutotestRunner {
   }
   
   default void afterEach(Action action, Writer writer) {
-    performActionWithReporting(action, writer);
+    actionPerformer().performAndReport(action, writer);
   }
   
   default void afterAll(Action action, Writer writer) {
-    performActionWithReporting(action, writer);
-  }
-  
-  default void performActionWithReporting(Action action, Writer writer) {
     actionPerformer().performAndReport(action, writer);
   }
   
