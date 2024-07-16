@@ -127,14 +127,20 @@ function _generate_indices() {
 
 # This function generates a mkdocs.yml from already generated techdocs files.
 function _generate_mkdocs_yml() {
-  local _techdocs_dir="${1}"
+  local _techdocs_dir="${1}" _basedir="${2}"
+  local _project_name
+  _project_name="$(basename "$(pwd)")"
+  rm "${_techdocs_dir}/mkdocs.yml"
   {
     echo "site_name: ${_project_name}"
     echo "nav:"
     echo "  - index.md"
-    mapfile -t _dirs < <(ls "${_techdocs_dir}/"*"/index.md")
+    mapfile -t _dirs < <(ls "${_techdocs_dir}/${_basedir}/"*"/index.md")
     for _i in "${_dirs[@]}"; do
-      echo "  - ${_i#${_techdocs_dir}/}"
+      local _n="${_i#${_techdocs_dir}/${_basedir}/}"
+      _n=${_n%/index.md}
+      echo "  - '${_n}': '${_i#${_techdocs_dir}/${_basedir}/}'"
+      echo "  - '${_n}': '${_i#${_techdocs_dir}/${_basedir}/}'" >&2
     done
   } >> "${_techdocs_dir}/mkdocs.yml"
 }
@@ -303,7 +309,7 @@ function compile-techdocs() {
   _clone_techdocs "${_techdocs_dir}"
   _empty_compiled_doc_dir "${_dir_for_generated_docs_in_techdocs}"
   _render_techdocs_files "${_doc_dest_dir}" "${_techdocs_dir}"
-  _generate_mkdocs_yml "${_doc_dest_dir}"
+  _generate_mkdocs_yml "${_techdocs_dir}" "docs"
 }
 
 function publish-wiki() {
