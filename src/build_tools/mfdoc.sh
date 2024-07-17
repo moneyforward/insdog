@@ -140,7 +140,6 @@ function _generate_mkdocs_yml() {
       local _n="${_i#${_techdocs_dir}/${_basedir}/}"
       _n=${_n%/index.md}
       echo "  - '${_n}': '${_i#${_techdocs_dir}/${_basedir}/}'"
-      echo "  - '${_n}': '${_i#${_techdocs_dir}/${_basedir}/}'" >&2
     done
   } >> "${_techdocs_dir}/mkdocs.yml"
 }

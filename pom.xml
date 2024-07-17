@@ -84,7 +84,7 @@
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <maven-shade-plugin.version>3.5.3</maven-shade-plugin.version>
-        <mddoclet-doclet-plugin.version>1.0.8-SNAPSHOT</mddoclet-doclet-plugin.version>
+        <mddoclet-doclet-plugin.version>1.0.9-SNAPSHOT</mddoclet-doclet-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <!-- BEGIN: build dependencies -->
     </properties>
@@ -262,7 +262,7 @@
                     <configuration>
                         <doclet>com.github.dakusui.mddoclet.MdDoclet</doclet>
                         <docletArtifact>
-                            <groupId>com.github.dakusui</groupId>
+                            <groupId>com.github.moneyforward</groupId>
                             <artifactId>mddoclet</artifactId>
                             <version>${mddoclet-doclet-plugin.version}</version>
                         </docletArtifact>
