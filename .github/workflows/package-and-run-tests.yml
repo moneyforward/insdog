@@ -2,9 +2,7 @@ name: Package and Run All Tests
 
 on:
   pull_request:
-    types: [closed]
-    branches:
-      - develop
+    types: [opened, reopened, synchronize, ready_for_review]
 
 jobs:
   build:
