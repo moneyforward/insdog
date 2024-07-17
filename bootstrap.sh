@@ -66,14 +66,14 @@ function reset_caveats_rc() {
 }
 
 function compose_goenv_rc() {
-  local _projectdir="${1}" _go_version="${2}"
+  local _project_godir="${1}" _go_version="${2}"
   echo "
-  export GOENV_ROOT=${_projectdir}/.go/env
+  export GOENV_ROOT=${_project_godir}/env
   export GOENV_SHELL=bash
-  export GOPATH=${_projectdir}/.go/${_go_version}
-  export GOROOT=${_projectdir}/.go/env/versions/${_go_version}
+  export GOPATH=${_project_godir}/${_go_version}
+  export GOROOT=${_project_godir}/env/versions/${_go_version}
 
-  export PATH=${_projectdir}/.go/${_go_version}/bin:${PATH}
+  export PATH=${_project_godir}/${_go_version}/bin:${PATH}
   "
 }
 
@@ -82,16 +82,26 @@ function message() {
 }
 
 function main() {
-  local _projectdir _project_brewdir _caveats_file _goenv_file _go_version
+  local _projectdir _project_dependencies_dir _project_brewdir  _project_rcdir _caveats_file
+  local _project_godir _goenv_file _go_version
+  local _project_sdkman_dir
   _projectdir="$(dirname "${1}")"
   _projectdir="$(realpath "${_projectdir}")"
-  _project_brewdir="${_projectdir}/.homebrew"
-  _caveats_file="${_projectdir}/.rc/caveats.rc"
-  _goenv_file="${_projectdir}/.rc/goenv.rc"
+  _project_dependencies_dir="${_projectdir}/.dependencies"
+
+  _project_brewdir="${_project_dependencies_dir}/homebrew"
+
+  _project_rcdir="${_project_dependencies_dir}/rc"
+  _caveats_file="${_project_dependencies_dir}/rc/caveats.rc"
+
+  _goenv_file="${_project_dependencies_dir}/rc/goenv.rc"
   _go_version="1.21.6"
+  _project_godir="${_project_dependencies_dir}/go"
+
+  _project_sdkman_dir="${_project_dependencies_dir}/sdkman"
   shift
 
-  mkdir -p "${_projectdir}/.rc"
+  mkdir -p "${_project_rcdir}"
   bootstrap "${_project_brewdir}"
   reset_caveats_rc "${_caveats_file}"
 
@@ -107,17 +117,17 @@ function main() {
   install_brew_package "${_project_brewdir}" findutils  | caveats >> "${_caveats_file}"
 
   # golang
-  mkdir -p "${_projectdir}/.go/env"
+  mkdir -p "${_project_godir}/env"
   install_brew_package "${_project_brewdir}" goenv   > /dev/null
-  compose_goenv_rc "${_projectdir}" "${_go_version}" > "${_goenv_file}"
+  compose_goenv_rc "${_project_godir}" "${_go_version}" > "${_goenv_file}"
   # shellcheck disable=SC1090
   source "${_goenv_file}"
   "${_project_brewdir}/bin/goenv" install -q "${_go_version}" 2>&1 | progress "goenv:${_go_version}"
-  "${_projectdir}/.go/env/versions/${_go_version}/bin/go" install github.com/Songmu/make2help/cmd/make2help@latest 2>&1 | progress "go:make2help"
+  "${_project_godir}/env/versions/${_go_version}/bin/go" install github.com/Songmu/make2help/cmd/make2help@latest 2>&1 | progress "go:make2help"
 
   # sdkman & Java
-  export HOME="${_projectdir}/.rc" # To avoid .bashrc / .bash_profile / .zsh_profile being updated
-  export SDKMAN_DIR="${_projectdir}/.sdkman"
+  export HOME="${_project_rcdir}" # To avoid .bashrc / .bash_profile / .zsh_profile being updated
+  export SDKMAN_DIR="${_project_sdkman_dir}"
   # install sdkman
   curl -s "https://get.sdkman.io" | /bin/bash 2>&1 | progress "sdkman"
 
@@ -127,7 +137,7 @@ function main() {
 
 projectdir="$(dirname "${BASH_SOURCE[0]}")"
 projectdir="$(realpath "${projectdir}")"
-brewdir="${projectdir}/.homebrew"
+brewdir="${projectdir}/.dependencies/homebrew"
 
 main "${0}" "$@"
 
