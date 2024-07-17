@@ -43,6 +43,33 @@ jobs:
           distribution: 'temurin'  # AdoptOpenJDK is now Eclipse Temurin
           java-version: '21'
 
+      - name: Configure Maven settings
+        run: |
+          mkdir -p ~/.m2
+          echo "<settings>
+                  <servers>
+                    <server>
+                      <id>github</id>
+                      <username>${{ github.actor }}</username>
+                      <password>${{ secrets.GH_PAT }}</password>
+                    </server>
+                  </servers>
+                  <profiles>
+                    <profile>
+                      <id>github</id>
+                      <repositories>
+                        <repository>
+                          <id>github</id>
+                          <url>https://maven.pkg.github.com/dakusui/mddoclet</url>
+                        </repository>
+                      </repositories>
+                    </profile>
+                  </profiles>
+                  <activeProfiles>
+                    <activeProfile>github</activeProfile>
+                  </activeProfiles>
+                </settings>" > ~/.m2/settings.xml
+
       - name: Build with Maven not Skipping JavaDoc
         run: mvn clean package test
 
