@@ -9,7 +9,7 @@ import static com.microsoft.playwright.options.AriaRole.LINK;
 import static com.microsoft.playwright.options.WaitForSelectorState.HIDDEN;
 
 /**
- * A utilitiy class for **caweb** application.
+ * A utility class for **caweb** application.
  */
 public enum CawebUtils {
   ;

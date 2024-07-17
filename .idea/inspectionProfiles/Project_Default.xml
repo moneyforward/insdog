@@ -1,24 +1,7 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
     <option name="myName" value="Project Default" />
-    <inspection_tool class="FieldCanBeLocal" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="EXCLUDE_ANNOS">
-        <value>
-          <list size="1">
-            <item index="0" class="java.lang.String" itemvalue="picocli.CommandLine.Option" />
-          </list>
-        </value>
-      </option>
-      <option name="IGNORE_FIELDS_USED_IN_MULTIPLE_METHODS" value="true" />
-    </inspection_tool>
-    <inspection_tool class="JUnitMalformedDeclaration" enabled="false" level="ERROR" enabled_by_default="false" />
-    <inspection_tool class="JavadocBlankLines" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="NewClassNamingConvention" enabled="true" level="TEXT ATTRIBUTES" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES">
-      <extension name="JUnitTestClassNamingConvention" enabled="true">
-        <option name="m_regex" value="[A-Z][A-Za-z\d]*(Test|Example|(Sandbox[0-9]+))(s|Case)?|Test|Example|(Sandbox[0-9]+)[A-Z][A-Za-z\d]*|IT(.*)|(.*)IT(Case)?" />
-        <option name="m_minLength" value="5" />
-        <option name="m_maxLength" value="255" />
-      </extension>
-    </inspection_tool>
+    <inspection_tool class="JavadocBlankLines" enabled="true" level="INFORMATION" enabled_by_default="true" editorAttributes="INFORMATION_ATTRIBUTES" />
+    <inspection_tool class="NewClassNamingConvention" enabled="true" level="INFORMATION" enabled_by_default="true" editorAttributes="INFORMATION_ATTRIBUTES" />
   </profile>
 </component>
