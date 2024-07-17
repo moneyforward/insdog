@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: [self-hosted, linux, ARM64]
+    runs-on: [self-hosted]
 
     steps:
       - name: Checkout repository
@@ -17,8 +17,8 @@ jobs:
       - name: Install Playwright dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxdamage1 libgbm1 libpango-1.0-0 libpangocairo-1.0-0 libasound2 libxshmfence1 
-          sudo apt-get install -y libwoff1 libvpx7 libevent-2.1-7 libopus0 libdbus-glib-1-2 libxtst6 libxrandr2 libxcomposite1 libxdamage1 libxshmfence1 libgbm1 libjpeg-dev libxkbfile1 libgstreamer1.0-0 libgstreamer-plugins-base1.0-0
+          sudo apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxdamage1 libgbm1 libpango-1.0-0 libpangocairo-1.0-0 libasound2-dev libxshmfence1
+          sudo apt-get install -y libwoff1 libopus0 libdbus-glib-1-2 libxtst6 libxrandr2 libxcomposite1 libxdamage1 libxshmfence1 libgbm1 libjpeg-dev libxkbfile1 libgstreamer1.0-0 libgstreamer-plugins-base1.0-0
           sudo apt-get install -y gstreamer1.0-plugins-bad gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-gl gstreamer1.0-tools
           sudo apt-get install -y libharfbuzz-icu0 libhyphen0 libmanette-0.2-0 libflite1
           sudo apt-get install -y libgles2
@@ -39,6 +39,10 @@ jobs:
         with:
           distribution: 'temurin'  # AdoptOpenJDK is now Eclipse Temurin
           java-version: '21'
+      - name: Install maven
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y maven
 
       - name: Build with Maven
         run: mvn -Dmaven.javadoc.skip=true clean package
