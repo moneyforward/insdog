@@ -220,8 +220,8 @@ public class AutotestExample {
 public class AutotestExample implements ActionTestPerformer {
   @SetUpAll
   public Scene login() {
-    return new Scene.Builder().add(SomeAction(), "varName1")
-                              .add("resultVariable", new WaitFor())
+    return new Scene.Builder("page").add(SomeAction())
+                              .add(new WaitFor())
                               .build();
   }
   

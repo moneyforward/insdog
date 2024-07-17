@@ -45,6 +45,11 @@ import static jp.co.moneyforward.autotest.ca_web.accessmodels.CawebUtils.*;
             "deleteJournalRecord"},
         afterEach = {"screenshot"}))
 public class SimpleJournalCreation extends CawebAccessingModel {
+  /**
+   * This scene clicks an item menu named `簡単入力`, then sidebar item named `手動で仕訳`.
+   *
+   * @return A scene object which performs described behavior.
+   */
   @Named
   @DependsOn("login")
   @Export("page")
@@ -54,6 +59,13 @@ public class SimpleJournalCreation extends CawebAccessingModel {
         .build();
   }
   
+  /**
+   * This assertion checks if the "main container" (`#js-ca-main-container`) has an item named `簡単入力`.
+   *
+   * @return An assertion scene object which performs described behavior.
+   *
+   * @see SimpleJournalCreation#assertMainContainerHasItemNamed(String)
+   */
   @Named
   @When("clickEasyInputUnderManualEntry")
   @Export("page")
@@ -63,6 +75,14 @@ public class SimpleJournalCreation extends CawebAccessingModel {
         .build();
   }
   
+  /**
+   * Returned scene
+   * 1. `#journal_recognized_at`
+   * 2. `#journal_value`
+   * 3. Click `登録` and wait for completion by checking the state of standard waiting icon (`".ca-saving-cover"`), which is a standard waiting icon in **caweb**.
+   *
+   * @return A scene that performs the described steps.
+   */
   @Named
   @DependsOn("clickEasyInputUnderManualEntry")
   @Export("page")

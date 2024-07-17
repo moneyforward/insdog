@@ -145,16 +145,17 @@ bank
 ```
 
 You can use it to query tests, which match given tags.
-With this feature, you can run tests only desired one.
+With this feature, you can run desired tests only.
 This is useful, when you are doing debugging/refactoring the SUT.
-
-To define and attach tag to test classes, check [ProgrammingModel](ProgrammingModel.md).
+Check the `run` subcommand, either.
 
 **Run tests matching tags:**
 
 ```text
 java -jar target/autotest-caweb.jar -q 'tag:%bank' run
 ```
+
+To define and attach tags to test classes, check [ProgrammingModel](ProgrammingModel.md).
 
 **List tests:**
 
@@ -184,7 +185,7 @@ will print only:
 class jp.co.moneyforward.autotest.ca_web.tests.bankaccount.BankConnectingTest
 ```
 
-Because `BankConnectingTest` is the only test to which `bank` tag is attached.
+Because `BankConnectingTest` is the only test to which `bank` tag is attached, currently.
 
 **Run tests matching test name:**
 
