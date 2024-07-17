@@ -37,7 +37,7 @@ $ ./bootstrap.sh
 NOTE:: In case you want to re-try the set-up, in the project root directory for some reason, you can do:
 [source, bash]
 ----
-$ sudo rm -fr .homebrew/ .rc/ .go/ .sdkman/
+$ sudo rm -fr .dependencies
 ----
 Then, do `./bootstrap.sh`.
 
@@ -53,10 +53,10 @@ $ ./build.sh compile test
 
 === Running tests
 
-Do, 
+Do,
 [source, bash]
 ----
-$ ./build.sh package-without-javadoc 
+$ ./build.sh package-without-javadoc
 ----
 
 to build the executable.
