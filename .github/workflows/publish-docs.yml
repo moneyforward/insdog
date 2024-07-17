@@ -60,7 +60,7 @@ jobs:
                       <repositories>
                         <repository>
                           <id>github</id>
-                          <url>https://maven.pkg.github.com/dakusui/mddoclet</url>
+                          <url>https://maven.pkg.github.com/moneyforward/mddoclet</url>
                         </repository>
                       </repositories>
                     </profile>
