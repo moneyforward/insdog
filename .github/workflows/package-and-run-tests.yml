@@ -2,7 +2,9 @@ name: Package and Run All Tests
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
+    types: [closed]
+    branches:
+      - develop
 
 jobs:
   build:
@@ -37,6 +39,10 @@ jobs:
         with:
           distribution: 'temurin'  # AdoptOpenJDK is now Eclipse Temurin
           java-version: '21'
+      - name: Install maven
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y maven
 
       - name: Build with Maven
         run: mvn -Dmaven.javadoc.skip=true clean package
