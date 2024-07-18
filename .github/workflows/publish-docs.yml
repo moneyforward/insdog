@@ -76,5 +76,7 @@ jobs:
       - name: Compile Documentation Sets
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
-        run: ./build.sh publish-wiki publish-techdocs
-
+        run: |
+          git config --global user.email "ci@moneyforward.com"
+          git config --global user.name "MoneyForward CI"
+          ./build.sh publish-wiki publish-techdocs
