@@ -37,7 +37,7 @@ documentation files in this repository.
 
 ### `GITHUB_ACTIONS`
 
-If this environment variable has any value such as `true`, this tools considers that this tools run under **GitHub Actions**. 
+If this environment variable is `true`, this tools considers that this tools run under **GitHub Actions**. 
 
 ### `GH_PAT`
 
