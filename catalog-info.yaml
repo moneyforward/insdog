@@ -12,3 +12,5 @@ spec:
   owner: dakusui
   dependsOn:
   - Component:ca_web
+  - Component:mddoclet
+  - Component:mddoc
