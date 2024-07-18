@@ -140,7 +140,6 @@ function _generate_mkdocs_yml() {
       local _n="${_i#${_techdocs_dir}/${_basedir}/}"
       _n=${_n%/index.md}
       echo "  - '${_n}': '${_i#${_techdocs_dir}/${_basedir}/}'"
-      echo "  - '${_n}': '${_i#${_techdocs_dir}/${_basedir}/}'" >&2
     done
   } >> "${_techdocs_dir}/mkdocs.yml"
 }
@@ -212,8 +211,18 @@ function _clone_wiki() {
   # - clone `{repo_name}.wiki.git` repo to `.work/wiki/`
   local _repo_url _wiki_repo_url
   _repo_url="$(git config --get remote.origin.url)"
+  _repo_url="$(_insert_pat_in_github_url "${_repo_url}")"
   _wiki_repo_url="${_repo_url%.git}.wiki.git"
   git clone --depth=1 "${_wiki_repo_url}" --branch master --single-branch "${_wiki_dir}"
+}
+
+function _insert_pat_in_github_url() {
+  local _url="${1}"
+  if [[ -n "${GITHUB_ACTIONS}" ]]; then
+    echo "${_url}" | sed -E 's!(.*://)!\1'"${GH_PAT}"@'!'
+  else
+    echo "${_url}"
+  fi
 }
 
 function _clone_techdocs() {
@@ -223,6 +232,7 @@ function _clone_techdocs() {
   # - clone `{repo_name}.git`'s techdocs branch to `.work/techdocs/`
   local _repo_url _techdocs_repo_url
   _repo_url="$(git config --get remote.origin.url)"
+  _repo_url="$(_insert_pat_in_github_url "${_repo_url}")"
   _techdocs_repo_url="${_repo_url}"
   git clone --depth=1 "${_techdocs_repo_url}" --branch techdocs --single-branch "${_techdocs_dir}" || abort "branch: 'techdocs' was not found in this repository."
 }
