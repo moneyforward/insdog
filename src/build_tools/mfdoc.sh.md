@@ -1,6 +1,6 @@
 # `mfdoc.sh`
 
-This is a tool to generate GitHub wiki site from markdown files in a repository.
+This is a tool to generate GitHub wiki site and techdocs site from markdown files in a repository.
 This tool is designed to be run from a project's root directory, which has `.git` directory under it.
 
 ## Syntax
@@ -31,6 +31,31 @@ A directory to store documentation files in this repository temporarily.
 A relative path from --local-wiki-dir= to a directory which stores
 documentation files in this repository.
 (default: `doc`)
+
+## Environment Variables
+
+
+### `GITHUB_ACTIONS`
+
+If this environment variable has any value such as `true`, this tools considers that this tools run under **GitHub Actions**. 
+
+### `GH_PAT`
+
+This environment variable is used in CI environment.
+
+The GitHub Personal Access token that allows the CI user to access the repo and the packages.
+`read:packages` and `repo` scopes are needed.
+Following is an example to define the environment variable in `publish-docs.yml`.
+
+```yaml
+      - name: Compile Documentation Sets
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          git config --global user.email "ci@moneyforward.com"
+          git config --global user.name "MoneyForward CI"
+          ./build.sh publish-wiki publish-techdocs
+```
 
 ## "Mappings"
 
