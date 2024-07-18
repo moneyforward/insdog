@@ -13,4 +13,4 @@ spec:
   dependsOn:
   - Component:ca_web
   - Component:mddoclet
-  - Component:mddoc
+  - Component:mfdoc
