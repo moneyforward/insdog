@@ -71,10 +71,10 @@ jobs:
                 </settings>" > ~/.m2/settings.xml
 
       - name: Build with Maven not Skipping JavaDoc
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
         run: mvn clean package test
 
       - name: Compile Documentation Sets
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: ./build.sh publish-wiki publish-techdocs
 
