@@ -194,6 +194,9 @@ function main() {
   local _precheck_reportdir=".dependencies/bootstrap"
   mkdir -p "${_precheck_reportdir}"
 
+  # Erase all the downloaded files.
+  message "We are erasing the old .dependencies"
+  sudo rm -fr .dependencies
   # Performs precheck
   __bootstrap__checkenv "${_precheck_reportdir}"
 
@@ -218,8 +221,8 @@ function main() {
   compose_goenv_rc "${_project_godir}" "$(golang_version)" > "${_goenv_file}"
   # shellcheck disable=SC1090
   source "${_goenv_file}"
-  "${_project_brewdir}/bin/goenv" install -q "$(golang_version)" 2>&1 | progress "goenv:${_go_version}"
-  "${_project_godir}/env/versions/${_go_version}/bin/go" install github.com/Songmu/make2help/cmd/make2help@latest 2>&1 | progress "go:make2help"
+  "${_project_brewdir}/bin/goenv" install -q "$(golang_version)" 2>&1 | progress "goenv:$(golang_version)"
+  "${_project_godir}/env/versions/$(golang_version)/bin/go" install github.com/Songmu/make2help/cmd/make2help@latest 2>&1 | progress "go:make2help"
 
   # sdkman & Java
   export HOME="${_project_rcdir}" # To avoid .bashrc / .bash_profile / .zsh_profile being updated
