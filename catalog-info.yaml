@@ -6,6 +6,17 @@ metadata:
   annotations:
     github.com/project-slug: moneyforward/autotest-ca
     backstage.io/techdocs-ref: url:https://github.com/moneyforward/autotest-ca/tree/techdocs
+  links:
+    - url: https://github.com/moneyforward/autotest-ca/
+      title: GitHub
+      icon: github
+    - url: https://app.asana.com/0/1206402209253009/1206402209253009
+      title: Asana
+      icon: dashboard
+    - url: https://sonar.mfvn.dev/dashboard?id=autotest-ca
+      title: SonarQube
+      icon: dashboard
+
 spec:
   type: tool
   lifecycle: unknown
