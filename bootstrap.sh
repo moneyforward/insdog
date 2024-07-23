@@ -93,10 +93,10 @@ function __bootstrap__perform_checks() {
 function __bootstrap__checkenv() {
   local _installation_reportdir="${1}"
   local _checks=()
-  function is_orbctl_installed() {
-    which orbctl
+  function is_git_installed() {
+    which git
   }
-  _checks+=("is_orbctl_installed")
+  _checks+=("is_git_installed")
   __bootstrap__perform_checks \
     "${_installation_reportdir}" \
     "pre-check" \
