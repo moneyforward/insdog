@@ -16,6 +16,9 @@ metadata:
     - url: https://sonar.mfvn.dev/dashboard?id=autotest-ca
       title: SonarQube
       icon: dashboard
+    - url: https://accounting-stg1.ebisubook.com/
+      title: Staging Instance
+      icon:
 
 spec:
   type: tool
