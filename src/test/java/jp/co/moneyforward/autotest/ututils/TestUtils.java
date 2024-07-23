@@ -1,8 +1,9 @@
 package jp.co.moneyforward.autotest.ututils;
 
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
+
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Objects;
 
 public enum TestUtils {
   ;
@@ -19,7 +20,7 @@ public enum TestUtils {
    * Typically called from a method annotated with {@literal @}{@code Before} method.
    */
   public static void suppressStdOutErrIfUnderPitestOrSurefire() {
-    if (isRunUnderPitest() || TestUtils.isRunUnderSurefire()) {
+    if (InternalUtils.isRunUnderPitest() || InternalUtils.isRunUnderSurefire()) {
       System.setOut(NOP);
       System.setErr(NOP);
     }
@@ -32,12 +33,4 @@ public enum TestUtils {
     System.setOut(STDOUT);
     System.setErr(STDERR);
   }
-  
-  public static boolean isRunUnderSurefire() {
-    return System.getProperty("surefire.real.class.path") != null;
   }
-  
-  public static boolean isRunUnderPitest() {
-    return Objects.equals(System.getProperty("underpitest"), "yes");
-  }
-}

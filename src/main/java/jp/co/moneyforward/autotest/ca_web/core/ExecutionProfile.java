@@ -7,8 +7,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.date;
-import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.today;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.*;
 
 /**
  * A class that holds information, which doesn't change throughout an execution session of "autotest-ca"
@@ -118,7 +117,7 @@ public class ExecutionProfile {
    * @return `true` - headless (default) / `false` - head-ful mode.
    */
   public boolean setHeadless() {
-    return true;
+    return !isPresumablyRunningOnLaptop();
   }
   
   
@@ -128,9 +127,7 @@ public class ExecutionProfile {
    *
    * Currently, this always returns `ja-JP`.
    *
-   *
    * @return The locale, in which the tests should be executed.
-   *
    */
   public String locale() {
     return "ja-JP";

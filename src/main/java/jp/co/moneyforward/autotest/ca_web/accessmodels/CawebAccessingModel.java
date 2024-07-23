@@ -58,17 +58,19 @@ public class CawebAccessingModel implements AutotestRunner {
   public static Scene open() {
     TimeUnit timeUnit = SECONDS;
     int time = 30;
+    String windowVariableName = "window";
+    String browserVariableName = "browser";
     return new Scene.Builder("NONE")
-        .add("window", new Let<>(Playwright.create()))
-        .add("browser", new Func<>("Playwright::chromium",
-                                   (Playwright p) -> p.chromium()
-                                                      .launch(new BrowserType.LaunchOptions().setHeadless(EXECUTION_PROFILE.setHeadless()))),
-             "window")
+        .add(windowVariableName, new Let<>(Playwright.create()))
+        .add(browserVariableName, new Func<>("Playwright::chromium",
+                                             (Playwright p) -> p.chromium()
+                                                                .launch(new BrowserType.LaunchOptions().setHeadless(EXECUTION_PROFILE.setHeadless()))),
+             windowVariableName)
         .add("browserContext", new Func<>("Browser::newContext->setDefaultTimeout(" + time + timeUnit + ")", (Browser b) -> {
           BrowserContext c = ExecutionProfile.browserContextFrom(b, EXECUTION_PROFILE);
           c.setDefaultTimeout(timeUnit.toMillis(time));
           return c;
-        }), "browser")
+        }), browserVariableName)
         .add("page", new Func<>("BrowserContext::newPage", BrowserContext::newPage), "browserContext")
         .build();
   }
@@ -84,12 +86,12 @@ public class CawebAccessingModel implements AutotestRunner {
   @Export("page")
   @DependsOn("open")
   public static Scene login() {
-    return new Scene.Builder("login")
-        .add("page", new Navigate(EXECUTION_PROFILE.homeUrl()), "page")
-        .add("page", new SendKey(PageFunctions.getByPlaceholder("example@moneyforward.com"), EXECUTION_PROFILE.userEmail()), "page")
-        .add("page", new Click(getButtonByName("ログインする")), "page")
-        .add("page", new SendKey(PageFunctions.getByLabel("パスワード"), EXECUTION_PROFILE.userPassword()), "page")
-        .add("page", new Click("button[id='submitto']"), "page")
+    return new Scene.Builder("page")
+        .add( new Navigate(EXECUTION_PROFILE.homeUrl()))
+        .add( new SendKey(PageFunctions.getByPlaceholder("example@moneyforward.com"), EXECUTION_PROFILE.userEmail()))
+        .add( new Click(getButtonByName("ログインする")))
+        .add( new SendKey(PageFunctions.getByLabel("パスワード"), EXECUTION_PROFILE.userPassword()))
+        .add( new Click("button[id='submitto']"))
         .build();
   }
   

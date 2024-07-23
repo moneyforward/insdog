@@ -153,32 +153,37 @@ public @interface AutotestExecution {
             
             @Override
             public String[] beforeAll() {
-              return customScenesMap.containsKey("beforeAll") ? customScenesMap.get("beforeAll").toArray(new String[0])
-                                                              : base.beforeAll();
+              String stageName = "beforeAll";
+              return customScenesMap.containsKey(stageName) ? customScenesMap.get(stageName).toArray(new String[0])
+                                                            : base.beforeAll();
             }
             
             @Override
             public String[] beforeEach() {
-              return customScenesMap.containsKey("beforeEach") ? customScenesMap.get("beforeEach").toArray(new String[0])
-                                                               : base.beforeEach();
+              String stageName = "beforeEach";
+              return customScenesMap.containsKey(stageName) ? customScenesMap.get(stageName).toArray(new String[0])
+                                                             : base.beforeEach();
             }
             
             @Override
             public String[] value() {
-              return customScenesMap.containsKey("value") ? customScenesMap.get("value").toArray(new String[0])
-                                                          : base.value();
+              String stageName = "value";
+              return customScenesMap.containsKey(stageName) ? customScenesMap.get(stageName).toArray(new String[0])
+                                                        : base.value();
             }
             
             @Override
             public String[] afterEach() {
-              return customScenesMap.containsKey("afterEach") ? customScenesMap.get("afterEach").toArray(new String[0])
-                                                              : base.afterEach();
+              String stageName = "afterEach";
+              return customScenesMap.containsKey(stageName) ? customScenesMap.get(stageName).toArray(new String[0])
+                                                            : base.afterEach();
             }
             
             @Override
             public String[] afterAll() {
-              return customScenesMap.containsKey("afterAll") ? customScenesMap.get("afterAll").toArray(new String[0])
-                                                             : base.afterAll();
+              String stageName = "afterAll";
+              return customScenesMap.containsKey(stageName) ? customScenesMap.get(stageName).toArray(new String[0])
+                                                           : base.afterAll();
             }
             
             @Override
