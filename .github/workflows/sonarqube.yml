@@ -79,6 +79,7 @@ jobs:
              -Dsonar.scm.provider=git
              -Dsonar.java.sources=src/main
              -Dsonar.java.binaries=target/classes
+             -Dsonar.jacoco.reportPath=target/jacoco-merged.exec
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
