@@ -79,6 +79,7 @@ jobs:
              -Dsonar.scm.provider=git
              -Dsonar.java.sources=src/main
              -Dsonar.java.binaries=target/classes
+             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/framework/jacoco.xml,target/site/jacoco/caweb/jacoco.xml
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
