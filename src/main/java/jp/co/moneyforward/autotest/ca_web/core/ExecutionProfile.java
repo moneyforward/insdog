@@ -61,4 +61,6 @@ public interface ExecutionProfile {
   String accountsUrl();
   
   boolean setHeadless();
+  
+  String domain();
 }

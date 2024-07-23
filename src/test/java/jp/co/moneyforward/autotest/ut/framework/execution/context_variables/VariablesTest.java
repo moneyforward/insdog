@@ -7,18 +7,15 @@ import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.framework.action.*;
 import jp.co.moneyforward.autotest.framework.action.AutotestSupport;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import jp.co.moneyforward.autotest.ututils.ActUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
-import static com.github.valid8j.fluent.Expectations.assertStatement;
-import static com.github.valid8j.fluent.Expectations.value;
+import static com.github.valid8j.fluent.Expectations.*;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.*;
 import static jp.co.moneyforward.autotest.ututils.ActionUtils.*;
@@ -30,7 +27,7 @@ public class VariablesTest extends TestBase {
   }
   
   @Test
-  public void givenSceneWithVariableReadingAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
+  void givenSceneWithVariableReadingAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
     LinkedList<String> out = new LinkedList<>();
     LeafAct<?, String> leaf = ActUtils.let("Scott Tiger");
     Scene scene = scene(List.of(leafCall("x", leaf, "NONE"),
@@ -51,7 +48,7 @@ public class VariablesTest extends TestBase {
   }
   
   @Test
-  public void takeOvers() {
+  void takeOvers() {
     LinkedList<String> out = new LinkedList<>();
     LeafAct<?, String> leaf = let("Scott Tiger");
     Scene scene = scene(List.of(
@@ -77,7 +74,7 @@ public class VariablesTest extends TestBase {
   }
   
   @Test
-  public void takeOvers2() {
+  void takeOvers2() {
     LeafAct<?, String> leaf = let("Scott Tiger");
     Scene scene = scene(List.of(
         sceneCall("SCENE1",
@@ -97,64 +94,94 @@ public class VariablesTest extends TestBase {
   }
   
   @Test
-  public void action1() {
+  void action1() {
     SceneCall sceneCall = sceneCall("sceneOut",
                                     List.of(leafCall("var", let("Scott"), "NONE"),
-                                                 leafCall("var", helloAct(), "var"),
-                                                 leafCall("var", printlnAct(), "var")),
+                                            leafCall("var", helloAct(), "var"),
+                                            leafCall("var", printlnAct(), "var")),
                                     List.of());
-    performAction(createActionComposer().create(sceneCall, sceneCall.assignmentResolvers().orElseThrow()), Writer.Std.OUT);
+    var out1 = new Writer.Impl();
+    
+    performAction(createActionComposer().create(sceneCall, sceneCall.assignmentResolvers().orElseThrow()), out1);
+    
+    assertStatement(value(toList(out1.iterator())).toBe().notEmpty());
   }
   
   
   @Test
-  public void action2() {
+  void action2() {
     LeafAct<?, String> leaf = let("Scott");
     SceneCall sceneCall1 = sceneCall("S1",
                                      List.of(
-                                              leafCall("var", leaf, "NONE"),
-                                              leafCall("var", helloAct(), "var"),
-                                              leafCall("var", printlnAct(), "var")),
+                                         leafCall("var", leaf, "NONE"),
+                                         leafCall("var", helloAct(), "var"),
+                                         leafCall("var", printlnAct(), "var")),
                                      List.of());
     SceneCall sceneCall2 = sceneCall("S2",
                                      List.of(leafCall("var", helloAct(), "foo"),
-                                                  leafCall("var", printlnAct(), "foo")),
+                                             leafCall("var", printlnAct(), "foo")),
                                      List.of(new Resolver("foo", Resolver.valueFrom("S1", "var"))));
     
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
-    performAction(createActionComposer().create(sceneCall1, sceneCall1.assignmentResolvers().orElseThrow()), actionPerformer, Writer.Std.OUT);
-    performAction(createActionComposer().create(sceneCall2, sceneCall2.assignmentResolvers().orElseThrow()), actionPerformer, Writer.Std.OUT);
+    var out1 = new Writer.Impl();
+    var out2 = new Writer.Impl();
+    
+    performAction(createActionComposer().create(sceneCall1, sceneCall1.assignmentResolvers().orElseThrow()), actionPerformer, out1);
+    performAction(createActionComposer().create(sceneCall2, sceneCall2.assignmentResolvers().orElseThrow()), actionPerformer, out2);
+    
+    assertAll(
+        value(toList(out1.iterator())).toBe().notEmpty(),
+        value(toList(out2.iterator())).toBe().notEmpty()
+    );
   }
   
   @Test
-  public void action3() {
+  void action3() {
     SceneCall sceneCall1 = new SceneCall("S1",
                                          new Scene.Builder("sceneCall1").addCall(leafCall("var", let("Scott"), "NONE"))
-                                                                                  .addCall(leafCall("var", helloAct(), "var"))
-                                                                                  .addCall(leafCall("var", printlnAct(), "var"))
-                                                                                  .build(), new HashMap<>());
+                                                                        .addCall(leafCall("var", helloAct(), "var"))
+                                                                        .addCall(leafCall("var", printlnAct(), "var"))
+                                                                        .build(), new HashMap<>());
     SceneCall sceneCall2 = new SceneCall("S2",
                                          new Scene.Builder("sceneCall2").addCall(leafCall("foo", helloAct(), "foo"))
-                                                                                  .addCall(getStringStringAssertionActCall())
-                                                                                  .build(),
-                                         new HashMap<>() {{
-                                                     this.put("foo", new Function<Context, Object>() {
-                                                       @Override
-                                                       public Object apply(Context context) {
-                                                         return context.<Map<String, Object>>valueOf("S1").get("var");
-                                                       }
-                                                     });
-                                                   }});
-    
+                                                                        .addCall(getStringStringAssertionActCall())
+                                                                        .build(),
+                                         composeMapFrom(InternalUtils.Entry.$("foo",
+                                                                context -> context.<Map<String, Object>>valueOf("S1").get("var"))));
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
-    performAction(createActionComposer().create(sceneCall1, sceneCall1.assignmentResolvers().orElseThrow()), actionPerformer, Writer.Std.OUT);
-    performAction(createActionComposer().create(sceneCall2, sceneCall2.assignmentResolvers().orElseThrow()), actionPerformer, Writer.Std.OUT);
+    var out1 = new Writer.Impl();
+    var out2 = new Writer.Impl();
+    
+    performAction(createActionComposer().create(sceneCall1, sceneCall1.assignmentResolvers().orElseThrow()), actionPerformer, out1);
+    performAction(createActionComposer().create(sceneCall2, sceneCall2.assignmentResolvers().orElseThrow()), actionPerformer, out2);
+    
+    assertAll(
+        value(toList(out1.iterator())).toBe().notEmpty(),
+        value(toList(out2.iterator())).toBe().notEmpty()
+    );
+  }
+  
+  @SafeVarargs
+  private static HashMap<String, Function<Context, Object>> composeMapFrom(InternalUtils.Entry<String, Function<Context, Object>>... entries) {
+    HashMap<String, Function<Context, Object>> hashMap = new HashMap<>();
+    for (InternalUtils.Entry<String, Function<Context, Object>> entry : entries) {
+      hashMap.put(entry.key(), entry.value());
+    }
+    return hashMap;
   }
   
   private static AssertionActCall<String, String> getStringStringAssertionActCall() {
     return new AssertionActCall<>(new LeafActCall<>("foo", printlnAct(), "foo"),
                                   List.of(s -> value(s).toBe()
-                                                            .containing("HELLO")
-                                                            .containing("Scott")));
+                                                       .containing("HELLO")
+                                                       .containing("Scott")));
+  }
+  
+  private static <T> List<T> toList(Iterator<T> iterator) {
+    List<T> ret = new ArrayList<>();
+    while (iterator.hasNext()) {
+      ret.add(iterator.next());
+    }
+    return ret;
   }
 }

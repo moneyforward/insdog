@@ -99,11 +99,18 @@ class ExecutionProfileImpl implements ExecutionProfile {
    *
    * @return The locale, in which the tests should be executed.
    */
+  @Override
   public String locale() {
     return "ja-JP";
   }
   
-  private String domain() {
+  /**
+   * Returns a domain against which tests are conducted.
+   *
+   * @return The domain against which tests are conducted.
+   */
+  @Override
+  public String domain() {
     return "accounting-stg1.ebisubook.com";
   }
 }
