@@ -1,7 +1,4 @@
 on:
-  push:
-    branches:
-      - develop-*
   pull_request:
     branches:
       - develop
@@ -22,6 +19,7 @@ jobs:
           args: >
             -Dsonar.projectKey=autotest-ca
             -Dsonar.projectName=autotest-ca
+            -Dsonar.scm.provider=git
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
