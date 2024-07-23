@@ -42,7 +42,7 @@ public interface LeafAct<T, R> extends Act<T, R> {
     /**
      * Returns a value to be assigned to the target variable.
      *
-     * @returna A value to be assigned to the target variable.
+     * @return A value to be assigned to the target variable.
      */
     @Override
     protected T value() {
@@ -53,6 +53,7 @@ public interface LeafAct<T, R> extends Act<T, R> {
      * A name of this act.
      * @return A name of this act.
      */
+    @Override
     public String name() {
       return String.format("let[%s]", this.value());
     }
@@ -60,24 +61,24 @@ public interface LeafAct<T, R> extends Act<T, R> {
   }
   
   class Func<T, R> implements LeafAct<T, R> {
-    private final Function<T, R> func;
+    private final Function<T, R> main;
     
     public Func(Function<T, R> func) {
-      this.func = func;
+      this.main = func;
     }
     
     public Func(String name, Function<T, R> func) {
-      this.func = Printables.function(name, func);
+      this.main = Printables.function(name, func);
     }
     
     @Override
     public R perform(T value, ExecutionEnvironment executionEnvironment) {
-      return this.func.apply(value);
+      return this.main.apply(value);
     }
     
     @Override
     public String name() {
-      return InternalUtils.isToStringOverridden(this.func) ? this.func.toString()
+      return InternalUtils.isToStringOverridden(this.main) ? this.main.toString()
                                                            : "func";
     }
   }
@@ -105,6 +106,6 @@ public interface LeafAct<T, R> extends Act<T, R> {
       return this.value();
     }
     
-    abstract protected T value();
+    protected abstract T value();
   }
 }
