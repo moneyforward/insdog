@@ -37,6 +37,10 @@ public enum InternalUtils {
     return Objects.equals(System.getProperty("underpitest"), "yes");
   }
   
+  public static String composeResultMessageLine(String line, String stageName) {
+    return String.format("%-11s %s", stageName + ":", line);
+  }
+  
   public static class AssumptionViolation extends TestAbortedException {
     public AssumptionViolation(String message) {
       super(message);

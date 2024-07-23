@@ -77,9 +77,9 @@ jobs:
              -Dsonar.projectKey=autotest-ca
              -Dsonar.projectName=autotest-ca
              -Dsonar.scm.provider=git
-             -Dsonar.exclusions=src/test/**
              -Dsonar.java.sources=src/main
              -Dsonar.java.binaries=target/classes
+             -Dsonar.exclusions=src/test/**
              -Dsonar.jacoco.reportPath=target/jacoco-merged.exec
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

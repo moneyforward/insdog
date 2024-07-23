@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestTemplate;
 import org.slf4j.Logger;
@@ -11,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.composeResultMessageLine;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutotestExecution
@@ -35,8 +38,9 @@ public interface AutotestRunner {
       actionPerformer().performAndReport(action, writer);
       succeeded = true;
     } finally {
-      LOGGER.info(String.format("%-11s [%s]%s", stageName, succeeded ? "o" : "E", name));
-      out.forEach(l -> LOGGER.info(String.format("%-11s %s", stageName, l)));
+      String message = String.format("%-11s [%s]%s", stageName, succeeded ? "o" : "E", name);
+      LOGGER.info(message);
+      out.forEach(l -> LOGGER.info(composeResultMessageLine(stageName, l)));
     }
   }
   
