@@ -169,4 +169,10 @@ public enum InternalUtils {
     Collections.reverse(reversed);
     return reversed;
   }
+  
+  public record Entry<K, V>(K key, V value) {
+    public static <K, V> Entry<K, V> $(K key, V value) {
+      return new Entry<>(key, value);
+    }
+  }
 }
