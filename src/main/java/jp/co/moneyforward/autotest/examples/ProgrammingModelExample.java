@@ -46,7 +46,7 @@ import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
 public class ProgrammingModelExample implements AutotestRunner {
   private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(getContext(), new HashMap<>());
   
-  private static final ExecutionProfile EXECUTION_PROFILE = new ExecutionProfile();
+  private static final ExecutionProfile EXECUTION_PROFILE = ExecutionProfile.create();
   
   private static Context getContext() {
     return new Impl() {
@@ -98,10 +98,10 @@ public class ProgrammingModelExample implements AutotestRunner {
      */
     /*
       await page.locator('#account_service_form_ID1').click();
-  await page.locator('#account_service_form_ID1').fill('asdf');
-  await page.locator('#account_service_form_PW1').click();
-  await page.locator('#account_service_form_PW1').fill('asdf');
-  await page.getByRole('button', { name: '連携登録' }).click();
+      await page.locator('#account_service_form_ID1').fill('asdf');
+      await page.locator('#account_service_form_PW1').click();
+      await page.locator('#account_service_form_PW1').fill('asdf');
+      await page.getByRole('button', { name: '連携登録' }).click();
      */
     return new Scene.Builder("page")
         .add(new Click(getByText("データ連携")))

@@ -40,7 +40,7 @@ public class CawebAccessingModel implements AutotestRunner {
    *
    * The variables in a profile should not change their values in one test execution.
    */
-  public static final ExecutionProfile EXECUTION_PROFILE = new ExecutionProfile();
+  public static final ExecutionProfile EXECUTION_PROFILE = ExecutionProfile.create();
   
   /**
    * Returns a scene that performs **open** operation.

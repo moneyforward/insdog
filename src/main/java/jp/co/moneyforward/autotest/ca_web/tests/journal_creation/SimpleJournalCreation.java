@@ -29,9 +29,9 @@ import static jp.co.moneyforward.autotest.ca_web.accessmodels.CawebUtils.*;
  *
  * - it can log in to the SUT with its password
  *
- * @see ExecutionProfile#userEmail()
- * @see ExecutionProfile#userPassword()
- * @see ExecutionProfile#accountServiceId()
+ * @see ExecutionProfileImpl#userEmail()
+ * @see ExecutionProfileImpl#userPassword()
+ * @see ExecutionProfileImpl#accountServiceId()
  */
 @Tag("journal")
 @Tag("smoke")
