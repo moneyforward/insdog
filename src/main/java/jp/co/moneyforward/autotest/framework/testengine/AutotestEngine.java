@@ -43,6 +43,7 @@ import static com.github.valid8j.pcond.internals.InternalUtils.wrapIfNecessary;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.toMap;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneCall;
+import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngine.Stage.*;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.composeResultMessageLine;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.reverse;
 
@@ -98,7 +99,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     prepareBeforeAllStage(context);
     
     AutotestRunner runner = autotestRunner(context);
-    String stageName = "beforeAll";
+    String stageName = BEFORE_ALL.stageName();
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), stageName);
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-beforeAll.log"), Level.INFO);
     actions(executionPlan(context),
@@ -157,7 +158,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   
   @Override
   public void beforeEach(ExtensionContext context) {
-    String stageName = "beforeEach";
+    String stageName = BEFORE_EACH.stageName();
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), stageName);
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-before.log"), Level.INFO);
     newPassedInBeforeEach(context);
@@ -226,7 +227,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   @Override
   public void afterAll(ExtensionContext context) {
     AutotestRunner runner = autotestRunner(context);
-    String stageName = "afterAll";
+    String stageName = AFTER_ALL.stageName();
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), stageName);
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-afterAll.log"), Level.INFO);
     List<ExceptionEntry> errors = new ArrayList<>();
@@ -695,25 +696,43 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   record ExceptionEntry(String name, Throwable exception) {
   }
   
+  enum Stage {
+    BEFORE_ALL("beforeAll"),
+    BEFORE_EACH("beforeEach"),
+    MAIN("value"),
+    AFTER_EACH("afterEach"),
+    AFTER_ALL("afterAll");
+    
+    private final String stageName;
+    
+    Stage(String stageName) {
+      this.stageName = stageName;
+    }
+    
+    String stageName() {
+      return this.stageName;
+    }
+  }
+  
   enum Contracts {
     ;
     
     private static boolean explicitlySpecifiedScenesAreAllCoveredInCorrespondingPlannedStage(AutotestExecution.Spec spec, ExecutionPlan executionPlan) {
       return all(plannedScenesCoverAllSpecifiedScenes(spec,
-                                                      specifiedScenesInStage("beforeAll", (AutotestExecution.Spec v) -> Arrays.asList(v.beforeAll())),
-                                                      predicatePlannedScenesContainsSpecifiedScene("beforeAll", executionPlan.beforeAll())),
+                                                      specifiedScenesInStage(BEFORE_ALL.stageName(), (AutotestExecution.Spec v) -> Arrays.asList(v.beforeAll())),
+                                                      predicatePlannedScenesContainsSpecifiedScene(BEFORE_ALL.stageName(), executionPlan.beforeAll())),
                  plannedScenesCoverAllSpecifiedScenes(spec,
-                                                      specifiedScenesInStage("beforeEach", (AutotestExecution.Spec v) -> Arrays.asList(v.beforeEach())),
-                                                      predicatePlannedScenesContainsSpecifiedScene("beforeEach", executionPlan.beforeEach())),
+                                                      specifiedScenesInStage(BEFORE_EACH.stageName(), (AutotestExecution.Spec v) -> Arrays.asList(v.beforeEach())),
+                                                      predicatePlannedScenesContainsSpecifiedScene(BEFORE_EACH.stageName(), executionPlan.beforeEach())),
                  plannedScenesCoverAllSpecifiedScenes(spec,
-                                                      specifiedScenesInStage("value", (AutotestExecution.Spec v) -> Arrays.asList(v.value())),
-                                                      predicatePlannedScenesContainsSpecifiedScene("value", executionPlan.value())),
+                                                      specifiedScenesInStage(MAIN.stageName(), (AutotestExecution.Spec v) -> Arrays.asList(v.value())),
+                                                      predicatePlannedScenesContainsSpecifiedScene(MAIN.stageName(), executionPlan.value())),
                  plannedScenesCoverAllSpecifiedScenes(spec,
-                                                      specifiedScenesInStage("afterEach", (AutotestExecution.Spec v) -> Arrays.asList(v.afterEach())),
-                                                      predicatePlannedScenesContainsSpecifiedScene("afterEach", executionPlan.afterEach())),
+                                                      specifiedScenesInStage(AFTER_EACH.stageName(), (AutotestExecution.Spec v) -> Arrays.asList(v.afterEach())),
+                                                      predicatePlannedScenesContainsSpecifiedScene(AFTER_EACH.stageName(), executionPlan.afterEach())),
                  plannedScenesCoverAllSpecifiedScenes(spec,
-                                                      specifiedScenesInStage("afterAll", (AutotestExecution.Spec v) -> Arrays.asList(v.afterAll())),
-                                                      predicatePlannedScenesContainsSpecifiedScene("afterAll", executionPlan.afterAll()))
+                                                      specifiedScenesInStage(AFTER_ALL.stageName(), (AutotestExecution.Spec v) -> Arrays.asList(v.afterAll())),
+                                                      predicatePlannedScenesContainsSpecifiedScene(AFTER_ALL.stageName(), executionPlan.afterAll()))
       );
     }
     
