@@ -55,9 +55,9 @@ public interface ExecutionEnvironment {
     private static final AtomicInteger counter = new AtomicInteger(0);
     
     private static String sanitize(String pathName) {
-      return pathName.replaceAll(":", "_")
-                     .replaceAll("\\[", "")
-                     .replaceAll("]", "");
+      return pathName.replace(":", "_")
+                     .replace("[", "")
+                     .replace("]", "");
     }
   }
 }

@@ -23,6 +23,20 @@ import static com.github.valid8j.pcond.internals.InternalUtils.getMethod;
 public enum InternalUtils {
   ;
   
+  public static boolean isPresumablyRunningOnLaptop() {
+    return !isRunUnderPitest()
+        && !isRunUnderSurefire();
+  }
+  
+  
+  public static boolean isRunUnderSurefire() {
+    return System.getProperty("surefire.real.class.path") != null;
+  }
+  
+  public static boolean isRunUnderPitest() {
+    return Objects.equals(System.getProperty("underpitest"), "yes");
+  }
+  
   public static class AssumptionViolation extends TestAbortedException {
     public AssumptionViolation(String message) {
       super(message);

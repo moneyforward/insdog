@@ -95,7 +95,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   public void beforeAll(ExtensionContext context) throws Exception {
     {
       AutotestRunner runner = context.getTestInstance()
-                                     .filter(o -> o instanceof AutotestRunner)
+                                     .filter(AutotestRunner.class::isInstance)
                                      .map(o -> (AutotestRunner) o)
                                      .orElseThrow(RuntimeException::new);
       Class<?> accessModelClass = validateTestClass(runner.getClass());
@@ -144,7 +144,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
           .toList()
           .forEach(r -> {
             LOGGER.info(r.composeMessageHeader(stageName));
-            r.out().forEach(l -> LOGGER.info(String.format("%-11s %s", stageName + ":", l)));
+            r.out().forEach(l -> LOGGER.info(formatResultLine(l, stageName)));
           });
     }
   }
@@ -172,7 +172,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         .toList()
         .forEach(r -> {
           LOGGER.info(r.composeMessageHeader(stageName));
-          r.out().forEach(l -> LOGGER.info(String.format("%-11s %s", stageName + ":", l)));
+          r.out().forEach(l -> LOGGER.info(formatResultLine(l, stageName)));
         });
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-main.log"), Level.INFO);
   }
@@ -204,7 +204,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         .toList()
         .forEach(r -> {
           LOGGER.info(r.composeMessageHeader(stageName));
-          r.out().forEach(l -> LOGGER.info(String.format("%-11s %s", stageName + ":", l)));
+          r.out().forEach(l -> LOGGER.info(formatResultLine(l, stageName)));
         });
     if (!errors.isEmpty()) reportErrors(errors);
   }
@@ -235,11 +235,15 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
         // Then, stream again. Otherwise, the log will not become so readable.
         .toList()
-        .forEach(r -> {
+        .forEach((SceneExecutionResult r) -> {
           LOGGER.info(r.composeMessageHeader(stageName));
-          r.out().forEach(l -> LOGGER.info(String.format("%-11s %s", stageName + ":", l)));
+          r.out().forEach((String l) -> LOGGER.info(formatResultLine(l, stageName)));
         });
     if (!errors.isEmpty()) reportErrors(errors);
+  }
+  
+  private static String formatResultLine(String line, String stageName) {
+    return String.format("%-11s %s", stageName + ":", line);
   }
   
   private static SceneExecutionResult performActionEntry(Entry<String, Action> each, Consumer<List<String>> consumer) {
@@ -511,7 +515,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     
     File logDirectory = logFilePath.getParent().toFile();
     if (logDirectory.mkdirs())
-      System.err.println("Directory: <" + logDirectory.getAbsolutePath() + "> was created for logging.");
+      LOGGER.debug("Directory: <{}> was created for logging.", logDirectory.getAbsolutePath());
     
     PatternLayout layout = PatternLayout.newBuilder()
                                         .withPattern("[%-5p] [%d{yyyy/MM/dd HH:mm:ss.SSS}] [%t] - %m%n")

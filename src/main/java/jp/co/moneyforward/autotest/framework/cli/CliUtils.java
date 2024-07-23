@@ -64,37 +64,25 @@ public enum CliUtils {
     if (!matcher.matches())
       throw new IllegalArgumentException("A query '" + query + "' didn't match: " + regex);
     String attr = matcher.group("attr");
-    String op_ = matcher.group("op");
-    String op = !Objects.equals(op_, "") ? op_
-                                         : "=";
+    String opInQuery = matcher.group("op");
+    String op = !Objects.equals(opInQuery, "") ? opInQuery
+                                               : "=";
     String cond = matcher.group("cond");
-    switch (attr) {
-      case "classname":
-        switch (op) {
-          case "=":
-            return ClassFinder.classNameIsEqualTo(cond);
-          case "~":
-            return ClassFinder.classNameMatchesRegex(cond);
-          case "%":
-            return ClassFinder.classNameContaining(cond);
-          default:
-            assert false;
-        }
-      case "tag":
-        switch (op) {
-          case "=":
-            return ClassFinder.hasTagValueEqualTo(cond);
-          case "~":
-            return ClassFinder.hasTagValueMatchesRegex(cond);
-          case "%":
-            return ClassFinder.hasTagValueContaining(cond);
-          default:
-            assert false;
-        }
-      default:
-        assert false;
-    }
-    throw new AssertionError();
+    return switch (attr) {
+      case "classname" -> switch (op) {
+        case "=" -> ClassFinder.classNameIsEqualTo(cond);
+        case "~" -> ClassFinder.classNameMatchesRegex(cond);
+        case "%" -> ClassFinder.classNameContaining(cond);
+        default -> throw new AssertionError();
+      };
+      case "tag" -> switch (op) {
+        case "=" -> ClassFinder.hasTagValueEqualTo(cond);
+        case "~" -> ClassFinder.hasTagValueMatchesRegex(cond);
+        case "%" -> ClassFinder.hasTagValueContaining(cond);
+        default -> throw new AssertionError();
+      };
+      default -> throw new AssertionError();
+    };
   }
   
   public static Stream<Tag> tagAnnotationsFrom(Class<?> c) {
@@ -118,11 +106,8 @@ public enum CliUtils {
     for (var each : executionDescriptors) {
       var e = each.split("=");
       map.putIfAbsent(e[0], Collections.emptyList());
-      map.computeIfPresent(e[0],
-                           (k, v) -> new ArrayList<>() {{
-                             addAll(v);
-                             addAll(List.of(e[1].split(",")));
-                           }});
+      map.computeIfPresent(e[0], (k, v) -> Stream.concat(v.stream(),
+                                                         Stream.of(e[1].split(","))).toList());
     }
     StringBuilder b = new StringBuilder("inline:");
     for (Map.Entry<String, List<String>> entry : map.entrySet()) {
@@ -152,7 +137,7 @@ public enum CliUtils {
                                                         .toArray(Predicate[]::new)))
                .map(c -> (Class<?>) c)
                .forEach((Consumer<Class<?>>) c -> {
-                 LOGGER.info("Running tests in:[" + c.getCanonicalName() + "]");
+                 LOGGER.info("Running tests in:[{}]", c.getCanonicalName());
                  LOGGER.info("----");
                  runTestClass(testExecutionListener, c);
                  TestExecutionSummary testExecutionSummary = testExecutionListener.getSummary();
