@@ -1,5 +1,10 @@
 package jp.co.moneyforward.autotest.ca_web.core;
 
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
+
+import java.util.Optional;
+import java.util.function.Supplier;
+
 /**
  * A class that holds information, which doesn't change throughout an execution session of "autotest-ca"
  */
@@ -10,7 +15,20 @@ public interface ExecutionProfile {
    * @return An `ExecutionProfile` object.
    */
   static ExecutionProfile create() {
-    return new ExecutionProfileImpl();
+    return create(() -> InternalUtils.currentBranchNameFor(InternalUtils.projectDir()));
+  }
+  
+  /**
+   * Creates an `ExecutionProfile` object.
+   *
+   * @param branchNameSupplier A supplier that gives a branch name.
+   * @return An `ExecutionProfile` object.
+   */
+  static ExecutionProfile create(Supplier<Optional<String>> branchNameSupplier) {
+    Optional<String> branchName = branchNameSupplier.get();
+    return branchName.filter(v -> v.contains("@"))
+                     .isPresent() ? new ExecutionProfileImpl(composeIdevDomainName(branchName.get()))
+                                  : new ExecutionProfileImpl("accounting-stg1.ebisubook.com");
   }
   
   /**
@@ -91,4 +109,9 @@ public interface ExecutionProfile {
    * @return The domain against which tests are conducted.
    */
   String domain();
+  
+  private static String composeIdevDomainName(String branchName) {
+    return String.format("ca-web-%s.idev.test.musubu.co.in",
+                         branchName.substring(branchName.indexOf('@') + 1));
+  }
 }

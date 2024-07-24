@@ -4,8 +4,12 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.pcond.forms.Printables;
 import jp.co.moneyforward.autotest.framework.core.AutotestException;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.opentest4j.TestAbortedException;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -22,6 +26,44 @@ import static com.github.valid8j.pcond.internals.InternalUtils.getMethod;
 public enum InternalUtils {
   ;
   
+  /**
+   * Returns an `Optional` of a `String` that contains a branch name.
+   * This method internally calls `InternalUtils#currentBranchNameFor(new File("."))`.
+   *
+   * @return An `Optional` of branch name `String`.
+   * @see InternalUtils#currentBranchNameFor(File)
+   */
+  public static Optional<String> currentBranchName() {
+    return currentBranchNameFor(projectDir());
+  }
+  
+  /**
+   * Returns an `Optional` of a `String` that contains a branch name, if the given `projectDir` has `.git` directory and a current branch name of it can be retrieved.
+   * An exception will be thrown on a failure during this step.
+   *
+   * Otherwise, an empty `Optional` will be returned.
+   *
+   * @return An `Optional` of branch name `String`.
+   */
+  public static Optional<String> currentBranchNameFor(File projectDir) {
+    try {
+      File gitDir = new File(projectDir, ".git");
+      if (!gitDir.exists())
+        return Optional.empty();
+      try (Repository repository = new FileRepositoryBuilder()
+          .setGitDir(gitDir)
+          .readEnvironment()
+          .findGitDir()
+          .build()) {
+        String branch = repository.getBranch();
+        return Optional.of(branch);
+      }
+    } catch (IOException e) {
+      throw wrap(e);
+    }
+  }
+  
+  
   public static boolean isPresumablyRunningFromIDE() {
     return !isRunUnderPitest()
         && !isRunUnderSurefire();
@@ -37,6 +79,10 @@ public enum InternalUtils {
   
   public static String composeResultMessageLine(String line, String stageName) {
     return String.format("%-11s %s", stageName + ":", line);
+  }
+  
+  public static File projectDir() {
+    return new File(".");
   }
   
   public static class AssumptionViolation extends TestAbortedException {

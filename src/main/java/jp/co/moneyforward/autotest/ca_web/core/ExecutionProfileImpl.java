@@ -4,6 +4,12 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 class ExecutionProfileImpl implements ExecutionProfile {
   
+  private final String sutDomainName;
+  
+  ExecutionProfileImpl(String sutDomainName) {
+    this.sutDomainName = sutDomainName;
+  }
+  
   @Override
   public String homeUrl() {
     return String.format("https://%s/", domain());
@@ -65,6 +71,6 @@ class ExecutionProfileImpl implements ExecutionProfile {
   
   @Override
   public String domain() {
-    return "accounting-stg1.ebisubook.com";
+    return sutDomainName;
   }
 }
