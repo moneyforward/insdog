@@ -3,7 +3,10 @@ package jp.co.moneyforward.autotest.ca_web.accessmodels;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.Context.Impl;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import com.microsoft.playwright.*;
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.Playwright;
 import jp.co.moneyforward.autotest.actions.web.*;
 import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.framework.action.LeafAct.Func;
@@ -14,23 +17,33 @@ import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.Export;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
-import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
-import jp.co.moneyforward.autotest.framework.utils.Valid8JCliches;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.valid8j.fluent.Expectations.value;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
-import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.*;
 
 /**
- * This test assumes that the user provided by `EXECUTION_PROFILE` has already been registered and associated with
+ * This accessing model assumes that the user provided by `EXECUTION_PROFILE` has already been registered and associated with
  * a corporation to which they belong.
  *
- * A test that translated [ca_login_check.csv](https://github.com/moneyforward/ca_web_e2e_test_d/blob/main/action_files/scenarios/ca/login_check/ca_login_check.csv) in
- * [駄犬くん](https://github.com/moneyforward/ca_web_e2e_test_d).
+ * Following is a list of attributes that this accessing model requires
+ *
+ * - **User:** `ukai.hiroshi+autotest1@moneyforward.co.jp`
+ * - **Password:** `!QAZ@WSX`
+ * - **Company name(会社名):** スペシャルサンドボックス合同会社
+ *
+ * Following is a list of attributes used for executing tests with this access model in the staging environment
+ * Those are not necessarily ths same as in a new environment in which you are going to use this access model.
+ * However, tests implemented in the future may depend on them.
+ *
+ * - **Phone number(電話番号):** 08012345678
+ * - **Prefecture(都道府県):** Tokyo(東京都)
+ * - **Fiscal Year(会計期間):** 4/1-3/31
+ * - **Taxation Method(課税方式):** Taxed by default (Case-by-case method) 原則課税(個別対応方式)
+ *
+ * This is an accessing model for *ca_web* to implement [駄犬くん](https://github.com/moneyforward/ca_web_e2e_test_d) and further advanced tests.
  */
 @SuppressWarnings("JavadocLinkAsPlainText")
 public class CawebAccessingModel implements AutotestRunner {
@@ -42,7 +55,7 @@ public class CawebAccessingModel implements AutotestRunner {
   public static final ExecutionProfile EXECUTION_PROFILE = ExecutionProfile.create();
   
   private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(getContext(), new HashMap<>());
-
+  
   /**
    * Returns a scene that performs **open** operation.
    *
@@ -88,11 +101,13 @@ public class CawebAccessingModel implements AutotestRunner {
   @DependsOn("open")
   public static Scene login() {
     return new Scene.Builder("page")
-        .add( new Navigate(EXECUTION_PROFILE.homeUrl()))
-        .add( new SendKey(PageFunctions.getByPlaceholder("example@moneyforward.com"), EXECUTION_PROFILE.userEmail()))
-        .add( new Click(getButtonByName("ログインする")))
-        .add( new SendKey(PageFunctions.getByLabel("パスワード"), EXECUTION_PROFILE.userPassword()))
-        .add( new Click("button[id='submitto']"))
+        .add(new Navigate(EXECUTION_PROFILE.homeUrl()))
+        //       Clicking "ログインはこちら" button, which is displayed only in idev, if any.
+        .add(new ClickIfPresent(getBySelector("#simple-layout > div.main-container > div > div.text-center > a")))
+        .add(new SendKey(PageFunctions.getByPlaceholder("example@moneyforward.com"), EXECUTION_PROFILE.userEmail()))
+        .add(new Click(getButtonByName("ログインする")))
+        .add(new SendKey(PageFunctions.getByLabel("パスワード"), EXECUTION_PROFILE.userPassword()))
+        .add(new Click("button[id='submitto']"))
         .build();
   }
   
@@ -106,18 +121,6 @@ public class CawebAccessingModel implements AutotestRunner {
   @DependsOn("login")
   public static Scene logout() {
     return new Scene.Builder("page")
-        .add(new PageAct("""
-                             Disable logout since BASIC-auth workaround shouldn't be used once self-hosted GitHub.
-                             Check https://app.asana.com/0/1206402209253009/1207606779915586/f for more detail.
-                             """) {
-          @Override
-          protected void action(Page page,
-                                ExecutionEnvironment executionEnvironment) {
-            Valid8JCliches.assumeStatement(value(today()).toBe()
-                                                         .predicate(dateAfter(date(EXECUTION_PROFILE.plannedDateForSettingUpSelfhostedGitHubActions())))
-                                                         .$());
-          }
-        })
         .add(new Click(getLinkByName("スペシャルサンドボックス合同会社 (法人)", true)))
         .add(new Click(getLinkByName("ログアウト")))
         .build();
