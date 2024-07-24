@@ -6,6 +6,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import java.io.PrintStream;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -103,13 +104,15 @@ public abstract class CliBase implements Callable<Integer> {
           """)
   public Integer listTestClasses() {
     int ret;
-    try {
-      CliUtils.listTestClasses(this.queries, this.rootPackageName())
-              .forEach(System.out::println);
-      ret = 0;
-    } catch (IllegalArgumentException e) {
-      System.err.println(e.getMessage());
-      ret = 2;
+    try (var out = out(); var err = err()) {
+      try {
+        CliUtils.listTestClasses(this.queries, this.rootPackageName())
+                .forEach(out::println);
+        ret = 0;
+      } catch (IllegalArgumentException e) {
+        err.println(e.getMessage());
+        ret = 2;
+      }
     }
     return ret;
   }
@@ -121,9 +124,9 @@ public abstract class CliBase implements Callable<Integer> {
           """)
   public Integer listTags() {
     int ret;
-    try {
+    try (var out = out()) {
       CliUtils.listTags(this.queries, this.rootPackageName())
-              .forEach(System.out::println);
+              .forEach(out::println);
       ret = 0;
     } catch (IllegalArgumentException e) {
       LOGGER.error(e.getMessage());
@@ -170,7 +173,17 @@ public abstract class CliBase implements Callable<Integer> {
   
   @Override
   public Integer call() throws Exception { // your business logic goes here...
-    System.err.println("You didn't specify known subcommands, try -h, --help option: " + this.subcommands);
-    return 2;
+    try (var err = err()) {
+      err.println("You didn't specify known subcommands, try -h, --help option: " + this.subcommands);
+      return 2;
+    }
+  }
+  
+  private static PrintStream out() {
+    return System.out;
+  }
+  
+  private static PrintStream err() {
+    return System.err;
   }
 }
