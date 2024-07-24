@@ -5,6 +5,10 @@ on:
     types: [closed]
     branches:
       - develop
+      - develop@*
+  push:
+    branches:
+      - develop@*
 
 jobs:
   build:
