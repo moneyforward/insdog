@@ -21,7 +21,7 @@ public abstract class PageAct implements LeafAct<Page, Page> {
    *
    * @param description A string that describes this object.
    */
-  public PageAct(String description) {
+  protected PageAct(String description) {
     this.description = requireNonNull(description);
   }
   

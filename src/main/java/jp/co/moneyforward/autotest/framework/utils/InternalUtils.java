@@ -2,9 +2,7 @@ package jp.co.moneyforward.autotest.framework.utils;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.valid8j.pcond.fluent.Statement;
 import com.github.valid8j.pcond.forms.Printables;
-import com.github.valid8j.pcond.validator.Validator;
 import org.opentest4j.TestAbortedException;
 
 import java.text.ParseException;
@@ -23,11 +21,10 @@ import static com.github.valid8j.pcond.internals.InternalUtils.getMethod;
 public enum InternalUtils {
   ;
   
-  public static boolean isPresumablyRunningOnLaptop() {
+  public static boolean isPresumablyRunningFromIDE() {
     return !isRunUnderPitest()
         && !isRunUnderSurefire();
   }
-  
   
   public static boolean isRunUnderSurefire() {
     return System.getProperty("surefire.real.class.path") != null;
@@ -106,7 +103,7 @@ public enum InternalUtils {
       
       @Override
       public String toString() {
-        return consumerName.replaceAll("\n", " ");
+        return consumerName.replace("\n", " ");
       }
     };
   }
@@ -132,22 +129,6 @@ public enum InternalUtils {
    */
   public static Predicate<Date> dateAfter(Date date) {
     return Printables.predicate("after[" + date + "]", d -> d.after(date));
-  }
-  
-  /**
-   * This is a method to workaround issue: [valid8j:issue-16](https://github.com/valid8j/valid8j/issues/16[valid8j/issue-16)
-   * Once it is fixed, usages of this method should be replaced with `Expectations.assumeStatement`.
-   *
-   * @param statement A statement
-   * @param <T>       Type of the value
-   */
-  @SuppressWarnings("JavadocLinkAsPlainText")
-  public static <T> void assumeStatement(Statement<T> statement) {
-    Validator.INSTANCE.get().validate(statement.statementValue(),
-                                      statement.statementPredicate(),
-                                      msg -> {
-                                        throw new AssumptionViolation(msg);
-                                      });
   }
   
   /**

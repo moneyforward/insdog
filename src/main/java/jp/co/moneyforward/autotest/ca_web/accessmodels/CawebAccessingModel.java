@@ -15,6 +15,7 @@ import jp.co.moneyforward.autotest.framework.annotations.Export;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
+import jp.co.moneyforward.autotest.framework.utils.Valid8JCliches;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -33,8 +34,6 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.*;
  */
 @SuppressWarnings("JavadocLinkAsPlainText")
 public class CawebAccessingModel implements AutotestRunner {
-  private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(getContext(), new HashMap<>());
-  
   /**
    * An execution profile, which hosts variables in test executions.
    *
@@ -42,6 +41,8 @@ public class CawebAccessingModel implements AutotestRunner {
    */
   public static final ExecutionProfile EXECUTION_PROFILE = ExecutionProfile.create();
   
+  private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(getContext(), new HashMap<>());
+
   /**
    * Returns a scene that performs **open** operation.
    *
@@ -112,9 +113,9 @@ public class CawebAccessingModel implements AutotestRunner {
           @Override
           protected void action(Page page,
                                 ExecutionEnvironment executionEnvironment) {
-            assumeStatement(value(today()).toBe()
-                                          .predicate(dateAfter(date(EXECUTION_PROFILE.plannedDateForSettingUpSelfhostedGitHubActions())))
-                                          .$());
+            Valid8JCliches.assumeStatement(value(today()).toBe()
+                                                         .predicate(dateAfter(date(EXECUTION_PROFILE.plannedDateForSettingUpSelfhostedGitHubActions())))
+                                                         .$());
           }
         })
         .add(new Click(getLinkByName("スペシャルサンドボックス合同会社 (法人)", true)))
@@ -163,6 +164,11 @@ public class CawebAccessingModel implements AutotestRunner {
                             .setLocale(executionProfile.locale()));
   }
   
+  /**
+   * Returns an `ActionPerformer`, with which actions created from `Scene` are performed.
+   *
+   * @return An action performer object.
+   */
   @Override
   public ReportingActionPerformer actionPerformer() {
     return actionPerformer;

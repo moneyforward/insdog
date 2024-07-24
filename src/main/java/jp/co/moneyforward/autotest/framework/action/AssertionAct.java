@@ -48,20 +48,4 @@ public class AssertionAct<T, R> implements Act<T, R> {
   public String name() {
     return this.name;
   }
-  
-  private static <R> LeafAct<R, R> toLeafAct(Function<R, Statement<R>> assertion) {
-    return new LeafAct<>() {
-      @Override
-      public String name() {
-        // This is a hack to compose a human-readable string.
-        return "assertion:" + assertion.apply(null).statementPredicate();
-      }
-      
-      @Override
-      public R perform(R value, ExecutionEnvironment executionEnvironment) {
-        Expectations.assertStatement(assertion.apply(value));
-        return value;
-      }
-    };
-  }
 }

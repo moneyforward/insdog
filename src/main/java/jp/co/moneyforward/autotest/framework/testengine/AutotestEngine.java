@@ -168,8 +168,10 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
             sceneCallMap(context),
             executionEnvironment)
         .stream()
-        .map(each -> performActionEntry(each, out -> runner.beforeEach(each.value(), runner.createWriter(out))))
-        .filter(each -> {
+        .map((Entry<String, Action> each) -> performActionEntry(each,
+                                                                out -> runner.beforeEach(each.value(),
+                                                                                         runner.createWriter(out))))
+        .filter((SceneExecutionResult each) -> {
           if (each.hasSucceeded())
             passedInBeforeEach(context).add(each.name());
           return true;
@@ -207,7 +209,9 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
             sceneCallMap(context),
             executionEnvironment)
         .stream()
-        .map(each -> performActionEntry(each, out -> runner.afterEach(each.value(), runner.createWriter(out))))
+        .map((Entry<String, Action> each) -> performActionEntry(each,
+                                                                out -> runner.afterEach(each.value(),
+                                                                                        runner.createWriter(out))))
         .filter(r -> {
           r.exception()
            .ifPresent(t -> errors.add(new ExceptionEntry(r.name(), t)));

@@ -6,7 +6,7 @@ import com.github.dakusui.actionunit.core.Context;
 import java.util.Map;
 import java.util.function.Function;
 
-public class LeafActCall<T, R> extends ActCall<T, R> {
+public class LeafActCall<T, R> extends ActCall<T> {
   
   private final LeafAct<T, R> act;
   

@@ -4,10 +4,21 @@ import com.github.dakusui.actionunit.core.Context;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
-public abstract class ActCall<T, R> implements Call {
+/**
+ * An act that models a call to a form, such as a function or an assertion.
+ *
+ * @param <T> Type input parameter
+ */
+public abstract class ActCall<T> implements Call {
   private final String inputFieldName;
   private final String outputFieldName;
   
+  /**
+   * Creates an instance of this class.
+   *
+   * @param inputFieldName A name of a field for input.
+   * @param outputFieldName A name of a field for output.
+   */
   protected ActCall(String inputFieldName, String outputFieldName) {
     this.inputFieldName = requireNonNull(inputFieldName);
     this.outputFieldName = requireNonNull(outputFieldName);
@@ -34,6 +45,11 @@ public abstract class ActCall<T, R> implements Call {
     return (T) sceneCall.workArea(context).get(inputFieldName());
   }
   
+  /**
+   * Returns a name of a field for output.
+   *
+   * @return A name of a field for output.
+   */
   @Override
   public String outputFieldName() {
     return this.outputFieldName;

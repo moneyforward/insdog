@@ -16,6 +16,9 @@ public class Screenshot implements LeafAct<Page, Page> {
    * Creates an instance of this class.
    */
   public Screenshot() {
+    /*
+     Make default constructor findable.
+     */
   }
   
   /**
