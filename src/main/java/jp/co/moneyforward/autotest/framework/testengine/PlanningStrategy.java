@@ -5,12 +5,13 @@ import jp.co.moneyforward.autotest.framework.annotations.ClosedBy;
 import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.When;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngineUtils.mergeListsByAppendingMissedOnes;
-import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngineUtils.mergeListsByInsertingMissedOnes;
 
 /**
  * Used with `Spec#planExecutionWith`.
