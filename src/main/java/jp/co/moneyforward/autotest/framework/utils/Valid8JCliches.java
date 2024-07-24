@@ -1,8 +1,10 @@
 package jp.co.moneyforward.autotest.framework.utils;
 
 import com.github.valid8j.pcond.core.printable.PrintablePredicateFactory;
+import com.github.valid8j.pcond.fluent.Statement;
 import com.github.valid8j.pcond.forms.Predicates;
 import com.github.valid8j.pcond.forms.Printables;
+import com.github.valid8j.pcond.validator.Validator;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -17,6 +19,22 @@ import java.util.function.Predicate;
  */
 public enum Valid8JCliches {
   ;
+  
+  /**
+   * This is a method to workaround issue: [valid8j:issue-16](https://github.com/valid8j/valid8j/issues/16[valid8j/issue-16)
+   * Once it is fixed, usages of this method should be replaced with `Expectations.assumeStatement`.
+   *
+   * @param statement A statement
+   * @param <T>       Type of the value
+   */
+  @SuppressWarnings("JavadocLinkAsPlainText")
+  public static <T> void assumeStatement(Statement<T> statement) {
+    Validator.INSTANCE.get().validate(statement.statementValue(),
+                                      statement.statementPredicate(),
+                                      msg -> {
+                                        throw new InternalUtils.AssumptionViolation(msg);
+                                      });
+  }
   
   /**
    * A utility class to make an existing `Function` s  and `Predicate` s "printable".
