@@ -6,6 +6,10 @@ metadata:
   annotations:
     github.com/project-slug: moneyforward/autotest-ca
     backstage.io/techdocs-ref: url:https://github.com/moneyforward/autotest-ca/tree/techdocs
+  # It is claimed in [1] that icons defined in the doc[2].
+  # However, [1] doesn't tell anything about a key starts with 'kind:' such as 'kind:system'.
+  # [1] https://backstage.io/docs/features/software-catalog/descriptor-format/#links-optional
+  # [2] https://github.com/backstage/backstage/blob/master/packages/app-defaults/src/defaults/icons.tsx
   links:
     - url: https://github.com/moneyforward/autotest-ca/
       title: GitHub
@@ -18,7 +22,7 @@ metadata:
       icon: dashboard
     - url: https://accounting-stg1.ebisubook.com/
       title: Staging Instance
-      icon: kind:system
+      icon: system
 
 spec:
   type: tool
