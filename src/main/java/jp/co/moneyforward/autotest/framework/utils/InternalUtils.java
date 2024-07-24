@@ -3,6 +3,7 @@ package jp.co.moneyforward.autotest.framework.utils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.pcond.forms.Printables;
+import jp.co.moneyforward.autotest.framework.core.AutotestException;
 import org.opentest4j.TestAbortedException;
 
 import java.text.ParseException;
@@ -141,8 +142,36 @@ public enum InternalUtils {
     return getMethod(object.getClass(), "toString").getDeclaringClass() != Object.class;
   }
   
-  private static RuntimeException wrap(ParseException e) {
-    throw new RuntimeException(e);
+  /**
+   * // @formatter:off
+   * Wraps a given exception `e` with a framework specific exception, `AutotestException`.
+   *
+   * This method has `RuntimeException` as return value type, however, this method will never return a value but throws an exception.
+   * The return type is defined to be able to write a caller code in the following style, which increases readability.
+   *
+   * ```java
+   * try {
+   *   doSomthing()
+   * } catch (SomeCheckedException e) {
+   *   throw wrap(e);
+   * }
+   * ```
+   *
+   * If a given exception `e` is a `RuntimeException`, or an `Error`, it will not be wrapped, but `e` will be directly thrown.
+   *
+   * // @formatter:on
+   *
+   * @param e An exception to be wrapped.
+   * @return This method will never return any value.
+   */
+  public static RuntimeException wrap(Throwable e) {
+    if (e instanceof RuntimeException exception) {
+      throw exception;
+    }
+    if (e instanceof Error error) {
+      throw error;
+    }
+    throw new AutotestException("Exception was cause: [" + e.getClass().getSimpleName() + "]: " + e.getMessage(), e);
   }
   
   public static <T> List<T> reverse(List<T> list) {
