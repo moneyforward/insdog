@@ -15,6 +15,7 @@ import jp.co.moneyforward.autotest.framework.annotations.Export;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
+import jp.co.moneyforward.autotest.framework.utils.Valid8JCliches;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -112,9 +113,9 @@ public class CawebAccessingModel implements AutotestRunner {
           @Override
           protected void action(Page page,
                                 ExecutionEnvironment executionEnvironment) {
-            assumeStatement(value(today()).toBe()
-                                          .predicate(dateAfter(date(EXECUTION_PROFILE.plannedDateForSettingUpSelfhostedGitHubActions())))
-                                          .$());
+            Valid8JCliches.assumeStatement(value(today()).toBe()
+                                                         .predicate(dateAfter(date(EXECUTION_PROFILE.plannedDateForSettingUpSelfhostedGitHubActions())))
+                                                         .$());
           }
         })
         .add(new Click(getLinkByName("スペシャルサンドボックス合同会社 (法人)", true)))

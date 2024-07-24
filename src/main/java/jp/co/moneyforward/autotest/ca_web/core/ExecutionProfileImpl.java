@@ -1,5 +1,7 @@
 package jp.co.moneyforward.autotest.ca_web.core;
 
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
+
 class ExecutionProfileImpl implements ExecutionProfile {
   
   @Override
@@ -45,9 +47,8 @@ class ExecutionProfileImpl implements ExecutionProfile {
    */
   @Override
   public boolean setHeadless() {
-    return true;
+    return InternalUtils.isPresumablyRunningFromIDE();
   }
-  
   
   /**
    * Returns a locale to open a browser for the execution of **autotest**.
