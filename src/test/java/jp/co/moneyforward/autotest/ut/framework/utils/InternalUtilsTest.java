@@ -1,21 +1,48 @@
 package jp.co.moneyforward.autotest.ut.framework.utils;
 
-import com.github.valid8j.fluent.Expectations;
 import com.github.valid8j.pcond.forms.Printables;
 import jp.co.moneyforward.autotest.framework.core.AutotestException;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
+import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Calendar;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.valid8j.fluent.Expectations.*;
 
-class InternalUtilsTest {
+class InternalUtilsTest extends TestBase {
+  
+  @Test
+  void givenEmptyDirectory_whenCurrentBranchName_thenEmpty() throws IOException {
+    Path dir = Path.of(".work/testdirs");
+    //noinspection ResultOfMethodCallIgnored
+    dir.toFile().mkdirs();
+    var given = Files.createTempDirectory(dir, this.getClass().getSimpleName()).toFile();
+    given.deleteOnExit();
+    
+    var out = InternalUtils.currentBranchNameFor(given);
+    
+    System.out.println(out);
+    assertAll(value(out).toBe().predicate(Optional::isEmpty));
+  }
+  
+  @Test
+  void givenCurrentDirectory_whenCurrentBranchName_thenNonEmpty() {
+    var out = InternalUtils.currentBranchName();
+    
+    System.out.println(out);
+    assertAll(
+        value(out).toBe().predicate(Optional::isPresent),
+        value(out).function(Optional::get).asString().toBe().notEmpty());
+  }
+  
   @Test
   void givenValidDateString_whenDate_thenParsed() {
     var out = InternalUtils.date("Jul/04/2024");
@@ -48,8 +75,8 @@ class InternalUtilsTest {
     var out = InternalUtils.dateAfter(now);
     
     assertAll(
-        Expectations.value(out.test(past)).then().falseValue(),
-        Expectations.value(out.test(future)).then().trueValue());
+        value(out.test(past)).then().falseValue(),
+        value(out.test(future)).then().trueValue());
   }
   
   @Test
