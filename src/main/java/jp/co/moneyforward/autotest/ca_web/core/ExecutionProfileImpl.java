@@ -53,7 +53,7 @@ class ExecutionProfileImpl implements ExecutionProfile {
    */
   @Override
   public boolean setHeadless() {
-    return InternalUtils.isPresumablyRunningFromIDE();
+    return !InternalUtils.isPresumablyRunningFromIDE();
   }
   
   /**
