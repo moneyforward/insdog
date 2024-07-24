@@ -12,11 +12,11 @@ import java.util.function.Function;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
-public class AssertionActCall<T, R> extends ActCall<T, R> {
+public class AssertionActCall<T, R> extends ActCall<T> {
   private final List<Function<R, Statement<R>>> assertions;
-  private final ActCall<T, R> target;
+  private final ActCall<T> target;
   
-  public AssertionActCall(ActCall<T, R> target, List<Function<R, Statement<R>>> assertion) {
+  public AssertionActCall(ActCall<T> target, List<Function<R, Statement<R>>> assertion) {
     super(target.inputFieldName(), target.outputFieldName());
     this.target = target;
     this.assertions = requireNonNull(assertion);
@@ -44,7 +44,7 @@ public class AssertionActCall<T, R> extends ActCall<T, R> {
     };
   }
   
-  ActCall<T, R> target() {
+  ActCall<T> target() {
     return this.target;
   }
   

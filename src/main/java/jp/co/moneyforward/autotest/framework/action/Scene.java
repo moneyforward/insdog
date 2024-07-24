@@ -83,24 +83,23 @@ public interface Scene extends ActionFactory {
       return this.addCall(assertionCall(outputFieldName, assertionAct.parent(), assertionAct.assertions(), inputFieldName));
     }
     
-    public final <T, R> Builder assertion(Function<R, Statement<R>> assertion) {
+    public final <R> Builder assertion(Function<R, Statement<R>> assertion) {
       return this.assertion(defaultFieldName, assertion, defaultFieldName);
     }
     
-    public final <T, R> Builder assertion(Function<R, Statement<R>> assertionAct, String inputFieldName) {
+    public final <R> Builder assertion(Function<R, Statement<R>> assertionAct, String inputFieldName) {
       return this.assertion(defaultFieldName, assertionAct, inputFieldName);
     }
     
-    public final <T, R> Builder assertion(String outputFieldName, Function<R, Statement<R>> assertionAct) {
+    public final <R> Builder assertion(String outputFieldName, Function<R, Statement<R>> assertionAct) {
       return this.assertion(outputFieldName, assertionAct, defaultFieldName);
     }
     
-    public final <T, R> Builder assertion(String outputFieldName, Function<R, Statement<R>> assertionAct, String inputFieldName) {
+    public final <R> Builder assertion(String outputFieldName, Function<R, Statement<R>> assertionAct, String inputFieldName) {
       return this.addCall(assertionCall(outputFieldName, new Value<>(), Collections.singletonList(assertionAct), inputFieldName));
     }
     
     public final Builder add(Scene scene) {
-      //return this.addCall(sceneCall(scene, Arrays.asList(resolvers)));
       return this.addCall(sceneCall(scene));
     }
     

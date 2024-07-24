@@ -33,8 +33,6 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.*;
  */
 @SuppressWarnings("JavadocLinkAsPlainText")
 public class CawebAccessingModel implements AutotestRunner {
-  private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(getContext(), new HashMap<>());
-  
   /**
    * An execution profile, which hosts variables in test executions.
    *
@@ -42,6 +40,8 @@ public class CawebAccessingModel implements AutotestRunner {
    */
   public static final ExecutionProfile EXECUTION_PROFILE = ExecutionProfile.create();
   
+  private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(getContext(), new HashMap<>());
+
   /**
    * Returns a scene that performs **open** operation.
    *
@@ -163,6 +163,11 @@ public class CawebAccessingModel implements AutotestRunner {
                             .setLocale(executionProfile.locale()));
   }
   
+  /**
+   * Returns an `ActionPerformer`, with which actions created from `Scene` are performed.
+   *
+   * @return An action performer object.
+   */
   @Override
   public ReportingActionPerformer actionPerformer() {
     return actionPerformer;

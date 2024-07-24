@@ -55,6 +55,8 @@
         <actionunit.version>6.0.1</actionunit.version>
         <slf4j-api.version>1.7.36</slf4j-api.version>
         <apache-log4j.version>2.17.2</apache-log4j.version>
+        <osynth.version>2.0.3</osynth.version>
+        <org.eclipse.jgit.version>6.9.0.202403050737-r</org.eclipse.jgit.version>
         <!-- END: compilation dependencies -->
         <!-- BEGIN: test dependencies -->
         <opentest4j.version>1.2.0</opentest4j.version>
@@ -121,6 +123,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>${org.eclipse.jgit.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
             <version>${classgraph.version}</version>
@@ -130,6 +137,11 @@
                     <artifactId>slf4j-simple</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dakusui</groupId>
+            <artifactId>osynth</artifactId>
+            <version>${osynth.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.dakusui</groupId>
