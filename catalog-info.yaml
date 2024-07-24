@@ -23,7 +23,9 @@ metadata:
     - url: https://accounting-stg1.ebisubook.com/
       title: Staging Instance
       icon: system
-
+    - url: https://github.com/moneyforward/autotest-ca/wiki
+      title: A project wiki for notes, drafts, ideas, etc.
+      icon: docs
 spec:
   type: tool
   lifecycle: unknown
