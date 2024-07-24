@@ -18,7 +18,7 @@ metadata:
       icon: dashboard
     - url: https://accounting-stg1.ebisubook.com/
       title: Staging Instance
-      icon: kind:system
+      icon: system
 
 spec:
   type: tool
