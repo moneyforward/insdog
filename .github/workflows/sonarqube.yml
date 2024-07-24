@@ -73,6 +73,8 @@ jobs:
       - name: Run SonarQube scanner
         uses: sonarsource/sonarqube-scan-action@master
         with:
+           # Check [1] for more details.
+           # https://docs.sonarsource.com/sonarqube/latest/project-administration/analysis-scope/#example-1
            args: >
              -Dsonar.projectKey=autotest-ca
              -Dsonar.projectName=autotest-ca
@@ -83,6 +85,7 @@ jobs:
              -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/framework/jacoco.xml,target/site/jacoco/caweb/jacoco.xml,target/site/jacoco/all/jacoco.xml
              -Dsonar.sources=src/main/java
              -Dsonar.tests=src/test/java
+             -Dsonar.exclusions=src/**/tests/**,src/**/examples/**
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
