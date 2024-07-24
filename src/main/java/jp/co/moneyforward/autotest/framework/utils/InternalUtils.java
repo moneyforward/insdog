@@ -65,8 +65,9 @@ public enum InternalUtils {
   
   
   public static boolean isPresumablyRunningFromIDE() {
-    return !isRunUnderPitest()
-        && !isRunUnderSurefire();
+    return Objects.equals(System.getenv("GITHUB_ACTIONS"), "true")
+        || (!isRunUnderPitest()
+        && !isRunUnderSurefire());
   }
   
   public static boolean isRunUnderSurefire() {
