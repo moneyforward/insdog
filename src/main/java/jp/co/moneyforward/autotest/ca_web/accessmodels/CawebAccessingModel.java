@@ -67,7 +67,7 @@ public class CawebAccessingModel implements AutotestRunner {
                                                                 .launch(new BrowserType.LaunchOptions().setHeadless(EXECUTION_PROFILE.setHeadless()))),
              windowVariableName)
         .add("browserContext", new Func<>("Browser::newContext->setDefaultTimeout(" + time + timeUnit + ")", (Browser b) -> {
-          BrowserContext c = ExecutionProfile.browserContextFrom(b, EXECUTION_PROFILE);
+          BrowserContext c = browserContextFrom(b, EXECUTION_PROFILE);
           c.setDefaultTimeout(timeUnit.toMillis(time));
           return c;
         }), browserVariableName)
@@ -149,6 +149,18 @@ public class CawebAccessingModel implements AutotestRunner {
         .add("NONE", new CloseBrowser(), "browser")
         .add("NONE", new CloseWindow(), "window")
         .build();
+  }
+  
+  /**
+   * Creates a browser context object from the browser `b`.
+   *
+   * @param b                A browser.
+   * @param executionProfile An execution profile.
+   * @return A browser context object.
+   */
+  public static BrowserContext browserContextFrom(Browser b, ExecutionProfile executionProfile) {
+    return b.newContext(new Browser.NewContextOptions()
+                            .setLocale(executionProfile.locale()));
   }
   
   @Override
