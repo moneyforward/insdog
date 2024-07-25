@@ -218,7 +218,7 @@ function _clone_wiki() {
 
 function _insert_pat_in_github_url() {
   local _url="${1}"
-  if [[ "${GITHUB_ACTIONS}" == true ]]; then
+  if [[ "${GITHUB_ACTIONS:-false}" == true ]]; then
     echo "${_url}" | sed -E 's!(.*://)!\1'"${GH_PAT}"@'!'
   else
     echo "${_url}"
