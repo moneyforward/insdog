@@ -168,7 +168,7 @@ java -jar target/autotest-caweb.jar list-tests
 And it may print following:
 
 ```text
-class jp.co.moneyforward.autotest.ca_web.tests.bankaccount.BankConnectingTest
+class jp.co.moneyforward.autotest.ca_web.tests.bankaccount.BankLinkageTest
 class jp.co.moneyforward.autotest.ca_web.tests.pages.VisitAllMenuItemsTest
 ```
 
@@ -182,7 +182,7 @@ java -jar target/autotest-caweb.jar -q 'tag:%bank' list-tests
 will print only:
 
 ```text
-class jp.co.moneyforward.autotest.ca_web.tests.bankaccount.BankConnectingTest
+class jp.co.moneyforward.autotest.ca_web.tests.bankaccount.BankLinkageTest
 ```
 
 Because `BankConnectingTest` is the only test to which `bank` tag is attached, currently.
