@@ -55,8 +55,7 @@ public enum InternalUtils {
           .readEnvironment()
           .findGitDir()
           .build()) {
-        String branch = repository.getBranch();
-        return Optional.of(branch);
+        return Optional.of(repository.getBranch());
       }
     } catch (IOException e) {
       throw wrap(e);

@@ -15,9 +15,6 @@ jobs:
     runs-on: [self-hosted]
 
     steps:
-      - name: Check environment variables
-        run: set
-
       - name: Checkout repository
         uses: actions/checkout@v2
 
