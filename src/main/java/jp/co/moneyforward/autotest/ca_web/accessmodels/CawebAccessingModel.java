@@ -88,16 +88,6 @@ public class CawebAccessingModel implements AutotestRunner {
         .build();
   }
   
-  static Browser launchBrowser(BrowserType chromium, ExecutionProfile executionProfile) {
-    boolean headless = executionProfile.setHeadless();
-    if (headless)
-      LOGGER.info("HEADLESS MODE");
-    else
-      LOGGER.info("HEADFUL MODE");
-    return chromium.launch(new BrowserType.LaunchOptions()
-                               .setHeadless(headless));
-  }
-  
   /**
    * Returns an action for logging in the **ca_web** application using the variables defined in the `EXECUTION_PROFILE`.
    *
@@ -193,5 +183,15 @@ public class CawebAccessingModel implements AutotestRunner {
         return this;
       }
     };
+  }
+  
+  public static Browser launchBrowser(BrowserType chromium, ExecutionProfile executionProfile) {
+    boolean headless = executionProfile.setHeadless();
+    if (headless)
+      LOGGER.info("HEADLESS MODE");
+    else
+      LOGGER.info("HEADFUL MODE");
+    return chromium.launch(new BrowserType.LaunchOptions()
+                               .setHeadless(headless));
   }
 }
