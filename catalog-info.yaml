@@ -20,6 +20,9 @@ metadata:
     - url: https://sonar.mfvn.dev/dashboard?id=autotest-ca
       title: SonarQube
       icon: dashboard
+    - url: https://moneyforward.tmxtestrail.com/index.php?/projects/overview/35
+      title: TestRail
+      icon: dashboard
     - url: https://accounting-stg1.ebisubook.com/
       title: Staging Instance
       icon: system
