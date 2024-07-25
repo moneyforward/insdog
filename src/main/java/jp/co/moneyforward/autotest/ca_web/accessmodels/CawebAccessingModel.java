@@ -77,8 +77,7 @@ public class CawebAccessingModel implements AutotestRunner {
     return new Scene.Builder("NONE")
         .add(windowVariableName, new Let<>(Playwright.create()))
         .add(browserVariableName, new Func<>("Playwright::chromium",
-                                             (Playwright p) -> p.chromium()
-                                                                .launch(new BrowserType.LaunchOptions().setHeadless(EXECUTION_PROFILE.setHeadless()))),
+                                             (Playwright p) -> launchBrowser(p.chromium(), EXECUTION_PROFILE)),
              windowVariableName)
         .add("browserContext", new Func<>("Browser::newContext->setDefaultTimeout(" + time + timeUnit + ")", (Browser b) -> {
           BrowserContext c = browserContextFrom(b, EXECUTION_PROFILE);
@@ -87,6 +86,16 @@ public class CawebAccessingModel implements AutotestRunner {
         }), browserVariableName)
         .add("page", new Func<>("BrowserContext::newPage", BrowserContext::newPage), "browserContext")
         .build();
+  }
+  
+  static Browser launchBrowser(BrowserType chromium, ExecutionProfile executionProfile) {
+    boolean headless = executionProfile.setHeadless();
+    if (headless)
+      LOGGER.info("HEADLESS MODE");
+    else
+      LOGGER.info("HEADFUL MODE");
+    return chromium.launch(new BrowserType.LaunchOptions()
+                               .setHeadless(headless));
   }
   
   /**
