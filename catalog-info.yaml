@@ -27,10 +27,10 @@ metadata:
       title: Staging Instance
       icon: system
     - url: https://github.com/moneyforward/autotest-ca/wiki
-      title: A project wiki for notes, drafts, ideas, etc.
+      title: "Wiki: For notes, drafts, ideas, etc."
       icon: docs
     - url: https://moneyforward.slack.com/archives/C06RW82AN79
-      title: Slack Channel for autotest-ca
+      title: Slack
       icon: chat
 
 spec:
