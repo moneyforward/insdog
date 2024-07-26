@@ -85,7 +85,7 @@ public enum InternalUtils {
     return Objects.equals(System.getProperty("underpitest"), "yes");
   }
   
-  public static String composeResultMessageLine(String line, String stageName) {
+  public static String composeResultMessageLine(String stageName, String line) {
     return String.format("%-11s %s", stageName + ":", line);
   }
   

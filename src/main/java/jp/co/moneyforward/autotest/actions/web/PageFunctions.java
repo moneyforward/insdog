@@ -15,11 +15,11 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 public enum PageFunctions {
   ;
   
-  public static Function<Page, Locator> getLinkByName(String name) {
-    return getLinkByName(name, false);
+  public static Function<Page, Locator> getByName(String name) {
+    return getByName(name, false);
   }
   
-  public static Function<Page, Locator> getLinkByName(String name, boolean lenient) {
+  public static Function<Page, Locator> getByName(String name, boolean lenient) {
     return Printables.function("link[name" + (lenient ? "~" : "=") + name + "]",
                                p -> p.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setExact(!lenient)
                                                                                           .setName(name)));

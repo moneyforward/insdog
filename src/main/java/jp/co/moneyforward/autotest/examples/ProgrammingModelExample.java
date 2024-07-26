@@ -105,7 +105,7 @@ public class ProgrammingModelExample implements AutotestRunner {
      */
     return new Scene.Builder("page")
         .add(new Click(getByText("データ連携")))
-        .add(new Click(getLinkByName("新規登録")))
+        .add(new Click(getByName("新規登録")))
         .add(new Click(getByText("銀行 (", true)))
         .add(new Click(getByText("【個人】ゆうちょ銀行（投資信託）")))
         .add(new Click("#account_service_form_ID1"))
@@ -122,7 +122,7 @@ public class ProgrammingModelExample implements AutotestRunner {
   public static Scene disconnect() {
     return new Scene.Builder("page")
         .add(new Click(getBySelector("#js-sidebar-opener").andThen(byText("データ連携"))))
-        .add(new Click(getLinkByName("登録済一覧").andThen(LocatorFunctions.nth(1))))
+        .add(new Click(getByName("登録済一覧").andThen(LocatorFunctions.nth(1))))
         .build();
   }
   
@@ -131,8 +131,8 @@ public class ProgrammingModelExample implements AutotestRunner {
   @Export("page")
   public static Scene logout() {
     return new Scene.Builder("page")
-        .add(new Click(getLinkByName("スペシャルサンドボックス合同会社 (法人)", true)))
-        .add(new Click(getLinkByName("ログアウト")))
+        .add(new Click(getByName("スペシャルサンドボックス合同会社 (法人)", true)))
+        .add(new Click(getByName("ログアウト")))
         .build();
   }
   

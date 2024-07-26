@@ -35,7 +35,7 @@ public class VisitAllMenuItemsTest extends CawebAccessingModel {
          ,assert,,assert_text,ul[class='ca-tab-large'] li[class='active'] a,,eq,通帳・カード他
           */
         .add(new Click(getByText("自動で仕訳")))
-        .add(new Click(getLinkByName("連携サービスから入力")))
+        .add(new Click(getByName("連携サービスから入力")))
         //.add(new Click(getLinkByName("この説明をスキップ")))
         .assertion((Page p) -> value(p).function(PageFunctions.getBySelector("ul.ca-tab-large li.active a"))
                                        .function(LocatorFunctions.textContent())

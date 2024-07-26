@@ -4,7 +4,6 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
-import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestTemplate;
 import org.slf4j.Logger;

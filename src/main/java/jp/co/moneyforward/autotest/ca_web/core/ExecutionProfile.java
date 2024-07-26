@@ -34,7 +34,10 @@ public interface ExecutionProfile {
   /**
    * Returns a "home" url of the application, from which a test starts at the beginning (login).
    *
+   * The returned value will be like: `https:/{domain}/`
+   *
    * @return a "home" url of the application.
+   * @see ExecutionProfile#domain()
    */
   String homeUrl();
   

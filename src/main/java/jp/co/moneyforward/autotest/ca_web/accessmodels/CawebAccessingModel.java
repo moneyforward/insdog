@@ -120,8 +120,8 @@ public class CawebAccessingModel implements AutotestRunner {
   @DependsOn("login")
   public static Scene logout() {
     return new Scene.Builder("page")
-        .add(new Click(getLinkByName("スペシャルサンドボックス合同会社 (法人)", true)))
-        .add(new Click(getLinkByName("ログアウト")))
+        .add(new Click(getByName(") ", true)))
+        .add(new Click(getByName("ログアウト")))
         .build();
   }
   
