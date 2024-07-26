@@ -20,7 +20,7 @@ import static jp.co.moneyforward.autotest.actions.web.TableQuery.Term.term;
     defaultExecution = @AutotestExecution.Spec(
         planExecutionWith = PlanningStrategy.DEPENDENCY_BASED,
         beforeEach = {"screenshot"},
-        value = {"changeToPreviousTerm", "changeToNextTerm"},
+        value = {"changeToNextTerm", "changeToPreviousTerm"},
         afterEach = {"screenshot"}))
 public class TermChange extends CawebTermAccessingModel {
   @Named
@@ -34,7 +34,7 @@ public class TermChange extends CawebTermAccessingModel {
   @Named
   @When("changeToPreviousTerm")
   public static Scene thenChangedToPreviousTerm() {
-    return Scene.chainActs("page", new PageAct("changeToPreviousTerm"){
+    return Scene.chainActs("page", new PageAct("changeToPreviousTerm") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         assertThat(page.getByText("前期に移動しました")).isVisible();
@@ -52,16 +52,16 @@ public class TermChange extends CawebTermAccessingModel {
   
   
   @Named
-  @When("changeToPreviousTerm")
+  @When("changeToNextTerm")
   public static Scene thenChangedToNextTerm() {
-    return Scene.chainActs("page", new PageAct("changeToPreviousTerm"){
+    return Scene.chainActs("page", new PageAct("changeToPreviousTerm") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         assertThat(page.getByText("事業者・年度を切替えました")).isVisible();
       }
     });
   }
-
+  
   private static Scene previousTerm(final String officeName) {
     return new Scene.Builder("page")
         .add(new PageAct("Change to previous term") {
@@ -73,7 +73,9 @@ public class TermChange extends CawebTermAccessingModel {
             page.onceDialog(Dialog::accept);
             TableQuery.select("事業者・年度の切替")
                       .from("#js-ca-main-contents > table")
-                      .where(term("事業者名", officeName))
+                      .normalizeWith(TableQuery.normalizerFunction())
+                      .where(term("事業者名", officeName),
+                             term("会計年度", "前年度"))
                       .$()
                       .perform(page)
                       .getByText("切替")
@@ -94,7 +96,9 @@ public class TermChange extends CawebTermAccessingModel {
             page.onceDialog(Dialog::accept);
             TableQuery.select("事業者・年度の切替")
                       .from("#js-ca-main-contents > table")
-                      .where(term("事業者名", officeName))
+                      .normalizeWith(TableQuery.normalizerFunction())
+                      .where(term("事業者名", officeName),
+                             term("会計年度", "2024")) // TODO: We need to come up with a way to avoid hard code the year for the "next year"
                       .$()
                       .perform(page)
                       .getByText("切替")

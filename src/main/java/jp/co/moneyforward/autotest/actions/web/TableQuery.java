@@ -50,13 +50,14 @@ public record TableQuery(String tableName, String columnName, List<Term> queryTe
       } else {
         eachRow = columnsInEachRow;
       }
+      System.out.println("|" + columnsInEachRow.stream().map(c -> c.textContent().trim()).collect(Collectors.joining()));
       System.out.println(">" + eachRow.stream().map(e -> e.textContent().trim()).collect(Collectors.joining(",")) + "<");
-
+      
       boolean matched = true;
       for (Term eachQueryTerm : queryTerms()) {
         String filterTargetColumnValue = eachRow.get(columnIndices.get(eachQueryTerm.columnName()))
                                                 .textContent();
-        if (filterTargetColumnValue.contains(eachQueryTerm.operand())) {
+        if (!filterTargetColumnValue.contains(eachQueryTerm.operand())) {
           matched = false;
           break;
         }
@@ -68,17 +69,13 @@ public record TableQuery(String tableName, String columnName, List<Term> queryTe
       throw new NoSuchElementException("No matches found for <" + this.queryTerms() + "> in <" + tableName() + ">");
     }
     if (matches.size() > 1) {
-      throw new NoSuchElementException("Too many matches: " + matches);
+      throw new NoSuchElementException("Too many matches: " + matches.stream().map(l -> l.stream().map(e -> e.textContent().trim()).toList()).toList());
     }
     return matches.getFirst().get(columnIndices.get(columnName));
   }
   
   private static List<Locator> toColumns(Locator row) {
     return row.locator("td").all();
-  }
-  
-  private static String formatRow(Locator eachRow) {
-    return eachRow.locator("td").all().stream().map(e -> e.textContent().trim()).map(s -> "<" + s + ">").collect(Collectors.joining(",", "[", "]"));
   }
   
   public record Term(String columnName, String operand) {
@@ -134,19 +131,23 @@ public record TableQuery(String tableName, String columnName, List<Term> queryTe
         Locator l = TableQuery.select("事業者・年度の切替")
                               .from("body > table")
                               .where(Term.term("事業者名", "abc-154206"))
-                              .normalizeWith((lastCompleteRow, incompleteRow) -> {
-                                List<Locator> ret = new ArrayList<>(lastCompleteRow.size());
-                                for (int i = 0; i < lastCompleteRow.size(); i++) {
-                                  int offset = lastCompleteRow.size() - incompleteRow.size();
-                                  ret.add(i < offset ? lastCompleteRow.get(i)
-                                                     : incompleteRow.get(i - (offset)));
-                                }
-                                return ret;
-                              })
+                              .normalizeWith(normalizerFunction())
                               .build()
                               .perform(page);
         System.out.println("<<<" + l.getByText("切替") + ">>>");
       }
     }
+  }
+  
+  public static BiFunction<List<Locator>, List<Locator>, List<Locator>> normalizerFunction() {
+    return (lastCompleteRow, incompleteRow) -> {
+      List<Locator> ret = new ArrayList<>(lastCompleteRow.size());
+      for (int i = 0; i < lastCompleteRow.size(); i++) {
+        int offset = lastCompleteRow.size() - incompleteRow.size() - 1;
+        ret.add((i < offset || i == lastCompleteRow.size() - 1) ? lastCompleteRow.get(i)
+                                                                : incompleteRow.get(i - (offset)));
+      }
+      return ret;
+    };
   }
 }
