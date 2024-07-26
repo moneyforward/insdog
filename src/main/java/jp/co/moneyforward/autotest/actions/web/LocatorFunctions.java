@@ -24,7 +24,7 @@ public enum LocatorFunctions {
   }
   
   /**
-   * You can specify a selector string 
+   * You can specify a selector string
    * @param selector
    * @return
    */

@@ -12,21 +12,24 @@ import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.Export;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
+
+import java.util.function.Function;
 
 public class CawebTermAccessingModel extends CawebAccessingModel {
   
   @Named
   @DependsOn("login")
-  @Export("page")
+  @Export({"page", "officeName"})
   public static Scene createOffice() {
-    return chainActs("page", navigateToTermSelection(),
-                     createOfficeViaNavis("abc", "displayNameAbc"));
-  }
-  
-  public static <T> Scene chainActs(String variableName, LeafAct<T, T>... acts) {
-    Scene.Builder builder = new Scene.Builder(variableName);
-    for (LeafAct<T, T> act : acts) {
-      builder = builder.add(act);
+    String officeName = EXECUTION_PROFILE.officeName();
+    LeafAct<Page, Page>[] acts = new LeafAct[]{
+        navigateToTermSelection(),
+        createOfficeViaNavis(officeName, EXECUTION_PROFILE.userDisplayName())};
+    Scene.Builder builder = new Scene.Builder("page");
+    builder.add("officeName", new LeafAct.Func<>((Function<Page, String>) page -> officeName), "page");
+    for (LeafAct<Page, Page> act : acts) {
+      builder.add(act);
     }
     return builder.build();
   }
@@ -36,10 +39,14 @@ public class CawebTermAccessingModel extends CawebAccessingModel {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         // #js-ca-main-contents > dl:nth-child(7) > dd > a
-        page.locator("#dropdown-office").click();
+        officeDropDownLocatorFor(page).click();
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("事業者・年度の管理")).click();
       }
     };
+  }
+  
+  public static Locator officeDropDownLocatorFor(Page page) {
+    return page.locator("#dropdown-office");
   }
   
   static PageAct createOfficeViaNavis(String officeName, String tenantUserDisplayName) {

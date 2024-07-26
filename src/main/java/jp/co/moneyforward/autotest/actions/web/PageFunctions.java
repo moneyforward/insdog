@@ -66,4 +66,8 @@ public enum PageFunctions {
   public static Function<Page, Locator> getCellByName(String name) {
     return Printables.function("cell[name=" + name + "]", (Page p) -> p.getByRole(AriaRole.CELL, new Page.GetByRoleOptions().setName(name).setExact(true)));
   }
+  
+  public static Locator getLink(Page page) {
+    return page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("事業者・年度の管理"));
+  }
 }

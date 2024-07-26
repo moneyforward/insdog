@@ -42,13 +42,6 @@ public interface ExecutionProfile {
   String homeUrl();
   
   /**
-   * Returns the anticipated date, where "self-hosted" GitHub Actions is provided.
-   *
-   * @return The date, where the "self-hosted" GitHub Actions becomes available.
-   */
-  String plannedDateForSettingUpSelfhostedGitHubActions();
-  
-  /**
    * Returns a locale to open a browser for the execution of **autotest**.
    * I.e., the value will be passed to `ContextOptions#setLocale` of **Playwright-java**.
    *
@@ -117,4 +110,8 @@ public interface ExecutionProfile {
     return String.format("ca-web-%s.idev.test.musubu.co.in",
                          branchName.substring(branchName.indexOf('@') + 1));
   }
+  
+  String userDisplayName();
+  
+  String officeName();
 }

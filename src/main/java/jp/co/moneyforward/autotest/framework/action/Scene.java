@@ -16,6 +16,13 @@ import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
  * Note that `Scene` uses the same map for both input and output.
  */
 public interface Scene extends ActionFactory {
+  static Scene chainActs(String fieldName, LeafAct<?, ?>... acts) {
+    Scene.Builder b = new Builder(fieldName);
+    for (LeafAct<?, ?> act : acts) {
+      b.add(act);
+    }
+    return b.build();
+  }
   /**
    * Returns members of this scene object, which are executed as "children".
    *

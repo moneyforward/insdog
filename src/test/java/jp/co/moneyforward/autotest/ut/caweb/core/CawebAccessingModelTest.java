@@ -55,11 +55,6 @@ class CawebAccessingModelTest {
       }
       
       @Override
-      public String plannedDateForSettingUpSelfhostedGitHubActions() {
-        return "";
-      }
-      
-      @Override
       public String locale() {
         return "";
       }
@@ -96,6 +91,16 @@ class CawebAccessingModelTest {
       
       @Override
       public String domain() {
+        return "";
+      }
+      
+      @Override
+      public String userDisplayName() {
+        return "";
+      }
+      
+      @Override
+      public String officeName() {
         return "";
       }
     };

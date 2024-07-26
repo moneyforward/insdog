@@ -1,14 +1,14 @@
 package jp.co.moneyforward.autotest.ca_web.tests.term;
 
 import com.microsoft.playwright.Dialog;
-import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.options.AriaRole;
 import jp.co.moneyforward.autotest.actions.web.PageAct;
+import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.junit.jupiter.api.Tag;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
@@ -30,11 +30,11 @@ public class OfficeDeletion extends CawebTermAccessingModel {
   public static Scene deleteOffice() {
     return new Scene.Builder("page")
         .add(navigateToTermSelection())
-        .add(deleteOfficeAct())
+        .add(deleteLastOfficeInTable())
         .build();
   }
   
-  static PageAct deleteOfficeAct() {
+  static PageAct deleteLastOfficeInTable() {
     return new PageAct("Delete Office") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
@@ -53,7 +53,7 @@ public class OfficeDeletion extends CawebTermAccessingModel {
   @Named
   @When("deleteOffice")
   public static Scene thenOfficeDeleted() {
-    return chainActs("page", new PageAct("Check if office removal message becomes visible") {
+    return InternalUtils.chainActs("page", new PageAct("Check if office removal message becomes visible") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         page.getByText("事業者の退会が完了しました").waitFor();
