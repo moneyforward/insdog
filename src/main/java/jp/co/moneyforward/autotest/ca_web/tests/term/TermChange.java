@@ -1,6 +1,7 @@
 package jp.co.moneyforward.autotest.ca_web.tests.term;
 
 import com.microsoft.playwright.Dialog;
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import jp.co.moneyforward.autotest.actions.web.PageAct;
 import jp.co.moneyforward.autotest.actions.web.PageFunctions;
@@ -10,6 +11,10 @@ import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 import org.junit.jupiter.api.Tag;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiFunction;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static jp.co.moneyforward.autotest.actions.web.TableQuery.Term.term;
@@ -73,11 +78,12 @@ public class TermChange extends CawebTermAccessingModel {
             page.onceDialog(Dialog::accept);
             TableQuery.select("事業者・年度の切替")
                       .from("#js-ca-main-contents > table")
-                      .normalizeWith(TableQuery.normalizerFunction())
+                      .normalizeWith(normalizerFunctionForOfficeTable())
                       .where(term("事業者名", officeName),
                              term("会計年度", "前年度"))
                       .$()
                       .perform(page)
+                      .getFirst()
                       .getByText("切替")
                       .click();
           }
@@ -96,11 +102,12 @@ public class TermChange extends CawebTermAccessingModel {
             page.onceDialog(Dialog::accept);
             TableQuery.select("事業者・年度の切替")
                       .from("#js-ca-main-contents > table")
-                      .normalizeWith(TableQuery.normalizerFunction())
+                      .normalizeWith(normalizerFunctionForOfficeTable())
                       .where(term("事業者名", officeName),
                              term("会計年度", "2024")) // TODO: We need to come up with a way to avoid hard code the year for the "next year"
                       .$()
                       .perform(page)
+                      .getFirst()
                       .getByText("切替")
                       .click();
             assertThat(page.getByText("事業者・年度を切替えました")).isVisible();
@@ -108,5 +115,18 @@ public class TermChange extends CawebTermAccessingModel {
         })
         .build();
   }
+  
+  public static BiFunction<List<Locator>, List<Locator>, List<Locator>> normalizerFunctionForOfficeTable() {
+    return (lastCompleteRow, incompleteRow) -> {
+      List<Locator> ret = new ArrayList<>(lastCompleteRow.size());
+      for (int i = 0; i < lastCompleteRow.size(); i++) {
+        int offset = lastCompleteRow.size() - incompleteRow.size() - 1;
+        ret.add((i < offset || i == lastCompleteRow.size() - 1) ? lastCompleteRow.get(i)
+                                                                : incompleteRow.get(i - (offset)));
+      }
+      return ret;
+    };
+  }
+  
 }
 
