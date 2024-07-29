@@ -3,6 +3,7 @@ package jp.co.moneyforward.autotest.ca_web.core;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 class ExecutionProfileImpl implements ExecutionProfile {
+  final String differentiatingSuffix = InternalUtils.dateToSafeString(InternalUtils.now());
   
   private final String sutDomainName;
   
@@ -40,11 +41,6 @@ class ExecutionProfileImpl implements ExecutionProfile {
     return String.format("https://%s/accounts", domain());
   }
   
-  @Override
-  public String plannedDateForSettingUpSelfhostedGitHubActions() {
-    return "Jul/10/2024";
-  }
-  
   /**
    * Returns if **autotest** should be executed in headless or head-ful.
    * The head-ful is useful for developing and debugging the **autotest** not intended for using it in the C/I environment.
@@ -72,5 +68,15 @@ class ExecutionProfileImpl implements ExecutionProfile {
   @Override
   public String domain() {
     return sutDomainName;
+  }
+  
+  @Override
+  public String userDisplayName() {
+    return "picInAbc-" + differentiatingSuffix;
+  }
+  
+  @Override
+  public String officeName() {
+    return "abc-" + differentiatingSuffix;
   }
 }

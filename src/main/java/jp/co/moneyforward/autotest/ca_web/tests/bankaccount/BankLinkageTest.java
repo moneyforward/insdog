@@ -91,7 +91,7 @@ public class BankLinkageTest extends CawebAccessingModel {
        */
     return new Scene.Builder("page")
         .add(new Click(getByText("データ連携")))
-        .add(new Click(getLinkByName("新規登録")))
+        .add(new Click(getByName("新規登録")))
         .add(new Click(getByText("銀行 (", true)))
         .add(new Click(getByText("【個人】紀陽銀行（インターネット支店）")))
         .add(new Click("#account_service_form_ID1"))

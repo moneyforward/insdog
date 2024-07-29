@@ -23,6 +23,11 @@ public enum LocatorFunctions {
     return Printables.function("textContent", Locator::textContent);
   }
   
+  /**
+   * You can specify a selector string
+   * @param selector
+   * @return
+   */
   public static Function<? super Locator, ? extends Locator> bySelector(String selector) {
     return Printables.function("@[" + selector + "]", l -> l.locator(selector));
   }

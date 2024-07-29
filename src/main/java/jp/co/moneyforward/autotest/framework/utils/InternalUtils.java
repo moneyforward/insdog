@@ -3,6 +3,8 @@ package jp.co.moneyforward.autotest.framework.utils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.pcond.forms.Printables;
+import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.AutotestException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -85,12 +87,20 @@ public enum InternalUtils {
     return Objects.equals(System.getProperty("underpitest"), "yes");
   }
   
-  public static String composeResultMessageLine(String line, String stageName) {
+  public static String composeResultMessageLine(String stageName, String line) {
     return String.format("%-11s %s", stageName + ":", line);
   }
   
   public static File projectDir() {
     return new File(".");
+  }
+  
+  public static <T> Scene chainActs(String variableName, LeafAct<T, T>... acts) {
+    Scene.Builder builder = new Scene.Builder(variableName);
+    for (LeafAct<T, T> act : acts) {
+      builder = builder.add(act);
+    }
+    return builder.build();
   }
   
   public static class AssumptionViolation extends TestAbortedException {
@@ -119,8 +129,12 @@ public enum InternalUtils {
    *
    * @return A date object created from the current date.
    */
-  public static Date today() {
+  public static Date now() {
     return new Date();
+  }
+  
+  public static String dateToSafeString(Date date) {
+    return new SimpleDateFormat("HHmmss", Locale.US).format(date).replaceAll("[,. :\\-/]", "");
   }
   
   /**

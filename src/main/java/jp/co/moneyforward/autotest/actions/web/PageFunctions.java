@@ -15,11 +15,11 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 public enum PageFunctions {
   ;
   
-  public static Function<Page, Locator> getLinkByName(String name) {
-    return getLinkByName(name, false);
+  public static Function<Page, Locator> getByName(String name) {
+    return getByName(name, false);
   }
   
-  public static Function<Page, Locator> getLinkByName(String name, boolean lenient) {
+  public static Function<Page, Locator> getByName(String name, boolean lenient) {
     return Printables.function("link[name" + (lenient ? "~" : "=") + name + "]",
                                p -> p.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setExact(!lenient)
                                                                                           .setName(name)));
@@ -65,5 +65,9 @@ public enum PageFunctions {
   
   public static Function<Page, Locator> getCellByName(String name) {
     return Printables.function("cell[name=" + name + "]", (Page p) -> p.getByRole(AriaRole.CELL, new Page.GetByRoleOptions().setName(name).setExact(true)));
+  }
+  
+  public static Locator getLink(Page page) {
+    return page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("事業者・年度の管理"));
   }
 }

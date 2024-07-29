@@ -80,8 +80,8 @@ class InternalUtilsTest extends TestBase {
   }
   
   @Test
-  void whenToday_thenNonNull() {
-    var out = InternalUtils.today();
+  void whenNow_thenNonNull() {
+    var out = InternalUtils.now();
     assertStatement(value(out).toBe().notNull());
   }
   

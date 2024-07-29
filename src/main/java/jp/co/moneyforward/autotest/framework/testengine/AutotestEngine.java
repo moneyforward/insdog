@@ -40,6 +40,7 @@ import static com.github.dakusui.actionunit.exceptions.ActionException.wrap;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.internals.InternalUtils.wrapIfNecessary;
+import static java.lang.String.format;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.toMap;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneCall;
@@ -122,7 +123,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         .toList()
         .forEach(r -> {
           LOGGER.info(r.composeMessageHeader(stageName));
-          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(l, stageName)));
+          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(stageName, l)));
         });
   }
   
@@ -185,7 +186,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         .toList()
         .forEach(r -> {
           LOGGER.info(r.composeMessageHeader(stageName));
-          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(l, stageName)));
+          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(stageName, l)));
         });
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-main.log"), Level.INFO);
   }
@@ -222,7 +223,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         .toList()
         .forEach(r -> {
           LOGGER.info(r.composeMessageHeader(stageName));
-          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(l, stageName)));
+          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(stageName, l)));
         });
     if (!errors.isEmpty()) reportErrors(errors);
   }
@@ -258,7 +259,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         .toList()
         .forEach((SceneExecutionResult r) -> {
           LOGGER.info(r.composeMessageHeader(stageName));
-          r.out().forEach((String l) -> LOGGER.info(composeResultMessageLine(l, stageName)));
+          r.out().forEach((String l) -> LOGGER.info(composeResultMessageLine(stageName, l)));
         });
     if (!errors.isEmpty()) reportErrors(errors);
   }
@@ -515,7 +516,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   
   private static List<String> exportedVariablesOf(Class<?> accessModelClass, String methodName) {
     return List.of(findMethodByName(methodName, accessModelClass)
-                       .orElseThrow()
+                       .orElseThrow(() -> new NoSuchElementException(format("A method named:'%s' was not found in class:'%s'", methodName, accessModelClass.getCanonicalName())))
                        .getAnnotation(Export.class)
                        .value());
   }
@@ -686,7 +687,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     }
     
     private static String composeMessageHeader(SceneExecutionResult r, String stageName) {
-      return String.format("%-11s [%1s]%-20s %-40s",
+      return format("%-11s [%1s]%-20s %-40s",
                            stageName + ":",
                            r.hasSucceeded() ? "o"
                                             : "E",
