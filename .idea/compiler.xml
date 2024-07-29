@@ -17,6 +17,8 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/info/picocli/picocli-codegen/4.7.6/picocli-codegen-4.7.6.jar" />
           <entry name="$MAVEN_REPOSITORY$/info/picocli/picocli/4.7.6/picocli-4.7.6.jar" />
+          <entry name="$MAVEN_REPOSITORY$/info/picocli/picocli-codegen/4.7.6/picocli-codegen-4.7.6.jar" />
+          <entry name="$MAVEN_REPOSITORY$/info/picocli/picocli/4.7.6/picocli-4.7.6.jar" />
         </processorPath>
         <module name="autotest-ca" />
       </profile>

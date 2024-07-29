@@ -17,8 +17,7 @@ public class TableQueryTest extends TestBase {
   @Test
   void givenCawebOfficeListTable_whenPerformQueryResultingInMultipleRows_thenExpectedLocatorsReturned() {
     try (Playwright playwright = Playwright.create()) {
-      BrowserType chromium = playwright.chromium();
-      try (Browser browser = chromium.launch(new BrowserType.LaunchOptions().setHeadless(false))) {
+      try (Browser browser = launchBrowser(playwright.chromium())) {
         Page page = browser.newPage();
         page.navigate(testTableResourcePath());
         //#js-ca-main-contents > table > thead
@@ -44,8 +43,7 @@ public class TableQueryTest extends TestBase {
   @Test
   void givenCawebOfficeListTable_whenPerformQueryResultingInSingleRow_thenExpectedLocatorsReturned2() {
     try (Playwright playwright = Playwright.create()) {
-      BrowserType chromium = playwright.chromium();
-      try (Browser browser = chromium.launch(new BrowserType.LaunchOptions().setHeadless(false))) {
+      try (Browser browser = launchBrowser(playwright.chromium())) {
         Page page = browser.newPage();
         page.navigate(testTableResourcePath());
         //#js-ca-main-contents > table > thead
@@ -73,8 +71,7 @@ public class TableQueryTest extends TestBase {
   @Test
   void givenCawebOfficeListTable_whenPerformQueryForNonExistingOfficeName_thenExpectedLocatorsReturned() {
     try (Playwright playwright = Playwright.create()) {
-      BrowserType chromium = playwright.chromium();
-      try (Browser browser = chromium.launch(new BrowserType.LaunchOptions().setHeadless(false))) {
+      try (Browser browser = launchBrowser(playwright.chromium())) {
         Page page = browser.newPage();
         page.navigate(testTableResourcePath());
         //#js-ca-main-contents > table > thead
@@ -105,5 +102,9 @@ public class TableQueryTest extends TestBase {
   
   private static String testTableResourcePath() {
     return "file://" + new File(new File(System.getProperty("user.dir")), "src/test/resources/caweb/testTable.html").getAbsolutePath();
+  }
+  
+  private static Browser launchBrowser(BrowserType chromium) {
+    return chromium.launch(new BrowserType.LaunchOptions().setHeadless(true));
   }
 }

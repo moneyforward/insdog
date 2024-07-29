@@ -15,10 +15,10 @@ import static java.util.Arrays.asList;
  * A class to query HTML table object as if it were an SQL relation.
  * Note that this class is designed to select only one column.
  *
- * // @formatter:off
+ * <!--- @formatter:off --->
  * ```java
  * void example() {
- *       try (Playwright playwright = Playwright.create()) {
+ *    try (Playwright playwright = Playwright.create()) {
  *       BrowserType chromium = playwright.chromium();
  *       try (Browser browser = chromium.launch(new BrowserType.LaunchOptions().setHeadless(false))) {
  *         Page page = browser.newPage();
@@ -34,7 +34,7 @@ import static java.util.Arrays.asList;
  *                               .getFirst();
  * }
  * ```
- * // @formatter:on
+ * <!--- @formatter:on --->
  *
  * **Limitation:**
  *
