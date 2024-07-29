@@ -21,7 +21,7 @@ public class TableQueryTest extends TestBase {
       BrowserType chromium = playwright.chromium();
       try (Browser browser = chromium.launch(new BrowserType.LaunchOptions().setHeadless(false))) {
         Page page = browser.newPage();
-        page.navigate("file://" + new File(new File(System.getProperty("user.dir")), "src/test/resources/example.html").getAbsolutePath());
+        page.navigate("file://" + new File(new File(System.getProperty("user.dir")), "src/test/resources/caweb/testTable.html").getAbsolutePath());
         //#js-ca-main-contents > table > thead
         
         Locator l = TableQuery.select("事業者・年度の切替")
@@ -47,7 +47,7 @@ public class TableQueryTest extends TestBase {
       BrowserType chromium = playwright.chromium();
       try (Browser browser = chromium.launch(new BrowserType.LaunchOptions().setHeadless(false))) {
         Page page = browser.newPage();
-        page.navigate("file://" + new File(new File(System.getProperty("user.dir")), "src/test/resources/example.html").getAbsolutePath());
+        page.navigate("file://" + new File(new File(System.getProperty("user.dir")), "src/test/resources/caweb/testTable.html").getAbsolutePath());
         //#js-ca-main-contents > table > thead
         
         List<Locator> result = TableQuery.select("事業者・年度の切替")
