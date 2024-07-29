@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Tag;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static jp.co.moneyforward.autotest.actions.web.TableQuery.Term.term;
@@ -116,7 +117,7 @@ public class TermChange extends CawebTermAccessingModel {
         .build();
   }
   
-  public static BiFunction<List<Locator>, List<Locator>, List<Locator>> normalizerFunctionForOfficeTable() {
+  public static BinaryOperator<List<Locator>> normalizerFunctionForOfficeTable() {
     return (lastCompleteRow, incompleteRow) -> {
       List<Locator> ret = new ArrayList<>(lastCompleteRow.size());
       for (int i = 0; i < lastCompleteRow.size(); i++) {

@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 
 import static com.github.valid8j.fluent.Expectations.assertStatement;
 import static com.github.valid8j.fluent.Expectations.value;
@@ -62,7 +63,7 @@ public class TableQueryTest extends TestBase {
     }
   }
   
-  public static BiFunction<List<Locator>, List<Locator>, List<Locator>> normalizerFunction() {
+  public static BinaryOperator<List<Locator>> normalizerFunction() {
     return (lastCompleteRow, incompleteRow) -> {
       List<Locator> ret = new ArrayList<>(lastCompleteRow.size());
       for (int i = 0; i < lastCompleteRow.size(); i++) {

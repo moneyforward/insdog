@@ -4,6 +4,7 @@ import com.microsoft.playwright.*;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 
 import static com.github.dakusui.valid8j.Requires.requireNonNull;
 import static com.github.valid8j.fluent.Expectations.require;
@@ -95,7 +96,7 @@ public record TableQuery(String tableName, String columnName, List<Term> queryTe
     private String tableName;
     private String columnName;
     private Term[] conditions;
-    private BiFunction<List<Locator>, List<Locator>, List<Locator>> normalizer = (lastFullRow, incompleteRow) -> incompleteRow;
+    private BinaryOperator<List<Locator>> normalizer = (lastFullRow, incompleteRow) -> incompleteRow;
     
     public Builder from(String tableName) {
       this.tableName = requireNonNull(tableName);
@@ -107,8 +108,8 @@ public record TableQuery(String tableName, String columnName, List<Term> queryTe
       return this;
     }
     
-    public Builder normalizeWith(BiFunction<List<Locator>, List<Locator>, List<Locator>> normalizerFunction) {
-      this.normalizer = requireNonNull(normalizerFunction);
+    public Builder normalizeWith(BinaryOperator<List<Locator>> normalizer) {
+      this.normalizer = requireNonNull(normalizer);
       return this;
     }
     
