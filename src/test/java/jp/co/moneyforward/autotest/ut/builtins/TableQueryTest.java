@@ -1,6 +1,5 @@
 package jp.co.moneyforward.autotest.ut.builtins;
 
-import com.github.valid8j.fluent.Expectations;
 import com.microsoft.playwright.*;
 import jp.co.moneyforward.autotest.actions.web.TableQuery;
 import jp.co.moneyforward.autotest.ututils.TestBase;
@@ -9,11 +8,10 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
-import static com.github.valid8j.fluent.Expectations.assertStatement;
-import static com.github.valid8j.fluent.Expectations.value;
+import static com.github.valid8j.fluent.Expectations.*;
+import static jp.co.moneyforward.autotest.actions.web.TableQuery.Term.term;
 
 public class TableQueryTest extends TestBase {
   @Test
@@ -27,17 +25,45 @@ public class TableQueryTest extends TestBase {
         
         Locator l = TableQuery.select("事業者・年度の切替")
                               .from("body > table")
-                              .where(TableQuery.Term.term("事業者名", "abc-154206"))
+                              .where(term("事業者名", "abc-154206"))
                               .normalizeWith(normalizerFunction())
                               .build()
                               .perform(page)
                               .getFirst();
         
-        assertStatement(value(l).invoke("getByText", "切替")
-                                .invoke("textContent")
-                                .invoke("trim")
-                                .toBe()
-                                .equalTo("切替"));
+        assertAll(value(l).invoke("getByText", "切替")
+                          .invoke("textContent")
+                          .invoke("trim")
+                          .toBe()
+                          .equalTo("切替"));
+      }
+    }
+  }
+  
+  @Test
+  void givenCawebOfficeListTable_whenPerformQuery_thenExpectedLocatorsReturned2() {
+    try (Playwright playwright = Playwright.create()) {
+      BrowserType chromium = playwright.chromium();
+      try (Browser browser = chromium.launch(new BrowserType.LaunchOptions().setHeadless(false))) {
+        Page page = browser.newPage();
+        page.navigate(testTableResourcePath());
+        //#js-ca-main-contents > table > thead
+        
+        List<Locator> locators = TableQuery.select("事業者・年度の切替")
+                                           .from("body > table")
+                                           .where(term("事業者名", "abc-154206"), term("会計年度", "次年度"))
+                                           .normalizeWith(normalizerFunction())
+                                           .build()
+                                           .perform(page);
+        
+        assertAll(value(locators).size().toBe().equalTo(1),
+                  value(locators)
+                      .invoke("getFirst")
+                      .invoke("getByText", "切替")
+                      .invoke("textContent")
+                      .invoke("trim")
+                      .toBe()
+                      .equalTo("切替"));
       }
     }
   }
@@ -53,7 +79,7 @@ public class TableQueryTest extends TestBase {
         
         List<Locator> result = TableQuery.select("事業者・年度の切替")
                                          .from("body > table")
-                                         .where(TableQuery.Term.term("事業者名", "abc-999999"))
+                                         .where(term("事業者名", "abc-999999"))
                                          .normalizeWith(normalizerFunction())
                                          .build()
                                          .perform(page);
