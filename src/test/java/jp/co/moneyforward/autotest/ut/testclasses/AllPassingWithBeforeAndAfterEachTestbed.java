@@ -8,13 +8,14 @@ import jp.co.moneyforward.autotest.framework.annotations.Named;
 
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
-        value = {"login", "connect", "disconnect", "logout", "fail"}))
-public class AllPassingTestbed extends TestbedBase {
+        beforeEach = {"login"},
+        value = {"connect", "disconnect"},
+        afterEach = {"logout"}))
+public class AllPassingWithBeforeAndAfterEachTestbed extends TestbedBase {
   @Named
   public static Scene fail() {
     return new Scene.Builder("fail").add("out", (LeafAct<Object, Object>) (value, executionEnvironment) -> {
       throw new ActionException("Intentional Exception!");
     }).build();
   }
-  
 }
