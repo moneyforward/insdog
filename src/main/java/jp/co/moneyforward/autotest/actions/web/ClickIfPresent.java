@@ -15,7 +15,11 @@ import java.util.function.Function;
  * Check for presence is done by `Locator#isVisible`.
  */
 public class ClickIfPresent extends ClickBase {
-  
+  /**
+   * Creates an object of this class.
+   *
+   * @param locatorFunction A function to locate an element to be clicked by this object on `perform` method's call.
+   */
   public ClickIfPresent(Function<Page, Locator> locatorFunction) {
     super(locatorFunction);
   }

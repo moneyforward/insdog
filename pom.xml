@@ -208,6 +208,13 @@
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>${apache-log4j.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.4.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
