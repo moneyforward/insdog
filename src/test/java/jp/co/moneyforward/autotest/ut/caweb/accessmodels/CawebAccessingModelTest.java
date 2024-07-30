@@ -1,20 +1,79 @@
-package jp.co.moneyforward.autotest.ut.caweb.core;
+package jp.co.moneyforward.autotest.ut.caweb.accessmodels;
 
+import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.valid8j.pcond.forms.Printables;
-import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.BrowserContext;
-import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.*;
 import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
 import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
+import jp.co.moneyforward.autotest.framework.action.Scene;
+import jp.co.moneyforward.autotest.ututils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Function;
 
-import static com.github.valid8j.fluent.Expectations.assertStatement;
-import static com.github.valid8j.fluent.Expectations.value;
+import static com.github.valid8j.fluent.Expectations.*;
 
 class CawebAccessingModelTest {
+  @Test
+  void whenOpen_nonEmptySceneReturned() {
+    Scene scene = CawebAccessingModel.open();
+    
+    assertAll(value(scene).toBe().notNull(),
+              value(scene.children()).toBe().notEmpty());
+  }
+  
+  @Test
+  void whenLogin_nonEmptySceneReturned() {
+    Scene scene = CawebAccessingModel.login();
+    
+    assertAll(value(scene).toBe().notNull(),
+              value(scene.children()).toBe().notEmpty());
+  }
+  
+  @Test
+  void whenLogout_nonEmptySceneReturned() {
+    Scene scene = CawebAccessingModel.logout();
+    
+    assertAll(value(scene).toBe().notNull(),
+              value(scene.children()).toBe().notEmpty());
+  }
+  
+  
+  @Test
+  void whenScreenshot_nonEmptySceneReturned() {
+    Scene scene = CawebAccessingModel.screenshot();
+    
+    assertAll(value(scene).toBe().notNull(),
+              value(scene.children()).toBe().notEmpty());
+  }
+  
+  @Test
+  void whenBrowserContextFrom_nonEmptySceneReturned() {
+    try (Playwright playwright = Playwright.create()) {
+      try (Browser browser = TestUtils.launchHeadlessBrowser(playwright.chromium())) {
+        BrowserContext browserContext = CawebAccessingModel.browserContextFrom(browser, CawebAccessingModel.EXECUTION_PROFILE);
+        
+        assertStatement(value(browserContext).toBe().notNull());
+      }
+    }
+  }
+  
+  @Test
+  void whenActionPerformer_thenNonNull() {
+    ActionPerformer actionPerformer = new CawebAccessingModel().actionPerformer();
+    
+    assertAll(value(actionPerformer).toBe().notNull());
+  }
+  
+  
+  @Test
+  void whenClose_nonEmptySceneReturned() {
+    Scene scene = CawebAccessingModel.close();
+    
+    assertAll(value(scene).toBe().notNull(),
+              value(scene.children()).toBe().notEmpty());
+  }
+  
   @Test
   void givenHeadlessExecutionProfile_whenLaunchBrowser_thenHeadless() {
     try (Playwright playwright = Playwright.create()) {
