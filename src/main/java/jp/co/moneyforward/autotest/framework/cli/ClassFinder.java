@@ -117,7 +117,7 @@ public interface ClassFinder {
    * @return A predicate which matches any of `annotationClasses` is present.
    */
   @SafeVarargs
-  static Predicate<Class<?>> hasTags(Class<? extends Annotation>... annotationClasses) {
+  static Predicate<Class<?>> hasAnnotations(Class<? extends Annotation>... annotationClasses) {
     return Printables.predicate("hasAnnotation" + Arrays.stream(annotationClasses).map(c -> "@" + c.getSimpleName()).toList(),
                                 (Class<?> c) -> Arrays.stream(annotationClasses).anyMatch(c::isAnnotationPresent));
   }

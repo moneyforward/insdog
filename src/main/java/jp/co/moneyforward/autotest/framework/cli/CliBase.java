@@ -125,7 +125,7 @@ public abstract class CliBase implements Callable<Integer> {
   public Integer listTags() {
     int ret;
     try (var out = out()) {
-      CliUtils.listTags(this.queries, this.rootPackageName())
+      CliUtils.listTags(this.rootPackageName())
               .forEach(out::println);
       ret = 0;
     } catch (IllegalArgumentException e) {

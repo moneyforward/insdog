@@ -94,7 +94,7 @@ public class ClassFinderTest {
   @Test
   public void whenFindTagsAnnotationPresence_thenMatchesFound() {
     List<Class<?>> out = new LinkedList<>();
-    Predicate<Class<?>> query = hasTags(Tags.class);
+    Predicate<Class<?>> query = hasAnnotations(Tags.class);
     ClassFinder.create(Index.class.getPackageName())
                .findMatchingClasses(query)
                .forEach(out::add);
@@ -108,7 +108,7 @@ public class ClassFinderTest {
   @Test
   public void whenFindClassesByTagPresence_thenMatchesFound() {
     List<Class<?>> out = new LinkedList<>();
-    Predicate<Class<?>> query = hasTags(Tag.class);
+    Predicate<Class<?>> query = hasAnnotations(Tag.class);
     ClassFinder.create(Index.class.getPackageName())
                .findMatchingClasses(query)
                .forEach(out::add);
