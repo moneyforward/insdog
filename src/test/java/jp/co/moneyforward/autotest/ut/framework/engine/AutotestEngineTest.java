@@ -1,7 +1,8 @@
 package jp.co.moneyforward.autotest.ut.framework.engine;
 
+import jp.co.moneyforward.autotest.ut.testclasses.AllPassingWithBeforeAndAfterEachTestbed;
 import jp.co.moneyforward.autotest.ut.testclasses.FailureContainingTestbed;
-import jp.co.moneyforward.autotest.ut.testclasses.AllPassingTestbed;
+import jp.co.moneyforward.autotest.ut.testclasses.AllPassingWithBeforeAndAfterAllTestbed;
 import jp.co.moneyforward.autotest.ut.testclasses.EmptyTestbed;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import jp.co.moneyforward.autotest.ututils.TestResultValidatorExtension;
@@ -40,7 +41,7 @@ public class AutotestEngineTest extends TestBase {
   }
   
   @Test
-  public  void examineAutotestEngineCanRunAndReportTestResultsContainingFailureAsDesigned() {
+  public  void examineAutotestEngineCanRunAndReportTestResultsContainingFailureAsDesigned_beforeAndAfterAllTestbed() {
     // Create a custom listener that will validate test results
     TestResultValidatorExtension validator = new TestResultValidatorExtension();
     validator.addExpectation(forTestMatching(".*login.*").shouldBeSuccessful());
@@ -49,9 +50,22 @@ public class AutotestEngineTest extends TestBase {
     validator.addExpectation(forTestMatching(".*logout.*").shouldBeSuccessful());
     validator.addExpectation(forTestMatching(".*fail.*").shouldBeFailed());
     
-    runTests(validator, AllPassingTestbed.class);
+    runTests(validator, AllPassingWithBeforeAndAfterAllTestbed.class);
   }
   
+  @Test
+  public  void examineAutotestEngineCanRunAndReportTestResultsContainingFailureAsDesigned_beforeAndEachAllTestbed() {
+    // Create a custom listener that will validate test results
+    TestResultValidatorExtension validator = new TestResultValidatorExtension();
+    validator.addExpectation(forTestMatching(".*login.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*connect.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*disconnect.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*logout.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*fail.*").shouldBeFailed());
+    
+    runTests(validator, AllPassingWithBeforeAndAfterEachTestbed.class);
+  }
+
   @Test
   public  void examineAutotestEngineCanRunAndReportTestResultsForEmptyTestClass() {
     // Create a custom listener that will validate test results
