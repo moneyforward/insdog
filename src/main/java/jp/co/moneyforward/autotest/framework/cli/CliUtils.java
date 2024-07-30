@@ -34,12 +34,9 @@ public enum CliUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(CliUtils.class);
   
   @SuppressWarnings({"RedundantCast", "unchecked"})
-  static List<String> listTags(String[] queries, String rootPackageName) {
+  public static List<String> listTags(String rootPackageName) {
     return ClassFinder.create(rootPackageName)
-                      .findMatchingClasses(Predicates.or(Arrays.stream(queries)
-                                                               .map(CliUtils::parseQuery)
-                                                               .map(p -> p.and(ClassFinder.hasTags(Tag.class, Tags.class)))
-                                                               .toArray(Predicate[]::new)))
+                      .findMatchingClasses(Predicates.alwaysTrue())
                       .map(c -> (Class<?>) c)
                       .flatMap((Function<Class<?>, Stream<Tag>>) CliUtils::tagAnnotationsFrom)
                       .map(e -> ((Tag) e).value()) // Workaround compilation error from IDEA.
@@ -48,11 +45,11 @@ public enum CliUtils {
   }
   
   @SuppressWarnings("unchecked")
-  static List<Class<?>> listTestClasses(String[] queries1, String rootPackageName) {
+  public static List<Class<?>> listTestClasses(String[] queries1, String rootPackageName) {
     return ClassFinder.create(rootPackageName)
                       .findMatchingClasses(Predicates.or(Arrays.stream(queries1)
                                                                .map(CliUtils::parseQuery)
-                                                               .map(p -> p.and(ClassFinder.hasTags(AutotestExecution.class)))
+                                                               .map(p -> p.and(ClassFinder.hasAnnotations(AutotestExecution.class)))
                                                                .toArray(Predicate[]::new)))
                       .toList();
   }
@@ -133,7 +130,7 @@ public enum CliUtils {
     ClassFinder.create(rootPackageName)
                .findMatchingClasses(Predicates.or(Arrays.stream(queries)
                                                         .map(CliUtils::parseQuery)
-                                                        .map(p -> p.and(ClassFinder.hasTags(AutotestExecution.class)))
+                                                        .map(p -> p.and(ClassFinder.hasAnnotations(AutotestExecution.class)))
                                                         .toArray(Predicate[]::new)))
                .map(c -> (Class<?>) c)
                .forEach((Consumer<Class<?>>) c -> {
