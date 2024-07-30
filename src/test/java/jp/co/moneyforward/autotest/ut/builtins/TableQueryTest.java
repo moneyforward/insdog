@@ -12,12 +12,13 @@ import java.util.function.BinaryOperator;
 
 import static com.github.valid8j.fluent.Expectations.*;
 import static jp.co.moneyforward.autotest.actions.web.TableQuery.Term.term;
+import static jp.co.moneyforward.autotest.ututils.TestUtils.launchHeadlessBrowser;
 
 public class TableQueryTest extends TestBase {
   @Test
   void givenCawebOfficeListTable_whenPerformQueryResultingInMultipleRows_thenExpectedLocatorsReturned() {
     try (Playwright playwright = Playwright.create()) {
-      try (Browser browser = launchBrowser(playwright.chromium())) {
+      try (Browser browser = launchHeadlessBrowser(playwright.chromium())) {
         Page page = browser.newPage();
         page.navigate(testTableResourcePath());
         //#js-ca-main-contents > table > thead
@@ -43,7 +44,7 @@ public class TableQueryTest extends TestBase {
   @Test
   void givenCawebOfficeListTable_whenPerformQueryResultingInSingleRow_thenExpectedLocatorsReturned2() {
     try (Playwright playwright = Playwright.create()) {
-      try (Browser browser = launchBrowser(playwright.chromium())) {
+      try (Browser browser = launchHeadlessBrowser(playwright.chromium())) {
         Page page = browser.newPage();
         page.navigate(testTableResourcePath());
         //#js-ca-main-contents > table > thead
@@ -71,7 +72,7 @@ public class TableQueryTest extends TestBase {
   @Test
   void givenCawebOfficeListTable_whenPerformQueryForNonExistingOfficeName_thenExpectedLocatorsReturned() {
     try (Playwright playwright = Playwright.create()) {
-      try (Browser browser = launchBrowser(playwright.chromium())) {
+      try (Browser browser = launchHeadlessBrowser(playwright.chromium())) {
         Page page = browser.newPage();
         page.navigate(testTableResourcePath());
         //#js-ca-main-contents > table > thead
@@ -102,9 +103,5 @@ public class TableQueryTest extends TestBase {
   
   private static String testTableResourcePath() {
     return "file://" + new File(new File(System.getProperty("user.dir")), "src/test/resources/caweb/testTable.html").getAbsolutePath();
-  }
-  
-  private static Browser launchBrowser(BrowserType chromium) {
-    return chromium.launch(new BrowserType.LaunchOptions().setHeadless(true));
   }
 }

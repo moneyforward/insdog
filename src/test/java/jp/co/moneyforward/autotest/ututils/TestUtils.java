@@ -1,5 +1,7 @@
 package jp.co.moneyforward.autotest.ututils;
 
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.io.OutputStream;
@@ -33,4 +35,8 @@ public enum TestUtils {
     System.setOut(STDOUT);
     System.setErr(STDERR);
   }
+  
+  public static Browser launchHeadlessBrowser(BrowserType browserType) {
+    return browserType.launch(new BrowserType.LaunchOptions().setHeadless(true));
   }
+}
