@@ -26,7 +26,9 @@ public enum PlanningStrategy {
    */
   PASSTHROUGH {
     @Override
-    AutotestEngine.ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, String> closers, Map<String, List<String>> assertions) {
+    public AutotestEngine.ExecutionPlan planExecution(AutotestExecution.Spec executionSpec,
+                                                      Map<String, List<String>> sceneCallGraph,
+                                                      Map<String, List<String>> assertions) {
       return new AutotestEngine.ExecutionPlan(
           asList(executionSpec.beforeAll()),
           asList(executionSpec.beforeEach()),
@@ -60,7 +62,9 @@ public enum PlanningStrategy {
    */
   DEPENDENCY_BASED {
     @Override
-    AutotestEngine.ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, String> closers, Map<String, List<String>> assertions) {
+    public AutotestEngine.ExecutionPlan planExecution(AutotestExecution.Spec executionSpec,
+                                                      Map<String, List<String>> sceneCallGraph,
+                                                      Map<String, List<String>> assertions) {
       List<String> explicitlySpecified = List.of(executionSpec.value());
       List<String> sorted = AutotestEngineUtils.topologicalSort(explicitlySpecified, sceneCallGraph);
       String firstSpecified = sorted.stream()
@@ -96,5 +100,5 @@ public enum PlanningStrategy {
     }
   };
   
-  abstract AutotestEngine.ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, String> closers, Map<String, List<String>> assertions);
+  public abstract AutotestEngine.ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, List<String>> assertions);
 }

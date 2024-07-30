@@ -1,5 +1,6 @@
 package jp.co.moneyforward.autotest.framework.utils;
 
+import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.pcond.forms.Printables;
@@ -95,12 +96,18 @@ public enum InternalUtils {
     return new File(".");
   }
   
+  @SafeVarargs
   public static <T> Scene chainActs(String variableName, LeafAct<T, T>... acts) {
     Scene.Builder builder = new Scene.Builder(variableName);
     for (LeafAct<T, T> act : acts) {
       builder = builder.add(act);
     }
     return builder.build();
+  }
+  
+  public static Stream<Action> flattenIfSequential(Action a) {
+    return a instanceof Composite && !((Composite) a).isParallel() ? ((Composite) a).children().stream()
+                                                                   : Stream.of(a);
   }
   
   public static class AssumptionViolation extends TestAbortedException {

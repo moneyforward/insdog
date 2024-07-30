@@ -320,7 +320,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                              Map<String, String> closers,
                                              Map<String, List<String>> assertions) {
     return executionSpec.planExecutionWith()
-                        .planExecution(executionSpec, sceneCallGraph, closers, assertions);
+                        .planExecution(executionSpec, sceneCallGraph, assertions);
   }
   
   private static Map<String, List<String>> sceneCallGraph(Class<?> accessModelClass) {
