@@ -3,9 +3,9 @@ package jp.co.moneyforward.autotest.ut.builtins;
 import com.microsoft.playwright.*;
 import jp.co.moneyforward.autotest.actions.web.TableQuery;
 import jp.co.moneyforward.autotest.ututils.TestBase;
+import jp.co.moneyforward.autotest.ututils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BinaryOperator;
@@ -20,7 +20,7 @@ public class TableQueryTest extends TestBase {
     try (Playwright playwright = Playwright.create()) {
       try (Browser browser = launchHeadlessBrowser(playwright.chromium())) {
         Page page = browser.newPage();
-        page.navigate(testTableResourcePath());
+        page.navigate(TestUtils.testTableResourcePath("caweb/testTable.html"));
         //#js-ca-main-contents > table > thead
         
         List<Locator> locators = TableQuery.select("事業者・年度の切替")
@@ -46,7 +46,7 @@ public class TableQueryTest extends TestBase {
     try (Playwright playwright = Playwright.create()) {
       try (Browser browser = launchHeadlessBrowser(playwright.chromium())) {
         Page page = browser.newPage();
-        page.navigate(testTableResourcePath());
+        page.navigate(TestUtils.testTableResourcePath("caweb/testTable.html"));
         //#js-ca-main-contents > table > thead
         
         List<Locator> locators = TableQuery.select("事業者・年度の切替")
@@ -74,14 +74,14 @@ public class TableQueryTest extends TestBase {
     try (Playwright playwright = Playwright.create()) {
       try (Browser browser = launchHeadlessBrowser(playwright.chromium())) {
         Page page = browser.newPage();
-        page.navigate(testTableResourcePath());
+        page.navigate(TestUtils.testTableResourcePath("caweb/testTable.html"));
         //#js-ca-main-contents > table > thead
         
         List<Locator> result = TableQuery.select("事業者・年度の切替")
                                          .from("body > table")
                                          .where(term("事業者名", "abc-999999"))
                                          .normalizeWith(normalizerFunction())
-                                         .build()
+                                         .$()
                                          .perform(page);
         
         assertStatement(value(result).toBe().empty());
@@ -99,9 +99,5 @@ public class TableQueryTest extends TestBase {
       }
       return ret;
     };
-  }
-  
-  private static String testTableResourcePath() {
-    return "file://" + new File(new File(System.getProperty("user.dir")), "src/test/resources/caweb/testTable.html").getAbsolutePath();
   }
 }

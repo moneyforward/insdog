@@ -4,6 +4,7 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
@@ -38,5 +39,9 @@ public enum TestUtils {
   
   public static Browser launchHeadlessBrowser(BrowserType browserType) {
     return browserType.launch(new BrowserType.LaunchOptions().setHeadless(true));
+  }
+  
+  public static String testTableResourcePath(String pathToTestResourceFile) {
+    return "file://" + new File(new File(System.getProperty("user.dir")), "src/test/resources/" + pathToTestResourceFile).getAbsolutePath();
   }
 }
