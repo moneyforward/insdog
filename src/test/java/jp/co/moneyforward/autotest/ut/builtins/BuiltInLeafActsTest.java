@@ -1,8 +1,6 @@
 package jp.co.moneyforward.autotest.ut.builtins;
 
-import com.microsoft.playwright.Keyboard;
-import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.Page;
+import com.microsoft.playwright.*;
 import jp.co.moneyforward.autotest.actions.web.*;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.ututils.TestBase;
@@ -152,4 +150,89 @@ class BuiltInLeafActsTest extends TestBase {
                                .containing("keysToBeSentToHello"));
   }
   
+  @Test
+  void givenNonNullUrl_whenNavigatePerformed_thenNavigateCalled() {
+    try (Page page = Mockito.mock(Page.class)) {
+      ExecutionEnvironment executionEnvironment = Mockito.mock(ExecutionEnvironment.class);
+      when(page.navigate(any())).thenReturn(mock(Response.class));
+      
+      String givenUrl = "http://www.example.com/hello/world";
+      Page returned = new Navigate(givenUrl).perform(page, executionEnvironment);
+      
+      assertAll(value(returned).toBe().equalTo(page));
+      Mockito.verify(page).navigate(argThat(v -> v.equals(givenUrl)));
+    }
+  }
+  
+  @Test
+  void whenNavigateName_thenNameLooksOk() {
+    String givenUrl = "TestNavigateDescription";
+    
+    String name = new Navigate(givenUrl).name();
+    
+    assertAll(value(name).toBe()
+                         .containing("Navigate")
+                         .containing(givenUrl));
+  }
+
+  @Test
+  void whenPageActPerformed_then() {
+    try (Page page = Mockito.mock(Page.class)) {
+      ExecutionEnvironment executionEnvironment = Mockito.mock(ExecutionEnvironment.class);
+      when(page.navigate(any())).thenReturn(mock(Response.class));
+      
+      String givenDescription = "TestPageActDescription";
+      String givenUrl = "http://www.example.com/hello/world";
+      Page returned = new PageAct(givenDescription) {
+        @Override
+        protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+          page.navigate(givenUrl);
+        }
+      }.perform(page, executionEnvironment);
+      
+      assertAll(value(returned).toBe().equalTo(page));
+      Mockito.verify(page).navigate(argThat(v -> v.equals(givenUrl)));
+    }
+  }
+  
+  @Test
+  void whenPageActName_thenNameLooksOk() {
+    String givenDescription = "TestPageActDescription";
+    
+    String name = new PageAct(givenDescription) {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+      }
+    }.name();
+    
+    assertAll(value(name).toBe()
+                         .containing("PageAct")
+                         .containing(givenDescription));
+  }
+  
+  @Test
+  void whenCloseBrowserPerformed_thenCloseCalled() {
+    try (Browser browser = Mockito.mock(Browser.class)) {
+      ExecutionEnvironment executionEnvironment = Mockito.mock(ExecutionEnvironment.class);
+      doNothing().when(browser).close();
+      
+      Void returned = new CloseBrowser().perform(browser, executionEnvironment);
+      
+      assertAll(value(returned).toBe().nullValue());
+      Mockito.verify(browser).close();
+    }
+  }
+  
+  @Test
+  void whenCloseWindowPerformed_thenCloseCalled() {
+    try (Playwright window = Mockito.mock(Playwright.class)) {
+      ExecutionEnvironment executionEnvironment = Mockito.mock(ExecutionEnvironment.class);
+      doNothing().when(window).close();
+      
+      Void returned = new CloseWindow().perform(window, executionEnvironment);
+      
+      assertAll(value(returned).toBe().nullValue());
+      Mockito.verify(window).close();
+    }
+  }
 }

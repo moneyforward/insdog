@@ -20,4 +20,12 @@ class InternalUtilsTest {
                         .toBe()
                         .equalTo(List.of("var1", "var1")));
   }
+  
+  @Test
+  void whenIsPresumablyRunningFromIde_thenFinishesWithoutException() {
+    boolean value = InternalUtils.isPresumablyRunningFromIDE();
+    
+    assertStatement(value(value).toBe().instanceOf(Boolean.class));
+  }
+  
 }
