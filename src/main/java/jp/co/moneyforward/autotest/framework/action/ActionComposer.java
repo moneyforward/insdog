@@ -1,6 +1,5 @@
 package jp.co.moneyforward.autotest.framework.action;
 
-import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
@@ -42,11 +41,7 @@ public interface ActionComposer {
   
   default Action create(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     return sequential(concat(Stream.of(sceneCall.begin(assignmentResolversFromCurrentCall)),
-                             Stream.of(sequential(sceneCall.scene.children()
-                                                                 .stream()
-                                                                 .map((Call each) -> each.toAction(this, assignmentResolversFromCurrentCall))
-                                                                 .flatMap(ActionComposer::flattenIfSequential)
-                                                                 .toList())),
+                             Stream.of(sceneCall.toSequentialAction(assignmentResolversFromCurrentCall, this)),
                              Stream.of(sceneCall.end()))
                           .toList());
   }
@@ -126,10 +121,5 @@ public interface ActionComposer {
         }
       }
     };
-  }
-  
-  private static Stream<Action> flattenIfSequential(Action a) {
-    return a instanceof Composite && !((Composite) a).isParallel() ? ((Composite) a).children().stream()
-                                                                   : Stream.of(a);
   }
 }

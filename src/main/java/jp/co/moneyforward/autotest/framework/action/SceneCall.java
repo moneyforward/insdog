@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
 public class SceneCall implements Call {
@@ -27,6 +28,10 @@ public class SceneCall implements Call {
     this.outputFieldName = null;
     this.scene = requireNonNull(scene);
     this.assignmentResolvers = null;
+  }
+  
+  Action toSequentialAction(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall, ActionComposer actionComposer) {
+    return this.scene.toSequentialAction(assignmentResolversFromCurrentCall, actionComposer);
   }
   
   String workAreaName() {

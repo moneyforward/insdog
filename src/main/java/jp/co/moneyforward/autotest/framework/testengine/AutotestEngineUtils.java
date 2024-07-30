@@ -30,15 +30,4 @@ public enum AutotestEngineUtils {
     }
     return ret;
   }
-  
-  static <T> List<T> mergeListsByInsertingMissedOnes(List<T> list1, List<T> list2) {
-    List<T> ret = new ArrayList<>(list2.size() + list1.size());
-    for (T item : list2) {
-      if (!list1.contains(item)) {
-        ret.add(item);
-      }
-    }
-    ret.addAll(list1);
-    return ret;
-  }
 }
