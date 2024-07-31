@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Function;
 
 import static com.github.valid8j.fluent.Expectations.*;
+import static jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel.executionProfile;
 
 class CawebAccessingModelTest {
   @Test
@@ -51,7 +52,7 @@ class CawebAccessingModelTest {
   void whenBrowserContextFrom_nonEmptySceneReturned() {
     try (Playwright playwright = Playwright.create()) {
       try (Browser browser = TestUtils.launchHeadlessBrowser(playwright.chromium())) {
-        BrowserContext browserContext = CawebAccessingModel.browserContextFrom(browser, CawebAccessingModel.EXECUTION_PROFILE);
+        BrowserContext browserContext = CawebAccessingModel.browserContextFrom(browser, executionProfile());
         
         assertStatement(value(browserContext).toBe().notNull());
       }

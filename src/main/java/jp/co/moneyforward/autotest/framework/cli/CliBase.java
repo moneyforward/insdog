@@ -21,7 +21,7 @@ public abstract class CliBase implements Callable<Integer> {
   @CommandLine.Parameters(index = "0..*", description = "Subcommands of this CLI.")
   private List<String> subcommands;
   
-  @CommandLine.Option(
+  @Option(
       names = {"-q", "--query"},
       description = """
           Specifies a query. If multiple options are given, they will be treated as disjunctions.
@@ -47,7 +47,7 @@ public abstract class CliBase implements Callable<Integer> {
   /**
    * @see jp.co.moneyforward.autotest.framework.annotations.AutotestExecution.Spec.Loader
    */
-  @CommandLine.Option(names = {"--execution-descriptor"},
+  @Option(names = {"--execution-descriptor"},
       description = """
           Used with 'run' subcommand.
           An execution descriptor is a JSON and it should look like following:
@@ -65,7 +65,7 @@ public abstract class CliBase implements Callable<Integer> {
           
           Instead of the example shown above.
           """)
-  private String[] executionDescriptors = new String[]{};
+  private String[] executionDescriptor = new String[]{};
   
   @Option(names = {"--execution-profile"},
       description = """
@@ -73,9 +73,15 @@ public abstract class CliBase implements Callable<Integer> {
           
           Specifies an execution profile, with which you can override a test's execution time parameters such as: user email, password, etc.
           
-          NOTE: Not yet implemented!
+          For instance, you can do:
+          
+          --execution-profile=userEmail:user@example.com
+          --execution-profile=password:password
+          --execution-profile=domain:ca-web-{NAMESPACE}.idev.test.musubu.co.in
+          
+          For the part after '=' and before ':', you can specify a method name that returns a 'String' in ExecutionProfile.
           """)
-  private String executionProfile = "";
+  private String[] executionProfile = new String[]{};
   
   
   @Command(name = "run",
@@ -87,7 +93,7 @@ public abstract class CliBase implements Callable<Integer> {
   public Integer run() {
     int ret;
     try {
-      int numFailed = CliUtils.runTests(this.rootPackageName(), this.queries, this.executionDescriptors);
+      int numFailed = CliUtils.runTests(this.rootPackageName(), this.queries, this.executionDescriptor, this.executionProfile);
       ret = numFailed == 0 ? 0
                            : 1;
     } catch (IllegalArgumentException e) {

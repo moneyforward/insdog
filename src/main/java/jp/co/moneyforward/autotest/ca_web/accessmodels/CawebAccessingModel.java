@@ -52,9 +52,13 @@ public class CawebAccessingModel implements AutotestRunner {
    *
    * The variables in a profile should not change their values in one test execution.
    */
-  public static final ExecutionProfile EXECUTION_PROFILE = ExecutionProfile.create();
+  private static final ExecutionProfile executionProfile = ExecutionProfile.create();
   
   private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(getContext(), new HashMap<>());
+  
+  public static ExecutionProfile executionProfile() {
+    return executionProfile;
+  }
   
   /**
    * Returns a scene that performs **open** operation.
@@ -77,10 +81,10 @@ public class CawebAccessingModel implements AutotestRunner {
     return new Scene.Builder("NONE")
         .add(windowVariableName, new Let<>(Playwright.create()))
         .add(browserVariableName, new Func<>("Playwright::chromium",
-                                             (Playwright p) -> launchBrowser(p.chromium(), EXECUTION_PROFILE)),
+                                             (Playwright p) -> launchBrowser(p.chromium(), executionProfile)),
              windowVariableName)
         .add("browserContext", new Func<>("Browser::newContext->setDefaultTimeout(" + time + timeUnit + ")", (Browser b) -> {
-          BrowserContext c = browserContextFrom(b, EXECUTION_PROFILE);
+          BrowserContext c = browserContextFrom(b, executionProfile);
           c.setDefaultTimeout(timeUnit.toMillis(time));
           return c;
         }), browserVariableName)
@@ -92,7 +96,7 @@ public class CawebAccessingModel implements AutotestRunner {
    * Returns an action for logging in the **ca_web** application using the variables defined in the `EXECUTION_PROFILE`.
    *
    * @return A login action.
-   * @see CawebAccessingModel#EXECUTION_PROFILE
+   * @see CawebAccessingModel#executionProfile
    */
   @Named
   @ClosedBy("logout")
@@ -100,12 +104,12 @@ public class CawebAccessingModel implements AutotestRunner {
   @DependsOn("open")
   public static Scene login() {
     return new Scene.Builder("page")
-        .add(new Navigate(EXECUTION_PROFILE.homeUrl()))
+        .add(new Navigate(executionProfile.homeUrl()))
         //       Clicking "ログインはこちら" button, which is displayed only in idev, if any.
         .add(new ClickIfPresent(getBySelector("#simple-layout > div.main-container > div > div.text-center > a")))
-        .add(new SendKey(PageFunctions.getByPlaceholder("example@moneyforward.com"), EXECUTION_PROFILE.userEmail()))
+        .add(new SendKey(PageFunctions.getByPlaceholder("example@moneyforward.com"), executionProfile.userEmail()))
         .add(new Click(getButtonByName("ログインする")))
-        .add(new SendKey(PageFunctions.getByLabel("パスワード"), EXECUTION_PROFILE.userPassword()))
+        .add(new SendKey(PageFunctions.getByLabel("パスワード"), executionProfile.userPassword()))
         .add(new Click("button[id='submitto']"))
         .build();
   }
