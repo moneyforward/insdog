@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
@@ -33,7 +32,7 @@ public class TermChange extends CawebTermAccessingModel {
   @DependsOn("createOffice")
   @Export("page")
   public static Scene changeToPreviousTerm() {
-    String officeName = EXECUTION_PROFILE.officeName();
+    String officeName = executionProfile().officeName();
     return previousTerm(officeName);
   }
   
@@ -52,7 +51,7 @@ public class TermChange extends CawebTermAccessingModel {
   @DependsOn("changeToPreviousTerm")
   @Export("page")
   public static Scene changeToNextTerm() {
-    String officeName = EXECUTION_PROFILE.officeName();
+    String officeName = executionProfile().officeName();
     return nextTerm(officeName);
   }
   

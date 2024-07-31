@@ -24,10 +24,10 @@ public class OfficeCreation extends CawebTermAccessingModel {
   @DependsOn("login")
   @Export({"page", "officeName"})
   public static Scene createOffice() {
-    String officeName = EXECUTION_PROFILE.officeName();
+    String officeName = executionProfile().officeName();
     LeafAct<Page, Page>[] acts = new LeafAct[]{
         navigateToTermSelection(),
-        createOfficeViaNavis(officeName, EXECUTION_PROFILE.userDisplayName())};
+        createOfficeViaNavis(officeName, executionProfile().userDisplayName())};
     Scene.Builder builder = new Scene.Builder("page");
     builder.add("officeName", new LeafAct.Func<>((Function<Page, String>) page -> officeName), "page");
     for (LeafAct<Page, Page> act : acts) {

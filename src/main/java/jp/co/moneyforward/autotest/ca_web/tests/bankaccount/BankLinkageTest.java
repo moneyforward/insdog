@@ -95,9 +95,9 @@ public class BankLinkageTest extends CawebAccessingModel {
         .add(new Click(getByText("銀行 (", true)))
         .add(new Click(getByText("【個人】紀陽銀行（インターネット支店）")))
         .add(new Click("#account_service_form_ID1"))
-        .add(new SendKey("#account_service_form_ID1", EXECUTION_PROFILE.accountServiceId()))
+        .add(new SendKey("#account_service_form_ID1", executionProfile().accountServiceId()))
         .add(new Click("#account_service_form_PW1"))
-        .add(new SendKey("#account_service_form_PW1", EXECUTION_PROFILE.accountServicePassword()))
+        .add(new SendKey("#account_service_form_PW1", executionProfile().accountServicePassword()))
         .add(new Click(getButtonByName("連携登録")))
         .assertion((Page p) -> value(p)
             .function(PageFunctions.getBySelector("#alert-success > p"))
@@ -137,7 +137,7 @@ public class BankLinkageTest extends CawebAccessingModel {
       ,assert,,assert_text,#alert-success > p,,eq,金融機関を削除しました。
        */
     return new Scene.Builder("page")
-        .add(new Navigate(EXECUTION_PROFILE.accountsUrl()))
+        .add(new Navigate(executionProfile().accountsUrl()))
         .add(new PageAct("金融機関を削除する") {
           @Override
           protected void action(Page page, ExecutionEnvironment executionEnvironment) {

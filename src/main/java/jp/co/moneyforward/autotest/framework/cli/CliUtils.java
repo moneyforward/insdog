@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
+import static java.util.stream.Collectors.toMap;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
 
@@ -32,8 +33,18 @@ import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.r
 public enum CliUtils {
   ;
   private static final Logger LOGGER = LoggerFactory.getLogger(CliUtils.class);
+  private static Map<String, String> profileOverriders;
   
-  @SuppressWarnings({"RedundantCast", "unchecked"})
+  static void initialize(String[] profileOverriders) {
+    CliUtils.profileOverriders = Arrays.stream(profileOverriders).collect(toMap(each -> each.substring(0, each.indexOf(':')),
+                                                                                each -> each.substring(each.indexOf(':') + 1)));
+  }
+  
+  public static Map<String, String> getProfileOverriders() {
+    return profileOverriders;
+  }
+  
+  @SuppressWarnings({"RedundantCast"})
   public static List<String> listTags(String rootPackageName) {
     return ClassFinder.create(rootPackageName)
                       .findMatchingClasses(Predicates.alwaysTrue())
@@ -113,8 +124,8 @@ public enum CliUtils {
     return b.toString();
   }
   
-  public static int runTests(String rootPackageName, String[] queries, String[] executionDescriptors) {
-    Map<Class<?>, TestExecutionSummary> testReport = runTests(rootPackageName, queries, executionDescriptors, new SummaryGeneratingListener());
+  public static int runTests(String rootPackageName, String[] queries, String[] executionDescriptors, String[] executionProfile) {
+    Map<Class<?>, TestExecutionSummary> testReport = runTests(rootPackageName, queries, executionDescriptors, executionProfile, new SummaryGeneratingListener());
     return testReport.values()
                      .stream()
                      .map(s -> s.getFailures().size())
@@ -123,9 +134,10 @@ public enum CliUtils {
   }
   
   @SuppressWarnings("unchecked")
-  public static Map<Class<?>, TestExecutionSummary> runTests(String rootPackageName, String[] queries, String[] executionDescriptors, SummaryGeneratingListener testExecutionListener) {
+  public static Map<Class<?>, TestExecutionSummary> runTests(String rootPackageName, String[] queries, String[] executionDescriptors, String[] executionProfile, SummaryGeneratingListener testExecutionListener) {
     if (executionDescriptors.length > 0)
       System.setProperty("jp.co.moneyforward.autotest.scenes", composeSceneDescriptorPropertyValue(executionDescriptors));
+    initialize(executionProfile);
     Map<Class<?>, TestExecutionSummary> testReport = new HashMap<>();
     ClassFinder.create(rootPackageName)
                .findMatchingClasses(Predicates.or(Arrays.stream(queries)

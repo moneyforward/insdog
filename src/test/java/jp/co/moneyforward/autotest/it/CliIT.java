@@ -3,8 +3,6 @@ package jp.co.moneyforward.autotest.it;
 import jp.co.moneyforward.autotest.ca_web.cli.Cli;
 import jp.co.moneyforward.autotest.framework.cli.CliUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.launcher.TestIdentifier;
@@ -12,8 +10,6 @@ import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
 import picocli.CommandLine;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +66,7 @@ public class CliIT extends TestBase {
     Map<Class<?>, TestExecutionSummary> testReport = CliUtils.runTests(
         "jp.co.moneyforward.autotest.ca_web.tests",
         new String[]{"classname:%SelfTest"}, new String[]{},
+        new String[]{},
         new SummaryGeneratingListener() {
           @Override
           public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
@@ -103,6 +100,7 @@ public class CliIT extends TestBase {
     Map<Class<?>, TestExecutionSummary> testReport = CliUtils.runTests(
         "jp.co.moneyforward.autotest.it.t4t",
         new String[]{"classname:%Failing"}, new String[]{},
+        new String[]{},
         new SummaryGeneratingListener() {
           @Override
           public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {

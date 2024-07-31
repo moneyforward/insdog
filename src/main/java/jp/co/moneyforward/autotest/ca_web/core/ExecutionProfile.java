@@ -1,9 +1,14 @@
 package jp.co.moneyforward.autotest.ca_web.core;
 
+import com.github.dakusui.osynth.ObjectSynthesizer;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import static com.github.dakusui.osynth.ObjectSynthesizer.methodCall;
+import static jp.co.moneyforward.autotest.framework.cli.CliUtils.getProfileOverriders;
 
 /**
  * A class that holds information, which doesn't change throughout an execution session of "autotest-ca"
@@ -15,7 +20,7 @@ public interface ExecutionProfile {
    * @return An `ExecutionProfile` object.
    */
   static ExecutionProfile create() {
-    return create(() -> InternalUtils.currentBranchNameFor(InternalUtils.projectDir()));
+    return create(create(() -> InternalUtils.currentBranchNameFor(InternalUtils.projectDir())), getProfileOverriders());
   }
   
   /**
@@ -29,6 +34,19 @@ public interface ExecutionProfile {
     return branchName.filter(v -> v.contains("@"))
                      .isPresent() ? new ExecutionProfileImpl(composeIdevDomainName(branchName.get()))
                                   : new ExecutionProfileImpl("accounting-stg1.ebisubook.com");
+  }
+  
+  static ExecutionProfile create(ExecutionProfile base, Map<String, String> profileOverriders) {
+    if (profileOverriders == null) {
+      return base;
+    }
+    ObjectSynthesizer objectSynthesizer = new ObjectSynthesizer();
+    for (Map.Entry<String, String> overrider : profileOverriders.entrySet())
+      objectSynthesizer.handle(methodCall(overrider.getKey()).with((self, args) -> profileOverriders.get(overrider.getKey())));
+    
+    return objectSynthesizer.addInterface(ExecutionProfile.class)
+                            .synthesize(base)
+                            .castTo(ExecutionProfile.class);
   }
   
   /**
@@ -106,12 +124,12 @@ public interface ExecutionProfile {
    */
   String domain();
   
+  String userDisplayName();
+  
+  String officeName();
+  
   private static String composeIdevDomainName(String branchName) {
     return String.format("ca-web-%s.idev.test.musubu.co.in",
                          branchName.substring(branchName.indexOf('@') + 1));
   }
-  
-  String userDisplayName();
-  
-  String officeName();
 }
