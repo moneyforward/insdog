@@ -44,6 +44,13 @@ import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
  * - **Taxation Method(課税方式):** Taxed by default (Case-by-case method) 原則課税(個別対応方式)
  *
  * This is an accessing model for *ca_web* to implement [駄犬くん](https://github.com/moneyforward/ca_web_e2e_test_d) and further advanced tests.
+ *
+ * **NOTE:**
+ * Currently, as a library `osynth` that **autotest-ca** uses doesn't respect Java's module system, you need to pass the
+ * following JVM option.:
+ *
+ * `--add-opens java.base/java.lang.invoke=ALL-UNNAMED`
+ *
  */
 @SuppressWarnings("JavadocLinkAsPlainText")
 public class CawebAccessingModel implements AutotestRunner {

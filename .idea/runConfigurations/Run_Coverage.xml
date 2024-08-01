@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run Coverage" type="JUnit" factoryName="JUnit">
+    <module name="autotest-ca" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="ALTERNATIVE_JRE_PATH" value="21" />
+    <option name="MAIN_CLASS_NAME" value="" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="pattern" />
+    <option name="VM_PARAMETERS" value="-ea --add-opens java.base/java.lang.invoke=ALL-UNNAMED" />
+    <dir value="$PROJECT_DIR$/src/test/java" />
+    <patterns>
+      <pattern testClass=".*\.[iu]t\..*Test" />
+    </patterns>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

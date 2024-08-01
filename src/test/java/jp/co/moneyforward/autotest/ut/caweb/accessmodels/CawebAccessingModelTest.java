@@ -14,6 +14,13 @@ import java.util.function.Function;
 import static com.github.valid8j.fluent.Expectations.*;
 import static jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel.executionProfile;
 
+/**
+ * Add the following VM option, when you run this test.
+ *
+ *  `--add-opens java.base/java.lang.invoke=ALL-UNNAMED`
+ *
+ * @see CawebAccessingModel
+ */
 class CawebAccessingModelTest {
   @Test
   void whenOpen_nonEmptySceneReturned() {
@@ -38,7 +45,6 @@ class CawebAccessingModelTest {
     assertAll(value(scene).toBe().notNull(),
               value(scene.children()).toBe().notEmpty());
   }
-  
   
   @Test
   void whenScreenshot_nonEmptySceneReturned() {
