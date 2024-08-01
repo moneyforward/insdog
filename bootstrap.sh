@@ -145,9 +145,9 @@ function caveats() {
   # FIXME
   # brew install uses unusual line breaks in Caveats.
   # To ensure comment-out happens correctly, we do the sed twice.
-  sed -n '/==> Caveats/,/END/p' | grep -v '==>'            \
-                                | grep -v '🍺'             \
-                                | grep -E '[A-Z_0-9]+='
+  sed -n '/==> Caveats/,/END/p' | grep -v '==>' || :       \
+                                | grep -v '🍺'  || :       \
+                                | grep -E '[A-Z_0-9]+=' || :
 }
 
 function reset_caveats_rc() {
@@ -215,6 +215,7 @@ function main() {
   install_brew_package "${_project_brewdir}" make       | caveats >> "${_caveats_file}"
   install_brew_package "${_project_brewdir}" gnu-sed    | caveats >> "${_caveats_file}"
   install_brew_package "${_project_brewdir}" findutils  | caveats >> "${_caveats_file}"
+  install_brew_package "${_project_brewdir}" act        | caveats >> "${_caveats_file}"
 
   # golang
   mkdir -p "${_project_godir}/env"
