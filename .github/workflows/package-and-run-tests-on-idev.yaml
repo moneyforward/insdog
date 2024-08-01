@@ -51,11 +51,11 @@ jobs:
 
       - name: Run all the tests
         id: main
-        run: >
-          java  --add-opens java.base/java.lang.invoke=ALL-UNNAMED
-                -jar target/autotest-caweb.jar
-                -q 'classname:~.*'
-                "--execution-profile=domain:ca-web-${{ github.event.inputs.namespaceName }}.idev.test.musubu.co.in"
+        run: |
+          java  --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
+                -jar target/autotest-caweb.jar \
+                -q 'classname:~.*' \
+                "--execution-profile=domain:ca-web-${{ github.event.inputs.namespaceName }}.idev.test.musubu.co.in" \
                 run
         continue-on-error: true
 
@@ -66,8 +66,9 @@ jobs:
           path: target/testResult/**
         continue-on-error: true
 
-      - name: List generated files
-        run: ls -R target
+      - name: Docker Cleanup
+        run: |
+          docker system prune -af
 
       - name: Check for failures
         if: always()
