@@ -62,7 +62,8 @@ javadoc:
 
 ## Run
 run-all-tests:
-	java -jar target/autotest-caweb.jar -q 'classname:~.*' run
+	java --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
+         -jar target/autotest-caweb.jar -q 'classname:~.*' run
 
 ## Creates a autotest-caweb.jar without javadoc to save time
 package-without-javadoc:

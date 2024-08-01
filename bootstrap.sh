@@ -201,6 +201,7 @@ function main() {
   __bootstrap__checkenv "${_precheck_reportdir}"
 
   mkdir -p "${_project_rcdir}"
+  touch "${_project_rcdir}/.bash_profile" # Ensure the presence of .bash_profile read by env.rc
   bootstrap_homebrew "${_project_brewdir}"
   reset_caveats_rc "${_caveats_file}"
 
