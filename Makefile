@@ -75,7 +75,7 @@ run: run-all-tests
 	:
 
 ## Build
-build: package-without-javado
+build: package-without-javadoc
 	:
 
 help:
