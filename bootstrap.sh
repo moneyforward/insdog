@@ -215,6 +215,7 @@ function main() {
   install_brew_package "${_project_brewdir}" make       | caveats >> "${_caveats_file}"
   install_brew_package "${_project_brewdir}" gnu-sed    | caveats >> "${_caveats_file}"
   install_brew_package "${_project_brewdir}" findutils  | caveats >> "${_caveats_file}"
+  install_brew_package "${_project_brewdir}" act        | caveats >> "${_caveats_file}"
 
   # golang
   mkdir -p "${_project_godir}/env"
