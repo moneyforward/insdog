@@ -1,4 +1,4 @@
-name: Check Disk Usage
+name: Docker Cleanup
 
 on:
   workflow_dispatch:
