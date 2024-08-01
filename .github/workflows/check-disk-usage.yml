@@ -1,0 +1,19 @@
+name: Check Disk Usage
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'info'
+
+jobs:
+  build:
+    runs-on: [self-hosted]
+
+    steps:
+      - name: Check Disk Usage
+        run: |
+          df -h
+          du -sh /home/ubuntu/actions-runner/*
