@@ -1,19 +1,27 @@
 name: Docker Cleanup
 
 on:
-  workflow_dispatch:
-    inputs:
-      logLevel:
-        description: 'Log level'
-        required: true
-        default: 'info'
+  push:
+    branches:
+      - "clean-directories"
+
+  # workflow_dispatch:
+  #   inputs:
+  #     logLevel:
+  #       description: 'Log level'
+  #       required: true
+  #       default: 'info'
 
 jobs:
   build:
     runs-on: [self-hosted]
 
     steps:
-      - name: Docker Cleanup
+      # - name: Docker Cleanup
+      #   run: |
+      #     docker system prune -af
+      #     docker volume prune -f
+      - name: Remove directories # https://github.com/actions/runner-images/issues/2840#issuecomment-1284059930
         run: |
-          docker system prune -af
-          docker volume prune -f
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
