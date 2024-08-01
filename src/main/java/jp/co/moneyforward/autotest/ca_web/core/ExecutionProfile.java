@@ -3,11 +3,13 @@ package jp.co.moneyforward.autotest.ca_web.core;
 import com.github.dakusui.osynth.ObjectSynthesizer;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.github.dakusui.osynth.ObjectSynthesizer.methodCall;
+import static java.util.Collections.emptyMap;
 import static jp.co.moneyforward.autotest.framework.cli.CliUtils.getProfileOverriders;
 
 /**
@@ -20,7 +22,11 @@ public interface ExecutionProfile {
    * @return An `ExecutionProfile` object.
    */
   static ExecutionProfile create() {
-    return create(create(() -> InternalUtils.currentBranchNameFor(InternalUtils.projectDir())), getProfileOverriders());
+    Map<String, String> profileOverriders;
+    return create(create(() -> InternalUtils.currentBranchNameFor(InternalUtils.projectDir())),
+                  (profileOverriders = getProfileOverriders()) != null ? profileOverriders
+                                                                       : emptyMap());
+    
   }
   
   /**
