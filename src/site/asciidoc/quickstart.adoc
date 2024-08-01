@@ -56,7 +56,7 @@ BEGIN: BOOTSTRAP
 END:   sdkman:maven
 ----
 
-NOTE:: In case you want to re-try the set-up, in the project root directory for some reason, you can do:
+NOTE:: In case you want to re-try the set-up for some reason, in the project root directory please do:
 [source, bash]
 ----
 $ sudo rm -fr .dependencies
