@@ -60,7 +60,7 @@ clean-mfdoc:
 javadoc:
 	mvn -B clean compile test javadoc:javadoc
 
-## Run
+## Run all tests
 run-all-tests:
 	java --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
          -jar target/autotest-caweb.jar -q 'classname:~.*' run
@@ -68,6 +68,15 @@ run-all-tests:
 ## Creates a autotest-caweb.jar without javadoc to save time
 package-without-javadoc:
 	mvn -B -Dmaven.javadoc.skip=true clean compile package
+
+
+## Run
+run: run-all-tests
+	:
+
+## Build
+build: package-without-javado
+	:
 
 help:
 	make2help $(MAKEFILE_LIST)

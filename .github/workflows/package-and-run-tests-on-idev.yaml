@@ -51,11 +51,12 @@ jobs:
 
       - name: Run all the tests
         id: main
-        run: java  --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
-                   -jar target/autotest-caweb.jar \
-                   -q 'classname:~.*' \
-                   "--execution-profile=domain:ca-web-${{ github.event.inputs.namespaceName }}.idev.test.musubu.co.in" \
-                   run
+        run: >
+          java  --add-opens java.base/java.lang.invoke=ALL-UNNAMED
+                -jar target/autotest-caweb.jar
+                -q 'classname:~.*'
+                "--execution-profile=domain:ca-web-${{ github.event.inputs.namespaceName }}.idev.test.musubu.co.in"
+                run
         continue-on-error: true
 
       - name: Upload test results
