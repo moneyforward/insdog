@@ -55,8 +55,7 @@ public class CliIT extends TestBase {
   public void runListTagsWithInvalidArgs() {
     int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
                                              .execute("-q", "classname??.*", "list-testclasses");
-    System.out.println(exitCode);
-    assertStatement(value(exitCode).toBe().not(c -> c.equalTo(2)));
+    assertStatement(value(exitCode).toBe().equalTo(2));
   }
   
   @Test
