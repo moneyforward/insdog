@@ -14,6 +14,7 @@ import picocli.CommandLine.Command;
     description = "A command line interface of 'autotest-ca', an automated testing tool for 'caweb'.")
 public class Cli extends CliBase {
   private static final String ROOT_PACKAGE_NAME = Index.class.getPackageName();
+
   
   @Override
   protected String rootPackageName() {
@@ -28,4 +29,5 @@ public class Cli extends CliBase {
       System.exit(exitCode);
     }
   }
+
 }

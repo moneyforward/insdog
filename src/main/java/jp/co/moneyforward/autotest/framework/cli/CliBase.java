@@ -192,4 +192,10 @@ public abstract class CliBase implements Callable<Integer> {
   private static PrintStream err() {
     return System.err;
   }
+  
+  private static class Exit extends RuntimeException {
+    Exit(int exitCode) {
+      super("Exit code: [" + exitCode +"]");
+    }
+  }
 }

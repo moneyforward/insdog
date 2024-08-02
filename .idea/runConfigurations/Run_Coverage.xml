@@ -36,7 +36,7 @@
     <option name="VM_PARAMETERS" value="-ea --add-opens java.base/java.lang.invoke=ALL-UNNAMED" />
     <dir value="$PROJECT_DIR$/src/test/java" />
     <patterns>
-      <pattern testClass=".*\.[iu]t\..*Test" />
+      <pattern testClass=".*\.[iu]t\..*(Test|IT)" />
     </patterns>
     <method v="2">
       <option name="Make" enabled="true" />
