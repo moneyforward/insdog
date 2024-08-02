@@ -97,7 +97,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   
   @Override
   public void beforeAll(ExtensionContext context) throws Exception {
-    prepareBeforeAllStage(context);
+    prepareBeforeAllStage(context, System.getProperties());
     
     AutotestRunner runner = autotestRunner(context);
     String stageName = BEFORE_ALL.stageName();
@@ -127,7 +127,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         });
   }
   
-  private static void prepareBeforeAllStage(ExtensionContext context) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+  private static void prepareBeforeAllStage(ExtensionContext context, Properties properties) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
     AutotestRunner runner = context.getTestInstance()
                                    .filter(AutotestRunner.class::isInstance)
                                    .map(o -> (AutotestRunner) o)
@@ -140,10 +140,9 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                                 .map(m -> new Entry<>(nameOf(m), methodToSceneCall(accessModelClass, m, runner)))
                                                 .collect(toMap(Entry::key, Entry::value));
     
-    AutotestExecution.Spec spec = loadExecutionSpec(runner);
+    AutotestExecution.Spec spec = loadExecutionSpec(runner, properties);
     ExecutionPlan executionPlan = planExecution(spec,
                                                 sceneCallGraph(runner.getClass()),
-                                                Map.of(),
                                                 assertions(runner.getClass()));
     logExecutionPlan(executionPlan);
     var closers = closers(runner.getClass());
@@ -309,15 +308,14 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   
-  private static AutotestExecution.Spec loadExecutionSpec(AutotestRunner runner) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+  private static AutotestExecution.Spec loadExecutionSpec(AutotestRunner runner, Properties properties) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
     AutotestExecution execution = runner.getClass()
                                         .getAnnotation(AutotestExecution.class);
-    return instantiateExecutionSpecLoader(execution).load(execution.defaultExecution());
+    return instantiateExecutionSpecLoader(execution).load(execution.defaultExecution(), properties);
   }
   
   private static ExecutionPlan planExecution(AutotestExecution.Spec executionSpec,
                                              Map<String, List<String>> sceneCallGraph,
-                                             Map<String, String> closers,
                                              Map<String, List<String>> assertions) {
     return executionSpec.planExecutionWith()
                         .planExecution(executionSpec, sceneCallGraph, assertions);

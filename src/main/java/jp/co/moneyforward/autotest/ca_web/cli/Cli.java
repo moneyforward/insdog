@@ -15,16 +15,15 @@ import picocli.CommandLine.Command;
 public class Cli extends CliBase {
   private static final String ROOT_PACKAGE_NAME = Index.class.getPackageName();
   
+  
   @Override
   protected String rootPackageName() {
     return ROOT_PACKAGE_NAME;
   }
   
   public static void main(String... args) {
-    int exitCode = 1;
-    try {
-      exitCode = new CommandLine(new Cli()).execute(args);
-    } finally {
+    int exitCode = new CommandLine(new Cli()).execute(args);
+    if (exitCode != 0) {
       System.exit(exitCode);
     }
   }

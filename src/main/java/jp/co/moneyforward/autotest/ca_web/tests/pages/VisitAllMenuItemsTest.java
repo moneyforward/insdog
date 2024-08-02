@@ -14,15 +14,15 @@ import org.junit.jupiter.api.Tag;
 import static com.github.valid8j.fluent.Expectations.value;
 import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.byText;
 import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
+import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.DEPENDENCY_BASED;
 
 
 @Tag("smoke")
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
-        beforeAll = {"open"},
-        value = {"login", "自動で仕訳_連携サービスから入力", "logout"},
-        afterEach = {"screenshot"},
-        afterAll = {"close"}))
+        planExecutionWith = DEPENDENCY_BASED,
+        value = {"自動で仕訳_連携サービスから入力"},
+        afterEach = {"screenshot"}))
 public class VisitAllMenuItemsTest extends CawebAccessingModel {
   @Named("自動で仕訳_連携サービスから入力")
   @DependsOn("login")

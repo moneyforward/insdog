@@ -22,42 +22,61 @@ public class CliIT extends TestBase {
   
   @Test
   public void testHelp() {
-    int exitCode = new CommandLine(new Cli()).execute("--help");
+    int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
+                                             .execute("--help");
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
   
   @Test
+  public void testHelpFrom_Cli$main() {
+    Cli.main("--help");
+    // Always passing as long as it reaches here as the exit code is already checked by `testHelp` test method.
+    assertStatement(value(true).toBe().equalTo(true));
+  }
+  
+  @Test
   public void runSelfTest() {
-    int exitCode = new CommandLine(new Cli()).execute("-q", "classname:~.*SelfTest.*", "run");
+    int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
+                                             .execute("-q", "classname:~.*SelfTest.*", "run");
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
   
   @Test
   public void runListTestClasses() {
-    int exitCode = new CommandLine(new Cli()).execute("list-testclasses");
+    int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
+                                             .execute("list-testclasses");
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
   
   @Test
+  public void runListTagsWithInvalidArgs() {
+    int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
+                                             .execute("-q", "classname??.*", "list-testclasses");
+    assertStatement(value(exitCode).toBe().equalTo(2));
+  }
+  
+  @Test
   public void runListTags() {
-    int exitCode = new CommandLine(new Cli()).execute("list-tags");
+    int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
+                                             .execute("list-tags");
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
-  
   
   /**
    * This test just checks if the CommandLine#execute finishes without an error.
    */
   @Test
   public void runSelfTestWithPartialMatch() {
-    int exitCode = new CommandLine(new Cli()).execute("-q", "classname:%SelfTest", "run");
+    int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
+                                             .execute("-q", "classname:%SelfTest", "run");
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
+  
   
   @Test
   public void runSelfTestThroughCliUtils() {
@@ -121,5 +140,18 @@ public class CliIT extends TestBase {
                                          .map(TestIdentifier::getDisplayName).toList();
     assertAll(value(numFailures).toBe().equalTo(1),
               value(failedTests).elementAt(0).asString().toBe().containing("fail"));
+  }
+  
+  static class NoExitExecutionStrategy implements CommandLine.IExecutionStrategy {
+    @Override
+    public int execute(CommandLine.ParseResult parseResult) {
+      return new CommandLine.RunLast() {
+        @Override
+        public int execute(CommandLine.ParseResult parseResult) throws CommandLine.ExecutionException {
+          return super.execute(parseResult);
+        }
+        
+      }.execute(parseResult);
+    }
   }
 }

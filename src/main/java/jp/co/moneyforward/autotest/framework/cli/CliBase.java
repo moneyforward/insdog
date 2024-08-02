@@ -64,6 +64,7 @@ public abstract class CliBase implements Callable<Integer> {
           --execution-descriptor=afterAll=close
           
           Instead of the example shown above.
+          This option is advised to be used with `-q` option to ensure that tests to be run share the same accessing model.
           """)
   private String[] executionDescriptor = new String[]{};
   
