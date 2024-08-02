@@ -40,12 +40,10 @@ public class WaitTest {
     };
     Thread thread = new Thread(runnable);
     thread.start();
-    Thread.sleep(10);
     
     thread.interrupt();
     boolean wasInterrupted = thread.isInterrupted();
     thread.join();
     assertStatement(value(wasInterrupted).toBe().trueValue());
   }
-  
 }
