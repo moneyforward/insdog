@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Tag;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static jp.co.moneyforward.autotest.ca_web.accessmodels.CawebUtils.*;
+import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.DEPENDENCY_BASED;
 
 /**
  * This test checks if the "easy-journal entry" (簡単入力) function.
@@ -29,15 +30,15 @@ import static jp.co.moneyforward.autotest.ca_web.accessmodels.CawebUtils.*;
  *
  * - it can log in to the SUT with its password
  *
- * @see ExecutionProfileImpl#userEmail()
- * @see ExecutionProfileImpl#userPassword()
- * @see ExecutionProfileImpl#accountServiceId()
+ * @see ExecutionProfile#userEmail()
+ * @see ExecutionProfile#userPassword()
+ * @see ExecutionProfile#accountServiceId()
  */
 @Tag("journal")
 @Tag("smoke")
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
-        planExecutionWith = PlanningStrategy.DEPENDENCY_BASED,
+        planExecutionWith = DEPENDENCY_BASED,
         beforeEach = {"screenshot"},
         value = {
             "clickEasyInputUnderManualEntry",

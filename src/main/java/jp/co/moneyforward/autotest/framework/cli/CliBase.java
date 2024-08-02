@@ -64,6 +64,7 @@ public abstract class CliBase implements Callable<Integer> {
           --execution-descriptor=afterAll=close
           
           Instead of the example shown above.
+          This option is advised to be used with `-q` option to ensure that tests to be run share the same accessing model.
           """)
   private String[] executionDescriptor = new String[]{};
   
@@ -191,11 +192,5 @@ public abstract class CliBase implements Callable<Integer> {
   
   private static PrintStream err() {
     return System.err;
-  }
-  
-  private static class Exit extends RuntimeException {
-    Exit(int exitCode) {
-      super("Exit code: [" + exitCode +"]");
-    }
   }
 }

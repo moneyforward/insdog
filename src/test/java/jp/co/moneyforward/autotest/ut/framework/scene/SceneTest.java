@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.valid8j.fluent.Expectations;
 import jp.co.moneyforward.autotest.framework.action.AutotestSupport;
+import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
@@ -16,14 +17,22 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.valid8j.fluent.Expectations.assertStatement;
-import static com.github.valid8j.fluent.Expectations.value;
+import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.forms.Predicates.containsString;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.helloAct;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.let;
 import static jp.co.moneyforward.autotest.ututils.ActionUtils.createActionComposer;
 
 public class SceneTest extends TestBase {
+  
+  @Test
+  void whenChainActs() {
+    Scene scene = Scene.chainActs("testField", helloAct(), helloAct());
+    
+    assertAll(value(scene).toBe().notNull(),
+              value(scene.children()).size().toBe().equalTo(2));
+  }
+  
   @Test
   public void givenEmptyScene_whenToActionExecuted_thenActionTreeLooksCorrect() {
     Scene scene = new Scene.Builder("scene").build();
@@ -54,16 +63,16 @@ public class SceneTest extends TestBase {
     ActionUtils.performAction(createActionComposer().create(sceneCall, sceneCall.assignmentResolvers().orElseThrow()),
                               context,
                               createWriter(out));
-    Expectations.assertAll(value(out).toBe()
-                                     .containingElementsInOrder(List.of(containsString("BEGIN"),
-                                                                        containsString("helloAct"),
-                                                                        containsString("END"))),
-                           value(context).invoke("valueOf", "OUT")
-                                         .invoke("get", "out")
-                                         .asString()
-                                         .toBe()
-                                         .containing("HELLO")
-                                         .containing("Scott Tiger"));
+    assertAll(value(out).toBe()
+                        .containingElementsInOrder(List.of(containsString("BEGIN"),
+                                                           containsString("helloAct"),
+                                                           containsString("END"))),
+              value(context).invoke("valueOf", "OUT")
+                            .invoke("get", "out")
+                            .asString()
+                            .toBe()
+                            .containing("HELLO")
+                            .containing("Scott Tiger"));
   }
   
   @Test
@@ -78,8 +87,8 @@ public class SceneTest extends TestBase {
     ActionUtils.performAction(createActionComposer().create(AutotestSupport.sceneCall("out",
                                                                                       scene,
                                                                                       List.of()), AutotestSupport.sceneCall("out",
-                                                                                                                                                                                                              scene,
-                                                                                                                                                                                                              List.of()).assignmentResolvers().orElseThrow()),
+                                                                                                                            scene,
+                                                                                                                            List.of()).assignmentResolvers().orElseThrow()),
                               createWriter(out));
     assertStatement(value(out).toBe()
                               .containingElementsInOrder(List.of(containsString("BEGIN"),
@@ -104,8 +113,8 @@ public class SceneTest extends TestBase {
     ActionUtils.performAction(createActionComposer().create(AutotestSupport.sceneCall("out",
                                                                                       scene,
                                                                                       List.of()), AutotestSupport.sceneCall("out",
-                                                                                                                                                                                                              scene,
-                                                                                                                                                                                                              List.of()).assignmentResolvers().orElseThrow()),
+                                                                                                                            scene,
+                                                                                                                            List.of()).assignmentResolvers().orElseThrow()),
                               createWriter(out));
     assertStatement(value(out).toBe()
                               .containingElementsInOrder(List.of(containsString("BEGIN"),

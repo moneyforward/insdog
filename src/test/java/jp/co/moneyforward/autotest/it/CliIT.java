@@ -29,6 +29,13 @@ public class CliIT extends TestBase {
   }
   
   @Test
+  public void testHelpFrom_Cli$main() {
+    Cli.main("--help");
+    // Always passing as long as it reaches here as the exit code is already checked by `testHelp` test method.
+    assertStatement(value(true).toBe().equalTo(true));
+  }
+  
+  @Test
   public void runSelfTest() {
     int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
                                              .execute("-q", "classname:~.*SelfTest.*", "run");
@@ -45,13 +52,20 @@ public class CliIT extends TestBase {
   }
   
   @Test
+  public void runListTagsWithInvalidArgs() {
+    int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
+                                             .execute("-q", "classname??.*", "list-testclasses");
+    System.out.println(exitCode);
+    assertStatement(value(exitCode).toBe().not(c -> c.equalTo(2)));
+  }
+  
+  @Test
   public void runListTags() {
     int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
                                              .execute("list-tags");
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
-  
   
   /**
    * This test just checks if the CommandLine#execute finishes without an error.
@@ -63,6 +77,7 @@ public class CliIT extends TestBase {
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
+  
   
   @Test
   public void runSelfTestThroughCliUtils() {
@@ -131,7 +146,13 @@ public class CliIT extends TestBase {
   static class NoExitExecutionStrategy implements CommandLine.IExecutionStrategy {
     @Override
     public int execute(CommandLine.ParseResult parseResult) {
-      return new CommandLine.RunLast().execute(parseResult);
+      return new CommandLine.RunLast() {
+        @Override
+        public int execute(CommandLine.ParseResult parseResult) throws CommandLine.ExecutionException {
+          return super.execute(parseResult);
+        }
+        
+      }.execute(parseResult);
     }
   }
 }
