@@ -15,13 +15,13 @@ import java.util.*;
 
 import static com.github.valid8j.fluent.Expectations.require;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static java.util.Arrays.asList;
 import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.DEPENDENCY_BASED;
 import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.PASSTHROUGH;
 
 /**
  * An annotation to let JUnit5 know the class to which this is attached is a test class to be executed by `AutotestEngine`
  * extension.
- *
  */
 @Retention(RUNTIME)
 @ExtendWith(AutotestEngine.class)
@@ -111,10 +111,11 @@ public @interface AutotestExecution {
       /**
        * Loads an instance of {@link Spec}.
        *
-       * @param base A base `Spec` instance on which an implementation of this method loads execution spec.
+       * @param base       A base `Spec` instance on which an implementation of this method loads execution spec.
+       * @param properties
        * @see Default
        */
-      Spec load(Spec base);
+      Spec load(Spec base, Properties properties);
       
       /**
        * This implementation of {@link Loader} reads the system property {@code jp.co.moneyforward.autotest.scenes} and creates a
@@ -122,7 +123,7 @@ public @interface AutotestExecution {
        * The syntax of the property value (`PROPERTY_VALUE`) is as follows:
        *
        * ```
-       * PROPERTY_VALUE ::= inline:KEY=VALUE(,VALUE)*(;KEY=VALUE(,VALUE)*)*
+       * PROPERTY_VALUE ::= inline:KEY=(VALUE(,VALUE)*)?(;KEY=(VALUE(,VALUE)*)*)?
        * KEY            ::= 'beforeAll'|'beforeEach'|'tests'|'afterEach'|'afterAll'
        * VALUE          ::= a defined name of a scene method.
        * ```
@@ -133,12 +134,13 @@ public @interface AutotestExecution {
         /**
          * Returns a new {@code Spec} instance based on the specification discussed in {@link Default}.
          *
-         * @param base A base `Spec` instance on which an implementation of this method loads execution spec.
+         * @param base       A base `Spec` instance on which an implementation of this method loads execution spec.
+         * @param properties A property object with which base `Spec` is overridden.
          * @return A new {@link Spec} object.
          */
         @Override
-        public Spec load(Spec base) {
-          return parseProperties(System.getProperties(), base);
+        public Spec load(Spec base, Properties properties) {
+          return parseProperties(properties, base);
         }
         
         private static Spec parseProperties(Properties properties, Spec base) {
@@ -162,14 +164,14 @@ public @interface AutotestExecution {
             public String[] beforeEach() {
               String stageName = "beforeEach";
               return customScenesMap.containsKey(stageName) ? customScenesMap.get(stageName).toArray(new String[0])
-                                                             : base.beforeEach();
+                                                            : base.beforeEach();
             }
             
             @Override
             public String[] value() {
               String stageName = "value";
               return customScenesMap.containsKey(stageName) ? customScenesMap.get(stageName).toArray(new String[0])
-                                                        : base.value();
+                                                            : base.value();
             }
             
             @Override
@@ -183,7 +185,7 @@ public @interface AutotestExecution {
             public String[] afterAll() {
               String stageName = "afterAll";
               return customScenesMap.containsKey(stageName) ? customScenesMap.get(stageName).toArray(new String[0])
-                                                           : base.afterAll();
+                                                            : base.afterAll();
             }
             
             @Override
@@ -203,27 +205,48 @@ public @interface AutotestExecution {
         }
         
         private static Map<String, List<String>> parseScenesProperty(Properties properties) {
-          if (!properties.contains("jp.co.moneyforward.autotest.scenes"))
+          String propertyKey = "jp.co.moneyforward.autotest.scenes";
+          if (!properties.containsKey(propertyKey))
             return Map.of();
-          String value = properties.getProperty("jp.co.moneyforward.autotest.scenes");
+          Set<String> knownStageNames = Set.of("beforeAll", "beforeEach", "value", "afterEach", "afterAll");
+          String value = properties.getProperty(propertyKey);
           String body = require(Expectations.value(value).toBe().startingWith("inline:")).substring("inline:".length());
           
           String[] entries = body.split(";");
           Map<String, List<String>> parsed = new HashMap<>();
           List<String> errors = new ArrayList<>();
           for (String entry : entries) {
+            if (!entry.contains("=")) {
+              errors.add("An entry must contain a '=': " + entry.substring(0, Math.min(40, entry.length())));
+              continue;
+            }
             String[] keyAndValues = entry.split("=");
             String key = keyAndValues[0];
-            String[] values = keyAndValues[1].split(",");
-            if (Set.of("beforeAll", "beforeEach", "value", "afterEach", "afterAll").contains(key)) {
-              parsed.put(key, List.of(values[0]));
+            String[] values;
+            if (keyAndValues.length >= 2) {
+              values = keyAndValues[1].split(",");
             } else {
-              errors.add("Unknown key: " + key);
+              values = new String[0];
+            }
+            if (knownStageNames.contains(key)) {
+              parsed.put(key, asList(values));
+            } else {
+              errors.add("Unknown stage name: " + key);
             }
           }
           if (!errors.isEmpty())
-            throw new IllegalArgumentException("Unknown keywords are found: " + errors);
+            throw new IllegalArgumentException(composeErrorMessage(errors, propertyKey, value));
           return parsed;
+        }
+        
+        private static String composeErrorMessage(List<String> errors, String propertyKey, String propertyValue) {
+          StringBuilder b = new StringBuilder(String.format("Errors are detected in system property: %s%n", propertyKey));
+          for (String error : errors) {
+            b.append(String.format("- %s%n", error));
+          }
+          b.append(String.format("%n"));
+          b.append(String.format("Property value: %s%n", propertyValue));
+          return b.toString();
         }
       }
       

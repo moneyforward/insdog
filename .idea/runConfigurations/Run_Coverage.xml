@@ -1,6 +1,33 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run Coverage" type="JUnit" factoryName="JUnit">
     <module name="autotest-ca" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="jp.co.moneyforward.autotest.it.*" />
+        <option name="ENABLED" value="true" />
+        <option name="INCLUDE" value="false" />
+      </pattern>
+      <pattern>
+        <option name="PATTERN" value="jp.co.moneyforward.autotest.ut.*" />
+        <option name="ENABLED" value="true" />
+        <option name="INCLUDE" value="false" />
+      </pattern>
+      <pattern>
+        <option name="PATTERN" value="jp.co.moneyforward.autotest.ututils.*" />
+        <option name="ENABLED" value="true" />
+        <option name="INCLUDE" value="false" />
+      </pattern>
+      <pattern>
+        <option name="PATTERN" value="jp.co.moneyforward.autotest.ca_web.tests.*" />
+        <option name="ENABLED" value="true" />
+        <option name="INCLUDE" value="false" />
+      </pattern>
+      <pattern>
+        <option name="PATTERN" value="jp.co.moneyforward.autotest.examples.*" />
+        <option name="ENABLED" value="true" />
+        <option name="INCLUDE" value="false" />
+      </pattern>
+    </extension>
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="ALTERNATIVE_JRE_PATH" value="21" />
     <option name="MAIN_CLASS_NAME" value="" />
