@@ -145,9 +145,9 @@ function caveats() {
   # FIXME
   # brew install uses unusual line breaks in Caveats.
   # To ensure comment-out happens correctly, we do the sed twice.
-  sed -n '/==> Caveats/,/END/p' | grep -v '==>'            \
-                                | grep -v '🍺'             \
-                                | grep -E '[A-Z_0-9]+='
+  sed -n '/==> Caveats/,/END/p' | grep -v '==>' || :       \
+                                | grep -v '🍺'  || :       \
+                                | grep -E '[A-Z_0-9]+=' || :
 }
 
 function reset_caveats_rc() {

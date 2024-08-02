@@ -1,5 +1,7 @@
 include::attributes.adoc[]
 
+:toc:
+
 == About `autotest-ca`
 
 `autotest-ca` is a tool to test `ca_web` in an automated fashion.
@@ -7,11 +9,11 @@ include::attributes.adoc[]
 You can access the full documentation of this project at https://backstage.test.musubu.co.in/docs/default/Component/autotest-ca[autotest-ca@backstage/techdocs].
 Backstage portal of this project is found at https://backstage.test.musubu.co.in/catalog/default/component/autotest-ca[autotest-ca@backstage]
 
-== Contributing
+== On-boarding the Project
 
-Check https://github.com/moneyforward/autotest-ca/wiki/developmentGuide[developmentGuide].
+Check https://github.com/moneyforward/autotest-ca/wiki/developmentGuide[developmentGuide] for more detal.
 
-=== Setting Up local development environment
+=== Bootstrapping: Setting Up Development Environment
 
 Clone the repository:
 
@@ -34,37 +36,76 @@ In the project root directory, run:
 $ ./bootstrap.sh
 ----
 
-NOTE:: In case you want to re-try the set-up, in the project root directory for some reason, you can do:
+If this step succeeds, the script will print something like following and should exit with `0`.
+
+----
+We are erasing the old .dependencies
+pass: <is_git_installed>
+---
+FAILED CHECKS: 0
+BEGIN: BOOTSTRAP
+[BOOTSTRAP] Initialized empty Git repository in /Users/ukai.hiroshi/Documents/github/moneyforward/autotest-ca/.dependencies/homebrew/.git/
+
+...
+
+  [sdkman:maven] Installing: maven 3.9.6
+  [sdkman:maven] Done installing!
+  [sdkman:maven]
+  [sdkman:maven]
+  [sdkman:maven] Setting maven 3.9.6 as default.
+END:   sdkman:maven
+----
+
+NOTE:: In case you want to re-try the set-up for some reason, in the project root directory please do:
 [source, bash]
 ----
 $ sudo rm -fr .dependencies
 ----
 Then, do `./bootstrap.sh`.
 
-=== Building `autotest-ca`
+[[IDE]]
+=== Integrated Development Environment (IDE)
 
-Use `build.sh` at the project root directory, which is just a thin wrapper of `make` command.
-To compile the source code and test it, you can do:
+We use *IntelliJ IDEA* for daily development.
+You can use either Community or Ultimate edition.
+For SDET(FW) or SDET(PM), Ultimate edition is recommended.
+
+You can just open a test class such as `VisitAllMenuItemsTest.java` and run it with the "Play" button (a green triangle) to run it.
+
+You can request "Ultimate"'s license here: https://join.slack.com/share/enQtNzUxMDM3NDQ5MjAwMi00ZWI3NmU2ZjZiYjEzN2Y2OGNiOGE0NDA4NDIzNDEyNzljYmMwNTI1NjRhMDk1YzVhOWJmNTRlYjRlZTkwMTUx[contact_cio_manged-tools] slack channel.
+
+=== Playing with `./build.sh`
+
+`build.sh` is a very thin wrapper script of `make` command.
+It only defines environment variables assumed by the targets defined in `Makefile`, then executes `make` command with arguments passed to itself.
+
+You can skip this part and just open the directory to which you cloned the source code with <<IDE>>.
+
+Still, it is important to define development tasks in the `Makefile` because it allows us to automate and integrate them into CI environment.
+
+
+==== Building the Executable.
+
+Run the following command.
 
 [source, bash]
 ----
-$ ./build.sh compile test
+$ ./build.sh build
 ----
 
-=== Running tests
+==== Running the Tests
 
-Do,
-[source, bash]
-----
-$ ./build.sh package-without-javadoc
-----
-
-to build the executable.
-Then,
+To run all tests for the SUT, do:
 
 [source, bash]
 ----
-$ ./build.sh run-all-tests
+$ ./build.sh run
+----
+
+It will show log like following.
+
+[source, bash]
+----
 java -jar target/autotest-caweb.jar -q 'classname:~.*' run
 Running tests in:[jp.co.moneyforward.autotest.ca_web.tests.bankaccount.BankConnectingTest]
 
@@ -78,7 +119,7 @@ WARNING: sun.reflect.Reflection.getCallerClass is not supported. This will impac
 
 You will find test results under `target/testResult` directory after execution.
 
-=== Showing a help
+==== Showing a Help
 
 To know what other targets are defined and their usages, just do:
 
@@ -89,14 +130,16 @@ $ ./build.sh
 
 This gives you explanations of "public" targets in the `Makefile`, which you are supposed to use in daily developments.
 
-=== Development Tools
-
-We use "IntelliJ IDEA".
-
 === Coding Conventions
 
 Coding conventions are defined under `.idea/codeStyles` and `.ideaInspectionProfiles`.
 When you want to propose improvements in the style, please open a pull request containing only files under them.
+
+== Contacts
+
+- For developers discussion: https://moneyforward.slack.com/archives/C06RW82AN79[# pj_ca_e2e_test_automation]
+- To report a bug, visit: https://app.asana.com/-/desktop_app_link?path=%2F0%2F1206402209253009%2F1206402209253009%3F[Automatic E2E Testing]
+
 
 == Copyright and license
 
