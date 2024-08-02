@@ -23,5 +23,7 @@ jobs:
       #     docker volume prune -f
       - name: Remove directories # https://github.com/actions/runner-images/issues/2840#issuecomment-1284059930
         run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+          sudo rm -rf /tmp/*
+
