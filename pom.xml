@@ -251,7 +251,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
                     <configuration>
-                        <argLine>${surefireArgLine} --add-opens java.base/java.lang.invoke=ALL-UNNAMED</argLine>
+                        <argLine>-ea ${surefireArgLine} --add-opens java.base/java.lang.invoke=ALL-UNNAMED</argLine>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -259,7 +259,7 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>${maven-failsafe-plugin.version}</version>
                     <configuration>
-                        <argLine>${failsafeArgLine} --add-opens java.base/java.lang.invoke=ALL-UNNAMED</argLine>
+                        <argLine>-ea ${failsafeArgLine} --add-opens java.base/java.lang.invoke=ALL-UNNAMED</argLine>
                     </configuration>
                     <executions>
                         <execution>
