@@ -251,7 +251,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
                     <configuration>
-                        <argLine>--add-opens java.base/java.lang.invoke=ALL-UNNAMED</argLine>
+                        <argLine>${surefireArgLine} --add-opens java.base/java.lang.invoke=ALL-UNNAMED</argLine>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -259,7 +259,7 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>${maven-failsafe-plugin.version}</version>
                     <configuration>
-                        <argLine>--add-opens java.base/java.lang.invoke=ALL-UNNAMED</argLine>
+                        <argLine>${failsafeArgLine} --add-opens java.base/java.lang.invoke=ALL-UNNAMED</argLine>
                     </configuration>
                     <executions>
                         <execution>
@@ -383,6 +383,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
