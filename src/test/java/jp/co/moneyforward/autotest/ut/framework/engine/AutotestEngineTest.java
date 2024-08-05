@@ -1,9 +1,6 @@
 package jp.co.moneyforward.autotest.ut.framework.engine;
 
-import jp.co.moneyforward.autotest.ut.testclasses.AllPassingWithBeforeAndAfterEachTestbed;
-import jp.co.moneyforward.autotest.ut.testclasses.FailureContainingTestbed;
-import jp.co.moneyforward.autotest.ut.testclasses.AllPassingWithBeforeAndAfterAllTestbed;
-import jp.co.moneyforward.autotest.ut.testclasses.EmptyTestbed;
+import jp.co.moneyforward.autotest.ut.testclasses.*;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import jp.co.moneyforward.autotest.ututils.TestResultValidatorExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -38,6 +35,32 @@ public class AutotestEngineTest extends TestBase {
     validator.addExpectation(forTestMatching(".*fail.*").shouldBeFailed());
     
     runTests(validator, FailureContainingTestbed.class);
+  }
+  
+  @Test
+  public  void examineAutotestEngineCanRunAndReportSuccessfulTestResultsAsDesigned_beforeAll() {
+    // Create a custom listener that will validate test results
+    TestResultValidatorExtension validator = new TestResultValidatorExtension();
+    validator.addExpectation(forTestMatching(".*login.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*connect.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*disconnect.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*logout.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*fail.*").shouldBeFailed());
+    
+    runTests(validator, FailingBeforeEachTestbed.class);
+  }
+  
+  @Test
+  public  void examineAutotestEngineCanRunAndReportSuccessfulTestResultsAsDesigned_beforeEach() {
+    // Create a custom listener that will validate test results
+    TestResultValidatorExtension validator = new TestResultValidatorExtension();
+    validator.addExpectation(forTestMatching(".*login.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*connect.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*disconnect.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*logout.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*fail.*").shouldBeFailed());
+    
+    runTests(validator, FailingAfterEachTestbed.class);
   }
   
   @Test
