@@ -1,19 +1,16 @@
-name: Docker Cleanup
+name: Clean Disk
 
 on:
   workflow_dispatch:
-    inputs:
-      logLevel:
-        description: 'Log level'
-        required: true
-        default: 'info'
 
 jobs:
   build:
     runs-on: [self-hosted]
 
     steps:
-      - name: Docker Cleanup
+      - name: Remove unused package and /tmp folder
         run: |
-          docker system prune -af
-          docker volume prune -f
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+          sudo rm -rf /tmp/*
+
