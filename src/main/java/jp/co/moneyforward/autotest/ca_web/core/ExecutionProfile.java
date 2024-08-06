@@ -62,7 +62,9 @@ public interface ExecutionProfile {
    * @return a "home" url of the application.
    * @see ExecutionProfile#domain()
    */
-  String homeUrl();
+  default String homeUrl() {
+    return String.format("https://%s/", domain());
+  }
   
   /**
    * Returns a locale to open a browser for the execution of **autotest**.
@@ -112,7 +114,9 @@ public interface ExecutionProfile {
       ,,,store,ca_accounts_group_url,,,https://#{domain}/accounts/group
       ,,,store,ca_accounts_url,,,https://#{domain}/accounts
    */
-  String accountsUrl();
+  default String accountsUrl() {
+    return String.format("https://%s/accounts", domain());
+  }
   
   /**
    * Returns if **autotest** should be executed in headless or head-ful.
