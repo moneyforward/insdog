@@ -12,21 +12,17 @@ jobs:
   build:
     runs-on: [self-hosted]
 
+    container:
+      image: mcr.microsoft.com/playwright/java:v1.45.1-jammy
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Playwright dependencies
+      - name: Install Japanese fonts
         run: |
           sudo apt-get update
-          sudo apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxdamage1 libgbm1 libpango-1.0-0 libpangocairo-1.0-0 libasound2-dev libxshmfence1
-          sudo apt-get install -y libwoff1 libopus0 libdbus-glib-1-2 libxtst6 libxrandr2 libxcomposite1 libxdamage1 libxshmfence1 libgbm1 libjpeg-dev libxkbfile1 libgstreamer1.0-0 libgstreamer-plugins-base1.0-0
-          sudo apt-get install -y gstreamer1.0-plugins-bad gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-gl gstreamer1.0-tools
-          sudo apt-get install -y libharfbuzz-icu0 libhyphen0 libmanette-0.2-0 libflite1
-          sudo apt-get install -y libgles2
-
-      - name: Install Japanese fonts
-        run: sudo apt-get install -y fonts-ipafont-gothic fonts-ipafont-mincho
+          sudo apt-get install -y fonts-ipafont-gothic fonts-ipafont-mincho
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -34,11 +30,6 @@ jobs:
           distribution: 'temurin'  # AdoptOpenJDK is now Eclipse Temurin
           java-version: '21'
           cache: 'maven'
-
-      - name: Install maven
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y maven
 
       - name: Build with Maven
         run: mvn -Dmaven.javadoc.skip=true clean package
