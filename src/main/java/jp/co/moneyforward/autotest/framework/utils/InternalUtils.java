@@ -88,8 +88,8 @@ public enum InternalUtils {
     return Objects.equals(System.getProperty("underpitest"), "yes");
   }
   
-  public static String composeResultMessageLine(String stageName, String line) {
-    return String.format("%-11s %s", stageName + ":", line);
+  public static String composeResultMessageLine(Class<?> testClass, String stageName, String line) {
+    return String.format("%-20s: %-11s %s", testClass.getSimpleName(), stageName + ":", line);
   }
   
   public static File projectDir() {

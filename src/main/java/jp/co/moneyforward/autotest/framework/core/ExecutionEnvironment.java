@@ -41,9 +41,17 @@ public interface ExecutionEnvironment {
   }
   
   default Path testResultDirectory() {
-    return Paths.get(Utils.sanitize(System.getProperty(PROPERTY_KEY_FOR_TEST_RESULT_DIRECTORY, "target/testResult")),
-                     Utils.sanitize(this.testClassName()),
-                     Utils.sanitize(this.testSceneName().orElse("unknown-" + Utils.counter.getAndIncrement())));
+    return testResultDirectory(baseLogDirectoryForTestSession(),
+                               Utils.sanitize(this.testClassName()),
+                               Utils.sanitize(this.testSceneName().orElse("unknown-" + Utils.counter.getAndIncrement())));
+  }
+  
+  static Path testResultDirectory(String baseLogDirectoryForTestSession, String... dirs) {
+    return Paths.get(baseLogDirectoryForTestSession, dirs);
+  }
+  
+  static String baseLogDirectoryForTestSession() {
+    return Utils.sanitize(System.getProperty(PROPERTY_KEY_FOR_TEST_RESULT_DIRECTORY, "target/testResult"));
   }
   
   default Path testOutputFilenameFor(String fileName) {

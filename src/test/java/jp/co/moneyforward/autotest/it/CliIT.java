@@ -19,6 +19,13 @@ import java.util.NoSuchElementException;
 import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.forms.Printables.function;
 
+/**
+ * A class for `Cli` class's "IT" tests.
+ *
+ * Be aware that this is to be run by `mvn verify`.
+ * Running from an IDE such as IDEA may result in unintended result because an IDE's test runner shows different behaviors
+ * from when it is run from `mvn`.
+ */
 public class CliIT extends TestBase {
   
   @Test

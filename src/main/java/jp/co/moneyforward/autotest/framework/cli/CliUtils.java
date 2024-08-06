@@ -2,10 +2,11 @@ package jp.co.moneyforward.autotest.framework.cli;
 
 import com.github.valid8j.pcond.forms.Predicates;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
+import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
 import org.junit.platform.launcher.Launcher;
-import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
@@ -137,31 +138,34 @@ public enum CliUtils {
   public static Map<Class<?>, TestExecutionSummary> runTests(String rootPackageName, String[] queries, String[] executionDescriptors, String[] executionProfile, SummaryGeneratingListener testExecutionListener) {
     if (executionDescriptors.length > 0)
       System.setProperty("jp.co.moneyforward.autotest.scenes", composeSceneDescriptorPropertyValue(executionDescriptors));
+    AutotestEngine.configureLoggingForSessionLevel();
     initialize(executionProfile);
     Map<Class<?>, TestExecutionSummary> testReport = new HashMap<>();
+    List<Class<?>> targetTestClasses = new ArrayList<>();
+    Launcher launcher = LauncherFactory.create();
+    LauncherDiscoveryRequestBuilder requestBuilder = request();
     ClassFinder.create(rootPackageName)
                .findMatchingClasses(Predicates.or(Arrays.stream(queries)
                                                         .map(CliUtils::parseQuery)
                                                         .map(p -> p.and(ClassFinder.hasAnnotations(AutotestExecution.class)))
                                                         .toArray(Predicate[]::new)))
                .map(c -> (Class<?>) c)
+               .sorted((Comparator<Object>) (o1, o2) -> ((Class<?>)o1).getCanonicalName().compareTo(((Class<?>)o2).getCanonicalName()))
                .forEach((Consumer<Class<?>>) c -> {
-                 LOGGER.info("Running tests in:[{}]", c.getCanonicalName());
-                 LOGGER.info("----");
-                 runTestClass(testExecutionListener, c);
-                 TestExecutionSummary testExecutionSummary = testExecutionListener.getSummary();
-                 testReport.put(c, testExecutionSummary);
-                 StringWriter buffer = new StringWriter();
-                 testExecutionSummary.printTo(new PrintWriter(buffer));
-                 LOGGER.info(buffer.toString());
+                 requestBuilder.selectors(selectClass(c));
+                 targetTestClasses.add(c);
                });
+    LOGGER.info("================================================================================");
+    LOGGER.info("Running test classes in " + rootPackageName);
+    targetTestClasses.forEach(c -> LOGGER.info("- {}", c.getCanonicalName()));
+    LOGGER.info("================================================================================");
+    launcher.execute(requestBuilder.build(), testExecutionListener);
+    TestExecutionSummary testExecutionSummary = testExecutionListener.getSummary();
+    testReport.put(CliUtils.class, testExecutionSummary);
+    StringWriter buffer = new StringWriter();
+    testExecutionSummary.printTo(new PrintWriter(buffer));
+    LOGGER.info(buffer.toString());
     return testReport;
   }
   
-  private static void runTestClass(SummaryGeneratingListener additionalListener, Class<?> testClass) {
-    Launcher launcher = LauncherFactory.create();
-    LauncherDiscoveryRequest request = request().selectors(selectClass(testClass))
-                                                .build();
-    launcher.execute(request, additionalListener);
-  }
 }
