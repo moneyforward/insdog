@@ -36,7 +36,7 @@ public enum CliUtils {
   private static Map<String, String> profileOverriders;
   
   static void initialize(String[] profileOverriders) {
-    CliUtils.profileOverriders = Arrays.stream(profileOverriders).collect(toMap(each -> each.substring(0, each.indexOf(':')),
+    CliUtils.profileOverriders = Arrays.stream(profileOverriders).collect(toMap(each -> each.substring(each.indexOf('=') + 1, each.indexOf(':')),
                                                                                 each -> each.substring(each.indexOf(':') + 1)));
   }
   

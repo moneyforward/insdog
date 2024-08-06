@@ -2,6 +2,9 @@ package jp.co.moneyforward.autotest.ca_web.tests.selftest;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.valid8j.fluent.Expectations;
+import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
+import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.*;
@@ -10,6 +13,9 @@ import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 
 import java.util.HashMap;
 
+import static com.github.valid8j.fluent.Expectations.assertStatement;
+import static com.github.valid8j.fluent.Expectations.value;
+
 /**
  * A test to check if the framework works as designed.
  * This test is designed not to access the **caweb** application.
@@ -17,9 +23,10 @@ import java.util.HashMap;
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
         planExecutionWith = PlanningStrategy.DEPENDENCY_BASED,
-        value = {"connect", "disconnect"}
+        value = {"connect", "printDomain", "disconnect"}
     ))
 public class SelfTest implements AutotestRunner {
+  public static final String OVERRIDING_DOMAIN_NAME = "ca-web-ca-app-architectg1-1.idev.test.musubu.co.in";
   private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(Context.create(), new HashMap<>());
   
   @Named
@@ -47,6 +54,18 @@ public class SelfTest implements AutotestRunner {
   public static Scene connect() {
     return new Scene.Builder("page")
         .add(new LeafAct.Let<>("CONNECT"))
+        .build();
+  }
+  
+  @Named
+  @Export("page")
+  @DependsOn("login")
+  public static Scene printDomain() {
+    return new Scene.Builder("page")
+        .add(new LeafAct.Func<>(p ->  {
+          assertStatement(value(CawebAccessingModel.executionProfile().domain()).toBe().equalTo(OVERRIDING_DOMAIN_NAME));
+          return p;
+        }))
         .build();
   }
   
