@@ -290,13 +290,13 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   
   private static void logExecutionPlan(Class<?> testClass, ExecutionPlan executionPlan) {
     LOGGER.info("================================================================================");
-    LOGGER.info("Running tests in:[{}]", testClass.getCanonicalName());
+    LOGGER.info("Running tests in: [{}]", testClass.getCanonicalName());
     LOGGER.info("Execution plan is as follows:");
-    LOGGER.info("- beforeAll:  {}", executionPlan.beforeAll());
-    LOGGER.info("- beforeEach: {}", executionPlan.beforeEach());
-    LOGGER.info("- value:      {}", executionPlan.value());
-    LOGGER.info("- afterEach:  {}", executionPlan.afterEach());
-    LOGGER.info("- afterAll:   {}", executionPlan.afterAll());
+    LOGGER.info("- beforeAll:      {}", executionPlan.beforeAll());
+    LOGGER.info("- beforeEach:     {}", executionPlan.beforeEach());
+    LOGGER.info("- value:          {}", executionPlan.value());
+    LOGGER.info("- afterEach:      {}", executionPlan.afterEach());
+    LOGGER.info("- afterAll:       {}", executionPlan.afterAll());
     LOGGER.info("================================================================================");
   }
   
