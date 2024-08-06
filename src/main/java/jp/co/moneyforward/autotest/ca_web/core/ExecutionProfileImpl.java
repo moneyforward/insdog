@@ -12,11 +12,6 @@ class ExecutionProfileImpl implements ExecutionProfile {
   }
   
   @Override
-  public String homeUrl() {
-    return String.format("https://%s/", domain());
-  }
-  
-  @Override
   public String userEmail() {
     return "ukai.hiroshi+autotest1@moneyforward.co.jp";
   }
@@ -34,11 +29,6 @@ class ExecutionProfileImpl implements ExecutionProfile {
   @Override
   public String accountServicePassword() {
     return "MASK!eQCZmxlS1DlmB8Moe710";
-  }
-  
-  @Override
-  public String accountsUrl() {
-    return String.format("https://%s/accounts", domain());
   }
   
   /**
