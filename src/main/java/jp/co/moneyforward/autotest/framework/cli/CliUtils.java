@@ -1,10 +1,14 @@
 package jp.co.moneyforward.autotest.framework.cli;
 
 import com.github.valid8j.pcond.forms.Predicates;
+import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
+import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
+import org.junit.platform.commons.support.ModifierSupport;
+import org.junit.platform.engine.UniqueId;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
@@ -15,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -24,7 +29,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
+import static jp.co.moneyforward.autotest.actions.web.SendKey.MASK_PREFIX;
+import static org.junit.platform.commons.support.ReflectionSupport.invokeMethod;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
 
@@ -134,12 +142,13 @@ public enum CliUtils {
                      .orElseThrow(NoSuchElementException::new);
   }
   
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "RedundantCast"})
   public static Map<Class<?>, TestExecutionSummary> runTests(String rootPackageName, String[] queries, String[] executionDescriptors, String[] executionProfile, SummaryGeneratingListener testExecutionListener) {
     if (executionDescriptors.length > 0)
       System.setProperty("jp.co.moneyforward.autotest.scenes", composeSceneDescriptorPropertyValue(executionDescriptors));
     AutotestEngine.configureLoggingForSessionLevel();
     initialize(executionProfile);
+    logExecutionProfile(CawebAccessingModel.executionProfile());
     Map<Class<?>, TestExecutionSummary> testReport = new HashMap<>();
     List<Class<?>> targetTestClasses = new ArrayList<>();
     Launcher launcher = LauncherFactory.create();
@@ -150,22 +159,80 @@ public enum CliUtils {
                                                         .map(p -> p.and(ClassFinder.hasAnnotations(AutotestExecution.class)))
                                                         .toArray(Predicate[]::new)))
                .map(c -> (Class<?>) c)
-               .sorted((Comparator<Object>) (o1, o2) -> ((Class<?>)o1).getCanonicalName().compareTo(((Class<?>)o2).getCanonicalName()))
+               // We need this cast (Class<?>o) to work around a presumable compiler bug in Java 21.
+               .sorted(Comparator.comparing(o -> ((Class<?>) o).getCanonicalName()))
                .forEach((Consumer<Class<?>>) c -> {
                  requestBuilder.selectors(selectClass(c));
                  targetTestClasses.add(c);
                });
-    LOGGER.info("================================================================================");
     LOGGER.info("Running test classes in " + rootPackageName);
+    LOGGER.info("----");
     targetTestClasses.forEach(c -> LOGGER.info("- {}", c.getCanonicalName()));
-    LOGGER.info("================================================================================");
+    LOGGER.info("----");
+    LOGGER.info("");
+    
     launcher.execute(requestBuilder.build(), testExecutionListener);
     TestExecutionSummary testExecutionSummary = testExecutionListener.getSummary();
     testReport.put(CliUtils.class, testExecutionSummary);
-    StringWriter buffer = new StringWriter();
-    testExecutionSummary.printTo(new PrintWriter(buffer));
-    LOGGER.info(buffer.toString());
+    logExecutionSummary(testExecutionSummary);
+    logFailureSummary(testExecutionSummary);
     return testReport;
   }
   
+  public static void logExecutionProfile(ExecutionProfile executionProfile) {
+    LOGGER.info("Execution Profile");
+    LOGGER.info("----");
+    Arrays.stream(executionProfile.getClass().getMethods())
+          .filter(ModifierSupport::isPublic)
+          .filter(m -> m.getParameters().length == 0)
+          .filter(m -> !ModifierSupport.isStatic(m))
+          .filter(m -> Objects.equals(executionProfile.getClass(), m.getDeclaringClass()))
+          .sorted(Comparator.comparing(Method::getName))
+          .forEach(m -> LOGGER.info(String.format("- %-30s -> %-30s", m.getName(), mask(invokeMethod(m, executionProfile)))));
+    LOGGER.info("----");
+    LOGGER.info("");
+  }
+  
+  
+  private static void logExecutionSummary(TestExecutionSummary testExecutionSummary) {
+    LOGGER.info("----");
+    StringWriter buffer = new StringWriter();
+    testExecutionSummary.printTo(new PrintWriter(buffer));
+    Arrays.stream(buffer.toString()
+                        .split("\n"))
+          .map(String::trim)
+          .filter(s -> !s.isEmpty())
+          .forEach(LOGGER::info);
+    LOGGER.info("----");
+    LOGGER.info("");
+  }
+  
+  private static void logFailureSummary(TestExecutionSummary testExecutionSummary) {
+    LOGGER.info("Failure summary");
+    LOGGER.info("----");
+    if (testExecutionSummary.getFailures().isEmpty()) LOGGER.info("- (none)");
+    else testExecutionSummary.getFailures()
+                             .forEach(f -> LOGGER.info("- {}:{}: {}",
+                                                       f.getTestIdentifier()
+                                                        .getUniqueIdObject()
+                                                        .getSegments()
+                                                        .stream()
+                                                        .map(UniqueId.Segment::getValue)
+                                                        .map(s -> s.replaceAll("[a-zA-Z_0-9]+\\.", ""))
+                                                        .collect(joining("/")),
+                                                       f.getTestIdentifier().getDisplayName(),
+                                                       shorten(f.getException()
+                                                                .getMessage()
+                                                                .replace("\n", " "))));
+    LOGGER.info("----");
+    LOGGER.info("");
+  }
+  
+  private static String shorten(String string) {
+    return string.substring(0, Math.min(60, string.length() - 1));
+  }
+  
+  private static String mask(Object o) {
+    return Objects.toString(o).replaceAll("((" + MASK_PREFIX + ").*)", MASK_PREFIX);
+  }
 }

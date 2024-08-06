@@ -3,7 +3,6 @@ package jp.co.moneyforward.autotest.ca_web.core;
 import com.github.dakusui.osynth.ObjectSynthesizer;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;

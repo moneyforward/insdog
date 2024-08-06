@@ -207,7 +207,6 @@ public class CliIT extends TestBase {
         public int execute(CommandLine.ParseResult parseResult) throws CommandLine.ExecutionException {
           return super.execute(parseResult);
         }
-        
       }.execute(parseResult);
     }
   }

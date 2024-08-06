@@ -41,7 +41,8 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.internals.InternalUtils.wrapIfNecessary;
 import static java.lang.String.format;
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toMap;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneCall;
 import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngine.Stage.*;
@@ -289,15 +290,15 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   private static void logExecutionPlan(Class<?> testClass, ExecutionPlan executionPlan) {
-    LOGGER.info("================================================================================");
-    LOGGER.info("Running tests in: [{}]", testClass.getCanonicalName());
+    LOGGER.info("Running tests in: {}", testClass.getCanonicalName());
+    LOGGER.info("----");
     LOGGER.info("Execution plan is as follows:");
     LOGGER.info("- beforeAll:      {}", executionPlan.beforeAll());
     LOGGER.info("- beforeEach:     {}", executionPlan.beforeEach());
     LOGGER.info("- value:          {}", executionPlan.value());
     LOGGER.info("- afterEach:      {}", executionPlan.afterEach());
     LOGGER.info("- afterAll:       {}", executionPlan.afterAll());
-    LOGGER.info("================================================================================");
+    LOGGER.info("----");
   }
   
   public static ExecutionEnvironment createExecutionEnvironment(String testClassName) {
