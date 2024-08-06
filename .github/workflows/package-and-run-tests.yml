@@ -60,10 +60,6 @@ jobs:
           path: target/testResult/**
         continue-on-error: true
 
-      - name: Docker Cleanup
-        run: |
-          docker system prune -af
-
       - name: Check for failures
         if: always()
         run: |
