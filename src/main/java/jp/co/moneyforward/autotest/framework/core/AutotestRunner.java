@@ -30,16 +30,16 @@ public interface AutotestRunner {
   @TestTemplate
   default void runTestAction(String name, Action action) {
     var out = new ArrayList<String>();
-    String stageName = "value:";
+    String stageName = "value";
     boolean succeeded = false;
     try {
       Writer writer = createWriter(out);
       actionPerformer().performAndReport(action, writer);
       succeeded = true;
     } finally {
-      String message = String.format("%-11s [%s]%s", stageName, succeeded ? "o" : "E", name);
+      String message = String.format("%-20s: %-11s [%s]%s", this.getClass().getSimpleName(), stageName + ":", succeeded ? "o" : "E", name);
       LOGGER.info(message);
-      out.forEach(l -> LOGGER.info(composeResultMessageLine(stageName, l)));
+      out.forEach(l -> LOGGER.info(composeResultMessageLine(this.getClass(), stageName, l)));
     }
   }
   

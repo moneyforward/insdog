@@ -41,7 +41,8 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.internals.InternalUtils.wrapIfNecessary;
 import static java.lang.String.format;
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toMap;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneCall;
 import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngine.Stage.*;
@@ -103,6 +104,9 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     String stageName = BEFORE_ALL.stageName();
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), stageName);
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-beforeAll.log"), Level.INFO);
+    
+    logExecutionPlan(testClass(context), executionPlan(context));
+    
     actions(executionPlan(context),
             ExecutionPlan::beforeAll,
             sceneCallMap(context),
@@ -122,8 +126,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         // Then, stream again. Otherwise, the log will not become so readable.
         .toList()
         .forEach(r -> {
-          LOGGER.info(r.composeMessageHeader(stageName));
-          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(stageName, l)));
+          LOGGER.info(r.composeMessageHeader(testClass(context), stageName));
+          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(testClass(context), stageName, l)));
         });
   }
   
@@ -144,7 +148,6 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     ExecutionPlan executionPlan = planExecution(spec,
                                                 sceneCallGraph(runner.getClass()),
                                                 assertions(runner.getClass()));
-    logExecutionPlan(executionPlan);
     var closers = closers(runner.getClass());
     assert Contracts.explicitlySpecifiedScenesAreAllCoveredInCorrespondingPlannedStage(spec, executionPlan);
     ExtensionContext.Store executionContextStore = executionContextStore(context);
@@ -184,8 +187,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         // Then, stream again. Otherwise, the log will not become so readable.
         .toList()
         .forEach(r -> {
-          LOGGER.info(r.composeMessageHeader(stageName));
-          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(stageName, l)));
+          LOGGER.info(r.composeMessageHeader(testClass(context), stageName));
+          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(testClass(context), stageName, l)));
         });
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-main.log"), Level.INFO);
   }
@@ -221,8 +224,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         // Then, stream again. Otherwise, the log will not become so readable.
         .toList()
         .forEach(r -> {
-          LOGGER.info(r.composeMessageHeader(stageName));
-          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(stageName, l)));
+          LOGGER.info(r.composeMessageHeader(testClass(context), stageName));
+          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(testClass(context), stageName, l)));
         });
     if (!errors.isEmpty()) reportErrors(errors);
   }
@@ -234,33 +237,41 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     String stageName = AFTER_ALL.stageName();
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), stageName);
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-afterAll.log"), Level.INFO);
-    List<ExceptionEntry> errors = new ArrayList<>();
-    actions(executionPlan(context),
-            p -> Stream.concat(p.afterAll()
-                                .stream(),
-                               reverse(p.beforeAll())
-                                   .stream()
-                                   .filter(passedInBeforeAll(context)::contains)
-                                   .map(x -> sceneClosers(context).get(x))
-                                   .filter(x -> !p.afterAll().contains(x)))
-                       .toList(),
-            sceneCallMap(context),
-            executionEnvironment)
-        .stream()
-        .map(each -> performActionEntry(each, out -> runner.afterAll(each.value(), runner.createWriter(out))))
-        .filter(r -> {
-          r.exception()
-           .ifPresent(t -> errors.add(new ExceptionEntry(r.name(), t)));
-          return true;
-        })
-        // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
-        // Then, stream again. Otherwise, the log will not become so readable.
-        .toList()
-        .forEach((SceneExecutionResult r) -> {
-          LOGGER.info(r.composeMessageHeader(stageName));
-          r.out().forEach((String l) -> LOGGER.info(composeResultMessageLine(stageName, l)));
-        });
-    if (!errors.isEmpty()) reportErrors(errors);
+    try {
+      List<ExceptionEntry> errors = new ArrayList<>();
+      actions(executionPlan(context),
+              p -> Stream.concat(p.afterAll()
+                                  .stream(),
+                                 reverse(p.beforeAll())
+                                     .stream()
+                                     .filter(passedInBeforeAll(context)::contains)
+                                     .map(x -> sceneClosers(context).get(x))
+                                     .filter(x -> !p.afterAll().contains(x)))
+                         .toList(),
+              sceneCallMap(context),
+              executionEnvironment)
+          .stream()
+          .map(each -> performActionEntry(each, out -> runner.afterAll(each.value(), runner.createWriter(out))))
+          .filter(r -> {
+            r.exception()
+             .ifPresent(t -> errors.add(new ExceptionEntry(r.name(), t)));
+            return true;
+          })
+          // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
+          // Then, stream again. Otherwise, the log will not become so readable.
+          .toList()
+          .forEach((SceneExecutionResult r) -> {
+            LOGGER.info(r.composeMessageHeader(testClass(context), stageName));
+            r.out().forEach((String l) -> LOGGER.info(composeResultMessageLine(testClass(context), stageName, l)));
+          });
+      if (!errors.isEmpty()) reportErrors(errors);
+    } finally {
+      configureLoggingForSessionLevel();
+    }
+  }
+  
+  public static void configureLoggingForSessionLevel() {
+    configureLogging(ExecutionEnvironment.testResultDirectory(ExecutionEnvironment.baseLogDirectoryForTestSession(), "autotest.log"), Level.INFO);
   }
   
   private static SceneExecutionResult performActionEntry(Entry<String, Action> each, Consumer<List<String>> consumer) {
@@ -278,13 +289,16 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     }
   }
   
-  private static void logExecutionPlan(ExecutionPlan executionPlan) {
+  private static void logExecutionPlan(Class<?> testClass, ExecutionPlan executionPlan) {
+    LOGGER.info("Running tests in: {}", testClass.getCanonicalName());
+    LOGGER.info("----");
     LOGGER.info("Execution plan is as follows:");
-    LOGGER.info("- executionPlan#beforeAll: {}", executionPlan.beforeAll());
-    LOGGER.info("- beforeEach: {}", executionPlan.beforeEach());
-    LOGGER.info("- value: {}", executionPlan.value());
-    LOGGER.info("- afterEach: {}", executionPlan.afterEach());
-    LOGGER.info("- afterAll: {}", executionPlan.afterAll());
+    LOGGER.info("- beforeAll:      {}", executionPlan.beforeAll());
+    LOGGER.info("- beforeEach:     {}", executionPlan.beforeEach());
+    LOGGER.info("- value:          {}", executionPlan.value());
+    LOGGER.info("- afterEach:      {}", executionPlan.afterEach());
+    LOGGER.info("- afterAll:       {}", executionPlan.afterAll());
+    LOGGER.info("----");
   }
   
   public static ExecutionEnvironment createExecutionEnvironment(String testClassName) {
@@ -398,10 +412,13 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   private static ExecutionEnvironment createExecutionEnvironment(ExtensionContext extensionContext) {
-    return createExecutionEnvironment(
-        extensionContext.getTestClass()
-                        .map(Class::getCanonicalName)
-                        .orElse("Unknown-" + System.currentTimeMillis()));
+    return createExecutionEnvironment(extensionContext.getTestClass()
+                                                      .map(Class::getCanonicalName)
+                                                      .orElse("Unknown-" + System.currentTimeMillis()));
+  }
+  
+  private static Class<?> testClass(ExtensionContext extensionContext) {
+    return extensionContext.getTestClass().orElseThrow(NoSuchElementException::new);
   }
   
   @SuppressWarnings("unchecked")
@@ -680,19 +697,20 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
       return unmodifiableList(this.out);
     }
     
-    private String composeMessageHeader(String stageName) {
-      return composeMessageHeader(this, stageName);
+    private String composeMessageHeader(Class<?> testClass, String stageName) {
+      return composeMessageHeader(testClass, this, stageName);
     }
     
-    private static String composeMessageHeader(SceneExecutionResult r, String stageName) {
-      return format("%-11s [%1s]%-20s %-40s",
-                           stageName + ":",
-                           r.hasSucceeded() ? "o"
-                                            : "E",
-                           r.name(),
-                           r.exception()
-                            .map(Throwable::getMessage)
-                            .orElse(""));
+    private static String composeMessageHeader(Class<?> testClass, SceneExecutionResult r, String stageName) {
+      return format("%-20s: %-11s [%1s]%-20s %-40s",
+                    testClass.getSimpleName(),
+                    stageName + ":",
+                    r.hasSucceeded() ? "o"
+                                     : "E",
+                    r.name(),
+                    r.exception()
+                     .map(Throwable::getMessage)
+                     .orElse(""));
     }
   }
   
