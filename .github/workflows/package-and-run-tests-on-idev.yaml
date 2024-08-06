@@ -33,6 +33,8 @@ jobs:
         with:
           distribution: 'temurin'  # AdoptOpenJDK is now Eclipse Temurin
           java-version: '21'
+          cache: 'maven'
+
       - name: Install maven
         run: |
           sudo apt-get update

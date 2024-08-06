@@ -34,6 +34,7 @@ jobs:
         with:
           distribution: 'temurin'  # AdoptOpenJDK is now Eclipse Temurin
           java-version: '21'
+          cache: 'maven'
 
       - name: Configure Maven settings
         run: |
