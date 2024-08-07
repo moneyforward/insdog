@@ -1,6 +1,7 @@
 package jp.co.moneyforward.autotest.actions.web;
 
-import com.microsoft.playwright.*;
+import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -10,6 +11,7 @@ import static com.github.dakusui.valid8j.Requires.requireNonNull;
 import static com.github.valid8j.fluent.Expectations.require;
 import static com.github.valid8j.fluent.Expectations.value;
 import static java.util.Arrays.asList;
+import static jp.co.moneyforward.autotest.framework.utils.Valid8JCliches.mapToKeyList;
 
 /**
  * A class to query HTML table object as if it were an SQL relation.
@@ -77,7 +79,7 @@ public record TableQuery(String tableName, String columnName, List<Term> queryTe
     Locator headerRow = page.locator(headerLocatorString);
     Map<String, Integer> columnIndices = composeColumnNameIndices(headerRow.locator("th"));
     
-    require(value(columnIndices).function(m -> m.keySet().stream().toList())
+    require(value(columnIndices).function(mapToKeyList())
                                 .asList()
                                 .toBe()
                                 .containing(columnName()));
