@@ -65,7 +65,8 @@ public class SelfTest implements AutotestRunner {
         .add(new LeafAct.Func<>(p -> {
           if (enableAssertion) {
             assertAll(value(CawebAccessingModel.executionProfile().domain()).toBe().equalTo(OVERRIDING_DOMAIN_NAME),
-                      value(CawebAccessingModel.executionProfile().homeUrl()).toBe().containing(OVERRIDING_DOMAIN_NAME));
+                      value(CawebAccessingModel.executionProfile().homeUrl()).toBe().containing(OVERRIDING_DOMAIN_NAME),
+                      value(CawebAccessingModel.executionProfile().accountsUrl()).toBe().containing(OVERRIDING_DOMAIN_NAME));
           }
           return p;
         }))
