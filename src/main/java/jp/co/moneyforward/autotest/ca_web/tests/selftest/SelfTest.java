@@ -13,8 +13,7 @@ import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 
 import java.util.HashMap;
 
-import static com.github.valid8j.fluent.Expectations.assertStatement;
-import static com.github.valid8j.fluent.Expectations.value;
+import static com.github.valid8j.fluent.Expectations.*;
 
 /**
  * A test to check if the framework works as designed.
@@ -26,6 +25,7 @@ import static com.github.valid8j.fluent.Expectations.value;
         value = {"connect", "printDomain", "disconnect"}
     ))
 public class SelfTest implements AutotestRunner {
+  private static boolean enableAssertion = false;
   public static final String OVERRIDING_DOMAIN_NAME = "ca-web-ca-app-architectg1-1.idev.test.musubu.co.in";
   private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(Context.create(), new HashMap<>());
   
@@ -62,8 +62,12 @@ public class SelfTest implements AutotestRunner {
   @DependsOn("login")
   public static Scene printDomain() {
     return new Scene.Builder("page")
-        .add(new LeafAct.Func<>(p ->  {
-          assertStatement(value(CawebAccessingModel.executionProfile().domain()).toBe().equalTo(OVERRIDING_DOMAIN_NAME));
+        .add(new LeafAct.Func<>(p -> {
+          if (enableAssertion) {
+            assertAll(value(CawebAccessingModel.executionProfile().domain()).toBe().equalTo(OVERRIDING_DOMAIN_NAME),
+                      value(CawebAccessingModel.executionProfile().homeUrl()).toBe().containing(OVERRIDING_DOMAIN_NAME),
+                      value(CawebAccessingModel.executionProfile().accountsUrl()).toBe().containing(OVERRIDING_DOMAIN_NAME));
+          }
           return p;
         }))
         .build();
@@ -93,9 +97,17 @@ public class SelfTest implements AutotestRunner {
         .add(new LeafAct.Let<>("CLOSE"))
         .build();
   }
-
+  
   @Override
   public ReportingActionPerformer actionPerformer() {
     return actionPerformer;
+  }
+  
+  public static void enableAssertion() {
+    enableAssertion = true;
+  }
+  
+  public static void disableAssertion() {
+    enableAssertion = false;
   }
 }

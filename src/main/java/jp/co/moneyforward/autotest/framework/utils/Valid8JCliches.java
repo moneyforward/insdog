@@ -6,6 +6,8 @@ import com.github.valid8j.pcond.forms.Predicates;
 import com.github.valid8j.pcond.forms.Printables;
 import com.github.valid8j.pcond.validator.Validator;
 
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -34,6 +36,10 @@ public enum Valid8JCliches {
                                       msg -> {
                                         throw new InternalUtils.AssumptionViolation(msg);
                                       });
+  }
+  
+  public static <K, V> Function<Map<K, V>, List<K>> mapToKeyList() {
+    return Printables.function("mapToKeyList", m -> m.keySet().stream().toList());
   }
   
   /**

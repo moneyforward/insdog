@@ -12,11 +12,26 @@ import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.Export;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
-import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.function.Function;
 
 public class CawebTermAccessingModel extends CawebAccessingModel {
+  @Named
+  @DependsOn("login")
+  @Export({"page", "officeName"})
+  public static Scene createOffice() {
+    String officeName = executionProfile().officeName();
+    LeafAct<Page, Page>[] acts = new LeafAct[]{
+        navigateToTermSelection(),
+        createOfficeViaNavis(officeName, executionProfile().userDisplayName())};
+    Scene.Builder builder = new Scene.Builder("page");
+    builder.add("officeName", new LeafAct.Func<>((Function<Page, String>) page -> officeName), "page");
+    for (LeafAct<Page, Page> act : acts) {
+      builder.add(act);
+    }
+    return builder.build();
+  }
+  
   static PageAct navigateToTermSelection() {
     return new PageAct("Navigate to the term selection page") {
       @Override

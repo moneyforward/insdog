@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import static jp.co.moneyforward.autotest.actions.web.SendKey.MASK_PREFIX;
 import static org.junit.platform.commons.support.ReflectionSupport.invokeMethod;
@@ -212,15 +211,12 @@ public enum CliUtils {
     LOGGER.info("----");
     if (testExecutionSummary.getFailures().isEmpty()) LOGGER.info("- (none)");
     else testExecutionSummary.getFailures()
-                             .forEach(f -> LOGGER.info("- {}:{}: {}",
-                                                       f.getTestIdentifier()
-                                                        .getUniqueIdObject()
-                                                        .getSegments()
-                                                        .stream()
-                                                        .map(UniqueId.Segment::getValue)
-                                                        .map(s -> s.replaceAll("[a-zA-Z_0-9]+\\.", ""))
-                                                        .collect(joining("/")),
+                             .forEach(f -> LOGGER.info("- {}(in {}): {}",
                                                        f.getTestIdentifier().getDisplayName(),
+                                                       Optional.ofNullable(segmentsOfExecutionSummary(f).size() >= 2 ? segmentsOfExecutionSummary(f).get(1)
+                                                                                                                     : null)
+                                                               .map(UniqueId.Segment::getValue)
+                                                               .orElse("unknown"),
                                                        shorten(f.getException()
                                                                 .getMessage()
                                                                 .replace("\n", " "))));
@@ -228,8 +224,17 @@ public enum CliUtils {
     LOGGER.info("");
   }
   
+  private static List<UniqueId.Segment> segmentsOfExecutionSummary(TestExecutionSummary.Failure f) {
+    return f.getTestIdentifier()
+            .getUniqueIdObject()
+            .getSegments();
+  }
+  
   private static String shorten(String string) {
-    return string.substring(0, Math.min(60, string.length() - 1));
+    int crPos = string.indexOf('\r');
+    return string.substring(0, Math.min(120,
+                                        crPos < 0 ? string.length()
+                                                  : crPos - 1));
   }
   
   private static String mask(Object o) {
