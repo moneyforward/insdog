@@ -77,6 +77,7 @@ public record TableQuery(String tableName, String columnName, List<Term> queryTe
   public List<Locator> perform(Page page) {
     String headerLocatorString = String.format("%s thead tr", this.tableName());
     Locator headerRow = page.locator(headerLocatorString);
+    headerRow.waitFor();
     Map<String, Integer> columnIndices = composeColumnNameIndices(headerRow.locator("th"));
     
     require(value(columnIndices).function(mapToKeyList())

@@ -127,46 +127,50 @@ public class CliIT extends TestBase {
   
   @Test
   public void runSelfTestWithExecutionProfileThroughCliUtils() {
-    List<TestIdentifier> testIdentifiers = new LinkedList<>();
-    
-    Map<Class<?>, TestExecutionSummary> testReport = CliUtils.runTests(
-        "jp.co.moneyforward.autotest.ca_web.tests",
-        new String[]{
-            "classname:%SelfTest"
-        },
-        new String[]{},
-        new String[]{
-            String.format("--execution-profile=domain:%s", SelfTest.OVERRIDING_DOMAIN_NAME)
-        },
-        new SummaryGeneratingListener() {
-          @Override
-          public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
-            testIdentifiers.add(testIdentifier);
-            super.executionFinished(testIdentifier, testExecutionResult);
-          }
-        });
-    
-    int numFailures = testReport.values()
-                                .stream()
-                                .map(s -> s.getFailures().size())
-                                .reduce(Integer::sum)
-                                .orElseThrow(NoSuchElementException::new);
-    assertAll(value(numFailures).toBe().equalTo(0),
-              value(testIdentifiers).elementAt(0)
-                                    .function(function("getDisplayName", TestIdentifier::getDisplayName))
-                                    .asString()
-                                    .satisfies()
-                                    .containing("connect"),
-              value(testIdentifiers).elementAt(1)
-                                    .function(function("getDisplayName", TestIdentifier::getDisplayName))
-                                    .asString()
-                                    .satisfies()
-                                    .containing("printDomain"),
-              value(testIdentifiers).elementAt(2)
-                                    .function(function("getDisplayName", TestIdentifier::getDisplayName))
-                                    .asString()
-                                    .satisfies()
-                                    .containing("disconnect"));
+    SelfTest.enableAssertion();
+    try {
+      List<TestIdentifier> testIdentifiers = new LinkedList<>();
+      Map<Class<?>, TestExecutionSummary> testReport = CliUtils.runTests(
+          "jp.co.moneyforward.autotest.ca_web.tests",
+          new String[]{
+              "classname:%SelfTest"
+          },
+          new String[]{},
+          new String[]{
+              String.format("--execution-profile=domain:%s", SelfTest.OVERRIDING_DOMAIN_NAME)
+          },
+          new SummaryGeneratingListener() {
+            @Override
+            public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+              testIdentifiers.add(testIdentifier);
+              super.executionFinished(testIdentifier, testExecutionResult);
+            }
+          });
+      
+      int numFailures = testReport.values()
+                                  .stream()
+                                  .map(s -> s.getFailures().size())
+                                  .reduce(Integer::sum)
+                                  .orElseThrow(NoSuchElementException::new);
+      assertAll(value(numFailures).toBe().equalTo(0),
+                value(testIdentifiers).elementAt(0)
+                                      .function(function("getDisplayName", TestIdentifier::getDisplayName))
+                                      .asString()
+                                      .satisfies()
+                                      .containing("connect"),
+                value(testIdentifiers).elementAt(1)
+                                      .function(function("getDisplayName", TestIdentifier::getDisplayName))
+                                      .asString()
+                                      .satisfies()
+                                      .containing("printDomain"),
+                value(testIdentifiers).elementAt(2)
+                                      .function(function("getDisplayName", TestIdentifier::getDisplayName))
+                                      .asString()
+                                      .satisfies()
+                                      .containing("disconnect"));
+    } finally {
+      SelfTest.disableAssertion();
+    }
   }
   
   @Test
