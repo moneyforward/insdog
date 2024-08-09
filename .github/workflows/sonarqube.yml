@@ -73,7 +73,7 @@ jobs:
           overwrite-settings: false
 
       - name: Build and Verify autotest-ca
-        run: mvn clean verify
+        run: mvn -B clean verify
 
       - name: Run SonarQube scanner
         uses: sonarsource/sonarqube-scan-action@master
