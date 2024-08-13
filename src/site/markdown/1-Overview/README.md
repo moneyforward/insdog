@@ -5,7 +5,7 @@ It has the following design concepts.
 
 1. **Written in Java, not having a separate DSL:**
 It is written in Java in order to allow test-writer to access the most matured knowledge pool among others.
-This will also allow us to access larger hiring pool than the predecessor's (駄犬くん was written in Ruby, and it is becoming more and more difficult to find a fine programmer in the language).  
+This will also allow us to access larger hiring pool than the predecessor's ([駄犬くん](https://github.com/moneyforward/ca_web_e2e_test_d/tree/main/script/daken_kun) was written in Ruby, and it is becoming more and more difficult to find a fine programmer in the language).  
 Also, "correctness" and "defined specifications" are important in verifications and validations, which are what Java is excellent at.
 2. **No separate DSL:**
 Introduction of a custom DSL based on external notations, such as CSV, JSON, YAML, Markdown, or whatsoever is what we do not try at this stage.
