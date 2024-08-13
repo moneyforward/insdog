@@ -17,6 +17,10 @@ jobs:
       image: mcr.microsoft.com/playwright/java:v1.45.1-jammy
 
     steps:
+      - name: Export environment variables
+        run: |
+          echo "JAVA_TOOL_OPTIONS=\"-Duser.home=${HOME}\"" >> $GITHUB_ENV
+
       - name: Install dependencies
         run: |
           apt-get update
