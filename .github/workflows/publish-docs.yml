@@ -1,6 +1,7 @@
 name: Publish Docs
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - develop-automateDocumentPublishing
@@ -25,7 +26,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y \
-            git \
+            git make \
             fonts-ipafont-gothic fonts-ipafont-mincho \
             libasound2-dev libc-dev-bin libc-devtools libc6-dev libcrypt-dev \
             libgd3 libjpeg-turbo8-dev libjpeg8-dev libnsl-dev libtirpc-dev \
