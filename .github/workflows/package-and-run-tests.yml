@@ -1,6 +1,7 @@
 name: Package and Run All Tests
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [closed]
     branches:
