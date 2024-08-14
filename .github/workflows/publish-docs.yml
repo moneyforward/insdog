@@ -79,6 +79,7 @@ jobs:
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
           git config --global user.email "ci@moneyforward.com"
           git config --global user.name "MoneyForward CI"
           ./build.sh publish-wiki publish-techdocs
