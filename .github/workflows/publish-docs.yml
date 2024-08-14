@@ -72,7 +72,7 @@ jobs:
           overwrite-settings: false
 
       - name: Build with Maven not Skipping JavaDoc
-        run: mvn clean package test
+        run: mvn package test
 
       - name: Compile Documentation Sets
         env:
