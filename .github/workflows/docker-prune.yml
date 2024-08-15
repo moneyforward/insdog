@@ -1,0 +1,14 @@
+name: Docker System Prune
+
+on:
+  schedule:
+    # Runs at 3:00 AM JST every day
+    - cron: "0 18 * * *"
+
+jobs:
+  prune:
+    runs-on: [self-hosted]
+
+    steps:
+      - name: Run Docker System Prune
+        run: docker system prune -a -f --filter "until=48h"
