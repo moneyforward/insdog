@@ -1,10 +1,6 @@
 name: Set up self-hosted runner
 
 on:
-  push:
-    branches:
-      - add_docker_system_prune
-
   workflow_dispatch:
 
 jobs:
