@@ -1,6 +1,10 @@
 name: Set up self-hosted runner
 
 on:
+  push:
+    branches:
+      - add_docker_system_prune
+
   workflow_dispatch:
 
 jobs:
@@ -8,5 +12,32 @@ jobs:
     runs-on: [self-hosted]
 
     steps:
+      - name: Update package list and install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+
+      - name: Add Docker GPG key
+        run: |
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/docker-archive-keyring.gpg > /dev/null
+
+      - name: Set up Docker repository
+        run: |
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+      - name: Install Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+
+      - name: Verify Docker installation
+        run: |
+          docker --version
+          sudo systemctl status docker
+
+      - name: Add docker to user
+        run: |
+          sudo usermod -aG docker $USER && newgrp - docker
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
