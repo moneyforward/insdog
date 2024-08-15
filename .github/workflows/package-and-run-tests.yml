@@ -35,8 +35,6 @@ jobs:
             libgraphene-1.0-0 libmpeg2-4 libopencore-amrnb0 libopencore-amrwb0 \
             libsidplay1v5
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Checkout repository
         uses: actions/checkout@v4
