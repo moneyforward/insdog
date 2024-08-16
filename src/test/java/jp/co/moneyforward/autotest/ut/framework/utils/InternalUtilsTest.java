@@ -234,6 +234,33 @@ class InternalUtilsTest extends TestBase {
     assertStatement(value(returned).toBe().equalTo(parallel));
   }
   
+  @Test
+  void givenStringLongerThan120_whenShortenString_thenShortenedStringIsReturned() {
+    var s = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
+    
+    var actual = InternalUtils.shorten(s);
+    
+    assertStatement(value(actual).length().toBe().equalTo(120));
+  }
+  
+  @Test
+  void givenCrContainingString_whenShortenString_thenShortenedStringIsReturned() {
+    var s = "1234567890\r1234567890";
+    
+    var actual = InternalUtils.shorten(s);
+    assertStatement(value(actual).toBe().equalTo("1234567890"));
+  }
+  
+  @Test
+  void givenStringLongerThan120ContainingCrAfterChar120_whenShortenString_thenShortenedStringIsReturned() {
+    var s = "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345\rABCD";
+    
+    var actual = InternalUtils.shorten(s);
+    System.out.println(actual);
+    
+    assertStatement(value(actual).length().toBe().equalTo(120));
+  }
+
   private static <T> Function<Stream<T>, List<T>> toList() {
     return Printables.function("toList", Stream::toList);
   }

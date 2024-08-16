@@ -5,6 +5,7 @@ import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
 import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
 import org.junit.platform.commons.support.ModifierSupport;
@@ -29,6 +30,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import static jp.co.moneyforward.autotest.actions.web.SendKey.MASK_PREFIX;
 import static org.junit.platform.commons.support.ReflectionSupport.invokeMethod;
@@ -73,6 +75,7 @@ public enum CliUtils {
                       .toList();
   }
   
+  @SuppressWarnings("SwitchStatementWithTooFewBranches")
   public static Predicate<Class<?>> parseQuery(String query) {
     requireNonNull(query);
     Pattern regex = Pattern.compile("(?<attr>classname|tag):(?<op>[=~%]?)(?<cond>.*)");
@@ -82,22 +85,23 @@ public enum CliUtils {
     String attr = matcher.group("attr");
     String opInQuery = matcher.group("op");
     String op = !Objects.equals(opInQuery, "") ? opInQuery
-                                               : "=";
+                                               : "(default)";
     String cond = matcher.group("cond");
+    // We do use switch as the attribute names are planned to be enhanced to provide new features.
     return switch (attr) {
       case "classname" -> switch (op) {
-        case "=" -> ClassFinder.classNameIsEqualTo(cond);
         case "~" -> ClassFinder.classNameMatchesRegex(cond);
         case "%" -> ClassFinder.classNameContaining(cond);
-        default -> throw new AssertionError();
+        // '=' and 'default' are handled as 'equalTo' operator
+        default -> ClassFinder.classNameIsEqualTo(cond);
       };
-      case "tag" -> switch (op) {
-        case "=" -> ClassFinder.hasTagValueEqualTo(cond);
+      // "tag" attribute is handled by this clause.
+      default -> switch (op) {
         case "~" -> ClassFinder.hasTagValueMatchesRegex(cond);
         case "%" -> ClassFinder.hasTagValueContaining(cond);
-        default -> throw new AssertionError();
+        // '=' and 'default' are handled as 'equalTo' operator
+        default -> ClassFinder.hasTagValueEqualTo(cond);
       };
-      default -> throw new AssertionError();
     };
   }
   
@@ -117,7 +121,7 @@ public enum CliUtils {
                                             : Stream.empty();
   }
   
-  static String composeSceneDescriptorPropertyValue(String[] executionDescriptors) {
+  public static String composeSceneDescriptorPropertyValue(String[] executionDescriptors) {
     Map<String, List<String>> map = new HashMap<>();
     for (var each : executionDescriptors) {
       var e = each.split("=");
@@ -125,11 +129,10 @@ public enum CliUtils {
       map.computeIfPresent(e[0], (k, v) -> Stream.concat(v.stream(),
                                                          Stream.of(e[1].split(","))).toList());
     }
-    StringBuilder b = new StringBuilder("inline:");
-    for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-      b.append(String.format("%s=%s", entry.getKey(), String.join(",", entry.getValue())));
-    }
-    return b.toString();
+    return "inline:" + map.entrySet()
+                          .stream()
+                          .map(e -> String.format("%s=%s", e.getKey(), String.join(",", e.getValue())))
+                          .collect(joining(";"));
   }
   
   public static int runTests(String rootPackageName, String[] queries, String[] executionDescriptors, String[] executionProfile) {
@@ -217,9 +220,9 @@ public enum CliUtils {
                                                                                                                      : null)
                                                                .map(UniqueId.Segment::getValue)
                                                                .orElse("unknown"),
-                                                       shorten(f.getException()
-                                                                .getMessage()
-                                                                .replace("\n", " "))));
+                                                       InternalUtils.shorten(f.getException()
+                                                                              .getMessage()
+                                                                              .replace("\n", " "))));
     LOGGER.info("----");
     LOGGER.info("");
   }
@@ -228,13 +231,6 @@ public enum CliUtils {
     return f.getTestIdentifier()
             .getUniqueIdObject()
             .getSegments();
-  }
-  
-  private static String shorten(String string) {
-    int crPos = string.indexOf('\r');
-    return string.substring(0, Math.min(120,
-                                        crPos < 0 ? string.length()
-                                                  : crPos - 1));
   }
   
   private static String mask(Object o) {

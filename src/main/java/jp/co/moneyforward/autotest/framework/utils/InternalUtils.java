@@ -111,6 +111,32 @@ public enum InternalUtils {
                                                                        : Stream.of(a);
   }
   
+  /**
+   * A shorthand method of `shorten(string, 120)`.
+   *
+   * @param string A string to be shortened.
+   * @return A shortened string.
+   */
+  public static String shorten(String string) {
+    return shorten(string, 120);
+  }
+  
+  /**
+   * Shorten a `string` to the specified `length`.
+   * In case `string` contains  a carriage return (`\r`), a substring from the beginning of the `string` to the position
+   * of the character will be returned.
+   *
+   * @param string A string to be shortened.
+   * @param length A length to which `string` to be shortened.
+   * @return A shortened string.
+   */
+  public static String shorten(String string, int length) {
+    int crPos = string.indexOf('\r');
+    return string.substring(0, Math.min(length,
+                                        crPos < 0 ? string.length()
+                                                  : crPos));
+  }
+  
   public static class AssumptionViolation extends TestAbortedException {
     public AssumptionViolation(String message) {
       super(message);
