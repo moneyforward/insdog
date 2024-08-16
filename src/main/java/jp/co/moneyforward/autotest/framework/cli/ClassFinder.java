@@ -41,6 +41,7 @@ public interface ClassFinder {
    */
   static ClassFinder create(String rootPackage) {
     return query -> {
+      //NOSONAR
       try (ScanResult result = new ClassGraph().enableClassInfo()
                                                .enableAnnotationInfo()
                                                .acceptPackages(rootPackage)
