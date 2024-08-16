@@ -112,7 +112,7 @@ public @interface AutotestExecution {
        * Loads an instance of {@link Spec}.
        *
        * @param base       A base `Spec` instance on which an implementation of this method loads execution spec.
-       * @param properties
+       * @param properties A property object from which execution configuration is created.
        * @see Default
        */
       Spec load(Spec base, Properties properties);

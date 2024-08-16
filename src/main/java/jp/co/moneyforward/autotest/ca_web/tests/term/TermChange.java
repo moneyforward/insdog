@@ -3,8 +3,8 @@ package jp.co.moneyforward.autotest.ca_web.tests.term;
 import com.microsoft.playwright.Dialog;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.AriaRole;
 import jp.co.moneyforward.autotest.actions.web.PageAct;
-import jp.co.moneyforward.autotest.actions.web.PageFunctions;
 import jp.co.moneyforward.autotest.actions.web.TableQuery;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.*;
@@ -73,7 +73,7 @@ public class TermChange extends CawebTermAccessingModel {
           @Override
           protected void action(Page page, ExecutionEnvironment executionEnvironment) {
             officeDropDownLocatorFor(page).click();
-            PageFunctions.getLink(page).click();
+            getLink(page).click();
             
             page.onceDialog(Dialog::accept);
             TableQuery.select("事業者・年度の切替")
@@ -97,7 +97,7 @@ public class TermChange extends CawebTermAccessingModel {
           @Override
           protected void action(Page page, ExecutionEnvironment executionEnvironment) {
             officeDropDownLocatorFor(page).click();
-            PageFunctions.getLink(page).click();
+            getLink(page).click();
             
             page.onceDialog(Dialog::accept);
             TableQuery.select("事業者・年度の切替")
@@ -128,5 +128,8 @@ public class TermChange extends CawebTermAccessingModel {
     };
   }
   
+  public static Locator getLink(Page page) {
+    return page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("事業者・年度の管理"));
+  }
 }
 

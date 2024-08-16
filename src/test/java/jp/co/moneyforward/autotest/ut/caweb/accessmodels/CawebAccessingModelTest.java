@@ -9,6 +9,7 @@ import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.ututils.TestUtils;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
 import java.util.function.Function;
 
 import static com.github.valid8j.fluent.Expectations.*;
