@@ -1,5 +1,7 @@
 package jp.co.moneyforward.autotest.ut.framework.engine;
 
+import com.github.valid8j.fluent.Expectations;
+import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import jp.co.moneyforward.autotest.ut.testclasses.*;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import jp.co.moneyforward.autotest.ututils.TestResultValidatorExtension;
@@ -14,9 +16,14 @@ import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
 
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.function.Consumer;
 
+import static com.github.valid8j.fluent.Expectations.assertStatement;
+import static com.github.valid8j.fluent.Expectations.value;
 import static jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment.PROPERTY_KEY_FOR_TEST_RESULT_DIRECTORY;
 import static jp.co.moneyforward.autotest.ututils.TestResultValidatorExtension.forTestMatching;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AutotestEngineTest extends TestBase {
   @BeforeAll
@@ -25,7 +32,7 @@ public class AutotestEngineTest extends TestBase {
   }
   
   @Test
-  public  void examineAutotestEngineCanRunAndReportSuccessfulTestResultsAsDesigned() {
+  void examineAutotestEngineCanRunAndReportSuccessfulTestResultsAsDesigned() {
     // Create a custom listener that will validate test results
     TestResultValidatorExtension validator = new TestResultValidatorExtension();
     validator.addExpectation(forTestMatching(".*login.*").shouldBeSuccessful());
@@ -38,7 +45,7 @@ public class AutotestEngineTest extends TestBase {
   }
   
   @Test
-  public  void examineAutotestEngineCanRunAndReportSuccessfulTestResultsAsDesigned_beforeAll() {
+  void examineAutotestEngineCanRunAndReportSuccessfulTestResultsAsDesigned_beforeAll() {
     // Create a custom listener that will validate test results
     TestResultValidatorExtension validator = new TestResultValidatorExtension();
     validator.addExpectation(forTestMatching(".*login.*").shouldBeSuccessful());
@@ -51,7 +58,7 @@ public class AutotestEngineTest extends TestBase {
   }
   
   @Test
-  public  void examineAutotestEngineCanRunAndReportSuccessfulTestResultsAsDesigned_beforeEach() {
+  void examineAutotestEngineCanRunAndReportSuccessfulTestResultsAsDesigned_beforeEach() {
     // Create a custom listener that will validate test results
     TestResultValidatorExtension validator = new TestResultValidatorExtension();
     validator.addExpectation(forTestMatching(".*login.*").shouldBeSuccessful());
@@ -64,7 +71,7 @@ public class AutotestEngineTest extends TestBase {
   }
   
   @Test
-  public  void examineAutotestEngineCanRunAndReportTestResultsContainingFailureAsDesigned_beforeAndAfterAllTestbed() {
+  void examineAutotestEngineCanRunAndReportTestResultsContainingFailureAsDesigned_beforeAndAfterAllTestbed() {
     // Create a custom listener that will validate test results
     TestResultValidatorExtension validator = new TestResultValidatorExtension();
     validator.addExpectation(forTestMatching(".*login.*").shouldBeSuccessful());
@@ -77,7 +84,7 @@ public class AutotestEngineTest extends TestBase {
   }
   
   @Test
-  public  void examineAutotestEngineCanRunAndReportTestResultsContainingFailureAsDesigned_beforeAndEachAllTestbed() {
+  void examineAutotestEngineCanRunAndReportTestResultsContainingFailureAsDesigned_beforeAndEachAllTestbed() {
     // Create a custom listener that will validate test results
     TestResultValidatorExtension validator = new TestResultValidatorExtension();
     validator.addExpectation(forTestMatching(".*login.*").shouldBeSuccessful());
@@ -88,12 +95,29 @@ public class AutotestEngineTest extends TestBase {
     
     runTests(validator, AllPassingWithBeforeAndAfterEachTestbed.class);
   }
-
+  
   @Test
-  public  void examineAutotestEngineCanRunAndReportTestResultsForEmptyTestClass() {
+  void examineAutotestEngineCanRunAndReportTestResultsForEmptyTestClass() {
     // Create a custom listener that will validate test results
     TestResultValidatorExtension validator = new TestResultValidatorExtension();
     runTests(validator, EmptyTestbed.class);
+  }
+  
+  @Test
+  void givenOutOfMemoryThrowingCnsumer_whenPerformActionEntry_thenOutOfMemoryWillBeThrownWithNoWrapping() {
+    Consumer<List<String>> action = v -> {
+      throw new OutOfMemoryError("INTENTIONAL");
+    };
+    
+    assertThrows(OutOfMemoryError.class,
+                 () -> {
+                   try {
+                     AutotestEngine.performActionEntry("KEY1", action);
+                   } catch (OutOfMemoryError e) {
+                     assertStatement(value(e).getMessage().toBe().containing("INTENTIONAL"));
+                     throw e;
+                   }
+                 });
   }
   
   private static void runTests(TestResultValidatorExtension validator, Class<?> testClass) {
