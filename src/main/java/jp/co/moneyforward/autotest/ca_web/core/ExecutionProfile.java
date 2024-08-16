@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.github.dakusui.osynth.ObjectSynthesizer.methodCall;
-import static java.util.Collections.emptyMap;
 import static jp.co.moneyforward.autotest.framework.cli.CliUtils.getProfileOverriders;
 
 /**
@@ -21,11 +20,7 @@ public interface ExecutionProfile {
    * @return An `ExecutionProfile` object.
    */
   static ExecutionProfile create() {
-    Map<String, String> profileOverriders;
-    return create(create(() -> InternalUtils.currentBranchNameFor(InternalUtils.projectDir())),
-                  (profileOverriders = getProfileOverriders()) != null ? profileOverriders
-                                                                       : emptyMap());
-    
+    return create(create(() -> InternalUtils.currentBranchNameFor(InternalUtils.projectDir())), getProfileOverriders());
   }
   
   /**

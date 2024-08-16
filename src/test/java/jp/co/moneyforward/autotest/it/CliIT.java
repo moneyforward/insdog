@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 
 import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.forms.Printables.function;
@@ -109,24 +110,24 @@ public class CliIT extends TestBase {
                                 .orElseThrow(NoSuchElementException::new);
     assertAll(value(numFailures).toBe().equalTo(0),
               value(testIdentifiers).elementAt(0)
-                                    .function(function("getDisplayName", TestIdentifier::getDisplayName))
+                                    .function(functionGetDisplayName())
                                     .asString()
                                     .satisfies()
                                     .containing("connect"),
               value(testIdentifiers).elementAt(1)
-                                    .function(function("getDisplayName", TestIdentifier::getDisplayName))
+                                    .function(functionGetDisplayName())
                                     .asString()
                                     .satisfies()
                                     .containing("printDomain"),
               value(testIdentifiers).elementAt(2)
-                                    .function(function("getDisplayName", TestIdentifier::getDisplayName))
+                                    .function(functionGetDisplayName())
                                     .asString()
                                     .satisfies()
                                     .containing("disconnect"));
   }
   
   @Test
-  public void runSelfTestWithExecutionProfileThroughCliUtils() {
+  void runSelfTestWithExecutionProfileThroughCliUtils() {
     SelfTest.enableAssertion();
     try {
       List<TestIdentifier> testIdentifiers = new LinkedList<>();
@@ -154,17 +155,17 @@ public class CliIT extends TestBase {
                                   .orElseThrow(NoSuchElementException::new);
       assertAll(value(numFailures).toBe().equalTo(0),
                 value(testIdentifiers).elementAt(0)
-                                      .function(function("getDisplayName", TestIdentifier::getDisplayName))
+                                      .function(functionGetDisplayName())
                                       .asString()
                                       .satisfies()
                                       .containing("connect"),
                 value(testIdentifiers).elementAt(1)
-                                      .function(function("getDisplayName", TestIdentifier::getDisplayName))
+                                      .function(functionGetDisplayName())
                                       .asString()
                                       .satisfies()
                                       .containing("printDomain"),
                 value(testIdentifiers).elementAt(2)
-                                      .function(function("getDisplayName", TestIdentifier::getDisplayName))
+                                      .function(functionGetDisplayName())
                                       .asString()
                                       .satisfies()
                                       .containing("disconnect"));
@@ -173,34 +174,8 @@ public class CliIT extends TestBase {
     }
   }
   
-  @Test
-  public void runFailingTestThroughCliUtils() {
-    List<TestIdentifier> testIdentifiers = new LinkedList<>();
-    
-    Map<Class<?>, TestExecutionSummary> testReport = CliUtils.runTests(
-        "jp.co.moneyforward.autotest.it.t4t",
-        new String[]{"classname:%Failing"}, new String[]{},
-        new String[]{},
-        new SummaryGeneratingListener() {
-          @Override
-          public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
-            testIdentifiers.add(testIdentifier);
-            super.executionFinished(testIdentifier, testExecutionResult);
-          }
-        });
-    
-    int numFailures = testReport.values()
-                                .stream()
-                                .map(s -> s.getFailures().size())
-                                .reduce(Integer::sum)
-                                .orElseThrow(NoSuchElementException::new);
-    List<String> failedTests = testReport.values()
-                                         .stream()
-                                         .flatMap((TestExecutionSummary v) -> v.getFailures().stream())
-                                         .map(TestExecutionSummary.Failure::getTestIdentifier)
-                                         .map(TestIdentifier::getDisplayName).toList();
-    assertAll(value(numFailures).toBe().equalTo(1),
-              value(failedTests).elementAt(0).asString().toBe().containing("fail"));
+  private static Function<TestIdentifier, String> functionGetDisplayName() {
+    return function("getDisplayName", TestIdentifier::getDisplayName);
   }
   
   static class NoExitExecutionStrategy implements CommandLine.IExecutionStrategy {

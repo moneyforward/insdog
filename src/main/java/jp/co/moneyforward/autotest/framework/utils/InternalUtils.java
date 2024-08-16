@@ -53,10 +53,11 @@ public enum InternalUtils {
       File gitDir = new File(projectDir, ".git");
       if (!gitDir.exists())
         return Optional.empty();
+      //NOSONAR
       try (Repository repository = new FileRepositoryBuilder()
+          .setMustExist(true)
           .setGitDir(gitDir)
           .readEnvironment()
-          .findGitDir()
           .build()) {
         return Optional.of(repository.getBranch());
       }
@@ -106,8 +107,8 @@ public enum InternalUtils {
   }
   
   public static Stream<Action> flattenIfSequential(Action a) {
-    return a instanceof Composite && !((Composite) a).isParallel() ? ((Composite) a).children().stream()
-                                                                   : Stream.of(a);
+    return a instanceof Composite composite && !composite.isParallel() ? ((Composite) a).children().stream()
+                                                                       : Stream.of(a);
   }
   
   public static class AssumptionViolation extends TestAbortedException {

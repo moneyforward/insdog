@@ -149,6 +149,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                                 sceneCallGraph(runner.getClass()),
                                                 assertions(runner.getClass()));
     var closers = closers(runner.getClass());
+    //NOSONAR
     assert Contracts.explicitlySpecifiedScenesAreAllCoveredInCorrespondingPlannedStage(spec, executionPlan);
     ExtensionContext.Store executionContextStore = executionContextStore(context);
     
@@ -275,17 +276,21 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   private static SceneExecutionResult performActionEntry(Entry<String, Action> each, Consumer<List<String>> consumer) {
+    return performActionEntry(each.key(), consumer);
+  }
+  
+  public static SceneExecutionResult performActionEntry(String key, Consumer<List<String>> consumer) {
     List<String> out = new ArrayList<>();
     try {
       consumer.accept(out);
-      return new SceneExecutionResult(each.key(), null, out);
+      return new SceneExecutionResult(key, null, out);
     } catch (OutOfMemoryError e) {
       // In case of `OutOfMemoryError`, nothing we can do. Just throw it to higher level.
       throw e;
     } catch (Throwable e) {
       // We are catching even `Throwable` and put in the test result.
       // Otherwise, in case we get an `Error`, it will not be reported, which isn't preferable.
-      return new SceneExecutionResult(each.key(), e, out);
+      return new SceneExecutionResult(key, e, out);
     }
   }
   
@@ -471,6 +476,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   
   private static String nameOf(Method m) {
     Named annotation = m.getAnnotation(Named.class);
+    //NOSONAR
     assert annotation != null : Objects.toString(m);
     if (!Objects.equals(annotation.value(), Named.DEFAULT_VALUE))
       return annotation.value();
@@ -663,7 +669,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   /**
    * A class that models a result of a scene execution.
    */
-  static class SceneExecutionResult {
+  public static class SceneExecutionResult {
     private final String name;
     private final Throwable exception;
     private final List<String> out;

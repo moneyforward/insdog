@@ -1,11 +1,18 @@
 package jp.co.moneyforward.autotest.ut.framework.utils;
 
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
+import com.github.valid8j.fluent.Expectations;
 import com.github.valid8j.pcond.forms.Printables;
+import jp.co.moneyforward.autotest.framework.action.Call;
+import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.AutotestException;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,9 +20,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.valid8j.fluent.Expectations.*;
+import static java.util.stream.Collectors.toSet;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class InternalUtilsTest extends TestBase {
   
@@ -171,6 +181,57 @@ class InternalUtilsTest extends TestBase {
       assertAll(value(out).toBe().instanceOf(Error.class),
                 value(out).getMessage().toBe().containing("error"));
     }
+  }
+  
+  @Test
+  void whenChainActs_thenCreatedSceneLooksCorrect() {
+    Scene scene = InternalUtils.chainActs("var1", new LeafAct.Func<>((String x) -> x + "a"), new LeafAct.Func<>((String x) -> x + "b"));
+    
+    assertStatement(value(scene.children().stream().map(Call::outputFieldName).toList())
+                        .toBe()
+                        .equalTo(List.of("var1", "var1")));
+  }
+  
+  @Test
+  void whenIsPresumablyRunningFromIde_thenFinishesWithoutException() {
+    boolean value = InternalUtils.isPresumablyRunningFromIDE();
+    
+    assertStatement(value(value).toBe().instanceOf(Boolean.class));
+  }
+  
+  @Test
+  void givenNonGitProjectDirectory_whenCurrentBranchNameForIsCalled_thenIoExceptionThrown() throws IOException {
+    File projectDir = File.createTempFile("dummy", "dir");
+    require(value(projectDir.delete()).toBe().trueValue());
+    File gitDir = new File(projectDir, ".git");
+    require(value(gitDir.mkdirs()).toBe().trueValue());
+    gitDir.deleteOnExit();
+    projectDir.deleteOnExit();
+    assertThrows(IOException.class, () -> {
+      try {
+        System.out.println(InternalUtils.currentBranchNameFor(projectDir));
+      } catch (RuntimeException out) {
+        throw out.getCause();
+      }
+    });
+  }
+  
+  @Test
+  void givenNop_whenFlattenIfSequential_thenReturnedOriginalAction() {
+    Action nop = ActionSupport.nop();
+    
+    var returned = InternalUtils.flattenIfSequential(nop).collect(toSet()).iterator().next();
+    
+    assertStatement(value(returned).toBe().equalTo(nop));
+  }
+  
+  @Test
+  void givenParallel_whenFlattenIfSequential_thenReturnedOriginalAction() {
+    Action parallel = ActionSupport.parallel(ActionSupport.nop(), ActionSupport.nop());
+    
+    var returned = InternalUtils.flattenIfSequential(parallel).collect(toSet()).iterator().next();
+    
+    assertStatement(value(returned).toBe().equalTo(parallel));
   }
   
   private static <T> Function<Stream<T>, List<T>> toList() {

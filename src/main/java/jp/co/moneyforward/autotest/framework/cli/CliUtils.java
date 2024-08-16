@@ -164,7 +164,7 @@ public enum CliUtils {
                  requestBuilder.selectors(selectClass(c));
                  targetTestClasses.add(c);
                });
-    LOGGER.info("Running test classes in " + rootPackageName);
+    LOGGER.info("Running test classes in {}", rootPackageName);
     LOGGER.info("----");
     targetTestClasses.forEach(c -> LOGGER.info("- {}", c.getCanonicalName()));
     LOGGER.info("----");

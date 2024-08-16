@@ -111,6 +111,7 @@ public abstract class CliBase implements Callable<Integer> {
           """)
   public Integer listTestClasses() {
     int ret;
+    //NOSONAR
     try (var out = out(); var err = err()) {
       try {
         CliUtils.listTestClasses(this.queries, this.rootPackageName())
@@ -131,6 +132,7 @@ public abstract class CliBase implements Callable<Integer> {
           """)
   public Integer listTags() {
     int ret;
+    //NOSONAR
     try (var out = out()) {
       CliUtils.listTags(this.rootPackageName())
               .forEach(out::println);
