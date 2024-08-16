@@ -57,6 +57,22 @@ public class ClassFinderTest {
   }
   
   @Test
+  public void whenFindClassesUsingClassNameRegexWithAlwaysTrue_thenMatchesFound() {
+    List<Class<?>> out = new LinkedList<>();
+    Predicate<Class<?>> query = classNameMatchesRegex(".*Test").and(ClassFinder.alwaysTrue());
+    ClassFinder.create(Index.class.getPackageName())
+               .findMatchingClasses(query)
+               .forEach(out::add);
+    
+    assertAll(value(out).toBe()
+                        .notEmpty(),
+              value(out).stream()
+                        .toBe()
+                        .allMatch(Valid8JCliches.Transform.$(functionCanonicalName())
+                                                          .check(containsString(Index.class.getPackageName()).and(endsWith("Test")))));
+  }
+
+  @Test
   public void whenFindClassesUsingClassNamePartialMatch_thenMatchesFound() {
     List<Class<?>> out = new LinkedList<>();
     Predicate<Class<?>> query = classNameContaining("Test");

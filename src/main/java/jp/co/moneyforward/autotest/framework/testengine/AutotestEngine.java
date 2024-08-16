@@ -149,6 +149,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                                 sceneCallGraph(runner.getClass()),
                                                 assertions(runner.getClass()));
     var closers = closers(runner.getClass());
+    //NOSONAR
     assert Contracts.explicitlySpecifiedScenesAreAllCoveredInCorrespondingPlannedStage(spec, executionPlan);
     ExtensionContext.Store executionContextStore = executionContextStore(context);
     
@@ -471,6 +472,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   
   private static String nameOf(Method m) {
     Named annotation = m.getAnnotation(Named.class);
+    //NOSONAR
     assert annotation != null : Objects.toString(m);
     if (!Objects.equals(annotation.value(), Named.DEFAULT_VALUE))
       return annotation.value();
