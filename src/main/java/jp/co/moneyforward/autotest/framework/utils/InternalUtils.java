@@ -107,8 +107,8 @@ public enum InternalUtils {
   }
   
   public static Stream<Action> flattenIfSequential(Action a) {
-    return a instanceof Composite composite && composite.isParallel() ? ((Composite) a).children().stream()
-                                                                      : Stream.of(a);
+    return a instanceof Composite composite && !composite.isParallel() ? ((Composite) a).children().stream()
+                                                                       : Stream.of(a);
   }
   
   public static class AssumptionViolation extends TestAbortedException {
