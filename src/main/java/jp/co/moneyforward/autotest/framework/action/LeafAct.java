@@ -83,6 +83,15 @@ public interface LeafAct<T, R> extends Act<T, R> {
     }
   }
   
+  /**
+   * A leaf act, which models a "sink".
+   * A sink is a concept, where value is consumed only.
+   *
+   * As the design of leaf act of the **autotest-ca** framework, it needs to return a value on a call of `perform` method,
+   * it returns `null` instead.
+   *
+   * @param <T> A type of value consumed by this sink object.
+   */
   class Sink<T> extends Func<T, Void> {
     /**
      * Creates an instance of this class.

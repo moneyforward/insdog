@@ -50,7 +50,6 @@ import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
  * following JVM option.:
  *
  * `--add-opens java.base/java.lang.invoke=ALL-UNNAMED`
- *
  */
 @SuppressWarnings("JavadocLinkAsPlainText")
 public class CawebAccessingModel implements AutotestRunner {
@@ -87,11 +86,13 @@ public class CawebAccessingModel implements AutotestRunner {
     String browserVariableName = "browser";
     return new Scene.Builder("NONE")
         .add(windowVariableName, new Let<>(Playwright.create()))
-        .add(browserVariableName, new Func<>("Playwright::chromium",
-                                             (Playwright playwright) -> launchBrowser(playwright.chromium(), executionProfile)),
+        .add(browserVariableName,
+             new Func<>("Playwright::chromium",
+                        (Playwright playwright) -> launchBrowser(playwright.chromium(),
+                                                                 executionProfile())),
              windowVariableName)
         .add("browserContext", new Func<>("Browser::newContext->setDefaultTimeout(" + time + timeUnit + ")", (Browser b) -> {
-          BrowserContext c = browserContextFrom(b, executionProfile);
+          BrowserContext c = browserContextFrom(b, executionProfile());
           c.setDefaultTimeout(timeUnit.toMillis(time));
           return c;
         }), browserVariableName)
@@ -187,7 +188,7 @@ public class CawebAccessingModel implements AutotestRunner {
     return actionPerformer;
   }
   
-  private static Context getContext() {
+  public static Context getContext() {
     return new Impl() {
       @Override
       public Context createChild() {
@@ -196,7 +197,7 @@ public class CawebAccessingModel implements AutotestRunner {
     };
   }
   
-
+  
   public static Browser launchBrowser(BrowserType browserType, ExecutionProfile executionProfile) {
     boolean headless = executionProfile.setHeadless();
     if (headless)
@@ -204,6 +205,6 @@ public class CawebAccessingModel implements AutotestRunner {
     else
       LOGGER.info("HEADFUL MODE");
     return browserType.launch(new BrowserType.LaunchOptions()
-                               .setHeadless(headless));
+                                  .setHeadless(headless));
   }
 }

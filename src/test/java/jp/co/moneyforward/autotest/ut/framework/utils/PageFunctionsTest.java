@@ -2,8 +2,6 @@ package jp.co.moneyforward.autotest.ut.framework.utils;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Page.GetByRoleOptions;
-import com.microsoft.playwright.options.AriaRole;
 import jp.co.moneyforward.autotest.actions.web.PageFunctions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
