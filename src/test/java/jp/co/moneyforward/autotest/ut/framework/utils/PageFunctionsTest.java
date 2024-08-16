@@ -94,7 +94,7 @@ class PageFunctionsTest {
     
     try (Page page = Mockito.mock(Page.class)) {
       Locator mockedLocator = mock(Locator.class);
-      when(page.getByLabel((String) any(), any())).thenReturn(mockedLocator);
+      when(page.getByText((String) any(), any())).thenReturn(mockedLocator);
       Locator locator = function.apply(page);
       
       assertStatement(value(locator).toBe().equalTo(mockedLocator));
