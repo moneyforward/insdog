@@ -1,13 +1,16 @@
 package jp.co.moneyforward.autotest.ut.builtins;
 
+import com.github.valid8j.pcond.forms.Printables;
 import com.microsoft.playwright.*;
 import jp.co.moneyforward.autotest.actions.web.*;
+import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.valid8j.fluent.Expectations.*;
 import static org.mockito.Mockito.*;
@@ -234,5 +237,43 @@ class BuiltInLeafActsTest extends TestBase {
       assertAll(value(returned).toBe().nullValue());
       Mockito.verify(window).close();
     }
+  }
+  
+  @Test
+  void givenFuncWithPrintableFunction_whenName_thenValueFromOverriddenToStringIsReturned() {
+    LeafAct.Func<String, String> func = new LeafAct.Func<>(Printables.function("printableHello", x -> x));
+    
+    assertStatement(value(func.name()).toBe().equalTo("printableHello"));
+  }
+  
+  @Test
+  void givenFuncWithNonPrintableFunction_whenName_thenFixedValueIsReturned() {
+    LeafAct.Func<String, String> func = new LeafAct.Func<>(x -> x);
+    
+    assertStatement(value(func.name()).toBe().equalTo("func"));
+  }
+  
+  @Test
+  void givenSinkWithName_whenName_thenValueFromOverriddenToStringIsReturned() {
+    LeafAct.Sink<String> func = new LeafAct.Sink<>("printableHello", x -> {});
+    
+    assertStatement(value(func.name()).toBe().equalTo("printableHello"));
+  }
+  
+  @Test
+  void givenSinkWithoutName_whenName_thenFixedValueIsReturned() {
+    LeafAct.Sink<String> sink = new LeafAct.Sink<>(x -> {});
+    
+    assertStatement(value(sink.name()).toBe().equalTo("sink"));
+  }
+  
+  @Test
+  void givenSinkWithoutName_whenPerformed_thenGivenConsumerExercised() {
+    var valueHolder = new AtomicReference<String>();
+    LeafAct.Sink<String> sink = new LeafAct.Sink<>(valueHolder::set);
+    
+    sink.perform("XYZ", mock(ExecutionEnvironment.class));
+    
+    assertStatement(value(valueHolder).invoke("get").toBe().equalTo("XYZ"));
   }
 }
