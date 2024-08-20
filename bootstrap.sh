@@ -142,12 +142,8 @@ function progress() {
 
 
 function caveats() {
-  # FIXME
-  # brew install uses unusual line breaks in Caveats.
-  # To ensure comment-out happens correctly, we do the sed twice.
-  sed -n '/==> Caveats/,/END/p' | grep -v '==>' || :       \
-                                | grep -v '🍺'  || :       \
-                                | grep -E '[A-Z_0-9]+=' || :
+  # LIMITATION: Only PATH environment variable mangling will be considered.
+  sed -n '/==> Caveats/,/END/p' | grep 'PATH=' || :
 }
 
 function reset_caveats_rc() {
