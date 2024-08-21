@@ -1,8 +1,14 @@
 package jp.co.moneyforward.autotest.ca_web.core;
 
+import com.eatthepath.otp.TimeBasedOneTimePasswordGenerator;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
+import org.apache.commons.codec.binary.Base32;
+
+import javax.crypto.SecretKey;
+import java.security.Key;
 
 class ExecutionProfileImpl implements ExecutionProfile {
+  private static final TimeBasedOneTimePasswordGenerator TIME_BASED_ONE_TIME_PASSWORD_GENERATOR = new TimeBasedOneTimePasswordGenerator();
   final String differentiatingSuffix = InternalUtils.dateToSafeString(InternalUtils.now());
   
   private final String sutDomainName;
@@ -11,6 +17,28 @@ class ExecutionProfileImpl implements ExecutionProfile {
     this.sutDomainName = sutDomainName;
   }
   
+  /**
+   * The recovery code for this account is below:
+   *
+   * ```
+   * マネーフォワード ID 復元コード:
+   * HBIW2362XT3IM
+   * PGF3MTNO3STD2
+   * ONETHGRTWMGSU
+   * B5WAZCIPNH27S
+   * MMX343AST3YXE
+   * UNFGTATPEUT7C
+   * DBUJPBJL5LHBY
+   * JDPGVU55EMZHA
+   * BXNWMJ3OGNLVG
+   * DPOVTBNDR5LZY
+   * ```
+   * ```
+   * SVW6 6DVC 3Z3P SNIN C454 G5HP 5Y5V ZDPA
+   * ````
+   *
+   * @return A user e-mail
+   */
   @Override
   public String userEmail() {
     return "ukai.hiroshi+autotest1@moneyforward.co.jp";
@@ -19,6 +47,16 @@ class ExecutionProfileImpl implements ExecutionProfile {
   @Override
   public String userPassword() {
     return "MASK!!QAZ@WSX";
+  }
+  
+  @Override
+  public String totpKeyString() {
+    return "SVW6 6DVC 3Z3P SNIN C454 G5HP 5Y5V ZDPA";
+  }
+  
+  @Override
+  public TimeBasedOneTimePasswordGenerator totp() {
+    return TIME_BASED_ONE_TIME_PASSWORD_GENERATOR;
   }
   
   @Override

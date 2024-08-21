@@ -119,6 +119,8 @@ public class CawebAccessingModel implements AutotestRunner {
         .add(new Click(getButtonByName("ログインする")))
         .add(new SendKey(PageFunctions.getByLabel("パスワード"), executionProfile.userPassword()))
         .add(new Click("button[id='submitto']"))
+        .add(new SendKey(PageFunctions.getByPlaceholder("000000"), executionProfile.totpForNow()))
+        .add(new Click(PageFunctions.getButtonByName("認証する")))
         .build();
   }
   

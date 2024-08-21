@@ -1,14 +1,21 @@
 package jp.co.moneyforward.autotest.ca_web.core;
 
+import com.eatthepath.otp.TimeBasedOneTimePasswordGenerator;
 import com.github.dakusui.osynth.ObjectSynthesizer;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
+import org.apache.commons.codec.binary.Base32;
 
+import javax.crypto.SecretKey;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.github.dakusui.osynth.ObjectSynthesizer.methodCall;
 import static jp.co.moneyforward.autotest.framework.cli.CliUtils.getProfileOverriders;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.wrap;
 
 /**
  * A class that holds information, which doesn't change throughout an execution session of "autotest-ca"
@@ -85,6 +92,82 @@ public interface ExecutionProfile {
    * @see ExecutionProfileImpl#userEmail()
    */
   String userPassword();
+  
+  /**
+   * A method that returns a TOTP (Time-based Onetime password) for current time step.
+   * Time of the calling this method.
+   *
+   * @return A TOTP for the current time.
+   * @see ExecutionProfile#totpFor(Instant)
+   */
+  default String totpForNow() {
+    return totpFor(Instant.now());
+  }
+  
+  /**
+   * A method that returns a TOTP for the next time step from the one for now.
+   *
+   * @return A TOTP for the next time step after the current time.
+   * @see ExecutionProfile#totpFor(Instant)
+   */
+  default String nextTotp() {
+    return totpFor(Instant.now().plus(totp().getTimeStep()));
+  }
+  
+  /**
+   * Returns a TOTP (Time-based Onetime password) string for the given `instant`.
+   *
+   * @param instant An instant for which a TOTP is generated.
+   * @return A TOTP string.
+   */
+  default String totpFor(Instant instant) {
+    try {
+      return totp().generateOneTimePasswordString(totpKey(), instant);
+    } catch (InvalidKeyException e) {
+      throw wrap(e);
+    }
+  }
+  
+  /**
+   * Returns a key object from a returned value of `totpKeyString`.
+   *
+   * @return A secret key instance fot TOTP.
+   * @see ExecutionProfile#totpKeyString
+   */
+  default Key totpKey() {
+    return new SecretKey() {
+      
+      @Override
+      public String getAlgorithm() {
+        return totp().getAlgorithm();
+      }
+      
+      @Override
+      public String getFormat() {
+        return null;
+      }
+      
+      @Override
+      public byte[] getEncoded() {
+        return new Base32().decode(totpKeyString());
+      }
+    };
+  }
+  
+  /**
+   * A key string shared with the account.
+   * The value is what is defined as "Key" in "TOTP: Time-Based One-Time Password Algorithm"[RFC-6238](https://datatracker.ietf.org/doc/html/rfc6238).
+   *
+   * @return A key string to generate a onetime password.
+   */
+  String totpKeyString();
+  
+  /**
+   * A method that returns A TOTP generator object.
+   *
+   * @return A TOTP generator object.
+   */
+  TimeBasedOneTimePasswordGenerator totp();
   
   /**
    * An item stored in `action_files/scenarios/ca/account_registration/data_store/ca_account_registration_data_store_members.csv`

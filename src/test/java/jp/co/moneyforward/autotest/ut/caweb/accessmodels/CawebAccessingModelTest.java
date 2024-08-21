@@ -1,5 +1,6 @@
 package jp.co.moneyforward.autotest.ut.caweb.accessmodels;
 
+import com.eatthepath.otp.TimeBasedOneTimePasswordGenerator;
 import com.github.dakusui.actionunit.visitors.ActionPerformer;
 import com.github.valid8j.pcond.forms.Printables;
 import com.microsoft.playwright.*;
@@ -11,6 +12,7 @@ import jp.co.moneyforward.autotest.ututils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.security.Key;
 import java.util.function.Function;
 
 import static com.github.valid8j.fluent.Expectations.*;
@@ -170,6 +172,21 @@ class CawebAccessingModelTest {
       @Override
       public String userPassword() {
         return "";
+      }
+      
+      @Override
+      public Key totpKey() {
+        return null;
+      }
+      
+      @Override
+      public String totpKeyString() {
+        return "123456";
+      }
+      
+      @Override
+      public TimeBasedOneTimePasswordGenerator totp() {
+        return null;
       }
       
       @Override
