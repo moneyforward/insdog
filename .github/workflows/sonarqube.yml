@@ -95,3 +95,12 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: Comment
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          echo "[View SonarQube](${SONAR_HOST_URL}/dashboard?id=autotest-ca&pullRequest=${PR_NUMBER})" > /tmp/comment
+          gh pr comment "${PR_NUMBER}" -F /tmp/comment
