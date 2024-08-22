@@ -96,6 +96,12 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
+  comment:
+    needs: [build]
+
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Comment
         env:
           PR_NUMBER: ${{ github.event.number }}
