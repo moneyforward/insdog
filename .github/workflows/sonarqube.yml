@@ -95,3 +95,21 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+  comment:
+    needs: [build]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Comment
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          echo "[View SonarQube](${SONAR_HOST_URL}/dashboard?id=${GITHUB_REPOSITORY#${GITHUB_REPOSITORY_OWNER}/}&pullRequest=${PR_NUMBER})" > /tmp/comment
+          gh pr comment "${PR_NUMBER}" -F /tmp/comment
