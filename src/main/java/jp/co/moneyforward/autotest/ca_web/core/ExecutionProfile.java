@@ -196,6 +196,18 @@ public interface ExecutionProfile {
     return String.format("https://%s/accounts", domain());
   }
   
+  default String generalLedgersUrl() {
+    return String.format("https://%s/general_ledgers", domain());
+  }
+  
+  default String subsidiaryLedgersUrl() {
+    return String.format("https://%s/subsidiary_ledgers", domain());
+  }
+  
+  default String booksSettingUrl() {
+    return String.format("https://%s/books_setting", domain());
+  }
+  
   /**
    * Returns if **autotest** should be executed in headless or head-ful.
    * The head-ful is useful for developing and debugging the **autotest** not intended for using it in the C/I environment.

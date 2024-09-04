@@ -169,7 +169,7 @@ And it may print following:
 
 ```text
 class jp.co.moneyforward.autotest.ca_web.tests.bankaccount.BankLinkageTest
-class jp.co.moneyforward.autotest.ca_web.tests.pages.VisitAllMenuItemsTest
+class jp.co.moneyforward.autotest.ca_web.tests.pages.VisitMenuItemsTest
 ```
 
 By specifying queries (`-q`, `--query`), you can identify tests to be executed by `run` subcommand without actually executing them.

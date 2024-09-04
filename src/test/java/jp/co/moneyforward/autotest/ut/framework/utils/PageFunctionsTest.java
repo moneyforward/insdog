@@ -16,16 +16,16 @@ import static org.mockito.Mockito.when;
 
 class PageFunctionsTest {
   @Test
-  void givenNonLenient_whenGetByName_thenEqualSignContainedInName() {
-    Function<Page, Locator> function = PageFunctions.getByName("test", false);
+  void givenNonLenient_whenLinkLocatorByName_thenEqualSignContainedInName() {
+    Function<Page, Locator> function = PageFunctions.linkLocatorByName("test", false);
     
     assertStatement(value(function).stringify().toBe().containing("name=test"));
   }
   
   @Test
-  void givenNonLenient_whenGetByName_thenLocatorIsReturned() {
+  void givenNonLenient_whenLocatorByName_thenLinkLocatorIsReturned() {
     boolean v = false;
-    Function<Page, Locator> function = PageFunctions.getByName("test", v);
+    Function<Page, Locator> function = PageFunctions.linkLocatorByName("test", v);
     
     try (Page page = Mockito.mock(Page.class)) {
       Locator mockedLocator = mock(Locator.class);
@@ -37,9 +37,9 @@ class PageFunctionsTest {
   }
   
   @Test
-  void whenGetButtonByName_thenLocatorIsReturned() {
+  void whenButtonLocatorByName_thenLocatorIsReturned() {
     boolean v = false;
-    Function<Page, Locator> function = PageFunctions.getButtonByName("test");
+    Function<Page, Locator> function = PageFunctions.buttonLocatorByName("test");
     
     try (Page page = Mockito.mock(Page.class)) {
       Locator mockedLocator = mock(Locator.class);
@@ -64,7 +64,7 @@ class PageFunctionsTest {
   }
   
   private static void whenGetByLabel_thenLocatorIsReturned(boolean v) {
-    Function<Page, Locator> function = PageFunctions.getByLabel("test", v);
+    Function<Page, Locator> function = PageFunctions.locatorByLabel("test", v);
     
     try (Page page = Mockito.mock(Page.class)) {
       Locator mockedLocator = mock(Locator.class);
@@ -76,19 +76,19 @@ class PageFunctionsTest {
   }
   
   @Test
-  void givenNonLenient_whenGetByText_thenLocatorIsReturned() {
+  void givenNonLenient_whenLocatorByText_thenLocatorIsReturned() {
     boolean v = false;
     whenGetByLabel_thenLocatorIsReturned(v);
   }
   
   @Test
-  void givenLenient_whenGetByText_thenLocatorIsReturned() {
+  void givenLenient_whenLocatorByText_thenLocatorIsReturned() {
     boolean v = true;
-    whenGetByText_thenLocatorIsReturned(v);
+    whenLocatorByText_thenLocatorIsReturned(v);
   }
   
-  private static void whenGetByText_thenLocatorIsReturned(boolean v) {
-    Function<Page, Locator> function = PageFunctions.getByText("test", v);
+  private static void whenLocatorByText_thenLocatorIsReturned(boolean v) {
+    Function<Page, Locator> function = PageFunctions.locatorByText("test", v);
     
     try (Page page = Mockito.mock(Page.class)) {
       Locator mockedLocator = mock(Locator.class);
@@ -100,8 +100,8 @@ class PageFunctionsTest {
   }
   
   @Test
-  void givenNonLenient_whenGetByPlaceHolder_thenLocatorIsReturned() {
-    Function<Page, Locator> function = PageFunctions.getByPlaceholder("test");
+  void givenNonLenient_whenLocatorByPlaceHolder_thenLocatorIsReturned() {
+    Function<Page, Locator> function = PageFunctions.locatorByPlaceholder("test");
     
     try (Page page = Mockito.mock(Page.class)) {
       Locator mockedLocator = mock(Locator.class);
@@ -113,8 +113,8 @@ class PageFunctionsTest {
   }
   
   @Test
-  void whenGetTitle_thenTitleIsReturned() {
-    Function<Page, String> function = PageFunctions.getTitle();
+  void whenLocatorForTitle_thenTitleIsReturned() {
+    Function<Page, String> function = PageFunctions.toTitle();
     
     try (Page page = Mockito.mock(Page.class)) {
       Locator mockedLocator = mock(Locator.class);

@@ -3,10 +3,7 @@ package jp.co.moneyforward.autotest.ca_web.accessmodels;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.core.Context.Impl;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.BrowserContext;
-import com.microsoft.playwright.BrowserType;
-import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.*;
 import jp.co.moneyforward.autotest.actions.web.*;
 import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.framework.action.LeafAct.Func;
@@ -96,7 +93,11 @@ public class CawebAccessingModel implements AutotestRunner {
           c.setDefaultTimeout(timeUnit.toMillis(time));
           return c;
         }), browserVariableName)
-        .add("page", new Func<>("BrowserContext::newPage", BrowserContext::newPage), "browserContext")
+        .add("page", new Func<>("BrowserContext::newPage[1440x900]", (BrowserContext browserContext) ->  {
+          Page page = browserContext.newPage();
+          page.setViewportSize(1440, 900);
+          return page;
+        }), "browserContext")
         .build();
   }
   
@@ -114,13 +115,13 @@ public class CawebAccessingModel implements AutotestRunner {
     return new Scene.Builder("page")
         .add(new Navigate(executionProfile.homeUrl()))
         //       Clicking "ログインはこちら" button, which is displayed only in idev, if any.
-        .add(new ClickIfPresent(getBySelector("#simple-layout > div.main-container > div > div.text-center > a")))
-        .add(new SendKey(PageFunctions.getByPlaceholder("example@moneyforward.com"), executionProfile.userEmail()))
-        .add(new Click(getButtonByName("ログインする")))
-        .add(new SendKey(PageFunctions.getByLabel("パスワード"), executionProfile.userPassword()))
+        .add(new ClickIfPresent(locatorBySelector("#simple-layout > div.main-container > div > div.text-center > a")))
+        .add(new SendKey(PageFunctions.locatorByPlaceholder("example@moneyforward.com"), executionProfile.userEmail()))
+        .add(new Click(buttonLocatorByName("ログインする")))
+        .add(new SendKey(PageFunctions.locatorByLabel("パスワード"), executionProfile.userPassword()))
         .add(new Click("button[id='submitto']"))
-        .add(new SendKey(PageFunctions.getByPlaceholder("000000"), executionProfile.totpForNow()))
-        .add(new Click(PageFunctions.getButtonByName("認証する")))
+        .add(new SendKey(PageFunctions.locatorByPlaceholder("000000"), executionProfile.totpForNow()))
+        .add(new Click(PageFunctions.buttonLocatorByName("認証する")))
         .build();
   }
   
@@ -134,8 +135,8 @@ public class CawebAccessingModel implements AutotestRunner {
   @DependsOn("login")
   public static Scene logout() {
     return new Scene.Builder("page")
-        .add(new Click(getByName(") ", true)))
-        .add(new Click(getByName("ログアウト")))
+        .add(new Click(linkLocatorByName(") ", true)))
+        .add(new Click(linkLocatorByName("ログアウト")))
         .build();
   }
   

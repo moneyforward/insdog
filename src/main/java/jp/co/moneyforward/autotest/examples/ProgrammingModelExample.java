@@ -74,9 +74,9 @@ public class ProgrammingModelExample implements AutotestRunner {
   public static Scene login() {
     return new Scene.Builder("page")
         .add(new Navigate(EXECUTION_PROFILE.homeUrl()))
-        .add(new SendKey(PageFunctions.getByPlaceholder("example@moneyforward.com"), EXECUTION_PROFILE.userEmail()))
-        .add(new Click(getButtonByName("ログインする")))
-        .add(new SendKey(PageFunctions.getByLabel("パスワード"), EXECUTION_PROFILE.userPassword()))
+        .add(new SendKey(PageFunctions.locatorByPlaceholder("example@moneyforward.com"), EXECUTION_PROFILE.userEmail()))
+        .add(new Click(buttonLocatorByName("ログインする")))
+        .add(new SendKey(PageFunctions.locatorByLabel("パスワード"), EXECUTION_PROFILE.userPassword()))
         .add(new Click("button[id='submitto']"))
         .build();
   }
@@ -104,15 +104,15 @@ public class ProgrammingModelExample implements AutotestRunner {
       await page.getByRole('button', { name: '連携登録' }).click();
      */
     return new Scene.Builder("page")
-        .add(new Click(getByText("データ連携")))
-        .add(new Click(getByName("新規登録")))
-        .add(new Click(getByText("銀行 (", true)))
-        .add(new Click(getByText("【個人】ゆうちょ銀行（投資信託）")))
+        .add(new Click(locatorByText("データ連携")))
+        .add(new Click(linkLocatorByName("新規登録")))
+        .add(new Click(locatorByText("銀行 (", true)))
+        .add(new Click(locatorByText("【個人】ゆうちょ銀行（投資信託）")))
         .add(new Click("#account_service_form_ID1"))
         .add(new SendKey("#account_service_form_ID1", EXECUTION_PROFILE.accountServiceId()))
         .add(new Click("#account_service_form_PW1"))
         .add(new SendKey("#account_service_form_PW1", EXECUTION_PROFILE.accountServicePassword()))
-        .add(new Click(getButtonByName("連携登録")))
+        .add(new Click(buttonLocatorByName("連携登録")))
         .build();
   }
   
@@ -121,8 +121,8 @@ public class ProgrammingModelExample implements AutotestRunner {
   @Export("page")
   public static Scene disconnect() {
     return new Scene.Builder("page")
-        .add(new Click(getBySelector("#js-sidebar-opener").andThen(byText("データ連携"))))
-        .add(new Click(getByName("登録済一覧").andThen(LocatorFunctions.nth(1))))
+        .add(new Click(locatorBySelector("#js-sidebar-opener").andThen(byText("データ連携"))))
+        .add(new Click(linkLocatorByName("登録済一覧").andThen(LocatorFunctions.nth(1))))
         .build();
   }
   
@@ -131,8 +131,8 @@ public class ProgrammingModelExample implements AutotestRunner {
   @Export("page")
   public static Scene logout() {
     return new Scene.Builder("page")
-        .add(new Click(getByName("スペシャルサンドボックス合同会社 (法人)", true)))
-        .add(new Click(getByName("ログアウト")))
+        .add(new Click(linkLocatorByName("スペシャルサンドボックス合同会社 (法人)", true)))
+        .add(new Click(linkLocatorByName("ログアウト")))
         .build();
   }
   

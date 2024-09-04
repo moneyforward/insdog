@@ -80,7 +80,7 @@ class BuiltInLeafActsTest extends TestBase {
   
   @Test
   void givenClickIfPresent_whenName_thenNameLooksOk() {
-    ClickIfPresent act = new ClickIfPresent(PageFunctions.getByText("hello"));
+    ClickIfPresent act = new ClickIfPresent(PageFunctions.locatorByText("hello"));
     
     String name = act.name();
     

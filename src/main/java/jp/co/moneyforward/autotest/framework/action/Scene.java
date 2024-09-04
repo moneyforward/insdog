@@ -8,6 +8,7 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
@@ -45,7 +46,7 @@ public interface Scene extends ActionFactory {
                      .flatMap(InternalUtils::flattenIfSequential)
                      .toList();
   }
-
+  
   /**
    * A builder for `Scene` class.
    *
@@ -63,6 +64,11 @@ public interface Scene extends ActionFactory {
     public Builder(String defaultFieldName) {
       this.defaultFieldName = requireNonNull(defaultFieldName);
     }
+    
+    public final Builder with(UnaryOperator<Builder> op) {
+      return op.apply(this);
+    }
+    
     
     /**
      * Adds `leafAct` to this builder.
