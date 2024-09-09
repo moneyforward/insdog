@@ -14,45 +14,13 @@ function message() {
 }
 export -f message
 
-function tr_username() {
-  abort "undefined function"
-}
-
-function tr_password() {
-  abort "undefined function"
-}
-
-function tr_url() {
-  abort "undefined function"
-}
-
-function tr_project() {
-  abort "undefined function"
-}
-
-function tr_suite_name() {
-  abort "undefined function"
-}
-
-function exec_trcli() {
-  local _test_report_file="${1}" _title="${2}" _run_description="${3}"
-  trcli -y -h "$(tr_url)"    \
-    --project "$(tr_project)"   \
-    --suite-name "$(tr_suite_name)"     \
-    -u "$(tr_username)"  \
-    -p "$(tr_password)"   \
-    parse_junit   \
-    -f "${_test_report_file}" \
-    --title "${_title}"   \
-    --run-description "Local run (Code First)"
-}
-
 function linef() {
   local _format="${1:-""}"
   shift
   # shellcheck disable=SC2059
   printf "${_format}\n" "${@}"
 }
+export -f linef
 
 function encode_string_to_xml_attribute() {
   local _content="${1}"
@@ -82,7 +50,8 @@ function compose_testsuite_name() {
 }
 
 function test_execution_time() {
-  echo "123"
+  local _test_result_directory="${1}"
+  find "${_test_result_directory}" -name 'RESULT' -exec grep -E "TIME: " {} \; | sed -E 's/TIME: //g'| cat <(echo 0) | awk '{s+=$1}END{print s}'
 }
 
 function compose_test_suite() {
@@ -92,7 +61,7 @@ function compose_test_suite() {
          "$(count_test_result "${_test_suite_result_dir}" 'RESULT: ERROR')" \
          "$(count_test_result "${_test_suite_result_dir}" 'RESULT: SKIPPED')" \
          "$(count_test_result "${_test_suite_result_dir}" 'TYPE: TEST')" \
-         "$(test_execution_time)" \
+         "$(test_execution_time  "${_test_suite_result_dir}")" \
          "$(compose_testsuite_name "${_test_suite_result_dir}")"
   local _each _id=0
   for _each in "${_test_suite_result_dir}/"*; do
@@ -214,38 +183,9 @@ function compose_report_xml() {
   end_report_xml
 }
 
-function perform() {
-  local _test_result_directory="${1}" _title="${2}" _run_description=${3}
-  local _report_file
-  _report_file="$(mktemp)"
-
-  function tr_username() {
-    echo "ukai.hiroshi@moneyforward.co.jp"
-  }
-
-  function tr_password() {
-    echo "<PASSWORD>"
-  }
-
-  function tr_url() {
-    echo "https://moneyforward.tmxtestrail.com/"
-  }
-
-  function tr_project() {
-    echo "autotest-ca"
-  }
-
-  function tr_suite_name() {
-    echo "UT-2"
-  }
-  compose_report_xml "${_test_result_directory}" > "${_report_file}"
-
-  exec_trcli "${_report_file}" "${_title}" "${_run_description}"
-}
 
 function main() {
-  # compose_test_case_element "/Users/ukai.hiroshi/Documents/github/moneyforward/autotest-ca/target/testResult/jp.co.moneyforward.autotest.ca_web.tests.pages.VisitMenuItemsTest/1_データ連携" "099"
-  compose_report_xml "/Users/ukai.hiroshi/Documents/github/moneyforward/autotest-ca/target/testResult"
+    compose_report_xml "/Users/ukai.hiroshi/Documents/github/moneyforward/autotest-ca/target/testResult"
 }
 
 main "${@}"
