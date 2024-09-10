@@ -8,7 +8,6 @@ import org.mockito.Mockito;
 
 import static com.github.valid8j.fluent.Expectations.assertStatement;
 import static com.github.valid8j.fluent.Expectations.value;
-import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
