@@ -17,6 +17,7 @@ class LocatorFunctionsTest {
   void whenNth_thenLocatorNthIsCalled() {
     Locator locator = Mockito.mock(Locator.class);
     Locator returnedLocator = Mockito.mock(Locator.class);
+    
     when(locator.nth(1)).thenReturn(returnedLocator);
     
     assertStatement(value(LocatorFunctions.nth(1).apply(locator))
@@ -28,6 +29,7 @@ class LocatorFunctionsTest {
   void whenByText_thenLocatorGetByTextIsCalled() {
     Locator locator = Mockito.mock(Locator.class);
     Locator returnedLocator = Mockito.mock(Locator.class);
+    
     when(locator.getByText("hello")).thenReturn(returnedLocator);
     
     assertStatement(value(LocatorFunctions.byText("hello").apply(locator))
@@ -49,6 +51,7 @@ class LocatorFunctionsTest {
   @Test
   void whenTextContent_thenLocatorTextContentIsCalled() {
     Locator locator = Mockito.mock(Locator.class);
+    
     when(locator.textContent()).thenReturn("Hello!");
     
     assertStatement(value(LocatorFunctions.textContent().apply(locator))
