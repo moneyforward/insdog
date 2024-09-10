@@ -51,7 +51,9 @@ function compose_testsuite_name() {
 
 function test_execution_time() {
   local _test_result_directory="${1}"
-  find "${_test_result_directory}" -name 'RESULT' -exec grep -E "TIME: " {} \; | sed -E 's/TIME: //g'| cat <(echo 0) | awk '{s+=$1}END{print s}'
+  local _ret
+  _ret="$(find "${_test_result_directory}" -name 'RESULT' -exec grep -E "TIME: " {} \; | sed -E 's/TIME: //g'| cat <(echo 0) | awk '{s+=$1}END{print s}')"
+  echo "$((_ret / 1000))"
 }
 
 function compose_test_suite() {
@@ -104,7 +106,8 @@ function compose_testcase_time() {
   local _testcase_dir="${1}"
   local _ret
   _ret="$(grep -E '^TIME:' "${_testcase_dir}/RESULT" 2> /dev/null || :)"
-  echo "${_ret#TIME: }"
+  _ret="${_ret#TIME: }"
+  echo "$((_ret / 1000))"
 }
 
 function compose_testcase_result() {
