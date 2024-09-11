@@ -7,6 +7,7 @@ PROJ_DIR:=$(shell pwd)
 ## This is a Makefile for "autotest-ca" project.
 ## - https://github.com/moneyforward/autotest-ca/wiki/9-ContributionGuidelines%7CMakefile
 ABOUT: help
+	@echo "__ENV_RC__='${__ENV_RC__}'"
 	:
 
 ## Cleans all intermediate files, which should be generated only under `target` directory.
@@ -61,22 +62,37 @@ javadoc:
 	mvn -B clean compile test javadoc:javadoc
 
 ## Run all tests
+## You need to run `build` target beforehand.
 run-all-tests:
 	java --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
          -jar target/autotest-caweb.jar -q 'classname:~.*' run
+
+## Compile test report.
+## You need to run `run` target beforehand.
+compile-test-report:
+	$(BASH) -eu $(PROJ_DIR)/src/build_tools/tr-processor.sh ./target/testResult/ > target/testReport.xml
+
+## Publish test report.
+## You need to run `compile-test-report` target beforehand.
+publish-test-report:
+	$(BASH) -eu $(PROJ_DIR)/src/build_tools/tr-publish.sh target/testReport.xml
 
 ## Creates a autotest-caweb.jar without javadoc to save time
 package-without-javadoc:
 	mvn -B -Dmaven.javadoc.skip=true clean compile package
 
 
-## Run
+## Run all the tests.
+## Internally executes `run-all-tests` target.
+## You need to run `build` beforehand.
 run: run-all-tests
 	:
 
-## Build
+## Build.
+## Internally executes `package-without-javadoc` target.
 build: package-without-javadoc
 	:
 
+## Show help.
 help:
 	make2help $(MAKEFILE_LIST)

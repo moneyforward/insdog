@@ -13,6 +13,23 @@ Backstage portal of this project is found at https://backstage.test.musubu.co.in
 
 Check https://github.com/moneyforward/autotest-ca/wiki/developmentGuide[developmentGuide] for more detal.
 
+=== Preparation
+
+You need to install `python3.12` and `trcli` (TestRail CLI client) beforehand.
+
+.Installing `python3.12`
+----
+$ brew install python3.12
+----
+
+.Installing `trcli`
+----
+$ pip install trcli
+----
+For more detail, check https://support.testrail.com/hc/en-us/articles/7146548750868-Overview-and-installation#InstallingtheTestRailCLI[TestRail CLI].
+
+
+
 === Bootstrapping: Setting Up Development Environment
 
 Clone the repository:

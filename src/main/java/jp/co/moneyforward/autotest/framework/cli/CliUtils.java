@@ -9,8 +9,11 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
 import org.junit.platform.commons.support.ModifierSupport;
+import org.junit.platform.engine.TestDescriptor;
+import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.TestIdentifier;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
@@ -18,6 +21,7 @@ import org.junit.platform.launcher.listeners.TestExecutionSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
@@ -33,6 +37,9 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import static jp.co.moneyforward.autotest.actions.web.SendKey.MASK_PREFIX;
+import static jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment.testResultDirectoryFor;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.removeFile;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.writeTo;
 import static org.junit.platform.commons.support.ReflectionSupport.invokeMethod;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
@@ -136,7 +143,12 @@ public enum CliUtils {
   }
   
   public static int runTests(String rootPackageName, String[] queries, String[] executionDescriptors, String[] executionProfile) {
-    Map<Class<?>, TestExecutionSummary> testReport = runTests(rootPackageName, queries, executionDescriptors, executionProfile, new SummaryGeneratingListener());
+    Map<Class<?>, TestExecutionSummary> testReport = runTests(rootPackageName,
+                                                              queries,
+                                                              executionDescriptors,
+                                                              executionProfile,
+                                                              createSummaryGeneratingListener()
+    );
     return testReport.values()
                      .stream()
                      .map(s -> s.getFailures().size())
@@ -144,8 +156,60 @@ public enum CliUtils {
                      .orElseThrow(NoSuchElementException::new);
   }
   
+  public static SummaryGeneratingListener createSummaryGeneratingListener() {
+    return new SummaryGeneratingListener() {
+      long before;
+      
+      @Override
+      
+      public void executionStarted(TestIdentifier testIdentifier) {
+        if (testIdentifier.isTest() || isTestClass(testIdentifier)) {
+          before = System.currentTimeMillis();
+          File resultFile = resultFileFor(testIdentifier);
+          removeFile(resultFile);
+          writeTo(resultFile, String.format("TYPE: %s%n", testIdentifier.getType()));
+        }
+        super.executionStarted(testIdentifier);
+      }
+      
+      @Override
+      public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+        super.executionFinished(testIdentifier, testExecutionResult);
+        if (testIdentifier.isTest() || isTestClass(testIdentifier)) {
+          File resultFile = resultFileFor(testIdentifier);
+          writeTo(resultFile, String.format("TIME: %d%n", System.currentTimeMillis() - before));
+          writeTo(resultFile, String.format("RESULT: %s%n", testExecutionResult.getStatus()));
+        }
+      }
+      
+      private File resultFileFor(TestIdentifier testIdentifier) {
+        return new File(testResultDirectoryFor(testClassNameOf(testIdentifier),
+                                               testIdentifier.getDisplayName()).toFile(), "RESULT");
+      }
+      
+      private String testClassNameOf(TestIdentifier testIdentifier) {
+        return testIdentifier.getUniqueIdObject()
+                             .getSegments()
+                             .stream()
+                             .filter(s -> Objects.equals(s.getType(), "class"))
+                             .map(UniqueId.Segment::getValue)
+                             .findFirst()
+                             .orElse("unknown.TestClass");
+      }
+      
+      private boolean isTestClass(TestIdentifier testIdentifier) {
+        return testIdentifier.getType() == TestDescriptor.Type.CONTAINER
+            && testClassNameOf(testIdentifier).endsWith(testIdentifier.getDisplayName());
+      }
+    };
+  }
+  
   @SuppressWarnings({"unchecked", "RedundantCast"})
-  public static Map<Class<?>, TestExecutionSummary> runTests(String rootPackageName, String[] queries, String[] executionDescriptors, String[] executionProfile, SummaryGeneratingListener testExecutionListener) {
+  public static Map<Class<?>, TestExecutionSummary> runTests(String rootPackageName,
+                                                             String[] queries,
+                                                             String[] executionDescriptors,
+                                                             String[] executionProfile,
+                                                             SummaryGeneratingListener testExecutionListener) {
     if (executionDescriptors.length > 0)
       System.setProperty("jp.co.moneyforward.autotest.scenes", composeSceneDescriptorPropertyValue(executionDescriptors));
     AutotestEngine.configureLoggingForSessionLevel();

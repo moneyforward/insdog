@@ -18,7 +18,10 @@ import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import static com.github.valid8j.fluent.Expectations.value;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.byText;
+import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.textContent;
 import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
 
 /**
@@ -93,7 +96,7 @@ public class CawebAccessingModel implements AutotestRunner {
           c.setDefaultTimeout(timeUnit.toMillis(time));
           return c;
         }), browserVariableName)
-        .add("page", new Func<>("BrowserContext::newPage[1440x900]", (BrowserContext browserContext) ->  {
+        .add("page", new Func<>("BrowserContext::newPage[1440x900]", (BrowserContext browserContext) -> {
           Page page = browserContext.newPage();
           page.setViewportSize(1440, 900);
           return page;
@@ -126,12 +129,16 @@ public class CawebAccessingModel implements AutotestRunner {
         .add(new Navigate(executionProfile.homeUrl()))
         //       Clicking "ログインはこちら" button, which is displayed only in idev, if any.
         .add(new ClickIfPresent(locatorBySelector("#simple-layout > div.main-container > div > div.text-center > a")))
-        .add(new SendKey(PageFunctions.locatorByPlaceholder("example@moneyforward.com"), executionProfile.userEmail()))
+        .add(new SendKey(locatorByPlaceholder("example@moneyforward.com"), executionProfile.userEmail()))
         .add(new Click(buttonLocatorByName("ログインする")))
-        .add(new SendKey(PageFunctions.locatorByLabel("パスワード"), executionProfile.userPassword()))
+        .add(new SendKey(locatorByLabel("パスワード"), executionProfile.userPassword()))
         .add(new Click("button[id='submitto']"))
-        .add(new SendKey(PageFunctions.locatorByPlaceholder("000000"), executionProfile.totpForNow()))
-        .add(new Click(PageFunctions.buttonLocatorByName("認証する")))
+        .add(new SendKey(locatorByPlaceholder("000000"), executionProfile::totpForNow))
+        .add(new Click(buttonLocatorByName("認証する")))
+        .assertion((Page page) -> value(page).function(locatorBySelector("#page-homes > div.ca-container.js-ca-container > div.sidebar-container.js-sidebar-container").andThen(byText("ホーム")))
+                                             .function(textContent())
+                                             .toBe()
+                                             .equalTo("ホーム"))
         .build();
   }
   

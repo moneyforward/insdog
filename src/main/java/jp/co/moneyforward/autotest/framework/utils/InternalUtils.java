@@ -3,6 +3,7 @@ package jp.co.moneyforward.autotest.framework.utils;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.valid8j.pcond.forms.Predicates;
 import com.github.valid8j.pcond.forms.Printables;
 import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.action.Scene;
@@ -10,9 +11,14 @@ import jp.co.moneyforward.autotest.framework.core.AutotestException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.opentest4j.TestAbortedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -21,13 +27,18 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
+import static com.github.dakusui.valid8j.Requires.requireNonNull;
 import static com.github.valid8j.pcond.internals.InternalUtils.getMethod;
+import static java.nio.file.StandardOpenOption.APPEND;
+import static java.nio.file.StandardOpenOption.CREATE;
 
 /**
  * An internal utility class of the **autotest-ca** framework.
  */
 public enum InternalUtils {
   ;
+  
+  public static final Logger LOGGER = LoggerFactory.getLogger(InternalUtils.class);
   
   /**
    * Returns an `Optional` of a `String` that contains a branch name.
@@ -274,6 +285,35 @@ public enum InternalUtils {
       throw error;
     }
     throw new AutotestException("Exception was cause: [" + e.getClass().getSimpleName() + "]: " + e.getMessage(), e);
+  }
+  
+  /**
+   * Write a given `text` to a `file`.
+   * When the `file` already exists, `text` will be appended to it.
+   * `text` will be encoded into `UTF-8` since this method calls `Files.writeString(Path,String,OpenOption...)` internally.
+   *
+   * In case the `file` doesn't exist or its parent directories don't exist, this function will try to create them.
+   *
+   * On a failure, a runtime exception will be thrown.
+   *
+   * @param file A file to which `text` is written to.
+   * @param text A data to be written.
+   */
+  public static void writeTo(File file, String text) {
+    try {
+      Files.createDirectories(file.getParentFile().toPath());
+      Files.writeString(file.getAbsoluteFile().toPath(),
+                        text,
+                        CREATE,
+                        APPEND);
+    } catch (IOException e) {
+      throw new AutotestException("Exception occurred while writing to file: " + file, e);
+    }
+  }
+  
+  public static void removeFile(File file) {
+    boolean removed = requireNonNull(file).delete();
+    LOGGER.trace("File:'{}' was removed: {}", file, removed);
   }
   
   public static <T> List<T> reverse(List<T> list) {

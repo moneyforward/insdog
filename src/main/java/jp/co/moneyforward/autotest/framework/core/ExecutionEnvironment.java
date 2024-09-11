@@ -20,7 +20,7 @@ public interface ExecutionEnvironment {
   
   String stepName();
   
-  default ExecutionEnvironment withSceneName(String sceneName, String stepName) {
+  default ExecutionEnvironment withSceneName(String sceneName, String stageName) {
     requireNonNull(sceneName);
     return new ExecutionEnvironment() {
       @Override
@@ -35,15 +35,20 @@ public interface ExecutionEnvironment {
       
       @Override
       public String stepName() {
-        return stepName;
+        return stageName;
       }
     };
   }
   
   default Path testResultDirectory() {
+    return testResultDirectoryFor(this.testClassName(),
+                                  this.testSceneName().orElse("unknown-" + Utils.counter.getAndIncrement()));
+  }
+  
+  static Path testResultDirectoryFor(String testClassName, String displayName) {
     return testResultDirectory(baseLogDirectoryForTestSession(),
-                               Utils.sanitize(this.testClassName()),
-                               Utils.sanitize(this.testSceneName().orElse("unknown-" + Utils.counter.getAndIncrement())));
+                               Utils.sanitize(testClassName),
+                               Utils.sanitize(displayName));
   }
   
   static Path testResultDirectory(String baseLogDirectoryForTestSession, String... dirs) {

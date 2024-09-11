@@ -1066,6 +1066,14 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
     return "ul[class='ca-tab-large'] li a";
   }
   
+  /**
+   * This might be unified with {@link jp.co.moneyforward.autotest.ca_web.accessmodels.CawebUtils#navigateToMenuItemUnderSidebarItem(String, String)}.
+   *
+   * @param b A builder for a `Scene`.
+   * @param sideMenuItem A side menu item.
+   * @param childItem A child of `sideMenuitem`.
+   * @return A builder `b` for a scene.
+   */
   private static Scene.Builder clickMenuItemThenChild(Scene.Builder b, String sideMenuItem, String childItem) {
     return b.add(new Click(locatorBySelector("#js-sidebar-opener").andThen(byText(sideMenuItem))))
             .add(new Click(linkLocatorByName(childItem, false)));
