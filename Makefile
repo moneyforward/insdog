@@ -70,7 +70,7 @@ run-all-tests:
 ## Compile test report.
 ## You need to run `run` target beforehand.
 compile-test-report:
-	$(BASH) -eu $(PROJ_DIR)/src/build_tools/tr-processor.sh compile ./target/testResult/ > target/testReport.xml
+	$(BASH) -eu $(PROJ_DIR)/src/build_tools/tr-processor.sh ./target/testResult/ > target/testReport.xml
 
 ## Publish test report.
 ## You need to run `compile-test-report` target beforehand.

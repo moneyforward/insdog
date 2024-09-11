@@ -163,7 +163,6 @@ public enum CliUtils {
       @Override
       
       public void executionStarted(TestIdentifier testIdentifier) {
-        System.out.println(">" + testIdentifier.getUniqueIdObject() + ":" + testIdentifier.getDisplayName() + ":" + testIdentifier.isTest());
         if (testIdentifier.isTest() || isTestClass(testIdentifier)) {
           before = System.currentTimeMillis();
           File resultFile = resultFileFor(testIdentifier);
@@ -175,7 +174,6 @@ public enum CliUtils {
       
       @Override
       public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
-        System.out.println("<" + testIdentifier.getUniqueIdObject() + ";" + testIdentifier.getDisplayName() + ";" + testIdentifier.isTest() + ";" + testIdentifier.getType());
         super.executionFinished(testIdentifier, testExecutionResult);
         if (testIdentifier.isTest() || isTestClass(testIdentifier)) {
           File resultFile = resultFileFor(testIdentifier);
