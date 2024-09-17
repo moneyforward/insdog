@@ -10,9 +10,9 @@ import java.util.function.Function;
  * An interface that models an occurrence of an action in a test scenario.
  *
  * As a design policy, a call is defined for structural actions of **actionunit**, such as `retry`, `sequential`, `parallel`, etc.
- * Functionalities exercised in tests are represented as implementations of `Act`.
+ * Functionalities exercised in tests are represented as implementations of `LeafAct`.
  *
- * @see Act
+ * @see LeafAct
  */
 public interface Call {
   /**

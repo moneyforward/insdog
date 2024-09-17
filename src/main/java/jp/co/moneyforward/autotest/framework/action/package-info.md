@@ -37,9 +37,9 @@ classDiagram
     ActCall <|-- AssertionActCall
     ActCall <|-- LeafActCall
     ActCall <|-- RetryActCall
-    RetryActCall "1" --> "1" LeafAct
     LeafActCall "1" --> "1" LeafAct
-    AssertionActCall "1" --> "1" AssertionAct
+    AssertionActCall "target:1" --> "1" ActCall
+    RetryActCall "target:1" --> "1" ActCall
     namespace Scenes {
         class Scene {
         }
@@ -51,17 +51,14 @@ classDiagram
     Scene_Builder "build" ..> Scene
     Scene_Builder ..> Call
     namespace Acts {
-        class Act
         class LeafAct {
             perform()
         }
-        class AssertionAct {
-            LeafAct parent
-        }
+        class PageAct
+        class MiscAct
     }
-    Act <|-- LeafAct
-    Act <|-- AssertionAct
-    AssertionAct --> LeafAct: parent
+    LeafAct <|-- PageAct
+    LeafAct <|-- MiscAct
     
     namespace ActionUnit {
         class Action {

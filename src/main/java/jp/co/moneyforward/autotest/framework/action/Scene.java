@@ -16,7 +16,7 @@ import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
 
 /**
  * An interface that represents a reusable unit of an action in autotest-ca's programming model.
- * An instance of this object contains 0 or more {@link Act} instances.
+ * An instance of this object contains 0 or more {@link LeafAct} instances.
  *
  * Note that `Scene` uses the same map for both input and output.
  */
@@ -75,7 +75,6 @@ public interface Scene {
       return op.apply(this);
     }
     
-    
     /**
      * Adds `leafAct` to this builder.
      * `defaultFieldName` is used for both input and output.
@@ -90,10 +89,6 @@ public interface Scene {
       return this.add(defaultFieldName, leafAct, defaultFieldName);
     }
     
-    public final <T, R> Builder add(LeafAct<T, R> leafAct, String inputFieldName) {
-      return this.add(defaultFieldName, leafAct, inputFieldName);
-    }
-    
     public final <T, R> Builder add(String outputFieldName, LeafAct<T, R> leafAct) {
       return this.add(outputFieldName, leafAct, defaultFieldName);
     }
@@ -102,32 +97,8 @@ public interface Scene {
       return this.addCall(leafCall(outputFieldName, leafAct, inputFieldName));
     }
     
-    public final <T, R> Builder add(AssertionAct<T, R> assertionAct) {
-      return this.add(defaultFieldName, assertionAct, defaultFieldName);
-    }
-    
-    public final <T, R> Builder add(AssertionAct<T, R> assertionAct, String inputFieldName) {
-      return this.add(defaultFieldName, assertionAct, inputFieldName);
-    }
-    
-    public final <T, R> Builder add(String outputFieldName, AssertionAct<T, R> assertionAct) {
-      return this.add(outputFieldName, assertionAct, defaultFieldName);
-    }
-    
-    public final <T, R> Builder add(String outputFieldName, AssertionAct<T, R> assertionAct, String inputFieldName) {
-      return this.addCall(assertionCall(outputFieldName, assertionAct.parent(), assertionAct.assertions(), inputFieldName));
-    }
-    
     public final <R> Builder assertion(Function<R, Statement<R>> assertion) {
       return this.assertion(defaultFieldName, assertion, defaultFieldName);
-    }
-    
-    public final <R> Builder assertion(Function<R, Statement<R>> assertionAct, String inputFieldName) {
-      return this.assertion(defaultFieldName, assertionAct, inputFieldName);
-    }
-    
-    public final <R> Builder assertion(String outputFieldName, Function<R, Statement<R>> assertionAct) {
-      return this.assertion(outputFieldName, assertionAct, defaultFieldName);
     }
     
     public final <R> Builder assertion(String outputFieldName, Function<R, Statement<R>> assertionAct, String inputFieldName) {
@@ -157,12 +128,9 @@ public interface Scene {
         
         @Override
         public String name() {
-          return "Scene[" + defaultFieldName + "]";
+          return Scene.super.name() + "[" + defaultFieldName + "]";
         }
       };
     }
-  }
-  
-  record ParameterAssignment(String formalName, String sourceSceneName, String fieldNameInSourceScene) {
   }
 }

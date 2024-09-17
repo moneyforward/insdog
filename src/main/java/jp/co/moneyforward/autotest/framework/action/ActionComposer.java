@@ -29,7 +29,7 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
  *
  * @see Call
  * @see Scene
- * @see Act
+ * @see LeafAct
  */
 public interface ActionComposer {
   Logger LOGGER = LoggerFactory.getLogger(ActionComposer.class);

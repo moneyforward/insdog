@@ -10,9 +10,18 @@ import java.util.function.Function;
 /**
  * This interface represents the smallest and indivisible unit of action in **autotest-ca** 's programming model.
  */
-public interface LeafAct<T, R> extends Act {
+public interface LeafAct<T, R> {
   R perform(T value, ExecutionEnvironment executionEnvironment);
   
+  /**
+   * Returns a name of an instance of this interface.
+   *
+   * @return A name of this instance.
+   */
+  default String name() {
+    return InternalUtils.simpleClassNameOf(this.getClass());
+  }
+
   /**
    * A leaf act, which represents a value assignment behavior.
    *
