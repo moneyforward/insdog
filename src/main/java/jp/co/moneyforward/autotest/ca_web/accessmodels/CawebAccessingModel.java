@@ -107,8 +107,18 @@ public class CawebAccessingModel implements AutotestRunner {
   /**
    * Returns an action for logging in the **ca_web** application using the variables defined in the `EXECUTION_PROFILE`.
    *
+   * The account should be configured for Time-based Onetime password (TOTP).
+   * This can be achieved by enabling "2FA" (Two-factors authentication) in MFID-side.
+   *
+   * You can check this Wiki-page [Enable Two-Factor Authentication (2FA)](https://github.com/moneyforward/cdb-playwright/wiki/How-to-Create-Test-Account-on-Stg#enable-two-factor-authentication-2fa)
+   *
+   * Note that the code printed in the "Copy and save the code" under "コードを入力して設定" section is the string to be kept and used to configure **autotest-ca**.
+   * This is the value that should be returned from `ExecutionProfile#totpKeyString` method.
+   *
    * @return A login action.
    * @see CawebAccessingModel#executionProfile
+   * @see ExecutionProfile
+   * @see ExecutionProfile#totpKey
    */
   @Named
   @ClosedBy("logout")
@@ -198,6 +208,11 @@ public class CawebAccessingModel implements AutotestRunner {
     return actionPerformer;
   }
   
+  /**
+   * Returns a current **actionunit** context.
+   *
+   * @return a curent **actionunit** context.
+   */
   public static Context getContext() {
     return new Impl() {
       @Override
@@ -207,7 +222,14 @@ public class CawebAccessingModel implements AutotestRunner {
     };
   }
   
-  
+  /**
+   * Launches a browser of specified type.
+   *
+   * @param browserType A browser type to be launched.
+   * @param executionProfile An execution profile.
+   *
+   * @return A launched browser.
+   */
   public static Browser launchBrowser(BrowserType browserType, ExecutionProfile executionProfile) {
     boolean headless = executionProfile.setHeadless();
     if (headless)
