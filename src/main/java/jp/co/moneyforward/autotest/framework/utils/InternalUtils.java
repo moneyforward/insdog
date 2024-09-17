@@ -3,6 +3,7 @@ package jp.co.moneyforward.autotest.framework.utils;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.osynth.core.utils.MethodUtils;
 import com.github.valid8j.pcond.forms.Predicates;
 import com.github.valid8j.pcond.forms.Printables;
 import jp.co.moneyforward.autotest.framework.action.LeafAct;
@@ -106,6 +107,10 @@ public enum InternalUtils {
   
   public static File projectDir() {
     return new File(".");
+  }
+  
+  public static String simpleClassNameOf(Class<?> clazz) {
+    return MethodUtils.simpleClassNameOf(clazz);
   }
   
   @SafeVarargs

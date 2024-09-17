@@ -1,6 +1,5 @@
 package jp.co.moneyforward.autotest.framework.action;
 
-import com.github.valid8j.pcond.fluent.Statement;
 import com.github.valid8j.pcond.forms.Printables;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
@@ -11,16 +10,8 @@ import java.util.function.Function;
 /**
  * This interface represents the smallest and indivisible unit of action in **autotest-ca** 's programming model.
  */
-public interface LeafAct<T, R> extends Act<T, R> {
+public interface LeafAct<T, R> extends Act {
   R perform(T value, ExecutionEnvironment executionEnvironment);
-  
-  /**
-   * @param assertion An assertion to be
-   * @return A new ActionFactory object with the given assertion.
-   */
-  default AssertionAct<T, R> assertion(Function<R, Statement<R>> assertion) {
-    return new AssertionAct<>(this, this.name(), assertion);
-  }
   
   /**
    * A leaf act, which represents a value assignment behavior.

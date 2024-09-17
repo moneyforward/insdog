@@ -20,7 +20,7 @@ import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
  *
  * Note that `Scene` uses the same map for both input and output.
  */
-public interface Scene extends ActionFactory {
+public interface Scene {
   static Scene chainActs(String fieldName, LeafAct<?, ?>... acts) {
     Scene.Builder b = new Builder(fieldName);
     for (LeafAct<?, ?> act : acts) {
@@ -40,6 +40,12 @@ public interface Scene extends ActionFactory {
    */
   List<Call> children();
   
+  default String name() {
+    return InternalUtils.simpleClassNameOf(this.getClass());
+  }
+
+
+
   private List<Action> toActions(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall, ActionComposer actionComposer) {
     return children().stream()
                      .map((Call each) -> each.toAction(actionComposer, assignmentResolversFromCurrentCall))

@@ -2,9 +2,7 @@ package jp.co.moneyforward.autotest.ut.framework.scene;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
-import com.github.valid8j.fluent.Expectations;
 import jp.co.moneyforward.autotest.framework.action.AutotestSupport;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
@@ -94,56 +92,6 @@ public class SceneTest extends TestBase {
                               .containingElementsInOrder(List.of(containsString("BEGIN"),
                                                                  containsString("let"),
                                                                  containsString("helloAct"),
-                                                                 containsString("END"))));
-  }
-  
-  
-  @Test
-  public void givenSceneWithVariableReadingActPassingAssertionAppended_whenToActionExecuted_thenActionTreeThatPassesIfPerformed() {
-    Scene scene = new Scene.Builder("scene")
-        .add("out", let("John Doe"), "in")
-        .add("out",
-             helloAct().assertion(x -> value(x).toBe().equalTo("HELLO:John Doe"))
-                       .assertion(x -> value(x).toBe().containing("HELLO")),
-             "out")
-        .build();
-    
-    
-    List<String> out = new LinkedList<>();
-    ActionUtils.performAction(createActionComposer().create(AutotestSupport.sceneCall("out",
-                                                                                      scene,
-                                                                                      List.of()), AutotestSupport.sceneCall("out",
-                                                                                                                            scene,
-                                                                                                                            List.of()).assignmentResolvers().orElseThrow()),
-                              createWriter(out));
-    assertStatement(value(out).toBe()
-                              .containingElementsInOrder(List.of(containsString("BEGIN"),
-                                                                 containsString("let"),
-                                                                 containsString("helloAct"),
-                                                                 containsString("assertion").and(containsString("stringIsEqualTo")),
-                                                                 containsString("assertion").and(containsString("containsString")),
-                                                                 containsString("END"))));
-  }
-  
-  @Test
-  public void givenSceneWithVariableReadingActFailingAssertionAppended_whenToActionExecuted_thenActionTreeThatPassesIfPerformed() {
-    Scene scene = new Scene.Builder("scene")
-        .add("out", let("John Doe"), "in")
-        .add("out", helloAct().assertion(x -> value(x).toBe().equalTo("HELLO:Scott Tiger")), "in")
-        .build();
-    
-    
-    List<String> out = new LinkedList<>();
-    final jp.co.moneyforward.autotest.framework.action.SceneCall sceneCall = AutotestSupport.sceneCall("out",
-                                                                                                       scene,
-                                                                                                       List.of(new Resolver("in", c -> "Scott Tiger")));
-    ActionUtils.performAction(createActionComposer().create(sceneCall, sceneCall.assignmentResolvers().orElseThrow()),
-                              createWriter(out));
-    assertStatement(value(out).toBe()
-                              .containingElementsInOrder(List.of(containsString("BEGIN"),
-                                                                 containsString("let"),
-                                                                 containsString("helloAct"),
-                                                                 containsString("assertion"),
                                                                  containsString("END"))));
   }
   

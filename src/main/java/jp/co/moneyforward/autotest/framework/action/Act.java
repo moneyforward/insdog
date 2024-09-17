@@ -1,9 +1,17 @@
 package jp.co.moneyforward.autotest.framework.action;
 
-import com.github.valid8j.pcond.fluent.Statement;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
-import java.util.function.Function;
-
-public interface Act<T, R> extends ActionFactory {
-  AssertionAct<T, R> assertion(Function<R, Statement<R>> assertion);
+/**
+ * **Act** is a unit of action to be performed during a test execution.
+ */
+public interface Act {
+  /**
+   * Returns a name of an instance of this interface.
+   *
+   * @return A name of this instance.
+   */
+  default String name() {
+    return InternalUtils.simpleClassNameOf(this.getClass());
+  }
 }
