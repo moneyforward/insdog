@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.retry;
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
 
@@ -43,6 +44,14 @@ public interface ActionComposer {
                              Stream.of(sceneCall.toSequentialAction(assignmentResolversFromCurrentCall, this)),
                              Stream.of(sceneCall.end()))
                           .toList());
+  }
+  
+  default Action create(RetryCall retryCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+    return retry(retryCall.target().toAction(this, assignmentResolversFromCurrentCall))
+        .times(retryCall.times())
+        .on(retryCall.onException())
+        .withIntervalOf(retryCall.interval(), retryCall.intervalUnit())
+        .$();
   }
   
   default Action create(AssertionActCall<?, ?> call, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {

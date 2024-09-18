@@ -80,8 +80,7 @@ public class SceneCall implements Call {
   private static Action beginSceneCall(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
                                 c -> c.assignTo(sceneCall.workAreaName(),
-                                                sceneCall.initializeWorkArea(c,
-                                                                             assignmentResolversFromCurrentCall)));
+                                                sceneCall.initializeWorkArea(c, assignmentResolversFromCurrentCall)));
   }
   
   private static Action endSceneCall(SceneCall sceneCall) {

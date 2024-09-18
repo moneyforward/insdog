@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.actions.web.Value;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
+import org.opentest4j.AssertionFailedError;
 
 import java.util.*;
 import java.util.function.Function;
@@ -12,6 +13,7 @@ import java.util.function.UnaryOperator;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
+import static java.util.Collections.singletonList;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
 
 /**
@@ -43,9 +45,8 @@ public interface Scene {
   default String name() {
     return InternalUtils.simpleClassNameOf(this.getClass());
   }
-
-
-
+  
+  
   private List<Action> toActions(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall, ActionComposer actionComposer) {
     return children().stream()
                      .map((Call each) -> each.toAction(actionComposer, assignmentResolversFromCurrentCall))
@@ -102,11 +103,27 @@ public interface Scene {
     }
     
     public final <R> Builder assertion(String outputFieldName, Function<R, Statement<R>> assertionAct, String inputFieldName) {
-      return this.addCall(assertionCall(outputFieldName, new Value<>(), Collections.singletonList(assertionAct), inputFieldName));
+      return this.addCall(assertionCall(outputFieldName, new Value<>(), singletonList(assertionAct), inputFieldName));
     }
     
     public final Builder add(Scene scene) {
       return this.addCall(sceneCall(scene));
+    }
+    
+    public final Builder retry(Call call, int times, Class<? extends Throwable> onException, int interval) {
+      return this.addCall(new RetryCall(call, onException, times, interval));
+    }
+    
+    public final Builder retry(Call call, int times, Class<? extends Throwable> onException) {
+      return retry(call, times, onException, 5);
+    }
+    
+    public final Builder retry(Call call, int times) {
+      return retry(call, times, AssertionFailedError.class);
+    }
+    
+    public final Builder retry(Call call) {
+      return retry(call, 2);
     }
     
     public Builder addCall(Call call) {

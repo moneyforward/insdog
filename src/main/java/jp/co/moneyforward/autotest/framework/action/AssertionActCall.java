@@ -29,7 +29,7 @@ public class AssertionActCall<T, R> extends ActCall<T> {
   }
   
   private LeafAct<R, R> assertionAsLeafAct(Function<R, Statement<R>> assertion) {
-    return new LeafAct<R, R>() {
+    return new LeafAct<>() {
       @Override
       public R perform(R value, ExecutionEnvironment executionEnvironment) {
         Expectations.assertStatement(assertion.apply(value));
