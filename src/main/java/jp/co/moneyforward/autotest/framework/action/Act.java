@@ -10,7 +10,7 @@ import java.util.function.Function;
 /**
  * This interface represents the smallest and indivisible unit of action in **autotest-ca** 's programming model.
  */
-public interface LeafAct<T, R> {
+public interface Act<T, R> {
   R perform(T value, ExecutionEnvironment executionEnvironment);
   
   /**
@@ -27,7 +27,7 @@ public interface LeafAct<T, R> {
    *
    * @param <T> The type of the value to be assigned.
    */
-  class Let<T> extends Source<T> implements LeafAct<Object, T> {
+  class Let<T> extends Source<T> implements Act<Object, T> {
     private final T value;
     
     /**
@@ -60,7 +60,7 @@ public interface LeafAct<T, R> {
     
   }
   
-  class Func<T, R> implements LeafAct<T, R> {
+  class Func<T, R> implements Act<T, R> {
     private final Function<T, R> main;
     
     public Func(Function<T, R> func) {
@@ -109,7 +109,7 @@ public interface LeafAct<T, R> {
     }
   }
   
-  abstract class Source<T> implements LeafAct<Object, T> {
+  abstract class Source<T> implements Act<Object, T> {
     @Override
     public T perform(Object value, ExecutionEnvironment executionEnvironment) {
       return this.value();

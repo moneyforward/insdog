@@ -30,7 +30,7 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
  *
  * @see Call
  * @see Scene
- * @see LeafAct
+ * @see Act
  */
 public interface ActionComposer {
   Logger LOGGER = LoggerFactory.getLogger(ActionComposer.class);
@@ -64,7 +64,7 @@ public interface ActionComposer {
               .toList());
   }
   
-  default Action create(LeafActCall<?, ?> actCall) {
+  default Action create(ActCall<?, ?> actCall) {
     SceneCall currentSceneCall = this.currentSceneCall().orElseThrow();
     
     return InternalUtils.action(actCall.act().name() + "[" + actCall.inputFieldName() + "]",
@@ -74,7 +74,7 @@ public interface ActionComposer {
   }
   
   private static <T, R> Consumer<Context> toContextConsumerFromAct(SceneCall currentSceneCall,
-                                                                   LeafActCall<T, R> actCall,
+                                                                   ActCall<T, R> actCall,
                                                                    ExecutionEnvironment executionEnvironment) {
     return toContextConsumerFromAct(c -> actCall.inputFieldValue(currentSceneCall, c),
                                     actCall.act(),
@@ -84,7 +84,7 @@ public interface ActionComposer {
   }
   
   private static <T, R> Consumer<Context> toContextConsumerFromAct(Function<Context, T> inputFieldValueResolver,
-                                                                   LeafAct<T, R> act,
+                                                                   Act<T, R> act,
                                                                    String outputFieldName,
                                                                    SceneCall currentSceneCall,
                                                                    ExecutionEnvironment executionEnvironment) {

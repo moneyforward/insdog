@@ -31,11 +31,11 @@ public enum AutotestSupport {
     return builder.build();
   }
   
-  public static <T, R> LeafActCall<T, R> leafCall(String outputVariableName, LeafAct<T, R> leaf, String inputFieldName) {
-    return new LeafActCall<>(outputVariableName, leaf, inputFieldName);
+  public static <T, R> ActCall<T, R> leafCall(String outputVariableName, Act<T, R> leaf, String inputFieldName) {
+    return new ActCall<>(outputVariableName, leaf, inputFieldName);
   }
   
-  public static <T, R> AssertionCall<R> assertionCall(String outputVariableName, LeafAct<T, R> leafAct, List<Function<R, Statement<R>>> assertions, String inputVariableName) {
-    return new AssertionCall<>(leafCall(outputVariableName, leafAct, inputVariableName), assertions);
+  public static <T, R> AssertionCall<R> assertionCall(String outputVariableName, Act<T, R> act, List<Function<R, Statement<R>>> assertions, String inputVariableName) {
+    return new AssertionCall<>(leafCall(outputVariableName, act, inputVariableName), assertions);
   }
 }

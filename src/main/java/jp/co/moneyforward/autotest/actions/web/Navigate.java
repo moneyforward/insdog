@@ -1,12 +1,12 @@
 package jp.co.moneyforward.autotest.actions.web;
 
 import com.microsoft.playwright.Page;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
-public class Navigate implements LeafAct<Page, Page> {
+public class Navigate implements Act<Page, Page> {
   private final String url;
   
   public Navigate(String url) {

@@ -1,7 +1,7 @@
 package jp.co.moneyforward.autotest.ututils;
 
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
-import jp.co.moneyforward.autotest.framework.action.LeafAct.Let;
+import jp.co.moneyforward.autotest.framework.action.Act;
+import jp.co.moneyforward.autotest.framework.action.Act.Let;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import java.util.List;
@@ -15,30 +15,30 @@ public enum ActUtils {
   }
   
   @SuppressWarnings("ClassEscapesDefinedScope")
-  public static LeafAct<String, String> helloAct() {
+  public static Act<String, String> helloAct() {
     return name("helloAct", (value, executionEnvironment) -> "HELLO:" + value);
   }
   
-  public static LeafAct<String, String> exclamationAct() {
+  public static Act<String, String> exclamationAct() {
     return name("exclamationAct", (value, executionEnvironment) -> value + "!");
   }
   
-  public static LeafAct<String, String> printlnAct() {
+  public static Act<String, String> printlnAct() {
     return name("println", (value, executionEnvironment) -> {
       System.out.println(value);
       return value;
     });
   }
   
-  public static LeafAct<String, String> addToListAct(List<String> list) {
+  public static Act<String, String> addToListAct(List<String> list) {
     return name("addTo:" + list, (value, executionEnvironment) -> {
       list.add(value);
       return value;
     });
   }
   
-  private static <T, R> LeafAct<T, R> name(String name, LeafAct<T, R> act) {
-    return new LeafAct<>() {
+  private static <T, R> Act<T, R> name(String name, Act<T, R> act) {
+    return new Act<>() {
       @Override
       public String name() {
         return name;

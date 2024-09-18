@@ -3,7 +3,6 @@ package jp.co.moneyforward.autotest.ca_web.tests.term;
 import com.microsoft.playwright.Dialog;
 import com.microsoft.playwright.Page;
 import jp.co.moneyforward.autotest.actions.web.PageAct;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;

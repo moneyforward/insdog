@@ -12,7 +12,7 @@ import java.util.function.Function;
  * As a design policy, a call is defined for structural actions of **actionunit**, such as `retry`, `sequential`, `parallel`, etc.
  * Functionalities exercised in tests are represented as implementations of `LeafAct`.
  *
- * @see LeafAct
+ * @see Act
  */
 public interface Call {
   /**

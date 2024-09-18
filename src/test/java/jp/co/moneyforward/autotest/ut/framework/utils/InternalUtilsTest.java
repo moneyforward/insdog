@@ -2,10 +2,9 @@ package jp.co.moneyforward.autotest.ut.framework.utils;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.valid8j.fluent.Expectations;
 import com.github.valid8j.pcond.forms.Printables;
 import jp.co.moneyforward.autotest.framework.action.Call;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.AutotestException;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
@@ -20,7 +19,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.valid8j.fluent.Expectations.*;
@@ -185,7 +183,7 @@ class InternalUtilsTest extends TestBase {
   
   @Test
   void whenChainActs_thenCreatedSceneLooksCorrect() {
-    Scene scene = InternalUtils.chainActs("var1", new LeafAct.Func<>((String x) -> x + "a"), new LeafAct.Func<>((String x) -> x + "b"));
+    Scene scene = InternalUtils.chainActs("var1", new Act.Func<>((String x) -> x + "a"), new Act.Func<>((String x) -> x + "b"));
     
     assertStatement(value(scene.children().stream().map(Call::outputFieldName).toList())
                         .toBe()

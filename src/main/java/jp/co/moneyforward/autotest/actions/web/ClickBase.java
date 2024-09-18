@@ -2,7 +2,7 @@ package jp.co.moneyforward.autotest.actions.web;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.function.Function;
@@ -10,7 +10,7 @@ import java.util.function.Function;
 /**
  * An abstract base class for clicking acts.
  */
-public abstract class ClickBase implements LeafAct<Page, Page> {
+public abstract class ClickBase implements Act<Page, Page> {
   final Function<Page, Locator> locatorFunction;
   
   /**

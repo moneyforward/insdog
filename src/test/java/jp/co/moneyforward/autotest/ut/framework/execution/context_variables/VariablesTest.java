@@ -29,7 +29,7 @@ public class VariablesTest extends TestBase {
   @Test
   void givenSceneWithVariableReadingAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
     LinkedList<String> out = new LinkedList<>();
-    LeafAct<?, String> leaf = ActUtils.let("Scott Tiger");
+    Act<?, String> leaf = ActUtils.let("Scott Tiger");
     Scene scene = scene(List.of(leafCall("x", leaf, "NONE"),
                                 leafCall("x", helloAct(), "x"),
                                 leafCall("x", printlnAct(), "x"),
@@ -50,7 +50,7 @@ public class VariablesTest extends TestBase {
   @Test
   void takeOvers() {
     LinkedList<String> out = new LinkedList<>();
-    LeafAct<?, String> leaf = let("Scott Tiger");
+    Act<?, String> leaf = let("Scott Tiger");
     Scene scene = scene(List.of(
         sceneCall("SCENE1",
                   List.of(leafCall("out", leaf, "NONE"),
@@ -75,7 +75,7 @@ public class VariablesTest extends TestBase {
   
   @Test
   void takeOvers2() {
-    LeafAct<?, String> leaf = let("Scott Tiger");
+    Act<?, String> leaf = let("Scott Tiger");
     Scene scene = scene(List.of(
         sceneCall("SCENE1",
                   List.of(leafCall("out", leaf, "NONE"),
@@ -110,7 +110,7 @@ public class VariablesTest extends TestBase {
   
   @Test
   void action2() {
-    LeafAct<?, String> leaf = let("Scott");
+    Act<?, String> leaf = let("Scott");
     SceneCall sceneCall1 = sceneCall("S1",
                                      List.of(
                                          leafCall("var", leaf, "NONE"),
@@ -171,7 +171,7 @@ public class VariablesTest extends TestBase {
   }
   
   private static AssertionCall<String> getStringStringAssertionActCall() {
-    return new AssertionCall<>(new LeafActCall<>("foo", printlnAct(), "foo"),
+    return new AssertionCall<>(new ActCall<>("foo", printlnAct(), "foo"),
                                List.of(s -> value(s).toBe()
                                                        .containing("HELLO")
                                                        .containing("Scott")));

@@ -2,10 +2,8 @@ package jp.co.moneyforward.autotest.ca_web.tests.selftest;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import com.github.valid8j.fluent.Expectations;
 import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
-import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
@@ -34,7 +32,7 @@ public class SelfTest implements AutotestRunner {
   @ClosedBy("close")
   public static Scene open() {
     return new Scene.Builder("page")
-        .add(new LeafAct.Let<>("OPEN"))
+        .add(new Act.Let<>("OPEN"))
         .build();
   }
   
@@ -44,7 +42,7 @@ public class SelfTest implements AutotestRunner {
   @DependsOn("open")
   public static Scene login() {
     return new Scene.Builder("page")
-        .add(new LeafAct.Let<>("LOGIN"))
+        .add(new Act.Let<>("LOGIN"))
         .build();
   }
   
@@ -53,7 +51,7 @@ public class SelfTest implements AutotestRunner {
   @DependsOn("login")
   public static Scene connect() {
     return new Scene.Builder("page")
-        .add(new LeafAct.Let<>("CONNECT"))
+        .add(new Act.Let<>("CONNECT"))
         .build();
   }
   
@@ -62,7 +60,7 @@ public class SelfTest implements AutotestRunner {
   @DependsOn("login")
   public static Scene printDomain() {
     return new Scene.Builder("page")
-        .add(new LeafAct.Func<>(p -> {
+        .add(new Act.Func<>(p -> {
           if (enableAssertion) {
             assertAll(value(CawebAccessingModel.executionProfile().domain()).toBe().equalTo(OVERRIDING_DOMAIN_NAME),
                       value(CawebAccessingModel.executionProfile().homeUrl()).toBe().containing(OVERRIDING_DOMAIN_NAME),
@@ -78,7 +76,7 @@ public class SelfTest implements AutotestRunner {
   @DependsOn("login")
   public static Scene disconnect() {
     return new Scene.Builder("page")
-        .add(new LeafAct.Let<>("DISCONNECT"))
+        .add(new Act.Let<>("DISCONNECT"))
         .build();
   }
   
@@ -86,7 +84,7 @@ public class SelfTest implements AutotestRunner {
   @DependsOn("login")
   public static Scene logout() {
     return new Scene.Builder("page")
-        .add(new LeafAct.Let<>("LOGOUT"))
+        .add(new Act.Let<>("LOGOUT"))
         .build();
   }
   
@@ -94,7 +92,7 @@ public class SelfTest implements AutotestRunner {
   @DependsOn("open")
   public static Scene close() {
     return new Scene.Builder("page")
-        .add(new LeafAct.Let<>("CLOSE"))
+        .add(new Act.Let<>("CLOSE"))
         .build();
   }
   

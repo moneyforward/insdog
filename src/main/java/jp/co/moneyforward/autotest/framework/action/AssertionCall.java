@@ -21,14 +21,14 @@ public class AssertionCall<R> implements Call {
     this.assertions = requireNonNull(assertion);
   }
   
-  List<LeafActCall<R, R>> assertionAsLeafActCalls() {
+  List<ActCall<R, R>> assertionAsLeafActCalls() {
     return assertions.stream()
-                     .map(assertion -> new LeafActCall<>(outputFieldName(), assertionAsLeafAct(assertion), outputFieldName()))
+                     .map(assertion -> new ActCall<>(outputFieldName(), assertionAsLeafAct(assertion), outputFieldName()))
                      .toList();
   }
   
-  private LeafAct<R, R> assertionAsLeafAct(Function<R, Statement<R>> assertion) {
-    return new LeafAct<>() {
+  private Act<R, R> assertionAsLeafAct(Function<R, Statement<R>> assertion) {
+    return new Act<>() {
       @Override
       public R perform(R value, ExecutionEnvironment executionEnvironment) {
         Expectations.assertStatement(assertion.apply(value));
