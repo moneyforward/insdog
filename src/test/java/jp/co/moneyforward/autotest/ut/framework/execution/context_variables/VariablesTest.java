@@ -170,9 +170,9 @@ public class VariablesTest extends TestBase {
     return hashMap;
   }
   
-  private static AssertionActCall<String, String> getStringStringAssertionActCall() {
-    return new AssertionActCall<>(new LeafActCall<>("foo", printlnAct(), "foo"),
-                                  List.of(s -> value(s).toBe()
+  private static AssertionCall<String> getStringStringAssertionActCall() {
+    return new AssertionCall<>(new LeafActCall<>("foo", printlnAct(), "foo"),
+                               List.of(s -> value(s).toBe()
                                                        .containing("HELLO")
                                                        .containing("Scott")));
   }

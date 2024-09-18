@@ -54,7 +54,7 @@ public interface ActionComposer {
         .$();
   }
   
-  default Action create(AssertionActCall<?, ?> call, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+  default Action create(AssertionCall<?> call, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     return sequential(
         Stream.concat(
                   Stream.of(call.target().toAction(this, assignmentResolversFromCurrentCall)),

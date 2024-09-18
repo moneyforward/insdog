@@ -35,7 +35,7 @@ public enum AutotestSupport {
     return new LeafActCall<>(outputVariableName, leaf, inputFieldName);
   }
   
-  public static <T, R> AssertionActCall<T, R> assertionCall(String outputVariableName, LeafAct<T, R> leafAct, List<Function<R, Statement<R>>> assertions, String inputVariableName) {
-    return new AssertionActCall<>(leafCall(outputVariableName, leafAct, inputVariableName), assertions);
+  public static <T, R> AssertionCall<R> assertionCall(String outputVariableName, LeafAct<T, R> leafAct, List<Function<R, Statement<R>>> assertions, String inputVariableName) {
+    return new AssertionCall<>(leafCall(outputVariableName, leafAct, inputVariableName), assertions);
   }
 }
