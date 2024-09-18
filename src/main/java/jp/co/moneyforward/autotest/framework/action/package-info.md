@@ -9,7 +9,7 @@ classDiagram
     namespace ActionVisitor {
       class ActionComposer {
         <<visitor>>
-        create(LeafActCall call) Action
+        create(ActCall call) Action
         create(AssertionActCall call) Action
         create(SceneCall call) Action
       }
@@ -35,25 +35,25 @@ classDiagram
         class Decorator
         class RetryCall
         class AssertionCall
-        class LeafActCall
+        class ActCall
     }
     Call <|-- SceneCall
     Call <|-- Decorator
     Decorator <|-- AssertionCall
     Decorator <|-- RetryCall
-    Call <|-- LeafActCall
-    LeafActCall "1" --> "1" LeafAct: "target"
+    Call <|-- ActCall
+    ActCall "1" --> "1" Act: "target"
     Decorator "1" --> "1" Call: "target"
 
     namespace Acts {
-        class LeafAct {
+        class Act {
             perform()
         }
         class PageAct
         class MiscAct
     }
-    LeafAct <|-- PageAct
-    LeafAct <|-- MiscAct
+    Act <|-- PageAct
+    Act <|-- MiscAct
 
     namespace ActionUnit {
         class Action {
@@ -81,7 +81,7 @@ In the concepts of the **autotest-ca** framework, a test consists of two element
 
 A **Scene** is a structure of **Acts**.
 
-**LeafAct** can be implemented by a test programmer, typically **SDET-FW**, to model a reusable real world action such as **Click**, **Navigate**, **Screenshot**, etc.  
+**Act** can be implemented by a test programmer, typically **SDET-FW**, to model a reusable real world action such as **Click**, **Navigate**, **Screenshot**, etc.  
 
 A **Scene** is a unit that the framework manipulates and executes.
 A user programmer is expected to build a *Scene* to the execution framework in a way which it can recognize.
