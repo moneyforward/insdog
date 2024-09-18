@@ -24,7 +24,8 @@ To achieve such required flexibilities, `autotest-ca` employs the following mech
 - Action compilation pipeline
 - Custom `JUnit5` extension (custom test runner) and annotation based programming model
 
-Note that code examples and class/sequence diagrams in this page are only intended to describe the basic concepts and may be different from the final product code in their implementation details.
+Note that code examples and class/sequence diagrams in this page are intended to describe the basic concepts and may be different from the product code in their implementation details.
+Thus, even if a concept is described as a class in diagrams in this page, it may not have a corresponding implementation class in the code base, for instance.
 
 ## Scenes, Acts, and Play
 
@@ -150,7 +151,7 @@ To define a function with multiple parameters, we need "currying" mechanism, whi
 
 ### Play
 
-Play is a class to model the entire test, which consists of `setupAll`, `setUp`, `main`, `tearDown`, and `tearDownAll` action factories.
+Play is a concept to model the entire test, which consists of `setupAll`, `setUp`, `main`, `tearDown`, and `tearDownAll` action factories.
 It is created by the test extension of `autotest-ca` internally and users do not need to create it by themselves in usual use cases.
 
 
