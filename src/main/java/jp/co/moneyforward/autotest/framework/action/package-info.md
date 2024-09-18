@@ -79,7 +79,7 @@ classDiagram
 In the concepts of the **autotest-ca** framework, a test consists of two elements.
 **Scenes** and **Acts**.
 
-A **Scene** is a sequence of **Acts**.
+A **Scene** is a structure of **Acts**.
 
 Ideally, a test class consists of methods returning **Scenes** only, each of which constructs a **Scene** by calling methods to create **Acts**.
 Then, each of those method calls has meaningful name with meaningful variable names for arguments.
@@ -108,3 +108,87 @@ Typically visited by 'ActionComposer' and creates an action (actionunit).
 A call is defined for structural action such as ''leaf'', ''assertion'', ''sequential'', ''retry'', and so on.
 "
 note for Act "Act is a class that represents user-defined activity."
+
+## Data Management of Scenes and Acts
+
+A scene and its acts have inputs and outputs.
+Those variables are stored in a map, which is then a variable in a "context" of **actionunit**.
+This map is called "variable-space" in this document.
+
+**Scenes** and **Acts** interacts with each others through those variables in variable-spaces.
+Dependencies between **Scenes** are described by annotations defined in user programs.
+Following is an example that illustrates such interactions.
+
+```java
+import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
+import jp.co.moneyforward.autotest.framework.annotations.Export;
+import jp.co.moneyforward.autotest.framework.annotations.Named;
+
+@AutotestExecution("ongoingScene")
+class ExampleAccessingModel {
+  @Named
+  @Export({"a", "b"})
+  Scene scene1() {
+    return someScene();
+  }
+  
+  @Named
+  @Export({"x", "y"})
+  Scene scene2() {
+    return someOtherScene();
+  }
+  
+  @Named
+  @DependsOn({"scene1", "scene2"})
+  Scene ongoingScene() {
+    return sceneForSomething();
+  }
+}
+```
+
+In this example, `ongoingScene` is designated as a method to create a scene to be executed as a test.
+Since it `@DependsOn` `scene1` and `scene2`, the framework executes them, first.
+As `scene1` `@Export`s `a` and `b`, they are stored in a variable-space of `scene1`.
+Similarly, `x` and `y` are stored in `scene2`'s variable-space.
+
+All those variables are copied into "Working variable-space", where a scene created by `ongoingScene` method is performed.
+It may read and write variables in the space.
+After the execution is finished, all the variables will be copied to its dedicated variable-space for `ongoingScene`.
+
+**NOTE:** Instead of `@DependsOn`, you can use `@When`.
+They are basically the same in terms of description capability of dependencies, just different in how they are executed.
+Please check respective documentations for the differences.
+
+Following is a diagram that illustrates this mechanism:
+
+```mermaid
+graph LR
+    classDef procedure fill:#ffc0c0,color:#222222;
+    classDef dataset   fill:#c0c0ff,color:#222222;
+    classDef note      fill:#e0e040,stroke:808000,stroke-width:0px,color:#222222;
+
+Fw1(Framework)-->|read|Scene1Dataset
+Fw1(Framework)-->|read|Scene2Dataset
+
+Fw1(Framework)-.->|write|Workarea
+
+OngoingScene(OngoingScene)-->|read|Workarea
+OngoingScene(OngoingScene)-.->|write|Workarea
+
+Fw2(Framework)-->|read|Workarea
+Fw2(Framework)-.->|write|OngoingSceneDataset
+
+NoteFw1[This step is executed by the framework before ''OngoingScene'' is performed.
+It copies variables from output of Scene1 and Scene2 into ''Workarea'' dataset.
+] -.- Fw1
+NoteOngoingScene[A scene only interacts with data in ''workarea'', which are copied from dependency scenes.] -.- OngoingScene
+NoteFw2[This step is executed by the framework after ''OngoingScene'' is performed.
+It copies variables from the ``Workarea` to ''OngoingScene'' dataset.
+] -.- Fw2
+
+class Framework procedure;
+class Workarea,Scene1Dataset,Scene2Dataset,OngoingSceneDataset dataset;
+class NoteFw1,NoteOngoingScene,NoteFw2 note;
+```
+
+Note that an **Act** can have only one input and one output, while a scene has a set of such input and output variables (variable-space).
