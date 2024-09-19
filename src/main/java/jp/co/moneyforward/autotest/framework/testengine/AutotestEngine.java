@@ -516,6 +516,17 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                  .toList();
   }
   
+  /**
+   * Creates variable resolvers for a scene created from a method `m`.
+   *
+   * The scene created by `m` will be called "scene `m`" in this description, hereafter.
+   *
+   * @param m A method to create a scene, for which resolvers are created.
+   * @param accessModelClass An access model class that defines a set of scene creating methods, on which `m` potentially depends.
+   * @param dependencyAnnotationClass Annotation class which holds dependency scenes.
+   * @param dependenciesResolver A function that returns names of scenes on which scene `m` depends.
+   * @return Resolvers for a scene created by `m`.
+   */
   private static List<Resolver> variableResolversFor(Method m,
                                                      Class<?> accessModelClass,
                                                      Class<? extends Annotation> dependencyAnnotationClass,
@@ -526,12 +537,20 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                 dependencySceneName -> exportedVariablesOf(accessModelClass, dependencySceneName));
   }
   
-  private static List<Resolver> variableResolversFor(String[] dependencySceneNames,
+  /**
+   * Returns `Resolver`s for variables exported by scenes specified by `sceneNames`.
+   * A resolver in the list returns a value of a variable defined in a scene that exports it with the same name.
+   *
+   * @param sceneNames        Names of `Scene`s.
+   * @param exportedVariables A function that returns a list of export variables for a scene specified as a parameter.
+   * @return `Resolver`s for variables exported by specified scenes.
+   */
+  private static List<Resolver> variableResolversFor(String[] sceneNames,
                                                      Function<String, List<String>> exportedVariables) {
-    return Arrays.stream(dependencySceneNames)
-                 .flatMap((String dependencySceneName) -> exportedVariables.apply(dependencySceneName).stream()
-                                                                           .map(e -> Resolver.resolverFor(dependencySceneName,
-                                                                                                          e)))
+    return Arrays.stream(sceneNames)
+                 .flatMap((String sceneName) -> exportedVariables.apply(sceneName)
+                                                                 .stream()
+                                                                 .map((String n) -> Resolver.resolverFor(sceneName, n)))
                  .toList();
   }
   

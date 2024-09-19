@@ -16,7 +16,7 @@ public enum AutotestSupport {
   
   public static SceneCall sceneCall(String outputFieldName, Scene scene, List<Resolver> assignments) {
     var resolverMap = new HashMap<String, Function<Context, Object>>();
-    assignments.forEach(r -> resolverMap.put(r.parameterName(), r.resolverFunction()));
+    assignments.forEach(r -> resolverMap.put(r.variableName(), r.resolverFunction()));
     return new SceneCall(outputFieldName, scene, resolverMap);
   }
   
