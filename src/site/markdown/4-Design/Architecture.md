@@ -1,4 +1,4 @@
-## Architecture
+# Software Architecture
 
 Following is a diagram that illustrates relationships between software components of **autotest-ca** and of external services.
 
@@ -70,11 +70,77 @@ The framework provides a **JUnit5** extension, which defines execution flow of t
 
 **autotest-ca Profile** is a component that abstracts execution environments and parameters whose values can be different across test runs.
 
-**SDET(APP)** are responsible for executing/implementing tests for **SUT** in an automated-fashion as much as possible to meet projects' deadlines.
+**SDET(App)** are responsible for executing/implementing tests for **SUT** in an automated-fashion as much as possible to meet projects' deadlines.
 When necessary, they will execute tests by manual.
-While **SDET(Framwork)** are responsible for making/keeping **SDET(APP)** works efficient as much as possible.
+While **SDET(Framwork)** are responsible for making/keeping **SDET(App)** works efficient as much as possible.
 
-Following is a diagram that illustrates relationships between components of **autotest-ca** and of external services at runtime.
+## Internal
+
+Following is a diagram more focusing on the detail of the static structure of the `autotest-ca`.
+It is built as an executable assembly, which has all the necessary dependencies inside one file.
+
+```mermaid
+C4Context
+
+Person(sdetFramework, "SDET(framework)")
+Rel(sdetFramework, abstractActions, "Creates")
+Rel(sdetFramework, builtInActions, "Creates")
+Rel(sdetFramework, extension, "Creates")
+
+Person(sdetTests, "SDET(App)")
+Rel(sdetTests, testClasses, "Creates")
+Rel(sdetTests, junit-platform-launcher, "0-a. Invokes")
+
+Person(ci, "C/I system")
+Rel(ci, junit-platform-launcher, "0-b. Invokes")
+
+
+Rel(junit-platform-launcher, extension, "1. instantiates")
+Rel(junit-platform-launcher, testClasses, "2. instantiates")
+Rel(extension, testClasses, "3. executes")
+
+Boundary(autotest-ca-assembly, "autotest-ca:assembly", "application") {
+    Boundary(b0, "autotest-ca:main", "library") {
+        Boundary(coreBoundary, "core", "package") {
+            Component(extension, "JUnit 5 Test Extension")
+            Component(abstractActions, "Base Action Factories")
+            Rel(builtInActions, abstractActions, "implements")
+            Component(builtInActions, "Built-in Action Factories")
+        }
+        Boundary(b2, "tests", "package") {
+            Component(testClasses, "Tests")
+            Component(customActions, "Custom Action Factories")
+            Rel(testClasses, customActions, "Uses")
+        }
+        Rel(testClasses, builtInActions, "Uses")
+    }
+    Boundary(oss, "Third-party OSS Libraries") {
+        Component(junit-platform-launcher, "junit-platform-launcher")
+        Component(playwrightJava, "Playwright Java")
+        Rel(customActions, playwrightJava, "dependsOn")
+        Rel(builtInActions, playwrightJava, "dependsOn")
+    }
+
+}
+
+Boundary(platform, "Platform (OS)") {
+  Component(browser, "Browser")
+}
+Rel(playwrightJava, browser, "accesses")
+```
+
+It is assumed that different set of people will work on each package.
+`tests` will be developed by "SDET(App)", who are supposed to be assigned to a specific product/project and knowledgeable at its specifications and expertise in software testing.
+They will conduct manual tests when necessary to meet project requirements.
+
+The `core` will be developed by "SDET(Framework)", who are knowledgeable both at general software engineering and software testing.
+
+In the current version  (version **1.0.0-SNAPSHOT**), `tests` and `core` will be placed in the same library module, however, when it goes to production, they will be belonging to different modules and different repositories.
+This separation will be done as the product gets matured.
+
+## "Profile" Mechanism
+
+This is a diagram that illustrates relationships between components of **autotest-ca** and of external services at runtime.
 
 *Profile Mechanism*
 

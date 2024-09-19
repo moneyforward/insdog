@@ -41,11 +41,10 @@ Following are the summary of the rest of the **autotest-ca**'s documentations.
 
 [2-Requirements](../2-Requirements/index.md) Discusses requirement items for **autotest-ca**'s initial version.
 You can find the detail API reference in [3-APISpecification](../3-APISpecification/index.md).
-The software architecture of **autotest-ca** is discussed in [4-Design](../4-Design/index.md), which is focusing on tool's internals.
-On the contrary, [5-Integration](../4-Architecture/index.md) is focusing on how it interacts with external entities, such as SUT (**caweb**),  CI system (GitHub actions), etc. 
-[6-ExamplesAndTutorials](../5-ExamplesAndTutorials/index.md) collects guides about writing tests, improving the tool, introducing development tools. 
-Check [7-TroublehootingAndSupport](../7-TroubleshootingAndSupport/index.md), when you need a help.
-You can find release notes under [8-ChangeLog](../7-ChangeLog/index.md).  
+The software architecture of **autotest-ca** is discussed in [4-Design](../4-Design/index.md).
+[5-ExamplesAndTutorials](../5-ExamplesAndTutorials/index.md) collects guides about writing tests, improving the tool, introducing development tools. 
+Check [6-TroublehootingAndSupport](../7-TroubleshootingAndSupport/index.md), when you need a help.
+You can find release notes under [7-ChangeLog](../7-ChangeLog/index.md).  
 In [X-Appendix](../X-Appendix/index.md), detail and technical information and resources will be collected.
 
 Enjoy!

@@ -48,10 +48,6 @@ classDiagram
     Play "1" --> "*" Scene : tearDown
     Play "1" --> "*" Scene : baseTearDown
     
-    <<interface>> ActionFactory
-    class ActionFactory {
-        Action toAction(...)
-    }
     <<interface>> Scene
     class Scene {
         List~ActionFactory~ children()
