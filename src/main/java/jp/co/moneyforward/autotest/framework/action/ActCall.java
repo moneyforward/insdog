@@ -13,7 +13,7 @@ import static com.github.dakusui.valid8j.Requires.requireNonNull;
  *
  * @param <T> Type input parameter
  */
-public class ActCall<T, R> implements Call {
+final public class ActCall<T, R> implements Call {
   private final String inputFieldName;
   private final String outputFieldName;
   

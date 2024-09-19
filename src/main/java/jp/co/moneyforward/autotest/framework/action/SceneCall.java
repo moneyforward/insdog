@@ -12,7 +12,7 @@ import java.util.function.Function;
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
-public class SceneCall implements Call {
+final public class SceneCall implements Call {
   final Scene scene;
   final Map<String, Function<Context, Object>> assignmentResolvers;
   private final String outputFieldName;

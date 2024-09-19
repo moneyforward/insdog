@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class RetryCall implements Call {
+final public class RetryCall implements Call {
   private final Call target;
   private final int interval;
   private final int retryTimes;
@@ -19,7 +19,7 @@ public class RetryCall implements Call {
    * Creates an instance of this class.
    *
    */
-  protected RetryCall(Call target, Class<? extends Throwable> onExceptionType, int retryTimes, int interval) {
+  public RetryCall(Call target, Class<? extends Throwable> onExceptionType, int retryTimes, int interval) {
     this.target = target;
     this.interval = interval;
     this.retryTimes = retryTimes;

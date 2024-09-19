@@ -26,6 +26,8 @@ import static com.github.valid8j.pcond.forms.Printables.function;
  * Be aware that this is to be run by `mvn verify`.
  * Running from an IDE such as IDEA may result in unintended result because an IDE's test runner shows different behaviors
  * from when it is run from `mvn`.
+ *
+ * For instance, from IntelliJ IDEA, only one test fails and the others are skipped.
  */
 public class CliIT extends TestBase {
   
@@ -126,6 +128,9 @@ public class CliIT extends TestBase {
                                     .containing("disconnect"));
   }
   
+  /**
+   * This test is known to be not passing (fails) when executed from IDE (IntelliJ IDEA).
+   */
   @Test
   void runSelfTestWithExecutionProfileThroughCliUtils() {
     SelfTest.enableAssertion();

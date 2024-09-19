@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
-public class AssertionCall<R> implements Call {
+final public class AssertionCall<R> implements Call {
   private final List<Function<R, Statement<R>>> assertions;
   private final Call target;
   

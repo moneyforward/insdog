@@ -14,7 +14,7 @@ import java.util.function.Function;
  *
  * @see Act
  */
-public interface Call {
+public sealed interface Call permits ActCall, AssertionCall, RetryCall, SceneCall {
   /**
    * A method to return output field name.
    *
