@@ -14,6 +14,12 @@ import java.util.function.Function;
 public enum AutotestSupport {
   ;
   
+  public static Scene scene(List<Call> children) {
+    var builder = new Scene.Builder("default");
+    children.forEach(builder::addCall);
+    return builder.build();
+  }
+
   public static SceneCall sceneCall(String outputFieldName, Scene scene, List<Resolver> assignments) {
     var resolverMap = new HashMap<String, Function<Context, Object>>();
     assignments.forEach(r -> resolverMap.put(r.variableName(), r.resolverFunction()));
@@ -23,19 +29,13 @@ public enum AutotestSupport {
   public static SceneCall sceneCall(Scene scene) {
     return new SceneCall(scene);
   }
+ 
   
-  
-  public static Scene scene(List<Call> children) {
-    var builder = new Scene.Builder("default");
-    children.forEach(builder::addCall);
-    return builder.build();
-  }
-  
-  public static <T, R> ActCall<T, R> leafCall(String outputVariableName, Act<T, R> leaf, String inputFieldName) {
+  public static <T, R> ActCall<T, R> actCall(String outputVariableName, Act<T, R> leaf, String inputFieldName) {
     return new ActCall<>(outputVariableName, leaf, inputFieldName);
   }
   
   public static <T, R> AssertionCall<R> assertionCall(String outputVariableName, Act<T, R> act, List<Function<R, Statement<R>>> assertions, String inputVariableName) {
-    return new AssertionCall<>(leafCall(outputVariableName, act, inputVariableName), assertions);
+    return new AssertionCall<>(actCall(outputVariableName, act, inputVariableName), assertions);
   }
 }

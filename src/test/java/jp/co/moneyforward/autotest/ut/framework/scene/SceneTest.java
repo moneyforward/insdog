@@ -49,9 +49,8 @@ public class SceneTest extends TestBase {
   
   @Test
   public void givenSceneWithSingleAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
-    Scene scene = new Scene.Builder("scene")
-        .add("out", helloAct(), "in")
-        .build();
+    Scene scene = new Scene.Builder("scene").add("out", helloAct(), "in")
+                                            .build();
     
     List<String> out = new LinkedList<>();
     Context context = Context.create();

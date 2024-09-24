@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
-final public class AssertionCall<R> implements Call {
+final public class AssertionCall<R> implements TargetedCall {
   private final List<Function<R, Statement<R>>> assertions;
   private final Call target;
   
@@ -50,6 +50,11 @@ final public class AssertionCall<R> implements Call {
   @Override
   public String outputFieldName() {
     return this.target().outputFieldName();
+  }
+  
+  @Override
+  public List<String> inputFieldNames() {
+    return target().inputFieldNames();
   }
   
   @Override

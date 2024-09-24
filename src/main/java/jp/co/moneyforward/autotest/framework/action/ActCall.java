@@ -3,6 +3,7 @@ package jp.co.moneyforward.autotest.framework.action;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -13,7 +14,7 @@ import static com.github.dakusui.valid8j.Requires.requireNonNull;
  *
  * @param <T> Type input parameter
  */
-final public class ActCall<T, R> implements Call {
+final public class ActCall<T, R> implements TargetedCall {
   private final String inputFieldName;
   private final String outputFieldName;
   
@@ -73,5 +74,10 @@ final public class ActCall<T, R> implements Call {
   @Override
   public String outputFieldName() {
     return this.outputFieldName;
+  }
+  
+  @Override
+  public List<String> inputFieldNames() {
+    return List.of(inputFieldName());
   }
 }

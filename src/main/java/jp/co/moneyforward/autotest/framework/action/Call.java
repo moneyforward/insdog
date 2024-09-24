@@ -3,6 +3,7 @@ package jp.co.moneyforward.autotest.framework.action;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -14,13 +15,20 @@ import java.util.function.Function;
  *
  * @see Act
  */
-public sealed interface Call permits ActCall, AssertionCall, RetryCall, SceneCall {
+public sealed interface Call permits TargetedCall, SceneCall {
   /**
-   * A method to return output field name.
+   * A method to return an output field name.
+   *
+   * Note that semantics of a value returned by this method are slightly different when it is called on `SceneCall` and other `Call` objects.
+   *
+   * When this is called on `SceneCall`, it returns a key in a `Context` object, whose value is a `Map`.
+   * Otherwise, it returns a key in a map returned by `SceneCall#outputFieldName`.
    *
    * @return An output field name of this object.
    */
   String outputFieldName();
+  
+  List<String> inputFieldNames();
   
   /**
    * Converts this call to action to an action object.

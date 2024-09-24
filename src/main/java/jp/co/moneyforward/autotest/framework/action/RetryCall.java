@@ -3,13 +3,14 @@ package jp.co.moneyforward.autotest.framework.action;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-final public class RetryCall implements Call {
+final public class RetryCall implements TargetedCall {
   private final Call target;
   private final int interval;
   private final int retryTimes;
@@ -29,6 +30,11 @@ final public class RetryCall implements Call {
   @Override
   public String outputFieldName() {
     return target.outputFieldName();
+  }
+  
+  @Override
+  public List<String> inputFieldNames() {
+    return target().inputFieldNames();
   }
   
   @Override

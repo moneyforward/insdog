@@ -41,11 +41,14 @@ public interface Scene {
    * @return members of this scene object.
    */
   List<Call> children();
+
+  default SceneCall chain(Scene scene) {
+    return new SceneCall("xyz", this, null);
+  }
   
   default String name() {
     return InternalUtils.simpleClassNameOf(this.getClass());
   }
-  
   
   private List<Action> toActions(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall, ActionComposer actionComposer) {
     return children().stream()
@@ -95,7 +98,7 @@ public interface Scene {
     }
     
     public final <T, R> Builder add(String outputFieldName, Act<T, R> act, String inputFieldName) {
-      return this.addCall(leafCall(outputFieldName, act, inputFieldName));
+      return this.addCall(actCall(outputFieldName, act, inputFieldName));
     }
     
     public final <R> Builder assertion(Function<R, Statement<R>> assertion) {
@@ -114,14 +117,34 @@ public interface Scene {
       return this.addCall(new RetryCall(call, onException, times, interval));
     }
     
+    /**
+     * This method is implemented as a shorthand for `this.retry(call, times, onException, 5)`.
+     
+     * @param call A call to be retried
+     * @param times How many times `call` should be retried until it succeeds.
+     * @return This object
+     */
     public final Builder retry(Call call, int times, Class<? extends Throwable> onException) {
       return retry(call, times, onException, 5);
     }
     
+    /**
+     * This method is implemented as a shorthand for `this.retry(call, times, AssertionFailedError.class)`.
+     
+     * @param call A call to be retried
+     * @param times How many times `call` should be retried until it succeeds.
+     * @return This object
+     */
     public final Builder retry(Call call, int times) {
       return retry(call, times, AssertionFailedError.class);
     }
     
+    /**
+     * This method is implemented as a shorthand for `this.retry(call, 2)`.
+     *
+     * @param call A call object to be added.
+     * @return This object.
+     */
     public final Builder retry(Call call) {
       return retry(call, 2);
     }

@@ -5,18 +5,20 @@ import com.github.dakusui.actionunit.core.Context;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
+/**
+ * A class to model a "call" to a `Scene`.
+ */
 final public class SceneCall implements Call {
   final Scene scene;
   final Map<String, Function<Context, Object>> assignmentResolvers;
   private final String outputFieldName;
-  
   
   public SceneCall(String outputFieldName, Scene scene, Map<String, Function<Context, Object>> assignmentResolvers) {
     this.outputFieldName = requireNonNull(outputFieldName);
@@ -63,6 +65,16 @@ final public class SceneCall implements Call {
   }
   
   @Override
+  public List<String> inputFieldNames() {
+    return scene.children()
+                .stream()
+                .flatMap(c -> c.inputFieldNames()
+                               .stream())
+                .distinct()
+                .toList();
+  }
+  
+  @Override
   public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     return actionComposer.create(this, assignmentResolversFromCurrentCall);
   }
@@ -83,6 +95,9 @@ final public class SceneCall implements Call {
                                                 sceneCall.initializeWorkArea(c, assignmentResolversFromCurrentCall)));
   }
   
+  /*
+   * Copies the map stored as "work area" to `outputFieldName` variable.
+   */
   private static Action endSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("END@" + sceneCall.scene.name(), c -> {
       c.assignTo(sceneCall.outputFieldName(), c.valueOf(sceneCall.workAreaName()));

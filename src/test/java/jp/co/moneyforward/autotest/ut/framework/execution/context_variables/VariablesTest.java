@@ -30,10 +30,10 @@ public class VariablesTest extends TestBase {
   void givenSceneWithVariableReadingAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
     LinkedList<String> out = new LinkedList<>();
     Act<?, String> leaf = ActUtils.let("Scott Tiger");
-    Scene scene = scene(List.of(leafCall("x", leaf, "NONE"),
-                                leafCall("x", helloAct(), "x"),
-                                leafCall("x", printlnAct(), "x"),
-                                leafCall("x", addToListAct(out), "x")));
+    Scene scene = scene(List.of(actCall("x", leaf, "NONE"),
+                                actCall("x", helloAct(), "x"),
+                                actCall("x", printlnAct(), "x"),
+                                actCall("x", addToListAct(out), "x")));
     
     
     Action action = AutotestSupport.sceneCall("output", scene, List.of()).toAction(createActionComposer(), AutotestSupport.sceneCall("output", scene, List.of()).assignmentResolvers().orElseThrow());
@@ -53,11 +53,11 @@ public class VariablesTest extends TestBase {
     Act<?, String> leaf = let("Scott Tiger");
     Scene scene = scene(List.of(
         sceneCall("SCENE1",
-                  List.of(leafCall("out", leaf, "NONE"),
-                          leafCall("x", helloAct(), "out")),
+                  List.of(actCall("out", leaf, "NONE"),
+                          actCall("x", helloAct(), "out")),
                   List.of()),
         sceneCall("SCENE2",
-                  List.of(leafCall("y", addToListAct(out), "in")),
+                  List.of(actCall("y", addToListAct(out), "in")),
                   List.of(new Resolver("in", Resolver.valueFrom("SCENE1", "x"))))));
     
     
@@ -78,8 +78,8 @@ public class VariablesTest extends TestBase {
     Act<?, String> leaf = let("Scott Tiger");
     Scene scene = scene(List.of(
         sceneCall("SCENE1",
-                  List.of(leafCall("out", leaf, "NONE"),
-                          leafCall("x", helloAct(), "out")),
+                  List.of(actCall("out", leaf, "NONE"),
+                          actCall("x", helloAct(), "out")),
                   List.of()),
         sceneCall("SCENE2",
                   List.of(AutotestSupport.assertionCall("y",
@@ -96,9 +96,9 @@ public class VariablesTest extends TestBase {
   @Test
   void action1() {
     SceneCall sceneCall = sceneCall("sceneOut",
-                                    List.of(leafCall("var", let("Scott"), "NONE"),
-                                            leafCall("var", helloAct(), "var"),
-                                            leafCall("var", printlnAct(), "var")),
+                                    List.of(actCall("var", let("Scott"), "NONE"),
+                                            actCall("var", helloAct(), "var"),
+                                            actCall("var", printlnAct(), "var")),
                                     List.of());
     var out1 = new Writer.Impl();
     
@@ -113,13 +113,13 @@ public class VariablesTest extends TestBase {
     Act<?, String> leaf = let("Scott");
     SceneCall sceneCall1 = sceneCall("S1",
                                      List.of(
-                                         leafCall("var", leaf, "NONE"),
-                                         leafCall("var", helloAct(), "var"),
-                                         leafCall("var", printlnAct(), "var")),
+                                         actCall("var", leaf, "NONE"),
+                                         actCall("var", helloAct(), "var"),
+                                         actCall("var", printlnAct(), "var")),
                                      List.of());
     SceneCall sceneCall2 = sceneCall("S2",
-                                     List.of(leafCall("var", helloAct(), "foo"),
-                                             leafCall("var", printlnAct(), "foo")),
+                                     List.of(actCall("var", helloAct(), "foo"),
+                                             actCall("var", printlnAct(), "foo")),
                                      List.of(new Resolver("foo", Resolver.valueFrom("S1", "var"))));
     
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
@@ -138,12 +138,12 @@ public class VariablesTest extends TestBase {
   @Test
   void action3() {
     SceneCall sceneCall1 = new SceneCall("S1",
-                                         new Scene.Builder("sceneCall1").addCall(leafCall("var", let("Scott"), "NONE"))
-                                                                        .addCall(leafCall("var", helloAct(), "var"))
-                                                                        .addCall(leafCall("var", printlnAct(), "var"))
+                                         new Scene.Builder("sceneCall1").addCall(actCall("var", let("Scott"), "NONE"))
+                                                                        .addCall(actCall("var", helloAct(), "var"))
+                                                                        .addCall(actCall("var", printlnAct(), "var"))
                                                                         .build(), new HashMap<>());
     SceneCall sceneCall2 = new SceneCall("S2",
-                                         new Scene.Builder("sceneCall2").addCall(leafCall("foo", helloAct(), "foo"))
+                                         new Scene.Builder("sceneCall2").addCall(actCall("foo", helloAct(), "foo"))
                                                                         .addCall(getStringStringAssertionActCall())
                                                                         .build(),
                                          composeMapFrom(InternalUtils.Entry.$("foo",
