@@ -14,7 +14,7 @@ import static com.github.dakusui.valid8j.Requires.requireNonNull;
  *
  * @param <T> Type input parameter
  */
-final public class ActCall<T, R> implements TargetedCall {
+public final class ActCall<T, R> implements Call {
   private final String inputFieldName;
   private final String outputFieldName;
   
@@ -32,7 +32,7 @@ final public class ActCall<T, R> implements TargetedCall {
   public ActCall(String outputFieldName, Act<T, R> act, String inputFieldName) {
     this.inputFieldName = requireNonNull(inputFieldName);
     this.outputFieldName = requireNonNull(outputFieldName);
-    this.act = act;
+    this.act = requireNonNull(act);
   }
   
   public Act<T, R> act() {

@@ -1,8 +1,6 @@
 This is a package to provide "action" model of the **autotest-ca** framework.
 
-Actions performed over the SUT are modeled as `ActionFactory` in the framework, which creates `Action` using the concept of **actionunit** library.
-
-Since one instance of `ActionFactory` usually corresponds to one `Action` instance in the model of this framework, we use the terms **action** and **action factory** interchangeably in the documentation unless otherwise explicitly noted.
+Actions performed over the SUT are modeled as `Call` and `Act` in the framework, which creates `Action` using the concept of **actionunit** library.
 
 ```mermaid
 classDiagram
@@ -93,6 +91,88 @@ It is held by `Scene.Builder` and translated into the tree by **ActionComposer**
 ''**ActionComposer**'' and ''**Calls**'' consists a ''**Visitor**'' pattern.
 A call is an 'element' in **Visitor** pattern.
 ''**ActionComposer**'' traverses ''**Calls**'' one by one and creates action tree to be executed.
+
+## Data Storage Structure
+
+```mermaid
+classDiagram
+    namespace nodes {
+        class Call {
+            List~String~ inputFieldNames()
+            Action toAction(ActionComposer actionComposer, Map~String, Function<Context, Object>~ assignmentResolvers)*
+        }
+        class ActCall {
+            Action toAction(...)
+        }
+        class TargetingCall {
+            Call target
+            Call target()
+        }
+        class SceneCall {
+            final String inputStoreName
+            final String outputStoreName
+            inputStoreName()
+            workStoreName()
+            outputStoreName()
+            Action toAction(...)
+        }
+        class RetryCall {
+            Action toAction(...)
+        }
+        class AssertionCall {
+            Action toAction(...)
+        }
+        class VariableStore {
+            final Map~String,Object~ store
+            V lookUp(String variableName)
+            void store(String variableName, Object value)
+            void remove(String variableName)
+        }
+    }
+    namespace reusableUnits {
+        class Scene {
+            List~Call~ children()
+        }
+        class Act {
+            void perform(...)
+        }
+    }
+    namespace visitor {
+      class ActionComposer {
+        <<visitor>>
+      }
+    }
+    namespace products {
+        class LeafAction
+        class SequentialAction
+        class AssertionActions
+        class RetryAction
+    }
+
+    Call <|-- ActCall
+    ActCall "1" *--> "1" Act
+    ActCall ..> ActionComposer
+
+    Call <|-- TargetingCall
+    TargetingCall "1" *--> "1" Call
+    TargetingCall <|-- RetryCall
+    TargetingCall <|-- AssertionCall
+    AssertionCall ..> ActionComposer
+    RetryCall ..> ActionComposer
+   
+    Call <|-- SceneCall
+    Scene "1" --> "*" Call
+    SceneCall "1" --> "variableStore" VariableStore
+    SceneCall *--> "1" Scene
+    SceneCall ..> ActionComposer
+
+    ActionComposer ..> LeafAction
+    ActionComposer ..> AssertionActions
+    ActionComposer ..> RetryAction
+    ActionComposer ..> SequentialAction
+    
+    LeafAction *--> Act
+```
 
 ## Data Management of Scenes and Acts
 

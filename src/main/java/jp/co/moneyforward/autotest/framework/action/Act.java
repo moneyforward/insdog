@@ -11,6 +11,13 @@ import java.util.function.Function;
  * This interface represents the smallest and indivisible unit of action in **autotest-ca** 's programming model.
  */
 public interface Act<T, R> {
+  /**
+   * Applies this function the given argument: `value`(`T`) and returns the result (`R`).
+   *
+   * @param value An argument value.
+   * @param executionEnvironment An environment in which this function is executed.
+   * @return the function result.
+   */
   R perform(T value, ExecutionEnvironment executionEnvironment);
   
   /**

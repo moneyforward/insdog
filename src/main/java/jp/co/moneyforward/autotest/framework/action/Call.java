@@ -15,7 +15,7 @@ import java.util.function.Function;
  *
  * @see Act
  */
-public sealed interface Call permits TargetedCall, SceneCall {
+public sealed interface Call permits ActCall, TargetedCall, SceneCall {
   /**
    * A method to return an output field name.
    *

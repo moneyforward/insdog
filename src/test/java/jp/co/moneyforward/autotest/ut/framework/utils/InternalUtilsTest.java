@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -262,5 +263,15 @@ class InternalUtilsTest extends TestBase {
   private static <T> Function<Stream<T>, List<T>> toList() {
     return Printables.function("toList", Stream::toList);
   }
+
+  @Test
+  void toStringTest() {
+    Consumer<Object> f = System.out::println;
+    System.out.println(f);
+  }
   
+  @Test
+  void testEmpty() {
+    System.out.println(Optional.of(null));
+  }
 }

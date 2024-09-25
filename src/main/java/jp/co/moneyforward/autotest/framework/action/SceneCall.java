@@ -15,19 +15,19 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 /**
  * A class to model a "call" to a `Scene`.
  */
-final public class SceneCall implements Call {
+public final class SceneCall implements Call {
   final Scene scene;
   final Map<String, Function<Context, Object>> assignmentResolvers;
-  private final String outputFieldName;
+  private final String outputStoreName;
   
-  public SceneCall(String outputFieldName, Scene scene, Map<String, Function<Context, Object>> assignmentResolvers) {
-    this.outputFieldName = requireNonNull(outputFieldName);
+  public SceneCall(String outputStoreName, Scene scene, Map<String, Function<Context, Object>> assignmentResolvers) {
+    this.outputStoreName = requireNonNull(outputStoreName);
     this.scene = requireNonNull(scene);
     this.assignmentResolvers = requireNonNull(assignmentResolvers);
   }
   
   public SceneCall(Scene scene) {
-    this.outputFieldName = null;
+    this.outputStoreName = null;
     this.scene = requireNonNull(scene);
     this.assignmentResolvers = null;
   }
@@ -36,7 +36,7 @@ final public class SceneCall implements Call {
     return this.scene.toSequentialAction(assignmentResolversFromCurrentCall, actionComposer);
   }
   
-  String workAreaName() {
+  String workingStoreName() {
     return "work-" + objectId();
   }
   
@@ -52,7 +52,7 @@ final public class SceneCall implements Call {
   }
   
   Map<String, Object> workArea(Context context) {
-    return context.valueOf(workAreaName());
+    return context.valueOf(workingStoreName());
   }
   
   String objectId() {
@@ -61,7 +61,11 @@ final public class SceneCall implements Call {
   
   @Override
   public String outputFieldName() {
-    return requireNonNull(this.outputFieldName);
+    return requireNonNull(this.outputStoreName);
+  }
+  
+  public String outputStoreName() {
+    return requireNonNull(this.outputStoreName);
   }
   
   @Override
@@ -84,14 +88,14 @@ final public class SceneCall implements Call {
   }
   
   public Action end() {
-    if (this.outputFieldName != null)
+    if (this.outputStoreName != null)
       return endSceneCall(this);
     return endSceneCallDismissingOutput(this);
   }
   
   private static Action beginSceneCall(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
-                                c -> c.assignTo(sceneCall.workAreaName(),
+                                c -> c.assignTo(sceneCall.workingStoreName(),
                                                 sceneCall.initializeWorkArea(c, assignmentResolversFromCurrentCall)));
   }
   
@@ -100,8 +104,8 @@ final public class SceneCall implements Call {
    */
   private static Action endSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("END@" + sceneCall.scene.name(), c -> {
-      c.assignTo(sceneCall.outputFieldName(), c.valueOf(sceneCall.workAreaName()));
-      c.unassign(sceneCall.workAreaName());
+      c.assignTo(sceneCall.outputStoreName(), c.valueOf(sceneCall.workingStoreName()));
+      c.unassign(sceneCall.workingStoreName());
     });
   }
   

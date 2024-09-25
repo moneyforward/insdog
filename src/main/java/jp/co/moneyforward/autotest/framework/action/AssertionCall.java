@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
-final public class AssertionCall<R> implements TargetedCall {
+public final class AssertionCall<R> implements TargetedCall {
   private final List<Function<R, Statement<R>>> assertions;
   private final Call target;
   
@@ -21,12 +21,27 @@ final public class AssertionCall<R> implements TargetedCall {
     this.assertions = requireNonNull(assertion);
   }
   
-  List<ActCall<R, R>> assertionAsLeafActCalls() {
-    return assertions.stream()
-                     .map(assertion -> new ActCall<>(outputFieldName(), assertionAsLeafAct(assertion), outputFieldName()))
-                     .toList();
+  @Override
+  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+    return actionComposer.create(this, assignmentResolversFromCurrentCall);
+  }
+
+  @Override
+  public String outputFieldName() {
+    return this.target().outputFieldName();
   }
   
+  @Override
+  public List<String> inputFieldNames() {
+    return target().inputFieldNames();
+  }
+  
+  List<ActCall<R, R>> assertionAsLeafActCalls() {
+    return assertions.stream()
+                     .map(assertion -> new ActCall<>(this.outputFieldName(), assertionAsLeafAct(assertion), outputFieldName()))
+                     .toList();
+  }
+
   private Act<R, R> assertionAsLeafAct(Function<R, Statement<R>> assertion) {
     return new Act<>() {
       @Override
@@ -45,20 +60,5 @@ final public class AssertionCall<R> implements TargetedCall {
   
   Call target() {
     return this.target;
-  }
-  
-  @Override
-  public String outputFieldName() {
-    return this.target().outputFieldName();
-  }
-  
-  @Override
-  public List<String> inputFieldNames() {
-    return target().inputFieldNames();
-  }
-  
-  @Override
-  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
-    return actionComposer.create(this, assignmentResolversFromCurrentCall);
   }
 }
