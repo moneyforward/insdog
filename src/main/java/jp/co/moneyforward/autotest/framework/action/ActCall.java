@@ -14,18 +14,13 @@ import static com.github.dakusui.valid8j.Requires.requireNonNull;
  *
  * @param <T> Type input parameter
  */
-public final class ActCall<T, R> implements Call {
-  private final String inputVariableName;
-  private final String outputVariableName;
-  
-  private final Act<T, R> act;
-  
+public record ActCall<T, R>(String outputVariableName, Act<T, R> act, String inputVariableName) implements Call {
   /**
    * Creates an instance of this class.
    *
-   * @param act               An act to be called.
-   * @param outputVariableName   A name of a field for output.
-   * @param inputVariableName A name of a field for input.
+   * @param act                An act to be called.
+   * @param outputVariableName A name of a field for output.
+   * @param inputVariableName  A name of a field for input.
    * @see Act
    */
   public ActCall(String outputVariableName, Act<T, R> act, String inputVariableName) {
@@ -34,12 +29,8 @@ public final class ActCall<T, R> implements Call {
     this.act = requireNonNull(act);
   }
   
-  public Act<T, R> act() {
-    return this.act;
-  }
-  
   @Override
-  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> resolverBundle) {
     return actionComposer.create(this);
   }
   
@@ -49,6 +40,7 @@ public final class ActCall<T, R> implements Call {
    *
    * @return An input variable name of this call.
    */
+  @Override
   public String inputVariableName() {
     return this.inputVariableName;
   }
@@ -73,6 +65,7 @@ public final class ActCall<T, R> implements Call {
    *
    * @return A name of a field for output.
    */
+  @Override
   public String outputVariableName() {
     return this.outputVariableName;
   }

@@ -2,6 +2,7 @@ package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import jp.co.moneyforward.autotest.framework.core.Resolver;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
@@ -20,10 +22,10 @@ public final class SceneCall implements Call {
   final Map<String, Function<Context, Object>> assignmentResolvers;
   private final String outputVariableName;
   
-  public SceneCall(String outputVariableName, Scene scene, Map<String, Function<Context, Object>> assignmentResolvers) {
+  public SceneCall(String outputVariableName, Scene scene, Map<String, Function<Context, Object>> resolverBundle) {
     this.outputVariableName = requireNonNull(outputVariableName);
     this.scene = requireNonNull(scene);
-    this.assignmentResolvers = requireNonNull(assignmentResolvers);
+    this.assignmentResolvers = requireNonNull(resolverBundle);
   }
   
   /**
@@ -90,6 +92,14 @@ public final class SceneCall implements Call {
     return actionComposer.create(this, assignmentResolversFromCurrentCall);
   }
   
+  public List<Resolver> outputVariableResolvers() {
+    return this.scene.children()
+                     .stream()
+                     .map(Call::outputVariableName)
+                     .map(n -> new Resolver(n, c -> c.<Map<String, Object>>valueOf(this.outputVariableName()).get(n)))
+                     .toList();
+  }
+  
   public Action begin(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     return beginSceneCall(this, assignmentResolversFromCurrentCall);
   }
@@ -136,5 +146,24 @@ public final class SceneCall implements Call {
   
   private String objectId() {
     return scene.name() + ":" + System.identityHashCode(this);
+  }
+  
+  
+  public static class ResolverBundle extends HashMap<String, Function<Context, Object>> {
+    public ResolverBundle(Map<String, Function<Context, Object>> resolvers) {
+      super(resolvers);
+    }
+    
+    public ResolverBundle(List<Resolver> resolvers) {
+      this(resolverToMap(resolvers));
+    }
+    
+    private static Map<String, Function<Context, Object>> resolverToMap(List<Resolver> resolvers) {
+      Map<String, Function<Context, Object>> resolverMap = new HashMap<>();
+      for (Resolver resolver : resolvers) {
+        resolverMap.put(resolver.variableName(), resolver.resolverFunction());
+      }
+      return resolverMap;
+    }
   }
 }
