@@ -62,7 +62,7 @@ public final class ActCall<T, R> implements Call {
    */
   @SuppressWarnings("unchecked")
   T inputFieldValue(SceneCall sceneCall, Context context) {
-    return (T) sceneCall.workArea(context).get(inputFieldName());
+    return (T) sceneCall.workingVariableStore(context).get(inputFieldName());
   }
   
   
@@ -72,12 +72,12 @@ public final class ActCall<T, R> implements Call {
    * @return A name of a field for output.
    */
   @Override
-  public String outputFieldName() {
+  public String outputVariableName() {
     return this.outputFieldName;
   }
   
   @Override
-  public List<String> inputFieldNames() {
+  public List<String> inputVariableNames() {
     return List.of(inputFieldName());
   }
 }

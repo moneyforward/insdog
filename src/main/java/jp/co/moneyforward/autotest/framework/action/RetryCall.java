@@ -28,13 +28,13 @@ final public class RetryCall implements TargetedCall {
   }
   
   @Override
-  public String outputFieldName() {
-    return target.outputFieldName();
+  public String outputVariableName() {
+    return target.outputVariableName();
   }
   
   @Override
-  public List<String> inputFieldNames() {
-    return target().inputFieldNames();
+  public List<String> inputVariableNames() {
+    return target().inputVariableNames();
   }
   
   @Override

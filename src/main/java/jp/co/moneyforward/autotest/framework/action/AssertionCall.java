@@ -27,18 +27,18 @@ public final class AssertionCall<R> implements TargetedCall {
   }
 
   @Override
-  public String outputFieldName() {
-    return this.target().outputFieldName();
+  public String outputVariableName() {
+    return this.target().outputVariableName();
   }
   
   @Override
-  public List<String> inputFieldNames() {
-    return target().inputFieldNames();
+  public List<String> inputVariableNames() {
+    return target().inputVariableNames();
   }
   
   List<ActCall<R, R>> assertionAsLeafActCalls() {
     return assertions.stream()
-                     .map(assertion -> new ActCall<>(this.outputFieldName(), assertionAsLeafAct(assertion), outputFieldName()))
+                     .map(assertion -> new ActCall<>(this.outputVariableName(), assertionAsLeafAct(assertion), outputVariableName()))
                      .toList();
   }
 

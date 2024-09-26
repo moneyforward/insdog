@@ -32,35 +32,25 @@ public final class SceneCall implements Call {
     this.assignmentResolvers = null;
   }
   
-  Action toSequentialAction(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall, ActionComposer actionComposer) {
-    return this.scene.toSequentialAction(assignmentResolversFromCurrentCall, actionComposer);
+  public Scene targetScene() {
+    return this.scene;
   }
   
-  String workingStoreName() {
+  public String workingVariableStoreName() {
     return "work-" + objectId();
   }
   
-  Map<String, Object> initializeWorkArea(Context context, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
-    var ret = new HashMap<String, Object>();
-    assignmentResolvers().orElse(assignmentResolversFromCurrentCall)
-                         .forEach((k, r) -> ret.put(k, r.apply(context)));
-    return ret;
-  }
   
   public Optional<Map<String, Function<Context, Object>>> assignmentResolvers() {
     return Optional.ofNullable(assignmentResolvers);
   }
   
-  Map<String, Object> workArea(Context context) {
-    return context.valueOf(workingStoreName());
-  }
-  
-  String objectId() {
-    return scene.name() + ":" + System.identityHashCode(scene);
+  Map<String, Object> workingVariableStore(Context context) {
+    return context.valueOf(workingVariableStoreName());
   }
   
   @Override
-  public String outputFieldName() {
+  public String outputVariableName() {
     return requireNonNull(this.outputStoreName);
   }
   
@@ -69,10 +59,10 @@ public final class SceneCall implements Call {
   }
   
   @Override
-  public List<String> inputFieldNames() {
+  public List<String> inputVariableNames() {
     return scene.children()
                 .stream()
-                .flatMap(c -> c.inputFieldNames()
+                .flatMap(c -> c.inputVariableNames()
                                .stream())
                 .distinct()
                 .toList();
@@ -93,10 +83,22 @@ public final class SceneCall implements Call {
     return endSceneCallDismissingOutput(this);
   }
   
+  private static Map<String, Object> initializeWorkingVariableStore(SceneCall sceneCall,
+                                                                    Context context,
+                                                                    Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+    var ret = new HashMap<String, Object>();
+    sceneCall.assignmentResolvers().orElse(assignmentResolversFromCurrentCall)
+             .forEach((k, r) -> ret.put(k, r.apply(context)));
+    return ret;
+  }
+  
+  
   private static Action beginSceneCall(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
-                                c -> c.assignTo(sceneCall.workingStoreName(),
-                                                sceneCall.initializeWorkArea(c, assignmentResolversFromCurrentCall)));
+                                c -> c.assignTo(sceneCall.workingVariableStoreName(),
+                                                initializeWorkingVariableStore(sceneCall,
+                                                                               c,
+                                                                               assignmentResolversFromCurrentCall)));
   }
   
   /*
@@ -104,13 +106,18 @@ public final class SceneCall implements Call {
    */
   private static Action endSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("END@" + sceneCall.scene.name(), c -> {
-      c.assignTo(sceneCall.outputStoreName(), c.valueOf(sceneCall.workingStoreName()));
-      c.unassign(sceneCall.workingStoreName());
+      c.assignTo(sceneCall.outputStoreName(), c.valueOf(sceneCall.workingVariableStoreName()));
+      c.unassign(sceneCall.workingVariableStoreName());
     });
   }
   
   private static Action endSceneCallDismissingOutput(SceneCall sceneCall) {
     return InternalUtils.action("END[dismissingOutput]@" + sceneCall.scene.name(), c -> {
     });
+  }
+  
+  
+  private String objectId() {
+    return scene.name() + ":" + System.identityHashCode(scene);
   }
 }

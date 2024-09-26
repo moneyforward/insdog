@@ -61,7 +61,7 @@ public interface ActionComposer {
    */
   default Action create(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     return sequential(concat(Stream.of(sceneCall.begin(assignmentResolversFromCurrentCall)),
-                             Stream.of(sceneCall.toSequentialAction(assignmentResolversFromCurrentCall, this)),
+                             Stream.of(sceneCall.targetScene().toSequentialAction(assignmentResolversFromCurrentCall, this)),
                              Stream.of(sceneCall.end()))
                           .toList());
   }
@@ -98,7 +98,7 @@ public interface ActionComposer {
                                                                    ExecutionEnvironment executionEnvironment) {
     return toContextConsumerFromAct(c -> actCall.inputFieldValue(currentSceneCall, c),
                                     actCall.act(),
-                                    actCall.outputFieldName(),
+                                    actCall.outputVariableName(),
                                     currentSceneCall,
                                     executionEnvironment);
   }
@@ -113,7 +113,7 @@ public interface ActionComposer {
       try {
         var v = act.perform(inputFieldValueResolver.apply(c),
                             executionEnvironment);
-        currentSceneCall.workArea(c).put(outputFieldName, v);
+        currentSceneCall.workingVariableStore(c).put(outputFieldName, v);
       } catch (Error | RuntimeException e) {
         LOGGER.error(e.getMessage());
         LOGGER.debug(e.getMessage(), e);

@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -186,7 +185,7 @@ class InternalUtilsTest extends TestBase {
   void whenChainActs_thenCreatedSceneLooksCorrect() {
     Scene scene = InternalUtils.chainActs("var1", new Act.Func<>((String x) -> x + "a"), new Act.Func<>((String x) -> x + "b"));
     
-    assertStatement(value(scene.children().stream().map(Call::outputFieldName).toList())
+    assertStatement(value(scene.children().stream().map(Call::outputVariableName).toList())
                         .toBe()
                         .equalTo(List.of("var1", "var1")));
   }

@@ -13,22 +13,32 @@ import java.util.function.Function;
  * As a design policy, a call is defined for structural actions of **actionunit**, such as `retry`, `sequential`, `parallel`, etc.
  * Functionalities exercised in tests are represented as implementations of `LeafAct`.
  *
+ * An instance of a `Call` must be added only once to a `Scene.Builder` at most.
+ * Otherwise,
+ *
  * @see Act
  */
 public sealed interface Call permits ActCall, TargetedCall, SceneCall {
   /**
-   * A method to return an output field name.
+   * A method to return an output variable name.
    *
    * Note that semantics of a value returned by this method are slightly different when it is called on `SceneCall` and other `Call` objects.
    *
-   * When this is called on `SceneCall`, it returns a key in a `Context` object, whose value is a `Map`.
-   * Otherwise, it returns a key in a map returned by `SceneCall#outputFieldName`.
+   * When this is called on `SceneCall`, it returns a key in a `Context` object, whose value is a `Map`, which is a "variable store".
+   * Otherwise, it returns a key in a map returned by `SceneCall#outputVariableName`.
    *
-   * @return An output field name of this object.
+   * @return An output variable name of this object.
    */
-  String outputFieldName();
+  String outputVariableName();
   
-  List<String> inputFieldNames();
+  /**
+   * A method to return a list of input variable names.
+   *
+   * If this object is a `SceneCall`, this returns a list of variables from which its child calls read values.
+   *
+   * @return a list of input variable names
+   */
+  List<String> inputVariableNames();
   
   /**
    * Converts this call to action to an action object.
