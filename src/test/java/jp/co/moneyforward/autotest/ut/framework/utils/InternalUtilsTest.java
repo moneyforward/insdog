@@ -263,15 +263,4 @@ class InternalUtilsTest extends TestBase {
   private static <T> Function<Stream<T>, List<T>> toList() {
     return Printables.function("toList", Stream::toList);
   }
-
-  @Test
-  void toStringTest() {
-    Consumer<Object> f = System.out::println;
-    System.out.println(f);
-  }
-  
-  @Test
-  void testEmpty() {
-    System.out.println(Optional.of(null));
-  }
 }

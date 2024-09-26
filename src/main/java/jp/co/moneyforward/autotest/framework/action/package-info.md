@@ -96,6 +96,11 @@ A call is an 'element' in **Visitor** pattern.
 
 ```mermaid
 classDiagram
+    namespace visitor {
+        class ActionComposer {
+            <<visitor>>
+        }
+    }
     namespace nodes {
         class Call {
             List~String~ inputFieldNames()
@@ -136,11 +141,6 @@ classDiagram
         class Act {
             void perform(...)
         }
-    }
-    namespace visitor {
-      class ActionComposer {
-        <<visitor>>
-      }
     }
     namespace products {
         class LeafAction

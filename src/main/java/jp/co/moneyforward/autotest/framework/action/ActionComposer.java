@@ -8,13 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.retry;
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.valid8j.Requires.requireNonNull;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
 
 /**
@@ -28,6 +28,13 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
  * Calls for scenes (`Scene`) and calls for acts (`Act`).
  * Corresponding to the subclasses of `Act`, there are subcategories of it, which are `LeafAct`, `AssertionAct`, and `PipelinedAct`.
  *
+ * In this interface, there are `create(XyzCall xyzCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall)` methods defined.
+ *
+ * `assignmentResolversFromCurrentCall` is a map from a variable name to a function which resolves its value from the
+ * ongoing context object.
+ * By relying on this object for resolving variable values referenced inside `Act` objects (, which are held by `Calls`), we can define `Act` objects
+ * work in different variable spaces without changing code (transparent to variable space name, which is determined by a call's object name).
+ *
  * @see Call
  * @see Scene
  * @see Act
@@ -35,10 +42,23 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
 public interface ActionComposer {
   Logger LOGGER = LoggerFactory.getLogger(ActionComposer.class);
   
-  Optional<SceneCall> currentSceneCall();
+  /**
+   * Returns currently ongoing `SceneCall` object.
+   *
+   * @return Currently ongoing `SceneCall` object.
+   */
+  SceneCall ongoingSceneCall();
   
   ExecutionEnvironment executionEnvironment();
   
+  /**
+   * Creates an action for a given `SceneCall` object.
+   *
+   * @param sceneCall                          A scene call from which an action should be created.
+   * @param assignmentResolversFromCurrentCall A map from a variable name to a function which resolves its value from the
+   *                                           *                                           ongoing context object
+   * @return A sequential action created from `sceneCall`.
+   */
   default Action create(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     return sequential(concat(Stream.of(sceneCall.begin(assignmentResolversFromCurrentCall)),
                              Stream.of(sceneCall.toSequentialAction(assignmentResolversFromCurrentCall, this)),
@@ -65,7 +85,7 @@ public interface ActionComposer {
   }
   
   default Action create(ActCall<?, ?> actCall) {
-    SceneCall currentSceneCall = this.currentSceneCall().orElseThrow();
+    SceneCall currentSceneCall = ongoingSceneCall();
     
     return InternalUtils.action(actCall.act().name() + "[" + actCall.inputFieldName() + "]",
                                 toContextConsumerFromAct(currentSceneCall,
@@ -106,11 +126,11 @@ public interface ActionComposer {
   
   static ActionComposer createActionComposer(final ExecutionEnvironment executionEnvironment) {
     return new ActionComposer() {
-      SceneCall currentSceneCall = null;
+      SceneCall ongoingSceneCall = null;
       
       @Override
-      public Optional<SceneCall> currentSceneCall() {
-        return Optional.ofNullable(currentSceneCall);
+      public SceneCall ongoingSceneCall() {
+        return requireNonNull(ongoingSceneCall);
       }
       
       @Override
@@ -120,12 +140,12 @@ public interface ActionComposer {
       
       @Override
       public Action create(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
-        var before = currentSceneCall;
+        var before = this.ongoingSceneCall;
         try {
-          currentSceneCall = sceneCall;
+          this.ongoingSceneCall = sceneCall;
           return ActionComposer.super.create(sceneCall, assignmentResolversFromCurrentCall);
         } finally {
-          currentSceneCall = before;
+          this.ongoingSceneCall = before;
         }
       }
     };

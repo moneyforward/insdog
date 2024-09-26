@@ -36,6 +36,8 @@ public sealed interface Call permits ActCall, TargetedCall, SceneCall {
    * This is an `Node#accept` method in the **Visitor** pattern.
    * Usually implementations of this method should call back by `actionComposer#create(this)` to make a double dispatch happen.
    *
+   * Each value in the `assignmentResolversFromCurrentCall` is a function that resolves a value of a variable designated by a corresponding key.
+   *
    * @param actionComposer A visitor, which creates an action from this object.
    * @param assignmentResolversFromCurrentCall Resolvers to assign values to context variables referenced by a created action.
    * @return An action created by `actionComposer`.
