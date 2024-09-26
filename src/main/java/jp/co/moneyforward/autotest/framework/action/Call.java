@@ -34,11 +34,11 @@ public sealed interface Call permits ActCall, TargetedCall, SceneCall {
   /**
    * A method to return a list of input variable names.
    *
-   * If this object is a `SceneCall`, this returns a list of variables from which its child calls read values.
+   * If this object is a `SceneCall`, this returns a union of variables from which its child calls read values.
    *
    * @return a list of input variable names
    */
-  List<String> inputVariableNames();
+  List<String> requiredVariableNames();
   
   /**
    * Converts this call to action to an action object.

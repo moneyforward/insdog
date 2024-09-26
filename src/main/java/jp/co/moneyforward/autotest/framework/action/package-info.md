@@ -94,6 +94,55 @@ A call is an 'element' in **Visitor** pattern.
 
 ## Data Storage Structure
 
+A variable store is one form of a variable.
+For clarity's sake, we introduce a "simple variable" to distinguish them without confusion.
+
+```mermaid
+classDiagram
+    class Context
+    class Variable~T~ {
+        String name
+        Resolver~T~ resolver
+        resolve(Context) T
+        name() String
+    }
+    class VariableStoreVariable {
+        resolve(Context) VariableStore
+        <T> resove(Context, String) T
+    }
+    class SimpleVariable~T~ {
+        <<final>>
+    }
+    class Resolver~T~ {
+        resolve(Context) T
+    }
+    class VariableStore {
+    }
+    
+    VariableStore "1" --> "*" Variable
+    Variable~T~ <|-- "T: VariableStore" VariableStoreVariable
+    Variable~T~ <|-- SimpleVariable
+    Function~Context; T~ <|-- Resolver~T~
+    Resolver ..> Context
+    Resolver ..> T
+
+    VariableStoreVariable ..> Resolver
+    SimpleVariable~T~ ..> "1" Resolver~T~
+    note for VariableStore "This is a note."
+```
+
+In order to achieve "static scope" behavior, we have a mechanism described below:
+
+t.b.d
+
+```mermaid
+classDiagram
+
+  class VariableScope {
+      
+  }
+```
+
 ```mermaid
 classDiagram
     namespace visitor {

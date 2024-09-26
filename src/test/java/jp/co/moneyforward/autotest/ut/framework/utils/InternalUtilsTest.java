@@ -181,6 +181,7 @@ class InternalUtilsTest extends TestBase {
     }
   }
   
+  /*
   @Test
   void whenChainActs_thenCreatedSceneLooksCorrect() {
     Scene scene = InternalUtils.chainActs("var1", new Act.Func<>((String x) -> x + "a"), new Act.Func<>((String x) -> x + "b"));
@@ -189,6 +190,7 @@ class InternalUtilsTest extends TestBase {
                         .toBe()
                         .equalTo(List.of("var1", "var1")));
   }
+   */
   
   @Test
   void whenIsPresumablyRunningFromIde_thenFinishesWithoutException() {

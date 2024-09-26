@@ -11,7 +11,7 @@ import java.util.function.Function;
  *
  * A resolver provides a "namespace" of variables available for a scene.
  *
- * @param variableName A name of a variable whose value is to be resolved
+ * @param variableName A name of a variable whose value is to be resolved by this object.
  * @param resolverFunction A function that resolves the value.
  */
 public record Resolver(String variableName, Function<Context, Object> resolverFunction) {

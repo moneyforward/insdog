@@ -504,6 +504,18 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     }
   }
   
+  /**
+   * Creates resolvers (`Resolver`) for a scene call associated with a scene returned by `method`.
+   *
+   * Either `@DependsOn` or `@When` annotations attached to `method` tells the framework that methods which it depends on.
+   * This method scans `@Export` attached to those methods to figure out variables available to the `method`.
+   *
+   *
+   * @param accessModelClass An access model class to which method belongs.
+   * @param method A method that returns a `Scene` object.
+   *
+   * @return A list of resolvers that a scene returned by `method` requires.
+   */
   private static List<Resolver> variableResolversFor(Class<?> accessModelClass, Method method) {
     return Stream.concat(variableResolversFor(method,
                                               accessModelClass,

@@ -18,51 +18,68 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 public final class SceneCall implements Call {
   final Scene scene;
   final Map<String, Function<Context, Object>> assignmentResolvers;
-  private final String outputStoreName;
+  private final String outputVariableName;
   
-  public SceneCall(String outputStoreName, Scene scene, Map<String, Function<Context, Object>> assignmentResolvers) {
-    this.outputStoreName = requireNonNull(outputStoreName);
+  public SceneCall(String outputVariableName, Scene scene, Map<String, Function<Context, Object>> assignmentResolvers) {
+    this.outputVariableName = requireNonNull(outputVariableName);
     this.scene = requireNonNull(scene);
     this.assignmentResolvers = requireNonNull(assignmentResolvers);
   }
   
+  /**
+   * This constructor should be removed.
+   *
+   * @param scene A scene to be called.
+   */
   public SceneCall(Scene scene) {
-    this.outputStoreName = null;
+    this.outputVariableName = null;
     this.scene = requireNonNull(scene);
     this.assignmentResolvers = null;
   }
   
+  /**
+   * Returns a `Scene` object targeted by this call.
+   *
+   * @return A `Scene` object.
+   */
   public Scene targetScene() {
     return this.scene;
   }
   
+  /**
+   * Returns a name of working variable store, which stores variables of child calls of the `targetScene`.
+   * This method returns a unique string among all the `SceneCall` objects.
+   *
+   * @return A working variable store name.
+   */
   public String workingVariableStoreName() {
     return "work-" + objectId();
   }
-  
   
   public Optional<Map<String, Function<Context, Object>>> assignmentResolvers() {
     return Optional.ofNullable(assignmentResolvers);
   }
   
-  Map<String, Object> workingVariableStore(Context context) {
+  /**
+   * Returns currently ongoing working variable store.
+   *
+   * @param context A context in which this call is being executed.
+   * @return A currently ongoing working variable store.
+   */
+  public Map<String, Object> workingVariableStore(Context context) {
     return context.valueOf(workingVariableStoreName());
   }
   
   @Override
   public String outputVariableName() {
-    return requireNonNull(this.outputStoreName);
-  }
-  
-  public String outputStoreName() {
-    return requireNonNull(this.outputStoreName);
+    return this.outputVariableName;
   }
   
   @Override
-  public List<String> inputVariableNames() {
+  public List<String> requiredVariableNames() {
     return scene.children()
                 .stream()
-                .flatMap(c -> c.inputVariableNames()
+                .flatMap(c -> c.requiredVariableNames()
                                .stream())
                 .distinct()
                 .toList();
@@ -78,16 +95,17 @@ public final class SceneCall implements Call {
   }
   
   public Action end() {
-    if (this.outputStoreName != null)
+    if (this.outputVariableName != null)
       return endSceneCall(this);
     return endSceneCallDismissingOutput(this);
   }
   
-  private static Map<String, Object> initializeWorkingVariableStore(SceneCall sceneCall,
-                                                                    Context context,
-                                                                    Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+  private static Map<String, Object> createWorkingVariableStore(SceneCall sceneCall,
+                                                                Context context,
+                                                                Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     var ret = new HashMap<String, Object>();
-    sceneCall.assignmentResolvers().orElse(assignmentResolversFromCurrentCall)
+    sceneCall.assignmentResolvers()
+             .orElse(assignmentResolversFromCurrentCall)
              .forEach((k, r) -> ret.put(k, r.apply(context)));
     return ret;
   }
@@ -96,9 +114,9 @@ public final class SceneCall implements Call {
   private static Action beginSceneCall(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
                                 c -> c.assignTo(sceneCall.workingVariableStoreName(),
-                                                initializeWorkingVariableStore(sceneCall,
-                                                                               c,
-                                                                               assignmentResolversFromCurrentCall)));
+                                                createWorkingVariableStore(sceneCall,
+                                                                           c,
+                                                                           assignmentResolversFromCurrentCall)));
   }
   
   /*
@@ -106,7 +124,7 @@ public final class SceneCall implements Call {
    */
   private static Action endSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("END@" + sceneCall.scene.name(), c -> {
-      c.assignTo(sceneCall.outputStoreName(), c.valueOf(sceneCall.workingVariableStoreName()));
+      c.assignTo(sceneCall.outputVariableName, c.valueOf(sceneCall.workingVariableStoreName()));
       c.unassign(sceneCall.workingVariableStoreName());
     });
   }
@@ -116,8 +134,7 @@ public final class SceneCall implements Call {
     });
   }
   
-  
   private String objectId() {
-    return scene.name() + ":" + System.identityHashCode(scene);
+    return scene.name() + ":" + System.identityHashCode(this);
   }
 }

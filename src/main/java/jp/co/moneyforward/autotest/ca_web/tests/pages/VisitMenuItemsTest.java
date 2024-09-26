@@ -62,6 +62,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   public static final String SELECTOR_FOR_BREADCRUMBS = "ul.ca-tab-large li.active a";
   public static final String SELECTOR_FOR_ACTIVE_SIMPLE_AUTOMATIC_JOURNAL_ENTRY_LINK = "ul.ca-tab li.active a[data-tab='simple']";
   public static final String SELECTOR_FOR_ACTIVE_COMPOUND_AUTOMATIC_JOURNAL_ENTRY_LINK = "ul.ca-tab li.active a[data-tab='compound']";
+  public static final String JS_SIDEBAR_OPENER = "#js-sidebar-opener";
   
   @Named
   @DependsOn("login")
@@ -84,7 +85,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
             */
             b -> b.add(new Click(locatorByText("自動で仕訳")))
                   .add(new Click(linkLocatorByName("連携サービスから入力")))
-                  .assertion((Page p) -> value(p).function(locatorBySelector(SELECTOR_FOR_BREADCRUMBS))
+                  .assertion((Page p) -> value(p).function(locatorForBreadcrumbs())
                                                  .function(textContent())
                                                  .toBe()
                                                  .equalTo("通帳・カード他")))
@@ -125,6 +126,10 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
                   .add(new Click(linkLocatorByText(" 登録済一覧")))
                   .assertion((Page p) -> pageTitleIsEqualTo(p, "登録済一覧｜マネーフォワード クラウド会計")))
         .build();
+  }
+  
+  private static Function<Page, Locator> locatorForBreadcrumbs() {
+    return locatorBySelector(SELECTOR_FOR_BREADCRUMBS);
   }
   
   /**
@@ -269,7 +274,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
                                                    .equalTo("収入ルール")))
         // 4. 取引から入力に戻る -> 手動で仕訳_取引から入力_支出
         .with(b -> b.add(new Click(locatorBySelector("#js-ca-main-contents > div.ca-table-header > div > a")))
-                    .add(new Click(locatorBySelector(selectorForLargeTab()).andThen(byText("支出"))))
+                    .add(new Click(locatorForLargeTab().andThen(byText("支出"))))
                     .assertion((Page p) -> value(p).function(locatorForActiveLargeTab())
                                                    .function(textContent()).toBe().equalTo("支出")))
         // 5. 手動で仕訳_取引から入力_支出_支出先の設定
@@ -282,10 +287,6 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
                     .assertion((Page p) -> value(p).function(locatorBySelector("#js-ca-main-container > div.ca-navigation-container > ul > li.active > a"))
                                                    .function(textContent()).toBe().equalTo("支出ルール")))
         .build();
-  }
-  
-  private static Function<Page, Locator> locatorForActiveLargeTab() {
-    return locatorBySelector(selectorForActiveLargeTab());
   }
   
   /**
@@ -824,7 +825,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
           ,モーダル閉じ待ち,,sleep,,,,1.8
           ,assert,,assert_title,,,eq,新規登録｜マネーフォワード クラウド会計
          */
-        .with(b -> b.add(new Click(locatorBySelector("#js-sidebar-opener").andThen(byText("データ連携"))))
+        .with(b -> b.add(new Click(locatorBySelector(JS_SIDEBAR_OPENER).andThen(byText("データ連携"))))
                     .add(new Click(locatorBySelector("#js-ca-main-contents").andThen(byText("新規登録"))))
                     .assertion((Page p) -> pageTitleIsEqualTo(p, "新規登録｜マネーフォワード クラウド会計")))
         /*
@@ -833,7 +834,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
           ,データ連携_登録済一覧_連携サービスの選択,,click,#js-ca-main-contents div > a,text,eq,連携サービスの選択
           ,assert,,assert_text,#js-ca-main-contents > div.ca-general-container.mf-mb10,,match,.*で使用する連携サービスを選択してください。.*
          */
-        .with(b -> b.add(new Click(locatorBySelector("#js-sidebar-opener").andThen(byText("データ連携"))))
+        .with(b -> b.add(new Click(locatorBySelector(JS_SIDEBAR_OPENER).andThen(byText("データ連携"))))
                     .add(new Click(linkLocatorByName("登録済一覧")))
                     .assertion((Page p) -> pageTitleIsEqualTo(p, "登録済一覧｜マネーフォワード クラウド会計")))
         /*
@@ -1058,10 +1059,6 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
         .build();
   }
   
-  private static Function<Page, Locator> locatorForLargeTab() {
-    return locatorBySelector(selectorForLargeTab());
-  }
-  
   private static String selectorForLargeTab() {
     return "ul[class='ca-tab-large'] li a";
   }
@@ -1075,7 +1072,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    * @return A builder `b` for a scene.
    */
   private static Scene.Builder clickMenuItemThenChild(Scene.Builder b, String sideMenuItem, String childItem) {
-    return b.add(new Click(locatorBySelector("#js-sidebar-opener").andThen(byText(sideMenuItem))))
+    return b.add(new Click(locatorBySelector(JS_SIDEBAR_OPENER).andThen(byText(sideMenuItem))))
             .add(new Click(linkLocatorByName(childItem, false)));
   }
   
@@ -1085,6 +1082,13 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
                    .equalTo(expectedPageTitle);
   }
   
+  private static Function<Page, Locator> locatorForLargeTab() {
+    return locatorBySelector(selectorForLargeTab());
+  }
+  
+  private static Function<Page, Locator> locatorForActiveLargeTab() {
+    return locatorBySelector(selectorForActiveLargeTab());
+  }
   
   private static String selectorForBookTab(String bookName) {
     return "ul[class*='js-book-tab-menu'] a[data-activate-tab-content='" + bookName + "']";
