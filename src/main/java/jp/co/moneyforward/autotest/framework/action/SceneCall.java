@@ -5,7 +5,6 @@ import com.github.dakusui.actionunit.core.Context;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -31,10 +30,10 @@ public final class SceneCall implements Call {
    * @param outputVariableStoreName
    * @param scene                   A scene to be called.
    */
-  public SceneCall(String outputVariableStoreName, Scene scene) {
+  public SceneCall(String outputVariableStoreName, Scene scene, String inputVariableStoreName) {
     this.outputVariableStoreName = outputVariableStoreName;
     this.scene = requireNonNull(scene);
-    this.assignmentResolvers = null;
+    this.assignmentResolvers = new ResolverBundle(Resolver.resolversFor(inputVariableStoreName, this.targetScene().outputVariableNames()));
   }
   
   /**
@@ -50,14 +49,8 @@ public final class SceneCall implements Call {
     return this.outputVariableStoreName;
   }
   
-  /**
-   * Returns a name of working variable store, which stores variables of child calls of the `targetScene`.
-   * This method returns a unique string among all the `SceneCall` objects.
-   *
-   * @return A working variable store name.
-   */
-  public String workingVariableStoreName() {
-    return "work-" + objectId();
+  public static String workingVariableStoreNameFor(Scene scene) {
+    return "work-" + objectId(scene);
   }
   
   public Optional<ResolverBundle> assignmentResolvers() {
@@ -71,16 +64,10 @@ public final class SceneCall implements Call {
    * @return A currently ongoing working variable store.
    */
   public Map<String, Object> workingVariableStore(Context context) {
-    return context.valueOf(workingVariableStoreName());
+    return context.valueOf(workingVariableStoreNameFor(this.targetScene()));
   }
   
-  public List<Resolver> outputVariableStoreResolvers() {
-    return targetScene().resolversFor(outputVariableStoreName());
-  }
-  public List<Resolver> workingVariableStoreResolvers() {
-    return targetScene().resolversFor(workingVariableStoreName());
-  }
- 
+  
   @Override
   public Action toAction(ActionComposer actionComposer, ResolverBundle resolversFromCurrentCall) {
     return actionComposer.create(this, resolversFromCurrentCall);
@@ -109,7 +96,7 @@ public final class SceneCall implements Call {
   
   private static Action beginSceneCall(SceneCall sceneCall, ResolverBundle resolverBundle) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
-                                c -> c.assignTo(sceneCall.workingVariableStoreName(),
+                                c -> c.assignTo(workingVariableStoreNameFor(sceneCall.targetScene()),
                                                 createWorkingVariableStore(sceneCall,
                                                                            c,
                                                                            resolverBundle)));
@@ -120,8 +107,8 @@ public final class SceneCall implements Call {
    */
   private static Action endSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("END@" + sceneCall.scene.name(), c -> {
-      c.assignTo(sceneCall.outputVariableStoreName, c.valueOf(sceneCall.workingVariableStoreName()));
-      c.unassign(sceneCall.workingVariableStoreName());
+      c.assignTo(sceneCall.outputVariableStoreName, c.valueOf(workingVariableStoreNameFor(sceneCall.targetScene())));
+      c.unassign(workingVariableStoreNameFor(sceneCall.targetScene()));
     });
   }
   
@@ -130,7 +117,7 @@ public final class SceneCall implements Call {
     });
   }
   
-  private String objectId() {
-    return scene.name() + ":" + System.identityHashCode(this);
+  private static String objectId(Scene scene1) {
+    return scene1.name() + ":" + System.identityHashCode(scene1);
   }
 }

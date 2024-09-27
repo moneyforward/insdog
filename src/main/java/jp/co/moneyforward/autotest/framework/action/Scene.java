@@ -187,7 +187,7 @@ public interface Scene {
     }
     
     public final Builder add(Scene scene) {
-      return this.addCall(sceneCall(this.defaultVariableName, scene));
+      return this.addCall(sceneCall(this.defaultVariableName, scene, SceneCall.workingVariableStoreNameFor(scene)));
     }
     
     public final Builder retry(Call call, int times, Class<? extends Throwable> onException, int interval) {
