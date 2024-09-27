@@ -40,7 +40,6 @@ public record ActCall<T, R>(String outputVariableName, Act<T, R> act, String inp
    *
    * @return An input variable name of this call.
    */
-  @Override
   public String inputVariableName() {
     return this.inputVariableName;
   }

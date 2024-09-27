@@ -8,11 +8,17 @@ import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
+/**
+ * A call for assertions.
+ *
+ * Both for input and output variable name, this uses `assertion:{target().outputVariableName()}`.
+ *
+ * @param <R> Type of value to be validated by assertions.
+ */
 public final class AssertionCall<R> extends TargetedCall.Base implements TargetedCall {
   private final List<Function<R, Statement<R>>> assertions;
   
@@ -22,12 +28,21 @@ public final class AssertionCall<R> extends TargetedCall.Base implements Targete
   }
   
   @Override
-  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
-    return actionComposer.create(this, assignmentResolversFromCurrentCall);
+  public String outputVariableName() {
+    return this.targetCall().outputVariableName();
   }
   
+  @Override
+  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> resolversFromCurrentCall) {
+    return actionComposer.create(this, resolversFromCurrentCall);
+  }
   
-  List<ActCall<R, R>> assertionAsLeafActCalls() {
+  /**
+   * Returns a list of act calls, which are converted from assertions represented as a list of `Function<R, Statement<R>>`.
+   *
+   * @return A list of act calls.
+   */
+  public List<ActCall<R, R>> assertionsAsLeafActCalls() {
     return assertions.stream()
                      .map(assertion -> new ActCall<>(this.outputVariableName(), assertionAsLeafAct(assertion), outputVariableName()))
                      .toList();

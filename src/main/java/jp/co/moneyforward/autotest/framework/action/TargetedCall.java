@@ -5,6 +5,8 @@ import java.util.List;
 import static com.github.dakusui.valid8j.Requires.requireNonNull;
 
 public sealed interface TargetedCall extends Call permits TargetedCall.Base, AssertionCall, RetryCall {
+  Call targetCall();
+  
   abstract sealed class Base implements TargetedCall permits AssertionCall, RetryCall {
     private final Call target;
     
@@ -14,15 +16,16 @@ public sealed interface TargetedCall extends Call permits TargetedCall.Base, Ass
     
     @Override
     public List<String> requiredVariableNames() {
-      return this.target().requiredVariableNames();
+      return this.targetCall().requiredVariableNames();
     }
     
     @Override
     public String outputVariableName() {
-      return this.target().outputVariableName();
+      return this.targetCall().outputVariableName();
     }
     
-    Call target() {
+    @Override
+    public Call targetCall() {
       return this.target;
     }
   }

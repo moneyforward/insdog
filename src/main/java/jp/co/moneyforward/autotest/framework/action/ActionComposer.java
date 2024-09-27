@@ -75,7 +75,7 @@ public interface ActionComposer {
   }
   
   default Action create(RetryCall retryCall, Map<String, Function<Context, Object>> resolverMap) {
-    return retry(retryCall.target().toAction(this, resolverMap))
+    return retry(retryCall.targetCall().toAction(this, resolverMap))
         .times(retryCall.times())
         .on(retryCall.onException())
         .withIntervalOf(retryCall.interval(), retryCall.intervalUnit())
@@ -85,8 +85,8 @@ public interface ActionComposer {
   default Action create(AssertionCall<?> call, Map<String, Function<Context, Object>> resolverMap) {
     return sequential(
         Stream.concat(
-                  Stream.of(call.target().toAction(this, resolverMap)),
-                  call.assertionAsLeafActCalls()
+                  Stream.of(call.targetCall().toAction(this, resolverMap)),
+                  call.assertionsAsLeafActCalls()
                       .stream()
                       .map(each -> each.toAction(this, resolverMap)))
               .toList());
@@ -117,7 +117,7 @@ public interface ActionComposer {
                                                                    SceneCall ongoingSceneCall,
                                                                    ExecutionEnvironment executionEnvironment) {
     return c -> {
-      LOGGER.debug("ENTERING: {}:{}", ongoingSceneCall.scene.name(), act.name());
+      LOGGER.debug("ENTERING: {}:{}", ongoingSceneCall.targetScene().name(), act.name());
       try {
         var v = act.perform(inputVariableResolver.apply(c), executionEnvironment);
         ongoingSceneCall.workingVariableStore(c).put(outputVariableName, v);
@@ -126,7 +126,7 @@ public interface ActionComposer {
         LOGGER.debug(e.getMessage(), e);
         throw e;
       } finally {
-        LOGGER.debug("LEAVING:  {}:{}", ongoingSceneCall.scene.name(), act.name());
+        LOGGER.debug("LEAVING:  {}:{}", ongoingSceneCall.targetScene().name(), act.name());
       }
     };
   }

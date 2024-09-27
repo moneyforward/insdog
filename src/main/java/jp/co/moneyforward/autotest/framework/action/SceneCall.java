@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
@@ -18,8 +17,8 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
  * A class to model a "call" to a `Scene`.
  */
 public final class SceneCall implements Call {
-  final Scene scene;
-  final Map<String, Function<Context, Object>> assignmentResolvers;
+  private final Scene scene;
+  private final Map<String, Function<Context, Object>> assignmentResolvers;
   private final String outputVariableName;
   
   public SceneCall(String outputVariableName, Scene scene, Map<String, Function<Context, Object>> resolverBundle) {
@@ -88,16 +87,8 @@ public final class SceneCall implements Call {
   }
   
   @Override
-  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
-    return actionComposer.create(this, assignmentResolversFromCurrentCall);
-  }
-  
-  public List<Resolver> outputVariableResolvers() {
-    return this.scene.children()
-                     .stream()
-                     .map(Call::outputVariableName)
-                     .map(n -> new Resolver(n, c -> c.<Map<String, Object>>valueOf(this.outputVariableName()).get(n)))
-                     .toList();
+  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> resolversFromCurrentCall) {
+    return actionComposer.create(this, resolversFromCurrentCall);
   }
   
   public Action begin(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
