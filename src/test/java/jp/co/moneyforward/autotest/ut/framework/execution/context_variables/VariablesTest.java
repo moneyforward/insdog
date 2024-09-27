@@ -6,7 +6,7 @@ import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.framework.action.*;
 import jp.co.moneyforward.autotest.framework.action.AutotestSupport;
-import jp.co.moneyforward.autotest.framework.core.Resolver;
+import jp.co.moneyforward.autotest.framework.action.Resolver;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import jp.co.moneyforward.autotest.ututils.ActUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;

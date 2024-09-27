@@ -6,7 +6,7 @@ import jp.co.moneyforward.autotest.framework.action.AutotestSupport;
 import jp.co.moneyforward.autotest.framework.action.ResolverBundle;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
-import jp.co.moneyforward.autotest.framework.core.Resolver;
+import jp.co.moneyforward.autotest.framework.action.Resolver;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import jp.co.moneyforward.autotest.ututils.ActionUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;

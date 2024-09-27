@@ -1,10 +1,8 @@
 package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.actions.web.Value;
-import jp.co.moneyforward.autotest.framework.core.Resolver;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.opentest4j.AssertionFailedError;
 
@@ -83,10 +81,7 @@ public interface Scene {
   }
   
   default List<Resolver> resolversFor(String variableStoreName) {
-    requireNonNull(variableStoreName);
-    return outputVariableNames().stream()
-                                .map(n -> new Resolver(n, (Context c) -> c.<Map<String, Object>>valueOf(variableStoreName).get(n)))
-                                .toList();
+    return Resolver.resolversFor(variableStoreName, this.outputVariableNames());
   }
   
   /**

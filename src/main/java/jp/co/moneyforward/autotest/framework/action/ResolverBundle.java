@@ -1,7 +1,6 @@
 package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Context;
-import jp.co.moneyforward.autotest.framework.core.Resolver;
 
 import java.util.HashMap;
 import java.util.List;

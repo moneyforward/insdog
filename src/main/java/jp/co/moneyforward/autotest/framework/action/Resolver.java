@@ -1,9 +1,12 @@
-package jp.co.moneyforward.autotest.framework.core;
+package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Context;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
+import static com.github.valid8j.classic.Requires.requireNonNull;
 
 /**
  * `Resolver` figures out a variable designated by `variableName` in a context.
@@ -35,5 +38,20 @@ public record Resolver(String variableName, Function<Context, Object> resolverFu
    */
   public static Resolver resolverFor(String sceneName, String variableName) {
     return new Resolver(variableName, valueFrom(sceneName, variableName));
+  }
+  
+  /**
+   * Returns a list of resolvers for variables specified by `variableNames`.
+   * Resolvers in the list try to find a variable in a variable store specified by `variableStoreName`.
+   *
+   * @param variableStoreName A name of variable store from which values of variables are looked up.
+   * @param variableNames Names of variables to be resolved by returned resolvers.
+   * @return A list of resolvers.
+   */
+  public static List<Resolver> resolversFor(String variableStoreName, List<String> variableNames) {
+    requireNonNull(variableStoreName);
+    return variableNames.stream()
+                        .map(n -> new Resolver(n, (Context c) -> c.<Map<String, Object>>valueOf(variableStoreName).get(n)))
+                        .toList();
   }
 }

@@ -10,7 +10,7 @@ import jp.co.moneyforward.autotest.framework.action.SceneCall;
 import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
-import jp.co.moneyforward.autotest.framework.core.Resolver;
+import jp.co.moneyforward.autotest.framework.action.Resolver;
 import jp.co.moneyforward.autotest.framework.exceptions.MethodInvocationException;
 import jp.co.moneyforward.autotest.framework.utils.Valid8JCliches.MakePrintable;
 import org.apache.logging.log4j.Level;
