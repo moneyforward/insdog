@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public final class RetryCall extends TargetedCall.Base<Call>  {
+public final class RetryCall extends CallDecorator.Base<Call>  {
   private final int interval;
   private final int retryTimes;
   private final Class<? extends Throwable> onExceptionType;
@@ -28,7 +28,6 @@ public final class RetryCall extends TargetedCall.Base<Call>  {
   public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
     return actionComposer.create(this, assignmentResolversFromCurrentCall);
   }
-  
   
   public int times() {
     return retryTimes;

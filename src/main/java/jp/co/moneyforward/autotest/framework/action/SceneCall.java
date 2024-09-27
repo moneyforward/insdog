@@ -30,10 +30,11 @@ public final class SceneCall implements Call {
   /**
    * This constructor should be removed.
    *
-   * @param scene A scene to be called.
+   * @param outputVariableName
+   * @param scene              A scene to be called.
    */
-  public SceneCall(Scene scene) {
-    this.outputVariableName = null;
+  public SceneCall(String outputVariableName, Scene scene) {
+    this.outputVariableName = outputVariableName;
     this.scene = requireNonNull(scene);
     this.assignmentResolvers = null;
   }
@@ -70,11 +71,6 @@ public final class SceneCall implements Call {
   public Map<String, Object> workingVariableStore(Context context) {
     return context.valueOf(workingVariableStoreName());
   }
-  
-//  @Override
-//  public String outputVariableName() {
-//    return this.outputVariableName;
-//  }
   
   @Override
   public List<String> requiredVariableNames() {

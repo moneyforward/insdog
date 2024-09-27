@@ -30,14 +30,14 @@ classDiagram
             Action toAction(ActionComposer)
         }
         class SceneCall
-        class Decorator
-        class RetryCall
+        class Decorator~C extends Call~
+        class RetryCall~C extends Call~
         class AssertionCall
         class ActCall
     }
     Call <|-- SceneCall
     Call <|-- Decorator
-    Decorator <|-- AssertionCall
+    Decorator <|-- AssertionCall : C -> ActCall
     Decorator <|-- RetryCall
     Call <|-- ActCall
     ActCall "1" --> "1" Act: "target"
@@ -158,7 +158,7 @@ classDiagram
         class ActCall {
             Action toAction(...)
         }
-        class TargetingCall {
+        class TargetingCall["DecoratedCall"] {
             Call target
             Call target()
         }
@@ -221,6 +221,11 @@ classDiagram
     ActionComposer ..> SequentialAction
     
     LeafAction *--> Act
+
+    class SceneBuilder["Scene.Builder"] {
+        build() Scene
+    }
+    Scene <.. SceneBuilder
 ```
 
 ## Data Management of Scenes and Acts

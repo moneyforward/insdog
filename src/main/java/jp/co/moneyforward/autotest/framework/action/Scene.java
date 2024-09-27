@@ -23,16 +23,31 @@ import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
  * Note that `Scene` uses the same map for both input and output.
  */
 public interface Scene {
-  static Scene chainActs(String fieldName, Act<?, ?>... acts) {
-    Scene.Builder b = new Builder(fieldName);
+  /**
+   * Creates a scene by chaining acts.
+   *
+   * @param variableName An variable chained acts read input value from and write output value to.
+   * @param acts Acts from which a scene is created.
+   * @return Created scene.
+   */
+  static Scene fromActs(String variableName, Act<?, ?>... acts) {
+    Scene.Builder b = new Builder(variableName);
     for (Act<?, ?> act : acts) {
       b.add(act);
     }
     return b.build();
   }
   
-  default Action toSequentialAction(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall, ActionComposer actionComposer) {
-    return sequential(toActions(assignmentResolversFromCurrentCall, actionComposer));
+  /**
+   * Creates a sequential action from the child calls of this object
+   *
+   * @param resolverBundle A resolver bundle.
+   * @param actionComposer A visitor that builds a sequential action from child calls of this object.
+   * @return A sequential action created from child calls
+   * @see Scene#children()
+   */
+  default Action toSequentialAction(Map<String, Function<Context, Object>> resolverBundle, ActionComposer actionComposer) {
+    return sequential(toActions(resolverBundle, actionComposer));
   }
   
   /**
@@ -41,11 +56,13 @@ public interface Scene {
    * @return members of this scene object.
    */
   List<Call> children();
-
-  default SceneCall chain(Scene scene) {
-    return new SceneCall("xyz", this, null);
-  }
   
+  /**
+   * Returns a name of this object.
+   * The returned string will appear in an action tree printed during the action execution.
+   *
+   * @return A name of this object.
+   */
   default String name() {
     return InternalUtils.simpleClassNameOf(this.getClass());
   }
@@ -130,7 +147,7 @@ public interface Scene {
     }
     
     public final Builder add(Scene scene) {
-      return this.addCall(sceneCall(scene));
+      return this.addCall(sceneCall(this.defaultVariableName, scene));
     }
     
     public final Builder retry(Call call, int times, Class<? extends Throwable> onException, int interval) {

@@ -86,7 +86,7 @@ public interface ActionComposer {
     return sequential(
         Stream.concat(
                   Stream.of(call.targetCall().toAction(this, resolverMap)),
-                  call.assertionsAsLeafActCalls()
+                  call.assertionsAsActCalls()
                       .stream()
                       .map(each -> each.toAction(this, resolverMap)))
               .toList());

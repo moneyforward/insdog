@@ -19,15 +19,25 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
  *
  * @param <R> Type of value to be validated by assertions.
  */
-public final class AssertionCall<R> extends TargetedCall.Base<ActCall<?, R>> {
+public final class AssertionCall<R> extends CallDecorator.Base<ActCall<?, R>> {
   private final List<Function<R, Statement<R>>> assertions;
   
+  /**
+   * Creates an object of this class.
+   *
+   * @param target An act call to be verified by this call.
+   * @param assertions A list of functions that return verifying statements for the output `target`.
+   */
   public AssertionCall(ActCall<?, R> target, List<Function<R, Statement<R>>> assertions) {
     super(target);
     this.assertions = requireNonNull(assertions);
   }
   
-//  @Override
+  /**
+   * Returns a name of a variable that holds the output of `targetCall()`.
+   *
+   * @return A name of a variable that holds the output of `targetCall()`.
+   */
   public String outputVariableName() {
     return this.targetCall().outputVariableName();
   }
@@ -39,10 +49,11 @@ public final class AssertionCall<R> extends TargetedCall.Base<ActCall<?, R>> {
   
   /**
    * Returns a list of act calls, which are converted from assertions represented as a list of `Function<R, Statement<R>>`.
+   * Each act call in the list reads the value to be verified from variable specified by `outputVariableName()`.
    *
    * @return A list of act calls.
    */
-  public List<ActCall<R, R>> assertionsAsLeafActCalls() {
+  public List<ActCall<R, R>> assertionsAsActCalls() {
     return assertions.stream()
                      .map(assertion -> new ActCall<>(this.outputVariableName(), assertionAsLeafAct(assertion), outputVariableName()))
                      .toList();

@@ -406,9 +406,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   private static List<Entry<String, Action>> toActions(Map<String, SceneCall> sceneCallMap, ActionComposer actionComposer, List<String> sceneNames) {
     return sceneNames.stream()
                      .filter(sceneCallMap::containsKey)
-                     .map((String each) -> new Entry<>(each,
-                                                       toAction(sceneCallMap.get(each),
-                                                                actionComposer)))
+                     .map((String each) -> new Entry<>(each, toAction(sceneCallMap.get(each), actionComposer)))
                      .toList();
   }
   
@@ -510,10 +508,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
    * Either `@DependsOn` or `@When` annotations attached to `method` tells the framework that methods which it depends on.
    * This method scans `@Export` attached to those methods to figure out variables available to the `method`.
    *
-   *
    * @param accessModelClass An access model class to which method belongs.
-   * @param method A method that returns a `Scene` object.
-   *
+   * @param method           A method that returns a `Scene` object.
    * @return A list of resolvers that a scene returned by `method` requires.
    */
   private static List<Resolver> variableResolversFor(Class<?> accessModelClass, Method method) {
@@ -533,10 +529,10 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
    *
    * The scene created by `m` will be called "scene `m`" in this description, hereafter.
    *
-   * @param m A method to create a scene, for which resolvers are created.
-   * @param accessModelClass An access model class that defines a set of scene creating methods, on which `m` potentially depends.
+   * @param m                         A method to create a scene, for which resolvers are created.
+   * @param accessModelClass          An access model class that defines a set of scene creating methods, on which `m` potentially depends.
    * @param dependencyAnnotationClass Annotation class which holds dependency scenes.
-   * @param dependenciesResolver A function that returns names of scenes on which scene `m` depends.
+   * @param dependenciesResolver      A function that returns names of scenes on which scene `m` depends.
    * @return Resolvers for a scene created by `m`.
    */
   private static List<Resolver> variableResolversFor(Method m,

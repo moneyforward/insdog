@@ -24,8 +24,8 @@ import static jp.co.moneyforward.autotest.ututils.ActionUtils.createActionCompos
 public class SceneTest extends TestBase {
   
   @Test
-  void whenChainActs() {
-    Scene scene = Scene.chainActs("testField", helloAct(), helloAct());
+  void whenSceneByChainingActs() {
+    Scene scene = Scene.fromActs("testField", helloAct(), helloAct());
     
     assertAll(value(scene).toBe().notNull(),
               value(scene.children()).size().toBe().equalTo(2));

@@ -18,19 +18,7 @@ import java.util.function.Function;
  *
  * @see Act
  */
-public sealed interface Call permits ActCall, TargetedCall, SceneCall {
-  /**
-   * A method to return an output variable name.
-   *
-   * Note that semantics of a value returned by this method are slightly different when it is called on `SceneCall` and other `Call` objects.
-   *
-   * When this is called on `SceneCall`, it returns a key in a `Context` object, whose value is a `Map`, which is a "variable store".
-   * Otherwise, it returns a key in a map returned by `SceneCall#outputVariableName`.
-   *
-   * @return An output variable name of this object.
-   */
-  //String outputVariableName();
-  
+public sealed interface Call permits ActCall, CallDecorator, SceneCall {
   /**
    * A method to return a list of input variable names.
    *
