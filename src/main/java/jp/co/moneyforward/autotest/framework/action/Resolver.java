@@ -52,7 +52,7 @@ public record Resolver(String variableName, Function<Context, Object> resolverFu
   public static List<Resolver> resolversFor(String variableStoreName, List<String> variableNames) {
     requireNonNull(variableStoreName);
     return variableNames.stream()
-                        .map(n -> new Resolver(n, (Context c) -> c.<Map<String, Object>>valueOf(variableStoreName.get()).get(n)))
+                        .map(n -> new Resolver(n, (Context c) -> c.<Map<String, Object>>valueOf(variableStoreName).get(n)))
                         .toList();
   }
 }

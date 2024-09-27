@@ -16,7 +16,6 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 import static java.util.Arrays.asList;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
 import static jp.co.moneyforward.autotest.framework.action.Resolver.resolversFor;
-import static jp.co.moneyforward.autotest.framework.action.SceneCall.objectId;
 
 /**
  * An interface that represents a reusable unit of an action in autotest-ca's programming model.
@@ -58,6 +57,8 @@ public interface Scene {
    * @return members of this scene object.
    */
   List<Call> children();
+  
+  String oid();
   
   /**
    * Returns a name of this object.
@@ -107,6 +108,10 @@ public interface Scene {
   class Builder {
     final String defaultVariableName;
     private final List<Call> children = new LinkedList<>();
+    
+    String oid() {
+      return "id-" + System.identityHashCode(this);
+    }
     
     /**
      * Creates an instance of this class.
@@ -172,7 +177,7 @@ public interface Scene {
     }
     
     public final Builder add(Scene scene) {
-      String inputVariableStoreName = SceneCall.workingVariableStoreNameFor(objectId(scene));
+      String inputVariableStoreName = SceneCall.workingVariableStoreNameFor(this.oid());
       return this.addCall(sceneCall(this.defaultVariableName, scene, new ResolverBundle(resolversFor(inputVariableStoreName, scene.outputVariableNames()))));
     }
     
@@ -222,6 +227,11 @@ public interface Scene {
         @Override
         public List<Call> children() {
           return Builder.this.children;
+        }
+        
+        @Override
+        public String oid() {
+          return Builder.this.oid();
         }
         
         @Override

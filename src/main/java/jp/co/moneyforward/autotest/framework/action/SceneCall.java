@@ -52,7 +52,7 @@ public final class SceneCall implements Call {
    * @return A currently ongoing working variable store.
    */
   public Map<String, Object> workingVariableStore(Context context) {
-    return context.valueOf(workingVariableStoreNameFor(objectId(this.targetScene())));
+    return context.valueOf(workingVariableStoreNameFor(this.targetScene().oid()));
   }
   
   
@@ -83,7 +83,7 @@ public final class SceneCall implements Call {
   
   private static Action beginSceneCall(SceneCall sceneCall, ResolverBundle resolverBundle) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
-                                c -> c.assignTo(workingVariableStoreNameFor(objectId(sceneCall.targetScene())),
+                                c -> c.assignTo(workingVariableStoreNameFor(sceneCall.targetScene().oid()),
                                                 createWorkingVariableStore(sceneCall, c, resolverBundle)));
   }
   
@@ -92,17 +92,13 @@ public final class SceneCall implements Call {
    */
   private static Action endSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("END@" + sceneCall.scene.name(), c -> {
-      c.assignTo(sceneCall.outputVariableStoreName, c.valueOf(workingVariableStoreNameFor(objectId(sceneCall.targetScene()))));
-      c.unassign(workingVariableStoreNameFor(objectId(sceneCall.targetScene())));
+      c.assignTo(sceneCall.outputVariableStoreName, c.valueOf(workingVariableStoreNameFor(sceneCall.targetScene().oid())));
+      c.unassign(workingVariableStoreNameFor(sceneCall.targetScene().oid()));
     });
   }
   
   private static Action endSceneCallDismissingOutput(SceneCall sceneCall) {
     return InternalUtils.action("END[dismissingOutput]@" + sceneCall.scene.name(), c -> {
     });
-  }
-  
-  static String objectId(Object object) {
-    return "id:" + System.identityHashCode(object);
   }
 }
