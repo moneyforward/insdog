@@ -43,8 +43,8 @@ public final class AssertionCall<R> extends CallDecorator.Base<ActCall<?, R>> {
   }
   
   @Override
-  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> resolversFromCurrentCall) {
-    return actionComposer.create(this, resolversFromCurrentCall);
+  public Action toAction(ActionComposer actionComposer, SceneCall.ResolverBundle resolverBundle) {
+    return actionComposer.create(this, resolverBundle);
   }
   
   /**

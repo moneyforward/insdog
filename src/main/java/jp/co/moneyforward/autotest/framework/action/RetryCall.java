@@ -25,7 +25,7 @@ public final class RetryCall extends CallDecorator.Base<Call>  {
   }
   
   @Override
-  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+  public Action toAction(ActionComposer actionComposer, SceneCall.ResolverBundle assignmentResolversFromCurrentCall) {
     return actionComposer.create(this, assignmentResolversFromCurrentCall);
   }
   

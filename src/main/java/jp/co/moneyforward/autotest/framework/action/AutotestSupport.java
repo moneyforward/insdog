@@ -1,10 +1,7 @@
 package jp.co.moneyforward.autotest.framework.action;
 
-import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.pcond.fluent.Statement;
-import jp.co.moneyforward.autotest.framework.core.Resolver;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 
@@ -25,13 +22,11 @@ public enum AutotestSupport {
    *
    * @param outputVariableName A variable for an output map whose keys and values are variable names and their values.
    * @param scene              A scene for which a call is created
-   * @param resolvers          Resolvers for variables available for the scene in the ongoing context.
+   * @param resolverBundle
    * @return A `SceneCall` object for `scene`.
    */
-  public static SceneCall sceneCall(String outputVariableName, Scene scene, List<Resolver> resolvers) {
-    var resolverMap = new HashMap<String, Function<Context, Object>>();
-    resolvers.forEach(r -> resolverMap.put(r.variableName(), r.resolverFunction()));
-    return new SceneCall(outputVariableName, scene, resolverMap);
+  public static SceneCall sceneCall(String outputVariableName, Scene scene, SceneCall.ResolverBundle resolverBundle) {
+    return new SceneCall(outputVariableName, scene, resolverBundle);
   }
   
   public static SceneCall sceneCall(String outputVariableName, Scene scene) {

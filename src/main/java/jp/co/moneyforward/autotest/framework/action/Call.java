@@ -36,9 +36,9 @@ public sealed interface Call permits ActCall, CallDecorator, SceneCall {
    *
    * Each value in the `assignmentResolversFromCurrentCall` is a function that resolves a value of a variable designated by a corresponding key.
    *
-   * @param actionComposer A visitor, which creates an action from this object.
+   * @param actionComposer                     A visitor, which creates an action from this object.
    * @param assignmentResolversFromCurrentCall Resolvers to assign values to context variables referenced by a created action.
    * @return An action created by `actionComposer`.
    */
-  Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall);
+  Action toAction(ActionComposer actionComposer, SceneCall.ResolverBundle assignmentResolversFromCurrentCall);
 }

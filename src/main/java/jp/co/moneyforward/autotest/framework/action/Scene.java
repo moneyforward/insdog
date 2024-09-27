@@ -46,7 +46,7 @@ public interface Scene {
    * @return A sequential action created from child calls
    * @see Scene#children()
    */
-  default Action toSequentialAction(Map<String, Function<Context, Object>> resolverBundle, ActionComposer actionComposer) {
+  default Action toSequentialAction(SceneCall.ResolverBundle resolverBundle, ActionComposer actionComposer) {
     return sequential(toActions(resolverBundle, actionComposer));
   }
   
@@ -67,7 +67,7 @@ public interface Scene {
     return InternalUtils.simpleClassNameOf(this.getClass());
   }
   
-  private List<Action> toActions(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall, ActionComposer actionComposer) {
+  private List<Action> toActions(SceneCall.ResolverBundle assignmentResolversFromCurrentCall, ActionComposer actionComposer) {
     return children().stream()
                      .map((Call each) -> each.toAction(actionComposer, assignmentResolversFromCurrentCall))
                      .flatMap(InternalUtils::flattenIfSequential)

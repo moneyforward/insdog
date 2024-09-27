@@ -30,7 +30,7 @@ public record ActCall<T, R>(String outputVariableName, Act<T, R> act, String inp
   }
   
   @Override
-  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> resolverBundle) {
+  public Action toAction(ActionComposer actionComposer, SceneCall.ResolverBundle resolverBundle) {
     return actionComposer.create(this);
   }
   

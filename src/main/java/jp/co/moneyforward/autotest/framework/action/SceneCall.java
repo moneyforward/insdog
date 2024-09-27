@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
@@ -18,11 +19,11 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
  */
 public final class SceneCall implements Call {
   private final Scene scene;
-  private final Map<String, Function<Context, Object>> assignmentResolvers;
-  private final String outputVariableName;
+  private final ResolverBundle assignmentResolvers;
+  private final String outputVariableStoreName;
   
-  public SceneCall(String outputVariableName, Scene scene, Map<String, Function<Context, Object>> resolverBundle) {
-    this.outputVariableName = requireNonNull(outputVariableName);
+  public SceneCall(String outputVariableStoreName, Scene scene, ResolverBundle resolverBundle) {
+    this.outputVariableStoreName = requireNonNull(outputVariableStoreName);
     this.scene = requireNonNull(scene);
     this.assignmentResolvers = requireNonNull(resolverBundle);
   }
@@ -30,11 +31,11 @@ public final class SceneCall implements Call {
   /**
    * This constructor should be removed.
    *
-   * @param outputVariableName
-   * @param scene              A scene to be called.
+   * @param outputVariableStoreName
+   * @param scene                   A scene to be called.
    */
-  public SceneCall(String outputVariableName, Scene scene) {
-    this.outputVariableName = outputVariableName;
+  public SceneCall(String outputVariableStoreName, Scene scene) {
+    this.outputVariableStoreName = outputVariableStoreName;
     this.scene = requireNonNull(scene);
     this.assignmentResolvers = null;
   }
@@ -48,6 +49,10 @@ public final class SceneCall implements Call {
     return this.scene;
   }
   
+  public String outputVariableStoreName() {
+    return this.outputVariableStoreName;
+  }
+  
   /**
    * Returns a name of working variable store, which stores variables of child calls of the `targetScene`.
    * This method returns a unique string among all the `SceneCall` objects.
@@ -58,7 +63,7 @@ public final class SceneCall implements Call {
     return "work-" + objectId();
   }
   
-  public Optional<Map<String, Function<Context, Object>>> assignmentResolvers() {
+  public Optional<ResolverBundle> assignmentResolvers() {
     return Optional.ofNullable(assignmentResolvers);
   }
   
@@ -82,24 +87,56 @@ public final class SceneCall implements Call {
                 .toList();
   }
   
+  public List<Resolver> outputVariableStoreResolvers() {
+    return getResolvers(outputVariableStoreName());
+  }
+  public List<Resolver> workingVariableStoreResolvers() {
+    return getResolvers(workingVariableStoreName());
+  }
+  
+  private List<Resolver> getResolvers(String variableStoreName) {
+    return outputVariableNames().stream()
+                                .map(n -> new Resolver(n, c -> c.<Map<String, Object>>valueOf(variableStoreName).get(n)))
+                                .toList();
+  }
+  
+  public List<String> outputVariableNames() {
+    return this.targetScene()
+               .children()
+               .stream()
+               .flatMap(SceneCall::outputVariableNamesOf)
+               .toList();
+  }
+  
+  private static Stream<String> outputVariableNamesOf(Call c) {
+    if (c instanceof SceneCall sceneCall) {
+      return sceneCall.outputVariableNames().stream();
+    } else if (c instanceof ActCall<?, ?> actCall) {
+      return Stream.of(actCall.outputVariableName());
+    } else if (c instanceof CallDecorator<?>) {
+      return outputVariableNamesOf(((CallDecorator<?>) c).targetCall());
+    }
+    throw new AssertionError();
+  }
+  
   @Override
-  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> resolversFromCurrentCall) {
+  public Action toAction(ActionComposer actionComposer, ResolverBundle resolversFromCurrentCall) {
     return actionComposer.create(this, resolversFromCurrentCall);
   }
   
-  public Action begin(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+  public Action begin(ResolverBundle assignmentResolversFromCurrentCall) {
     return beginSceneCall(this, assignmentResolversFromCurrentCall);
   }
   
   public Action end() {
-    if (this.outputVariableName != null)
+    if (this.outputVariableStoreName() != null)
       return endSceneCall(this);
     return endSceneCallDismissingOutput(this);
   }
   
   private static Map<String, Object> createWorkingVariableStore(SceneCall sceneCall,
                                                                 Context context,
-                                                                Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+                                                                ResolverBundle assignmentResolversFromCurrentCall) {
     var ret = new HashMap<String, Object>();
     sceneCall.assignmentResolvers()
              .orElse(assignmentResolversFromCurrentCall)
@@ -108,12 +145,12 @@ public final class SceneCall implements Call {
   }
   
   
-  private static Action beginSceneCall(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+  private static Action beginSceneCall(SceneCall sceneCall, ResolverBundle resolverBundle) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
                                 c -> c.assignTo(sceneCall.workingVariableStoreName(),
                                                 createWorkingVariableStore(sceneCall,
                                                                            c,
-                                                                           assignmentResolversFromCurrentCall)));
+                                                                           resolverBundle)));
   }
   
   /*
@@ -121,7 +158,7 @@ public final class SceneCall implements Call {
    */
   private static Action endSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("END@" + sceneCall.scene.name(), c -> {
-      c.assignTo(sceneCall.outputVariableName, c.valueOf(sceneCall.workingVariableStoreName()));
+      c.assignTo(sceneCall.outputVariableStoreName, c.valueOf(sceneCall.workingVariableStoreName()));
       c.unassign(sceneCall.workingVariableStoreName());
     });
   }

@@ -491,7 +491,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   private static SceneCall methodToSceneCall(Class<?> accessModelClass, Method method, AutotestRunner runner) {
     return sceneCall(nameOf(method),
                      createSceneFromMethod(method, runner),
-                     variableResolversFor(accessModelClass, method));
+                     new SceneCall.ResolverBundle(variableResolversFor(accessModelClass, method)));
   }
   
   private static Scene createSceneFromMethod(Method method, AutotestRunner runner) {

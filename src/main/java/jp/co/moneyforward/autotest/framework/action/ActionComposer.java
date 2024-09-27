@@ -67,14 +67,14 @@ public interface ActionComposer {
    *                    ongoing context object
    * @return A sequential action created from `sceneCall`.
    */
-  default Action create(SceneCall sceneCall, Map<String, Function<Context, Object>> resolverMap) {
+  default Action create(SceneCall sceneCall, SceneCall.ResolverBundle resolverMap) {
     return sequential(concat(Stream.of(sceneCall.begin(resolverMap)),
                              Stream.of(sceneCall.targetScene().toSequentialAction(resolverMap, this)),
                              Stream.of(sceneCall.end()))
                           .toList());
   }
   
-  default Action create(RetryCall retryCall, Map<String, Function<Context, Object>> resolverMap) {
+  default Action create(RetryCall retryCall, SceneCall.ResolverBundle resolverMap) {
     return retry(retryCall.targetCall().toAction(this, resolverMap))
         .times(retryCall.times())
         .on(retryCall.onException())
@@ -82,7 +82,7 @@ public interface ActionComposer {
         .$();
   }
   
-  default Action create(AssertionCall<?> call, Map<String, Function<Context, Object>> resolverMap) {
+  default Action create(AssertionCall<?> call, SceneCall.ResolverBundle resolverMap) {
     return sequential(
         Stream.concat(
                   Stream.of(call.targetCall().toAction(this, resolverMap)),
@@ -146,7 +146,7 @@ public interface ActionComposer {
       }
       
       @Override
-      public Action create(SceneCall sceneCall, Map<String, Function<Context, Object>> resolverMap) {
+      public Action create(SceneCall sceneCall, SceneCall.ResolverBundle resolverMap) {
         var before = this.ongoingSceneCall;
         try {
           this.ongoingSceneCall = sceneCall;
