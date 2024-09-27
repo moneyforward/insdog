@@ -3,10 +3,6 @@ package jp.co.moneyforward.autotest.framework.action;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
 import static com.github.dakusui.valid8j.Requires.requireNonNull;
 
 /**
@@ -30,18 +26,8 @@ public record ActCall<T, R>(String outputVariableName, Act<T, R> act, String inp
   }
   
   @Override
-  public Action toAction(ActionComposer actionComposer, SceneCall.ResolverBundle resolverBundle) {
+  public Action toAction(ActionComposer actionComposer, ResolverBundle resolverBundle) {
     return actionComposer.create(this);
-  }
-  
-  /**
-   * Returns an input variable name of this call.
-   * A variable needs to be defined in a scope where `act` is performed.
-   *
-   * @return An input variable name of this call.
-   */
-  public String inputVariableName() {
-    return this.inputVariableName;
   }
   
   /**
@@ -57,20 +43,5 @@ public record ActCall<T, R>(String outputVariableName, Act<T, R> act, String inp
   @SuppressWarnings("unchecked")
   T resolveVariable(SceneCall sceneCall, Context context) {
     return (T) sceneCall.workingVariableStore(context).get(inputVariableName());
-  }
-  
-  /**
-   * Returns a name of a field for output.
-   *
-   * @return A name of a field for output.
-   */
-  @Override
-  public String outputVariableName() {
-    return this.outputVariableName;
-  }
-  
-  @Override
-  public List<String> requiredVariableNames() {
-    return List.of(inputVariableName());
   }
 }

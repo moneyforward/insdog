@@ -7,7 +7,6 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -67,14 +66,14 @@ public interface ActionComposer {
    *                    ongoing context object
    * @return A sequential action created from `sceneCall`.
    */
-  default Action create(SceneCall sceneCall, SceneCall.ResolverBundle resolverMap) {
+  default Action create(SceneCall sceneCall, ResolverBundle resolverMap) {
     return sequential(concat(Stream.of(sceneCall.begin(resolverMap)),
                              Stream.of(sceneCall.targetScene().toSequentialAction(resolverMap, this)),
                              Stream.of(sceneCall.end()))
                           .toList());
   }
   
-  default Action create(RetryCall retryCall, SceneCall.ResolverBundle resolverMap) {
+  default Action create(RetryCall retryCall, ResolverBundle resolverMap) {
     return retry(retryCall.targetCall().toAction(this, resolverMap))
         .times(retryCall.times())
         .on(retryCall.onException())
@@ -82,7 +81,7 @@ public interface ActionComposer {
         .$();
   }
   
-  default Action create(AssertionCall<?> call, SceneCall.ResolverBundle resolverMap) {
+  default Action create(AssertionCall<?> call, ResolverBundle resolverMap) {
     return sequential(
         Stream.concat(
                   Stream.of(call.targetCall().toAction(this, resolverMap)),
@@ -146,7 +145,7 @@ public interface ActionComposer {
       }
       
       @Override
-      public Action create(SceneCall sceneCall, SceneCall.ResolverBundle resolverMap) {
+      public Action create(SceneCall sceneCall, ResolverBundle resolverMap) {
         var before = this.ongoingSceneCall;
         try {
           this.ongoingSceneCall = sceneCall;

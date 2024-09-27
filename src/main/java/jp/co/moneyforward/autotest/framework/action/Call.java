@@ -1,11 +1,6 @@
 package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
-
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * An interface that models an occurrence of an action in a test scenario.
@@ -20,15 +15,6 @@ import java.util.function.Function;
  */
 public sealed interface Call permits ActCall, CallDecorator, SceneCall {
   /**
-   * A method to return a list of input variable names.
-   *
-   * If this object is a `SceneCall`, this returns a union of variables from which its child calls read values.
-   *
-   * @return a list of input variable names
-   */
-  List<String> requiredVariableNames();
-  
-  /**
    * Converts this call to action to an action object.
    *
    * This is an `Node#accept` method in the **Visitor** pattern.
@@ -40,5 +26,5 @@ public sealed interface Call permits ActCall, CallDecorator, SceneCall {
    * @param assignmentResolversFromCurrentCall Resolvers to assign values to context variables referenced by a created action.
    * @return An action created by `actionComposer`.
    */
-  Action toAction(ActionComposer actionComposer, SceneCall.ResolverBundle assignmentResolversFromCurrentCall);
+  Action toAction(ActionComposer actionComposer, ResolverBundle assignmentResolversFromCurrentCall);
 }

@@ -25,7 +25,7 @@ public enum AutotestSupport {
    * @param resolverBundle
    * @return A `SceneCall` object for `scene`.
    */
-  public static SceneCall sceneCall(String outputVariableName, Scene scene, SceneCall.ResolverBundle resolverBundle) {
+  public static SceneCall sceneCall(String outputVariableName, Scene scene, ResolverBundle resolverBundle) {
     return new SceneCall(outputVariableName, scene, resolverBundle);
   }
   

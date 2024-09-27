@@ -3,8 +3,8 @@ package jp.co.moneyforward.autotest.ut.framework.scene;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import jp.co.moneyforward.autotest.framework.action.AutotestSupport;
+import jp.co.moneyforward.autotest.framework.action.ResolverBundle;
 import jp.co.moneyforward.autotest.framework.action.Scene;
-import jp.co.moneyforward.autotest.framework.action.SceneCall;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.core.Resolver;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
@@ -41,7 +41,7 @@ public class SceneTest extends TestBase {
     final List<Resolver> in = List.of(new Resolver("in", c -> "Scott Tiger"));
     final jp.co.moneyforward.autotest.framework.action.SceneCall sceneCall = AutotestSupport.sceneCall("out",
                                                                                                        scene,
-                                                                                                       new SceneCall.ResolverBundle(in));
+                                                                                                       new ResolverBundle(in));
     ActionUtils.performAction(createActionComposer().create(sceneCall, sceneCall.assignmentResolvers().orElseThrow()), createWriter(out));
     Assumptions.assumeFalse(false);
     assertStatement(value(out).toBe()
@@ -59,7 +59,7 @@ public class SceneTest extends TestBase {
     final List<Resolver> in = List.of(new Resolver("in", c -> "Scott Tiger"));
     final jp.co.moneyforward.autotest.framework.action.SceneCall sceneCall = AutotestSupport.sceneCall("OUT",
                                                                                                        scene,
-                                                                                                       new SceneCall.ResolverBundle(in));
+                                                                                                       new ResolverBundle(in));
     ActionUtils.performAction(createActionComposer().create(sceneCall, sceneCall.assignmentResolvers().orElseThrow()),
                               context,
                               createWriter(out));
@@ -86,9 +86,9 @@ public class SceneTest extends TestBase {
     List<String> out = new LinkedList<>();
     ActionUtils.performAction(createActionComposer().create(AutotestSupport.sceneCall("out",
                                                                                       scene,
-                                                                                      new SceneCall.ResolverBundle(List.of())), AutotestSupport.sceneCall("out",
-                                                                                                                                                          scene,
-                                                                                                                                                          new SceneCall.ResolverBundle(List.of())).assignmentResolvers().orElseThrow()),
+                                                                                      new ResolverBundle(List.of())), AutotestSupport.sceneCall("out",
+                                                                                                                                                scene,
+                                                                                                                                                new ResolverBundle(List.of())).assignmentResolvers().orElseThrow()),
                               createWriter(out));
     assertStatement(value(out).toBe()
                               .containingElementsInOrder(List.of(containsString("BEGIN"),

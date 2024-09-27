@@ -1,13 +1,11 @@
 package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.fluent.Expectations;
 import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
@@ -43,7 +41,7 @@ public final class AssertionCall<R> extends CallDecorator.Base<ActCall<?, R>> {
   }
   
   @Override
-  public Action toAction(ActionComposer actionComposer, SceneCall.ResolverBundle resolverBundle) {
+  public Action toAction(ActionComposer actionComposer, ResolverBundle resolverBundle) {
     return actionComposer.create(this, resolverBundle);
   }
   

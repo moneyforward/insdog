@@ -1,7 +1,5 @@
 package jp.co.moneyforward.autotest.framework.action;
 
-import java.util.List;
-
 import static com.github.dakusui.valid8j.Requires.requireNonNull;
 
 /**
@@ -32,11 +30,6 @@ public sealed interface CallDecorator<C extends Call> extends Call permits CallD
      */
     protected Base(C target) {
       this.target = requireNonNull(target);
-    }
-    
-    @Override
-    public List<String> requiredVariableNames() {
-      return this.targetCall().requiredVariableNames();
     }
     
     @Override

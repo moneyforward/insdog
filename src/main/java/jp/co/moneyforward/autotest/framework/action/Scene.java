@@ -4,12 +4,14 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.actions.web.Value;
+import jp.co.moneyforward.autotest.framework.core.Resolver;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.opentest4j.AssertionFailedError;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
@@ -27,7 +29,7 @@ public interface Scene {
    * Creates a scene by chaining acts.
    *
    * @param variableName An variable chained acts read input value from and write output value to.
-   * @param acts Acts from which a scene is created.
+   * @param acts         Acts from which a scene is created.
    * @return Created scene.
    */
   static Scene fromActs(String variableName, Act<?, ?>... acts) {
@@ -46,7 +48,7 @@ public interface Scene {
    * @return A sequential action created from child calls
    * @see Scene#children()
    */
-  default Action toSequentialAction(SceneCall.ResolverBundle resolverBundle, ActionComposer actionComposer) {
+  default Action toSequentialAction(ResolverBundle resolverBundle, ActionComposer actionComposer) {
     return sequential(toActions(resolverBundle, actionComposer));
   }
   
@@ -67,9 +69,52 @@ public interface Scene {
     return InternalUtils.simpleClassNameOf(this.getClass());
   }
   
-  private List<Action> toActions(SceneCall.ResolverBundle assignmentResolversFromCurrentCall, ActionComposer actionComposer) {
+  /**
+   * Creates a `ResolverBundle` which figures out values of variables in a variable store specified by `variableStoreName`.
+   * Variables that become resolvable by the returned `ResolverBundle` are given by `outputVariableNames`.
+   *
+   * @param variableStoreName A variable store name for which a `ResolverBundle` is created.
+   * @return A resolver bundle object.
+   * @see ResolverBundle
+   * @see Scene#outputVariableNames()
+   */
+  default ResolverBundle resolverBundleFor(String variableStoreName) {
+    return new ResolverBundle(resolversFor(variableStoreName));
+  }
+  
+  default List<Resolver> resolversFor(String variableStoreName) {
+    requireNonNull(variableStoreName);
+    return outputVariableNames().stream()
+                                .map(n -> new Resolver(n, (Context c) -> c.<Map<String, Object>>valueOf(variableStoreName).get(n)))
+                                .toList();
+  }
+  
+  /**
+   * Returns a list of variables that are assigned by child scenes of this object.
+   *
+   * @return A list of variables that are assigned by child scenes of this object.
+   */
+  default List<String> outputVariableNames() {
+    return this.children()
+               .stream()
+               .flatMap(Scene::outputVariableNamesOf)
+               .toList();
+  }
+  
+  private static Stream<String> outputVariableNamesOf(Call c) {
+    if (c instanceof SceneCall sceneCall) {
+      return sceneCall.targetScene().outputVariableNames().stream();
+    } else if (c instanceof ActCall<?, ?> actCall) {
+      return Stream.of(actCall.outputVariableName());
+    } else if (c instanceof CallDecorator<?>) {
+      return outputVariableNamesOf(((CallDecorator<?>) c).targetCall());
+    }
+    throw new AssertionError();
+  }
+  
+  private List<Action> toActions(ResolverBundle resolverBundle, ActionComposer actionComposer) {
     return children().stream()
-                     .map((Call each) -> each.toAction(actionComposer, assignmentResolversFromCurrentCall))
+                     .map((Call each) -> each.toAction(actionComposer, resolverBundle))
                      .flatMap(InternalUtils::flattenIfSequential)
                      .toList();
   }
@@ -102,8 +147,8 @@ public interface Scene {
      * Note that in case `T` and `R` are different, the field will have a different type after `leafAct` execution from the value before it is executed.
      *
      * @param act An act object to be added to this builder.
-     * @param <T>     Type of input parameter field.
-     * @param <R>     Type of output parameter field.
+     * @param <T> Type of input parameter field.
+     * @param <R> Type of output parameter field.
      * @return This object.
      */
     public final <T, R> Builder add(Act<T, R> act) {
@@ -122,7 +167,7 @@ public interface Scene {
     public final <R> Builder assertion(Function<R, Statement<R>> assertion) {
       return this.assertions(defaultVariableName, assertion);
     }
-
+    
     @SuppressWarnings("unchecked")
     public final <R> Builder assertions(Function<R, Statement<R>>... assertions) {
       return this.assertions(defaultVariableName, assertions);
@@ -138,7 +183,7 @@ public interface Scene {
      *
      * @param <R>          Type of the variable specified by `inputVariableName`.
      * @param variableName A name of an input variable to be verified.
-     * @param assertions    An assertion function
+     * @param assertions   An assertion function
      * @return This object
      */
     @SuppressWarnings("unchecked")
@@ -156,8 +201,8 @@ public interface Scene {
     
     /**
      * This method is implemented as a shorthand for `this.retry(call, times, onException, 5)`.
-     
-     * @param call A call to be retried
+     *
+     * @param call  A call to be retried
      * @param times How many times `call` should be retried until it succeeds.
      * @return This object
      */
@@ -167,8 +212,8 @@ public interface Scene {
     
     /**
      * This method is implemented as a shorthand for `this.retry(call, times, AssertionFailedError.class)`.
-     
-     * @param call A call to be retried
+     *
+     * @param call  A call to be retried
      * @param times How many times `call` should be retried until it succeeds.
      * @return This object
      */

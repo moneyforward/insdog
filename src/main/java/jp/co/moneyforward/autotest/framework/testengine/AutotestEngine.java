@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.framework.action.ActionComposer;
+import jp.co.moneyforward.autotest.framework.action.ResolverBundle;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.action.SceneCall;
 import jp.co.moneyforward.autotest.framework.annotations.*;
@@ -491,7 +492,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   private static SceneCall methodToSceneCall(Class<?> accessModelClass, Method method, AutotestRunner runner) {
     return sceneCall(nameOf(method),
                      createSceneFromMethod(method, runner),
-                     new SceneCall.ResolverBundle(variableResolversFor(accessModelClass, method)));
+                     new ResolverBundle(variableResolversFor(accessModelClass, method)));
   }
   
   private static Scene createSceneFromMethod(Method method, AutotestRunner runner) {

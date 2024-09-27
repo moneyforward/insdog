@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
@@ -77,48 +75,13 @@ public final class SceneCall implements Call {
     return context.valueOf(workingVariableStoreName());
   }
   
-  @Override
-  public List<String> requiredVariableNames() {
-    return scene.children()
-                .stream()
-                .flatMap(c -> c.requiredVariableNames()
-                               .stream())
-                .distinct()
-                .toList();
-  }
-  
   public List<Resolver> outputVariableStoreResolvers() {
-    return getResolvers(outputVariableStoreName());
+    return targetScene().resolversFor(outputVariableStoreName());
   }
   public List<Resolver> workingVariableStoreResolvers() {
-    return getResolvers(workingVariableStoreName());
+    return targetScene().resolversFor(workingVariableStoreName());
   }
-  
-  private List<Resolver> getResolvers(String variableStoreName) {
-    return outputVariableNames().stream()
-                                .map(n -> new Resolver(n, c -> c.<Map<String, Object>>valueOf(variableStoreName).get(n)))
-                                .toList();
-  }
-  
-  public List<String> outputVariableNames() {
-    return this.targetScene()
-               .children()
-               .stream()
-               .flatMap(SceneCall::outputVariableNamesOf)
-               .toList();
-  }
-  
-  private static Stream<String> outputVariableNamesOf(Call c) {
-    if (c instanceof SceneCall sceneCall) {
-      return sceneCall.outputVariableNames().stream();
-    } else if (c instanceof ActCall<?, ?> actCall) {
-      return Stream.of(actCall.outputVariableName());
-    } else if (c instanceof CallDecorator<?>) {
-      return outputVariableNamesOf(((CallDecorator<?>) c).targetCall());
-    }
-    throw new AssertionError();
-  }
-  
+ 
   @Override
   public Action toAction(ActionComposer actionComposer, ResolverBundle resolversFromCurrentCall) {
     return actionComposer.create(this, resolversFromCurrentCall);
@@ -170,24 +133,5 @@ public final class SceneCall implements Call {
   
   private String objectId() {
     return scene.name() + ":" + System.identityHashCode(this);
-  }
-  
-  
-  public static class ResolverBundle extends HashMap<String, Function<Context, Object>> {
-    public ResolverBundle(Map<String, Function<Context, Object>> resolvers) {
-      super(resolvers);
-    }
-    
-    public ResolverBundle(List<Resolver> resolvers) {
-      this(resolverToMap(resolvers));
-    }
-    
-    private static Map<String, Function<Context, Object>> resolverToMap(List<Resolver> resolvers) {
-      Map<String, Function<Context, Object>> resolverMap = new HashMap<>();
-      for (Resolver resolver : resolvers) {
-        resolverMap.put(resolver.variableName(), resolver.resolverFunction());
-      }
-      return resolverMap;
-    }
   }
 }

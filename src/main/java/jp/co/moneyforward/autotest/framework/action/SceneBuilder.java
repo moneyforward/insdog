@@ -34,12 +34,7 @@ public class SceneBuilder {
   
   
   public Scene build() {
-    return new Scene() {
-      @Override
-      public List<Call> children() {
-        return List.of();
-      }
-    };
+    return () -> calls;
   }
   
   public static Scene sceneCreatingMethod() {

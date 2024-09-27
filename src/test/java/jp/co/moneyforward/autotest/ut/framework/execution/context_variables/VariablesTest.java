@@ -23,7 +23,7 @@ import static jp.co.moneyforward.autotest.ututils.ActionUtils.*;
 public class VariablesTest extends TestBase {
   public static SceneCall sceneCall(String outputFieldName, List<Call> children, List<Resolver> assignments) {
     var scene = scene(children);
-    return AutotestSupport.sceneCall(outputFieldName, scene, new SceneCall.ResolverBundle(assignments));
+    return AutotestSupport.sceneCall(outputFieldName, scene, new ResolverBundle(assignments));
   }
   
   @Test
@@ -36,7 +36,7 @@ public class VariablesTest extends TestBase {
                                 actCall("x", addToListAct(out), "x")));
     
     
-    Action action = AutotestSupport.sceneCall("output", scene, new SceneCall.ResolverBundle(List.of())).toAction(createActionComposer(), AutotestSupport.sceneCall("output", scene, new SceneCall.ResolverBundle(List.of())).assignmentResolvers().orElseThrow());
+    Action action = AutotestSupport.sceneCall("output", scene, new ResolverBundle(List.of())).toAction(createActionComposer(), AutotestSupport.sceneCall("output", scene, new ResolverBundle(List.of())).assignmentResolvers().orElseThrow());
     
     performAction(action, Writer.Std.OUT);
     
@@ -61,7 +61,7 @@ public class VariablesTest extends TestBase {
                   List.of(new Resolver("in", Resolver.valueFrom("SCENE1", "x"))))));
     
     
-    Action action = AutotestSupport.sceneCall("output", scene, new SceneCall.ResolverBundle(List.of())).toAction(createActionComposer(), AutotestSupport.sceneCall("output", scene, new SceneCall.ResolverBundle(List.of())).assignmentResolvers().orElseThrow());
+    Action action = AutotestSupport.sceneCall("output", scene, new ResolverBundle(List.of())).toAction(createActionComposer(), AutotestSupport.sceneCall("output", scene, new ResolverBundle(List.of())).assignmentResolvers().orElseThrow());
     
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
     actionPerformer.performAndReport(action, Writer.Std.OUT);
@@ -89,7 +89,7 @@ public class VariablesTest extends TestBase {
                                                                              .containing("Scott")), "in")),
                   List.of(new Resolver("in", Resolver.valueFrom("SCENE1", "x"))))));
     
-    Action action = AutotestSupport.sceneCall("OUT", scene, new SceneCall.ResolverBundle(List.of())).toAction(createActionComposer(), AutotestSupport.sceneCall("OUT", scene, new SceneCall.ResolverBundle(List.of())).assignmentResolvers().orElseThrow());
+    Action action = AutotestSupport.sceneCall("OUT", scene, new ResolverBundle(List.of())).toAction(createActionComposer(), AutotestSupport.sceneCall("OUT", scene, new ResolverBundle(List.of())).assignmentResolvers().orElseThrow());
     performAction(action, Writer.Std.OUT);
   }
   
@@ -141,12 +141,12 @@ public class VariablesTest extends TestBase {
                                          new Scene.Builder("sceneCall1").addCall(actCall("var", let("Scott"), "NONE"))
                                                                         .addCall(actCall("var", helloAct(), "var"))
                                                                         .addCall(actCall("var", printlnAct(), "var"))
-                                                                        .build(), new SceneCall.ResolverBundle(new HashMap<>()));
+                                                                        .build(), new ResolverBundle(new HashMap<>()));
     SceneCall sceneCall2 = new SceneCall("S2",
                                          new Scene.Builder("sceneCall2").addCall(actCall("foo", helloAct(), "foo"))
                                                                         .addCall(getStringStringAssertionActCall())
                                                                         .build(),
-                                         new SceneCall.ResolverBundle(composeMapFrom(InternalUtils.Entry.$("foo",
+                                         new ResolverBundle(composeMapFrom(InternalUtils.Entry.$("foo",
                                                                                                            context -> context.<Map<String, Object>>valueOf("S1").get("var")))));
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
     var out1 = new Writer.Impl();
