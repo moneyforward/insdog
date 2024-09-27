@@ -71,10 +71,10 @@ public final class SceneCall implements Call {
     return context.valueOf(workingVariableStoreName());
   }
   
-  @Override
-  public String outputVariableName() {
-    return this.outputVariableName;
-  }
+//  @Override
+//  public String outputVariableName() {
+//    return this.outputVariableName;
+//  }
   
   @Override
   public List<String> requiredVariableNames() {

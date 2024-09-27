@@ -29,7 +29,7 @@ public sealed interface Call permits ActCall, TargetedCall, SceneCall {
    *
    * @return An output variable name of this object.
    */
-  String outputVariableName();
+  //String outputVariableName();
   
   /**
    * A method to return a list of input variable names.

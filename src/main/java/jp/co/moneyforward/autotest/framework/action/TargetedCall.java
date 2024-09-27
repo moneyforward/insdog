@@ -19,10 +19,11 @@ public sealed interface TargetedCall<C extends Call> extends Call permits Target
       return this.targetCall().requiredVariableNames();
     }
     
-    @Override
-    public String outputVariableName() {
-      return this.targetCall().outputVariableName();
-    }
+    
+//    @Override
+//    public String outputVariableName() {
+//      return this.targetCall().outputVariableName();
+//    }
     
     @Override
     public C targetCall() {
