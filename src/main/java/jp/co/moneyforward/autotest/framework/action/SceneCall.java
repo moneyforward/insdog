@@ -15,25 +15,13 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
  */
 public final class SceneCall implements Call {
   private final Scene scene;
-  private final ResolverBundle assignmentResolvers;
+  private final ResolverBundle variableResolverBundle;
   private final String outputVariableStoreName;
   
   public SceneCall(String outputVariableStoreName, Scene scene, ResolverBundle resolverBundle) {
     this.outputVariableStoreName = requireNonNull(outputVariableStoreName);
     this.scene = requireNonNull(scene);
-    this.assignmentResolvers = requireNonNull(resolverBundle);
-  }
-  
-  /**
-   * This constructor should be removed.
-   *
-   * @param outputVariableStoreName
-   * @param scene                   A scene to be called.
-   */
-  public SceneCall(String outputVariableStoreName, Scene scene, String inputVariableStoreName) {
-    this.outputVariableStoreName = outputVariableStoreName;
-    this.scene = requireNonNull(scene);
-    this.assignmentResolvers = new ResolverBundle(Resolver.resolversFor(inputVariableStoreName, this.targetScene().outputVariableNames()));
+    this.variableResolverBundle = requireNonNull(resolverBundle);
   }
   
   /**
@@ -49,12 +37,12 @@ public final class SceneCall implements Call {
     return this.outputVariableStoreName;
   }
   
-  public static String workingVariableStoreNameFor(Scene scene) {
-    return "work-" + objectId(scene);
+  public static String workingVariableStoreNameFor(String objectId) {
+    return "work-" + objectId;
   }
   
   public Optional<ResolverBundle> assignmentResolvers() {
-    return Optional.ofNullable(assignmentResolvers);
+    return Optional.ofNullable(variableResolverBundle);
   }
   
   /**
@@ -64,7 +52,7 @@ public final class SceneCall implements Call {
    * @return A currently ongoing working variable store.
    */
   public Map<String, Object> workingVariableStore(Context context) {
-    return context.valueOf(workingVariableStoreNameFor(this.targetScene()));
+    return context.valueOf(workingVariableStoreNameFor(objectId(this.targetScene())));
   }
   
   
@@ -85,21 +73,18 @@ public final class SceneCall implements Call {
   
   private static Map<String, Object> createWorkingVariableStore(SceneCall sceneCall,
                                                                 Context context,
-                                                                ResolverBundle assignmentResolversFromCurrentCall) {
+                                                                ResolverBundle fallbackResolverBundle) {
     var ret = new HashMap<String, Object>();
     sceneCall.assignmentResolvers()
-             .orElse(assignmentResolversFromCurrentCall)
+             .orElse(fallbackResolverBundle)
              .forEach((k, r) -> ret.put(k, r.apply(context)));
     return ret;
   }
   
-  
   private static Action beginSceneCall(SceneCall sceneCall, ResolverBundle resolverBundle) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
-                                c -> c.assignTo(workingVariableStoreNameFor(sceneCall.targetScene()),
-                                                createWorkingVariableStore(sceneCall,
-                                                                           c,
-                                                                           resolverBundle)));
+                                c -> c.assignTo(workingVariableStoreNameFor(objectId(sceneCall.targetScene())),
+                                                createWorkingVariableStore(sceneCall, c, resolverBundle)));
   }
   
   /*
@@ -107,8 +92,8 @@ public final class SceneCall implements Call {
    */
   private static Action endSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("END@" + sceneCall.scene.name(), c -> {
-      c.assignTo(sceneCall.outputVariableStoreName, c.valueOf(workingVariableStoreNameFor(sceneCall.targetScene())));
-      c.unassign(workingVariableStoreNameFor(sceneCall.targetScene()));
+      c.assignTo(sceneCall.outputVariableStoreName, c.valueOf(workingVariableStoreNameFor(objectId(sceneCall.targetScene()))));
+      c.unassign(workingVariableStoreNameFor(objectId(sceneCall.targetScene())));
     });
   }
   
@@ -117,7 +102,7 @@ public final class SceneCall implements Call {
     });
   }
   
-  private static String objectId(Scene scene1) {
-    return scene1.name() + ":" + System.identityHashCode(scene1);
+  static String objectId(Object object) {
+    return "id:" + System.identityHashCode(object);
   }
 }

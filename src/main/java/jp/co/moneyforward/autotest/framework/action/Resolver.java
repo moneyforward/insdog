@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.core.Context;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
@@ -51,7 +52,7 @@ public record Resolver(String variableName, Function<Context, Object> resolverFu
   public static List<Resolver> resolversFor(String variableStoreName, List<String> variableNames) {
     requireNonNull(variableStoreName);
     return variableNames.stream()
-                        .map(n -> new Resolver(n, (Context c) -> c.<Map<String, Object>>valueOf(variableStoreName).get(n)))
+                        .map(n -> new Resolver(n, (Context c) -> c.<Map<String, Object>>valueOf(variableStoreName.get()).get(n)))
                         .toList();
   }
 }

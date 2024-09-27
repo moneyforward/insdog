@@ -15,6 +15,8 @@ import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 import static java.util.Arrays.asList;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
+import static jp.co.moneyforward.autotest.framework.action.Resolver.resolversFor;
+import static jp.co.moneyforward.autotest.framework.action.SceneCall.objectId;
 
 /**
  * An interface that represents a reusable unit of an action in autotest-ca's programming model.
@@ -65,23 +67,6 @@ public interface Scene {
    */
   default String name() {
     return InternalUtils.simpleClassNameOf(this.getClass());
-  }
-  
-  /**
-   * Creates a `ResolverBundle` which figures out values of variables in a variable store specified by `variableStoreName`.
-   * Variables that become resolvable by the returned `ResolverBundle` are given by `outputVariableNames`.
-   *
-   * @param variableStoreName A variable store name for which a `ResolverBundle` is created.
-   * @return A resolver bundle object.
-   * @see ResolverBundle
-   * @see Scene#outputVariableNames()
-   */
-  default ResolverBundle resolverBundleFor(String variableStoreName) {
-    return new ResolverBundle(resolversFor(variableStoreName));
-  }
-  
-  default List<Resolver> resolversFor(String variableStoreName) {
-    return Resolver.resolversFor(variableStoreName, this.outputVariableNames());
   }
   
   /**
@@ -187,7 +172,8 @@ public interface Scene {
     }
     
     public final Builder add(Scene scene) {
-      return this.addCall(sceneCall(this.defaultVariableName, scene, SceneCall.workingVariableStoreNameFor(scene)));
+      String inputVariableStoreName = SceneCall.workingVariableStoreNameFor(objectId(scene));
+      return this.addCall(sceneCall(this.defaultVariableName, scene, new ResolverBundle(resolversFor(inputVariableStoreName, scene.outputVariableNames()))));
     }
     
     public final Builder retry(Call call, int times, Class<? extends Throwable> onException, int interval) {

@@ -29,10 +29,6 @@ public enum AutotestSupport {
     return new SceneCall(outputVariableName, scene, resolverBundle);
   }
   
-  public static SceneCall sceneCall(String outputVariableName, Scene scene, String inputVariableStoreName) {
-    return new SceneCall(outputVariableName, scene, inputVariableStoreName);
-  }
-  
   public static <T, R> ActCall<T, R> actCall(String outputVariableName, Act<T, R> leaf, String inputFieldName) {
     return new ActCall<>(outputVariableName, leaf, inputFieldName);
   }
