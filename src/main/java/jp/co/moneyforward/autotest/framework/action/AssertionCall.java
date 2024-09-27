@@ -19,10 +19,10 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
  *
  * @param <R> Type of value to be validated by assertions.
  */
-public final class AssertionCall<R> extends TargetedCall.Base implements TargetedCall {
+public final class AssertionCall<R> extends TargetedCall.Base<ActCall<?, R>> {
   private final List<Function<R, Statement<R>>> assertions;
   
-  public AssertionCall(Call target, List<Function<R, Statement<R>>> assertions) {
+  public AssertionCall(ActCall<?, R> target, List<Function<R, Statement<R>>> assertions) {
     super(target);
     this.assertions = requireNonNull(assertions);
   }

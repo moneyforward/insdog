@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public final class RetryCall extends TargetedCall.Base implements TargetedCall {
+public final class RetryCall extends TargetedCall.Base<Call>  {
   private final int interval;
   private final int retryTimes;
   private final Class<? extends Throwable> onExceptionType;

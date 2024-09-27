@@ -4,13 +4,13 @@ import java.util.List;
 
 import static com.github.dakusui.valid8j.Requires.requireNonNull;
 
-public sealed interface TargetedCall extends Call permits TargetedCall.Base, AssertionCall, RetryCall {
-  Call targetCall();
+public sealed interface TargetedCall<C extends Call> extends Call permits TargetedCall.Base {
+  C targetCall();
   
-  abstract sealed class Base implements TargetedCall permits AssertionCall, RetryCall {
-    private final Call target;
+  abstract sealed class Base<C extends Call> implements TargetedCall<C> permits AssertionCall, RetryCall {
+    private final C target;
     
-    protected Base(Call target) {
+    protected Base(C target) {
       this.target = requireNonNull(target);
     }
     
@@ -25,7 +25,7 @@ public sealed interface TargetedCall extends Call permits TargetedCall.Base, Ass
     }
     
     @Override
-    public Call targetCall() {
+    public C targetCall() {
       return this.target;
     }
   }
