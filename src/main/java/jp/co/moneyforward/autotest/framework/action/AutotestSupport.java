@@ -42,6 +42,19 @@ public enum AutotestSupport {
     return new ActCall<>(outputVariableName, leaf, inputFieldName);
   }
   
+  /**
+   * Creates an `AssertionCall` object which executes `act`, then validates it using `assertions`.
+   * An output from act will be stored in a context with `outputVariableName`.
+   *
+   * @param outputVariableName A name of a variable, where an output from `act` is stored.
+   * @param act                An `act` whose output should be validated.
+   * @param assertions         A list of functions each of which creates a `Statement` that validates an output from `act`.
+   * @param inputVariableName  A name of a variable, whose value is given to `act`.
+   * @param <T>                Type of the input to `act`.
+   * @param <R>                Type of the output from `act`.
+   * @return An `AssertionCall` object.
+   * @see Act
+   */
   public static <T, R> AssertionCall<R> assertionCall(String outputVariableName, Act<T, R> act, List<Function<R, Statement<R>>> assertions, String inputVariableName) {
     return new AssertionCall<>(actCall(outputVariableName, act, inputVariableName), assertions);
   }

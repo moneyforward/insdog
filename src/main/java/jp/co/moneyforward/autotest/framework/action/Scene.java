@@ -13,7 +13,7 @@ import java.util.function.UnaryOperator;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
-import static java.util.Collections.singletonList;
+import static java.util.Arrays.asList;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
 
 /**
@@ -63,16 +63,16 @@ public interface Scene {
    * @see Scene
    */
   class Builder {
-    final String defaultFieldName;
+    final String defaultVariableName;
     private final List<Call> children = new LinkedList<>();
     
     /**
      * Creates an instance of this class.
      *
-     * @param defaultFieldName A name of field used when use `add` methods without explicit input/output target field names.
+     * @param defaultVariableName A name of field used when use `add` methods without explicit input/output target field names.
      */
-    public Builder(String defaultFieldName) {
-      this.defaultFieldName = requireNonNull(defaultFieldName);
+    public Builder(String defaultVariableName) {
+      this.defaultVariableName = requireNonNull(defaultVariableName);
     }
     
     public final Builder with(UnaryOperator<Builder> op) {
@@ -90,23 +90,43 @@ public interface Scene {
      * @return This object.
      */
     public final <T, R> Builder add(Act<T, R> act) {
-      return this.add(defaultFieldName, act, defaultFieldName);
+      return this.add(defaultVariableName, act, defaultVariableName);
     }
     
     public final <T, R> Builder add(String outputFieldName, Act<T, R> act) {
-      return this.add(outputFieldName, act, defaultFieldName);
+      return this.add(outputFieldName, act, defaultVariableName);
     }
     
     public final <T, R> Builder add(String outputFieldName, Act<T, R> act, String inputFieldName) {
       return this.addCall(actCall(outputFieldName, act, inputFieldName));
     }
     
+    @SuppressWarnings("unchecked")
     public final <R> Builder assertion(Function<R, Statement<R>> assertion) {
-      return this.assertion(defaultFieldName, assertion, defaultFieldName);
+      return this.assertions(defaultVariableName, assertion);
+    }
+
+    @SuppressWarnings("unchecked")
+    public final <R> Builder assertions(Function<R, Statement<R>>... assertions) {
+      return this.assertions(defaultVariableName, assertions);
     }
     
-    public final <R> Builder assertion(String outputFieldName, Function<R, Statement<R>> assertionAct, String inputFieldName) {
-      return this.addCall(assertionCall(outputFieldName, new Value<>(), singletonList(assertionAct), inputFieldName));
+    /**
+     * Returns an `AssertionAct` object that verifies a variable in a currently ongoing scene call's variable store.
+     * The variable in the store is specified by  `inputFieldName`.
+     * This method is implemented as:
+     *
+     * `this.addCall(assertionCall(variableName, new Value<>(), singletonList(assertionAct), variableName))`,
+     * where `Value` is a trivial act which just copies its input variable to an output variable.
+     *
+     * @param <R>          Type of the variable specified by `inputVariableName`.
+     * @param variableName A name of an input variable to be verified.
+     * @param assertions    An assertion function
+     * @return This object
+     */
+    @SuppressWarnings("unchecked")
+    public final <R> Builder assertions(String variableName, Function<R, Statement<R>>... assertions) {
+      return this.addCall(assertionCall(variableName, new Value<>(), asList(assertions), variableName));
     }
     
     public final Builder add(Scene scene) {
@@ -168,7 +188,7 @@ public interface Scene {
         
         @Override
         public String name() {
-          return Scene.super.name() + "[" + defaultFieldName + "]";
+          return Scene.super.name() + "[" + defaultVariableName + "]";
         }
       };
     }
