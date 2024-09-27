@@ -24,7 +24,7 @@ import static jp.co.moneyforward.autotest.ca_web.accessmodels.CawebUtils.*;
 import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.DEPENDENCY_BASED;
 
 /**
- * Data need to prepare before execution, example Office: abc-111318
+ * Data need to prepare before execution, example Office: abc-140129
  *
  */
 @Tag("freePlan")
@@ -57,7 +57,7 @@ import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.
             "createSubDepartment",
             "openAddingAndManagingMembers",
             "createMembers"
-        
+          
         },
         afterEach = {"screenshot"}))
 public class FreePlanScenario extends CawebAccessingModel {
@@ -90,7 +90,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @When("uploadInvoiceAsAI_OCR")
   public static Scene thenUploadInvoiceAsAI_OCR() {
     return new Scene.Builder("page")
-        .add(closePremiumModal())
+        .add(assertMessageAndClosePremiumModal("ファイルをアップロードするには有料プラン登録が必要です"))
         .build();
   }
   
@@ -132,7 +132,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @When("openTransactionManagement_debtManagement")
   public static Scene thenOpenTransactionManagement_debtManagement() {
     return new Scene.Builder("page")
-        .add(closePremiumModal())
+        .add(assertMessageAndClosePremiumModal("ビジネスプランへの加入が必要です"))
         .build();
   }
   
@@ -151,11 +151,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @When("openTransactionManagement_balanceSheet")
   public static Scene thenOpenTransactionManagement_balanceSheet() {
     return new Scene.Builder("page")
-        .assertion((Page p) -> value(p).function(locatorBySelector("#js-premium-modal-corporate-business > div > div > div.modal-body > div.text-center"))
-                                       .function(textContent())
-                                       .asString()
-                                       .toBe()
-                                       .containing("プラン"))
+        .add(assertMessageAndClosePremiumModal("残高照合機能をご利用いただくためにはビジネスプランへの加入が必要です"))
         .build();
   }
   
@@ -188,7 +184,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @When("openAccountingBooks_generalJournal")
   public static Scene exportCSV_generalJournal() {
     return new Scene.Builder("page")
-        .add(exportDataSpecifiedFormat("#download-btn-menu","CSV出力", closePremiumModal()))
+        .add(exportDataSpecifiedFormat("#download-btn-menu", "CSV出力", assertMessageAndClosePremiumModal("スモールビジネス以上のプランへの加入が必要です")))
         .build();
   }
   
@@ -197,7 +193,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @When("openAccountingBooks_generalJournal")
   public static Scene exportMFFormat_generalJournal() {
     return new Scene.Builder("page")
-        .add(exportMFFormat(closePremiumModal()))
+        .add(exportMFFormat(assertMessageAndClosePremiumModal("スモールビジネス以上のプランへの加入が必要です")))
         .build();
   }
   
@@ -232,7 +228,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @When("setDateLimitsJournalEntry")
   public static Scene thenSetDateLimitsJournalEntry() {
     return new Scene.Builder("page")
-        .add(closePremiumModal())
+        .add(assertMessageAndClosePremiumModal("ビジネスプランへの加入が必要です"))
         .build();
   }
   
@@ -262,7 +258,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @When("executionTransactionNumberReassignment")
   public static Scene thenExecutionTransactionNumberReassignment() {
     return new Scene.Builder("page")
-        .add(closePremiumModal())
+        .add(assertMessageAndClosePremiumModal("ビジネスプランへの加入が必要です"))
         .build();
   }
   
@@ -295,7 +291,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @When("clickFileExport")
   public static Scene thenClickFileExport() {
     return new Scene.Builder("page")
-        .add(closePremiumModal())
+        .add(assertMessageAndClosePremiumModal("スモールビジネス以上のプランへの加入が必要です"))
         .build();
   }
   
@@ -305,7 +301,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   public static Scene openSettlementAndDeclaration_consumptionTaxReturn() {
     return new Scene.Builder("page")
         .add(new Navigate(executionProfile().homeUrl()))
-        .add(moveFromSideMenu2NewTab("決算・申告", "消費税申告", closePremiumModal()))
+        .add(moveFromSideMenu2NewTab("決算・申告", "消費税申告", assertMessageAndClosePremiumModal("ビジネスプランへの加入が必要です")))
         .build();
   }
   
@@ -365,7 +361,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @When("clickAndIssueAuthenticationKey")
   public static Scene thenClickAndIssueAuthenticationKey() {
     return new Scene.Builder("page")
-        .add(closePremiumModal())
+        .add(assertMessageAndClosePremiumModal("ビジネスプランへの加入が必要です"))
         .build();
   }
   
@@ -400,7 +396,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @When("updateOfficeInfoAndCheckJournalHistoryRecord")
   public static Scene thenUpdateOfficeInfoAndCheckJournalHistoryRecord() {
     return new Scene.Builder("page")
-        .add(closePremiumModal())
+        .add(assertMessageAndClosePremiumModal("仕訳履歴保存機能をご利用いただくためにはビジネスプランへの加入が必要です"))
         .build();
   }
   
@@ -434,7 +430,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @When("createDepartment")
   public static Scene thenCreateDepartment() {
     return new Scene.Builder("page")
-        .add(closePremiumModal())
+        .add(assertMessageAndClosePremiumModal("部門登録数が上限の2件になりましたビジネスプランでは部門を無制限に登録できます"))
         .build();
   }
   
@@ -452,7 +448,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @When("createSubDepartment")
   public static Scene thenCreateSubDepartment() {
     return new Scene.Builder("page")
-        .add(closePremiumModal())
+        .add(assertMessageAndClosePremiumModal("部門登録数が上限の2件になりましたビジネスプランでは部門を無制限に登録できます"))
         .build();
   }
   
@@ -484,7 +480,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @When("createMembers")
   public static Scene thenCreateMembers() {
     return new Scene.Builder("page")
-        .add(closePremiumModal())
+        .add(assertMessageAndClosePremiumModal("メンバー登録数が上限に達しています。ビジネスプランへアップグレードするとメンバーを追加することができます。※従量課金の対象になります。"))
         .build();
   }
   
@@ -494,7 +490,7 @@ public class FreePlanScenario extends CawebAccessingModel {
    *
    * @return The page act that performs the behavior in the description.
    */
-  public static PageAct closePremiumModal() {
+  public static PageAct assertMessageAndClosePremiumModal(final String displayedMessage) {
     return new PageAct("Close modal for ERP features") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
@@ -504,6 +500,7 @@ public class FreePlanScenario extends CawebAccessingModel {
         boolean modalAppeared = false;
         long startTime = System.currentTimeMillis();
         
+        // enhanced waitForSelector feature: wait for either corporateBusinessModal or smallBusinessModal is displayed
         while (!modalAppeared && (System.currentTimeMillis() - startTime) < 5000) {
           if (corporateBusinessModal.isVisible() || smallBusinessModal.isVisible()) {
             modalAppeared = true;
@@ -514,13 +511,13 @@ public class FreePlanScenario extends CawebAccessingModel {
         
         String modalCloseButtonSelector = "#btn-modal-close > img";
         if (corporateBusinessModal.isVisible()) {
-          // Interact with the Corporate Business Modal
+          assertThat(corporateBusinessModal.getByText(displayedMessage)).isVisible();
+          
           corporateBusinessModal.locator(modalCloseButtonSelector).click();
-          System.out.println("Corporate Business Modal is displayed");
         } else {
-          // Interact with the Small Business Modal
+          assertThat(smallBusinessModal.getByText(displayedMessage)).isVisible();
+          
           smallBusinessModal.locator(modalCloseButtonSelector).click();
-          System.out.println("Small Business Modal is displayed");
         }
       }
     };
@@ -546,7 +543,7 @@ public class FreePlanScenario extends CawebAccessingModel {
         // Select 書類種別
         page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(4) > div").click();
         page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs").getByText("領収書").click();
-
+        
         // Select 電子帳簿保存法区分
         page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(5) > div").click();
         page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs").getByText("電帳法の対象外").click();
