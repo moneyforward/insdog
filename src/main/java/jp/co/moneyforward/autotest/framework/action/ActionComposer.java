@@ -67,7 +67,7 @@ public interface ActionComposer {
    * @return A sequential action created from `sceneCall`.
    */
   default Action create(SceneCall sceneCall, ResolverBundle resolverMap) {
-    return sequential(concat(Stream.of(sceneCall.begin(resolverMap)),
+    return sequential(concat(Stream.of(sceneCall.begin()),
                              Stream.of(sceneCall.targetScene().toSequentialAction(resolverMap, this)),
                              Stream.of(sceneCall.end()))
                           .toList());
@@ -116,7 +116,9 @@ public interface ActionComposer {
                                                                    SceneCall ongoingSceneCall,
                                                                    ExecutionEnvironment executionEnvironment) {
     return c -> {
-      LOGGER.debug("ENTERING: {}:{}", ongoingSceneCall.targetScene().name(), act.name());
+      String targetSceneName = ongoingSceneCall.targetScene().name();
+      String actName = act.name();
+      LOGGER.debug("ENTERING: {}:{}", targetSceneName, actName);
       try {
         var v = act.perform(inputVariableResolver.apply(c), executionEnvironment);
         ongoingSceneCall.workingVariableStore(c).put(outputVariableName, v);
@@ -125,7 +127,7 @@ public interface ActionComposer {
         LOGGER.debug(e.getMessage(), e);
         throw e;
       } finally {
-        LOGGER.debug("LEAVING:  {}:{}", ongoingSceneCall.targetScene().name(), act.name());
+        LOGGER.debug("LEAVING:  {}:{}", targetSceneName, actName);
       }
     };
   }

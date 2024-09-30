@@ -58,6 +58,11 @@ public interface Scene {
    */
   List<Call> children();
   
+  /**
+   * Returns an object identifier of this object.
+   *
+   * @return An object identifier of this object.
+   */
   String oid();
   
   /**

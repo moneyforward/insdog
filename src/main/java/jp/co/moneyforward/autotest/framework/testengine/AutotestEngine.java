@@ -412,7 +412,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   private static Action toAction(SceneCall currentSceneCall, ActionComposer actionComposer) {
-    return actionComposer.create(currentSceneCall, currentSceneCall.assignmentResolvers().orElseThrow());
+    return actionComposer.create(currentSceneCall, currentSceneCall.variableResolverBundle());
   }
   
   private static ExecutionEnvironment createExecutionEnvironment(ExtensionContext extensionContext) {

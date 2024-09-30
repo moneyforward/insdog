@@ -6,7 +6,6 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
@@ -41,8 +40,8 @@ public final class SceneCall implements Call {
     return "work-" + objectId;
   }
   
-  public Optional<ResolverBundle> assignmentResolvers() {
-    return Optional.ofNullable(variableResolverBundle);
+  public ResolverBundle variableResolverBundle() {
+    return variableResolverBundle;
   }
   
   /**
@@ -61,42 +60,36 @@ public final class SceneCall implements Call {
     return actionComposer.create(this, resolversFromCurrentCall);
   }
   
-  public Action begin(ResolverBundle assignmentResolversFromCurrentCall) {
-    return beginSceneCall(this, assignmentResolversFromCurrentCall);
+  public Action begin() {
+    return beginSceneCall(this);
   }
   
   public Action end() {
     return endSceneCall(this);
   }
   
+ 
+  private static Action beginSceneCall(SceneCall sceneCall) {
+    return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
+                                c -> c.assignTo(workingVariableStoreNameFor(sceneCall.targetScene().oid()),
+                                                createWorkingVariableStore(sceneCall, c)));
+  }
+  
   private static Map<String, Object> createWorkingVariableStore(SceneCall sceneCall,
-                                                                Context context,
-                                                                ResolverBundle fallbackResolverBundle) {
+                                                                Context context) {
     var ret = new HashMap<String, Object>();
-    sceneCall.assignmentResolvers()
-             .orElse(fallbackResolverBundle)
+    sceneCall.variableResolverBundle()
              .forEach((k, r) -> ret.put(k, r.apply(context)));
     return ret;
   }
-  
-  private static Action beginSceneCall(SceneCall sceneCall, ResolverBundle resolverBundle) {
-    return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
-                                c -> c.assignTo(workingVariableStoreNameFor(sceneCall.targetScene().oid()),
-                                                createWorkingVariableStore(sceneCall, c, resolverBundle)));
-  }
-  
+
   /*
    * Copies the map stored as "work area" to `outputFieldName` variable.
    */
   private static Action endSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("END@" + sceneCall.scene.name(), c -> {
-      c.assignTo(sceneCall.outputVariableStoreName, c.valueOf(workingVariableStoreNameFor(sceneCall.targetScene().oid())));
+      c.assignTo(sceneCall.outputVariableStoreName(), c.valueOf(workingVariableStoreNameFor(sceneCall.targetScene().oid())));
       c.unassign(workingVariableStoreNameFor(sceneCall.targetScene().oid()));
-    });
-  }
-  
-  private static Action endSceneCallDismissingOutput(SceneCall sceneCall) {
-    return InternalUtils.action("END[dismissingOutput]@" + sceneCall.scene.name(), c -> {
     });
   }
 }

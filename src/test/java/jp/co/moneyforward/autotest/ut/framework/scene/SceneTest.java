@@ -42,7 +42,7 @@ public class SceneTest extends TestBase {
     final jp.co.moneyforward.autotest.framework.action.SceneCall sceneCall = AutotestSupport.sceneCall("out",
                                                                                                        scene,
                                                                                                        new ResolverBundle(in));
-    ActionUtils.performAction(createActionComposer().create(sceneCall, sceneCall.assignmentResolvers().orElseThrow()), createWriter(out));
+    ActionUtils.performAction(createActionComposer().create(sceneCall, sceneCall.variableResolverBundle()), createWriter(out));
     Assumptions.assumeFalse(false);
     assertStatement(value(out).toBe()
                               .containingElementsInOrder(List.of(containsString("BEGIN"),
@@ -60,7 +60,7 @@ public class SceneTest extends TestBase {
     final jp.co.moneyforward.autotest.framework.action.SceneCall sceneCall = AutotestSupport.sceneCall("OUT",
                                                                                                        scene,
                                                                                                        new ResolverBundle(in));
-    ActionUtils.performAction(createActionComposer().create(sceneCall, sceneCall.assignmentResolvers().orElseThrow()),
+    ActionUtils.performAction(createActionComposer().create(sceneCall, sceneCall.variableResolverBundle()),
                               context,
                               createWriter(out));
     assertAll(value(out).toBe()
@@ -88,7 +88,7 @@ public class SceneTest extends TestBase {
                                                                                       scene,
                                                                                       new ResolverBundle(List.of())), AutotestSupport.sceneCall("out",
                                                                                                                                                 scene,
-                                                                                                                                                new ResolverBundle(List.of())).assignmentResolvers().orElseThrow()),
+                                                                                                                                                new ResolverBundle(List.of())).variableResolverBundle()),
                               createWriter(out));
     assertStatement(value(out).toBe()
                               .containingElementsInOrder(List.of(containsString("BEGIN"),

@@ -11,26 +11,30 @@ import java.util.function.Function;
 public enum AutotestSupport {
   ;
   
-  public static Scene scene(List<Call> children) {
-    var builder = new Scene.Builder("default");
-    children.forEach(builder::addCall);
-    return builder.build();
+  /**
+   * Returns a `Call` object for a given `scene`.
+   *
+   * @param outputVariableStoreName A name of variable store, where the children of `scene` write there output variables.
+   * @param scene                   A scene for which a call is created
+   * @param resolverBundle          A resolver bundle which gives values of variables during the execution of the returned scene call.
+   * @return A `SceneCall` object for `scene`.
+   */
+  public static SceneCall sceneCall(String outputVariableStoreName, Scene scene, ResolverBundle resolverBundle) {
+    return new SceneCall(outputVariableStoreName, scene, resolverBundle);
   }
   
   /**
-   * Returns a `SceneCall` object for a given
+   * Returns an `Call` object for a given `act`.
    *
-   * @param outputVariableName A variable for an output map whose keys and values are variable names and their values.
-   * @param scene              A scene for which a call is created
-   * @param resolverBundle
-   * @return A `SceneCall` object for `scene`.
+   * @param outputVariableName A name of an output variable, to which `act` writes its output to.
+   * @param act                An `act`, for which a call is created.
+   * @param inputVariableName  A name of variable from which an `act` takes its input.
+   * @param <T>                Input type of `act`.
+   * @param <R>                Output type of `act`.
+   * @return An `ActCall` object.
    */
-  public static SceneCall sceneCall(String outputVariableName, Scene scene, ResolverBundle resolverBundle) {
-    return new SceneCall(outputVariableName, scene, resolverBundle);
-  }
-  
-  public static <T, R> ActCall<T, R> actCall(String outputVariableName, Act<T, R> leaf, String inputFieldName) {
-    return new ActCall<>(outputVariableName, leaf, inputFieldName);
+  public static <T, R> ActCall<T, R> actCall(String outputVariableName, Act<T, R> act, String inputVariableName) {
+    return new ActCall<>(outputVariableName, act, inputVariableName);
   }
   
   /**
