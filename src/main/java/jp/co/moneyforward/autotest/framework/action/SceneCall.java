@@ -66,9 +66,7 @@ public final class SceneCall implements Call {
   }
   
   public Action end() {
-    if (this.outputVariableStoreName() != null)
-      return endSceneCall(this);
-    return endSceneCallDismissingOutput(this);
+    return endSceneCall(this);
   }
   
   private static Map<String, Object> createWorkingVariableStore(SceneCall sceneCall,

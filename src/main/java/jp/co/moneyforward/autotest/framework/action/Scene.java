@@ -127,7 +127,7 @@ public interface Scene {
     }
     
     /**
-     * Adds `leafAct` to this builder.
+     * Adds an `Act` to this builder.
      * `defaultFieldName` is used for both input and output.
      * Note that in case `T` and `R` are different, the field will have a different type after `leafAct` execution from the value before it is executed.
      *
@@ -224,19 +224,22 @@ public interface Scene {
     
     public Scene build() {
       return new Scene() {
+        private final List<Call> children = Builder.this.children;
+        private final String oid = Builder.this.oid();
+        
         @Override
         public List<Call> children() {
-          return Builder.this.children;
+          return children;
         }
         
         @Override
         public String oid() {
-          return Builder.this.oid();
+          return oid;
         }
         
         @Override
         public String toString() {
-          return name() + "@" + System.identityHashCode(this);
+          return name() + "@" + oid();
         }
         
         @Override

@@ -66,7 +66,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named
   @DependsOn("login")
-  public static Scene toHome() {
+  public Scene toHome() {
     return new Scene.Builder("page")
         .add(new Navigate(executionProfile().homeUrl()))
         .build();
@@ -74,7 +74,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("自動で仕訳_連携サービスから入力")
   @DependsOn("login")
-  public static Scene enterJournalAutomatically_fromLinkedService() {
+  public Scene enterJournalAutomaticallyFromLinkedService() {
     return new Scene.Builder("page")
         .with(
            /*
@@ -128,10 +128,6 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
         .build();
   }
   
-  private static Function<Page, Locator> locatorForBreadcrumbs() {
-    return locatorBySelector(SELECTOR_FOR_BREADCRUMBS);
-  }
-  
   /**
    * # visit.csv
    * ,自動で仕訳_請求書から入力_仕訳候補,,load_action_file,visit.csv,,,"menu: 自動で仕訳, function: 請求書から入力"
@@ -141,7 +137,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("自動で仕訳_請求書から入力")
   @DependsOn("login")
-  public static Scene enterJournalAutomatically_fromInvoice() {
+  public Scene enterJournalAutomaticallyFromInvoice() {
     return new Scene.Builder("page")
         .with(b -> b.add(new Click(locatorByText("自動で仕訳")))
                     .add(new Click(linkLocatorByText("請求書から入力")))
@@ -156,7 +152,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("自動で仕訳_経費・債務支払いから入力")
   @DependsOn("login")
-  public static Scene enterJournalAutomatically_fromExpenseDebtPayment() {
+  public Scene enterJournalAutomaticallyFromExpenseDebtPayment() {
     return new Scene.Builder("page")
         .with(b -> b.add(new Click(locatorByText("自動で仕訳")))
                     .add(new Click(linkLocatorByText("経費・債務支払から入力")))
@@ -171,7 +167,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("自動で仕訳_給与から入力")
   @DependsOn("login")
-  public static Scene enterJournalAutomatically_fromSalaryPayment() {
+  public Scene enterJournalAutomaticallyFromSalaryPayment() {
     return new Scene.Builder("page")
         .with(b -> b.add(new Click(locatorByText("自動で仕訳")))
                     .add(new Click(linkLocatorByText("給与から入力")))
@@ -185,7 +181,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("手動で仕訳_振替伝票入力")
   @DependsOn("login")
-  public static Scene enterJournalManually_fromTransferSlip() {
+  public Scene enterJournalManuallyFromTransferSlip() {
     return new Scene.Builder("page")
         .with(b -> b.add(new Click(locatorByText("手動で仕訳")))
                     .add(new Click(locatorBySelector("#js-ca-main-contents").andThen(byText("振替伝票入力"))))
@@ -199,7 +195,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("手動で仕訳_簡単入力")
   @DependsOn("login")
-  public static Scene enterJournalManually_withEasyInput() {
+  public Scene enterJournalManuallyWithEasyInput() {
     return new Scene.Builder("page")
         .with(b -> b.add(new Click(locatorByText("手動で仕訳")))
                     .add(new Click(linkLocatorByName("簡単入力")))
@@ -213,7 +209,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("手動で仕訳_仕訳帳入力")
   @DependsOn("login")
-  public static Scene enterJournalManually_fromJournalBook() {
+  public Scene enterJournalManuallyFromJournalBook() {
     return new Scene.Builder("page")
         .with(b -> b.add(new Click(locatorByText("手動で仕訳")))
                     .add(new Click(linkLocatorByName("仕訳帳入力")))
@@ -250,7 +246,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("手動で仕訳_取引から入力")
   @DependsOn("login")
-  public static Scene enterJournalManually_fromTransaction_Income() {
+  public Scene enterJournalManuallyFromTransactionIncome() {
     return new Scene.Builder("page")
         // 1. 手動で仕訳_取引から入力_収入
         .with(b -> b.add(new Click(locatorByText("手動で仕訳")))
@@ -296,7 +292,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("取引管理_債務管理")
   @DependsOn("login")
-  public static Scene transactionManagement_debtManagement() {
+  public Scene transactionManagementDebtManagement() {
     return new Scene.Builder("page")
         .add(new Click(locatorByText("取引管理")))
         .add(new Click(linkLocatorByText("債務管理")))
@@ -310,7 +306,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("会計帳簿_総勘定元帳_新形式(β)")
   @DependsOn("login")
-  public static Scene whenOpenGeneralLedgersUrlAndClickNewFormatBeta_thenPageLoadedAndNewFormatActivated() {
+  public Scene whenOpenGeneralLedgersUrlAndClickNewFormatBetaThenPageLoadedAndNewFormatActivated() {
     return new Scene.Builder("page")
         .add(new Navigate(executionProfile().generalLedgersUrl()))
         .assertion((Page p) -> value(p).function(toTitle())
@@ -325,7 +321,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("会計帳簿_総勘定元帳_旧形式")
   @DependsOn("login")
-  public static Scene whenOpenGeneralLedgersUrlAndClickOldFormat_thenOldFormatActivated() {
+  public Scene whenOpenGeneralLedgersUrlAndClickOldFormatThenOldFormatActivated() {
     return new Scene.Builder("page")
         .add(new Navigate(executionProfile().generalLedgersUrl()))
         .add(new Click(locatorByText("旧形式")))
@@ -341,7 +337,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("会計帳簿_補助元帳_新形式(β)")
   @DependsOn("login")
-  public static Scene whenOpenSubsidiaryLedgersUrlAndClickNewFormatBeta_thenPageLoadedAndNewFormatActivated() {
+  public Scene whenOpenSubsidiaryLedgersUrlAndClickNewFormatBetaThenPageLoadedAndNewFormatActivated() {
     return new Scene.Builder("page")
         .add(new Navigate(executionProfile().subsidiaryLedgersUrl()))
         .assertion((Page p) -> value(p).function(toTitle())
@@ -356,7 +352,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("会計帳簿_残高試算表_貸借対照表")
   @DependsOn("login")
-  public static Scene accountingBooks_trialBalance_balanceSheet() {
+  public Scene accountingBooksTrialBalance_balanceSheet() {
     return new Scene.Builder("page")
         .add(new Click(locatorByText("会計帳簿")))
         .add(new Click(linkLocatorByText("残高試算表")))
@@ -376,7 +372,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("会計帳簿_残高試算表_損益計算書")
   @DependsOn("login")
-  public static Scene accountingBooks_trialBalance_incomeStatementSheet() {
+  public Scene accountingBooksTrialBalance_incomeStatementSheet() {
     return new Scene.Builder("page")
         .add(new Click(locatorByText("会計帳簿")))
         .add(new Click(linkLocatorByText("残高試算表")))
@@ -406,7 +402,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("会計帳簿_貸借対照表_推移表")
   @DependsOn("login")
-  public static Scene accountingBooks_transition() {
+  public Scene accountingBooksTransition() {
     return new Scene.Builder("page")
         .with(b -> b.add(new Click(locatorByText("会計帳簿")))
                     .add(new Click(linkLocatorByText("推移表")))
@@ -447,7 +443,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("会計帳簿_帳簿管理")
   @DependsOn("login")
-  public static Scene accountingBooks_booksSetting() {
+  public Scene accountingBooksBooksSetting() {
     return new Scene.Builder("page")
         .with(b -> b.add(new Click(locatorByText("会計帳簿")))
                     .add(new Click(linkLocatorByText("帳簿管理")))
@@ -462,7 +458,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("レポート_キャッシュフロー")
   @DependsOn("login")
-  public static Scene visitReportItems_cashFlow() {
+  public Scene visitReportItemsCashFlow() {
     return new Scene.Builder("page")
         /*
           ,レポート_キャッシュフローレポート,,load_action_file,visit.csv,,,"menu: レポート, function: キャッシュフローレポート"
@@ -476,7 +472,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("レポート_収益内訳")
   @DependsOn("login")
-  public static Scene visitReportItems_incomeBreakDown() {
+  public Scene visitReportItemsIncomeBreakDown() {
     return new Scene.Builder("page")
         /*
          ,レポート_収益レポート_収益内訳,,load_action_file,visit.csv,,,"menu: レポート, function: 収益レポート"
@@ -522,7 +518,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("レポート_費用レポート")
   @DependsOn("login")
-  public static Scene visitReportItems_expenseReport() {
+  public Scene visitReportItemsExpenseReport() {
     return new Scene.Builder("page")
         // ,レポート_費用レポート_費用内訳,,load_action_file,visit.csv,,,"menu: レポート, function: 費用レポート"
         // ,assert,,assert_title,,,eq,費用レポート｜マネーフォワード クラウド会計
@@ -588,7 +584,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("レポート_その他")
   @DependsOn("login")
-  public static Scene visitReportItems_misc() {
+  public Scene visitReportItemsMisc() {
     return new Scene.Builder("page")
         /*
           ,レポート_収入先レポート,,load_action_file,visit.csv,,,"menu: レポート, function: 収入先レポート"
@@ -658,7 +654,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("レポート_収益詳細")
   @DependsOn("login")
-  public static Scene visitReportItems_incomeDetail() {
+  public Scene visitReportItemsIncomeDetail() {
     return new Scene.Builder("page")
         /*
           ,レポート_キャッシュフローレポート,,load_action_file,visit.csv,,,"menu: レポート, function: キャッシュフローレポート"
@@ -704,7 +700,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("決算・申告")
   @DependsOn("login")
-  public static Scene visitSettlementAndDeclaration() {
+  public Scene visitSettlementAndDeclaration() {
     return new Scene.Builder("page")
         /*
           ,決算・申告_固定資産台帳_固定資産の一覧,,load_action_file,visit.csv,,,"menu: 決算・申告, function: 固定資産台帳"
@@ -816,7 +812,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("データ連携")
   @DependsOn("login")
-  public static Scene visitDataLinkItems() {
+  public Scene visitDataLinkItems() {
     return new Scene.Builder("page")
         /*
           ,データ連携_新規登録,,load_action_file,visit.csv,,,"menu: データ連携, function: 新規登録"
@@ -851,7 +847,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("各種設定")
   @DependsOn("login")
-  public static Scene settingsItems() {
+  public Scene settingsItems() {
     return new Scene.Builder("page")
         /*
               ,各種設定_事業者,,load_action_file,visit.csv,,,"menu: 各種設定, function: 事業者"
@@ -1082,6 +1078,10 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
                    .equalTo(expectedPageTitle);
   }
   
+  private static Function<Page, Locator> locatorForBreadcrumbs() {
+    return locatorBySelector(SELECTOR_FOR_BREADCRUMBS);
+  }
+
   private static Function<Page, Locator> locatorForLargeTab() {
     return locatorBySelector(selectorForLargeTab());
   }
