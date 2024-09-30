@@ -109,16 +109,7 @@ public enum InternalUtils {
   public static String simpleClassNameOf(Class<?> clazz) {
     return MethodUtils.simpleClassNameOf(clazz);
   }
-  
-  @SafeVarargs
-  public static <T> Scene chainActs(String variableName, Act<T, T>... acts) {
-    Scene.Builder builder = new Scene.Builder(variableName);
-    for (Act<T, T> act : acts) {
-      builder = builder.add(act);
-    }
-    return builder.build();
-  }
-  
+
   public static Stream<Action> flattenIfSequential(Action a) {
     return a instanceof Composite composite && !composite.isParallel() ? ((Composite) a).children().stream()
                                                                        : Stream.of(a);

@@ -52,7 +52,7 @@ public class OfficeDeletion extends CawebTermAccessingModel {
   @Named
   @When("deleteOffice")
   public static Scene thenOfficeDeleted() {
-    return InternalUtils.chainActs("page", new PageAct("Check if office removal message becomes visible") {
+    return Scene.fromActs("page", new PageAct("Check if office removal message becomes visible") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         page.getByText("事業者の退会が完了しました").waitFor();
