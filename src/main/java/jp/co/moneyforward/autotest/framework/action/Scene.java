@@ -16,6 +16,7 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 import static java.util.Arrays.asList;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
 import static jp.co.moneyforward.autotest.framework.action.Resolver.resolversFor;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.simpleClassNameOf;
 
 /**
  * An interface that represents a reusable unit of an action in autotest-ca's programming model.
@@ -27,7 +28,7 @@ public interface Scene {
   /**
    * Creates a scene by chaining acts.
    *
-   * @param variableName An variable chained acts read input value from and write output value to.
+   * @param variableName A variable chained acts read input value from and write output value to.
    * @param acts         Acts from which a scene is created.
    * @return Created scene.
    */
@@ -42,13 +43,12 @@ public interface Scene {
   /**
    * Creates a sequential action from the child calls of this object
    *
-   * @param resolverBundle A resolver bundle.
    * @param actionComposer A visitor that builds a sequential action from child calls of this object.
    * @return A sequential action created from child calls
    * @see Scene#children()
    */
-  default Action toSequentialAction(ResolverBundle resolverBundle, ActionComposer actionComposer) {
-    return sequential(toActions(resolverBundle, actionComposer));
+  default Action toSequentialAction(ActionComposer actionComposer) {
+    return sequential(toActions(actionComposer));
   }
   
   /**
@@ -72,7 +72,7 @@ public interface Scene {
    * @return A name of this object.
    */
   default String name() {
-    return InternalUtils.simpleClassNameOf(this.getClass());
+    return simpleClassNameOf(this.getClass());
   }
   
   /**
@@ -98,9 +98,9 @@ public interface Scene {
     throw new AssertionError();
   }
   
-  private List<Action> toActions(ResolverBundle resolverBundle, ActionComposer actionComposer) {
+  private List<Action> toActions(ActionComposer actionComposer) {
     return children().stream()
-                     .map((Call each) -> each.toAction(actionComposer, resolverBundle))
+                     .map((Call each) -> each.toAction(actionComposer))
                      .flatMap(InternalUtils::flattenIfSequential)
                      .toList();
   }
@@ -114,10 +114,6 @@ public interface Scene {
     final String defaultVariableName;
     private final List<Call> children = new LinkedList<>();
     
-    String oid() {
-      return "id-" + System.identityHashCode(this);
-    }
-    
     /**
      * Creates an instance of this class.
      *
@@ -127,6 +123,23 @@ public interface Scene {
       this.defaultVariableName = requireNonNull(defaultVariableName);
     }
     
+    /**
+     * A "syntax-sugar" method to group a sequence of method calls to this `Builder` object.
+     *
+     * That is, you can do:
+     *
+     * ```java
+     * new SceneBuilder.with(b -> b.add(...)
+     * .add(...)
+     * .add(...))
+     * .build();
+     * ```
+     *
+     * Note that the operator `op` is supposed to return `this` object.
+     *
+     * @param op A unary operator that groups operator on this object.
+     * @return This object returned by `op`.
+     */
     public final Builder with(UnaryOperator<Builder> op) {
       return op.apply(this);
     }
@@ -145,12 +158,12 @@ public interface Scene {
       return this.add(defaultVariableName, act, defaultVariableName);
     }
     
-    public final <T, R> Builder add(String outputFieldName, Act<T, R> act) {
-      return this.add(outputFieldName, act, defaultVariableName);
+    public final <T, R> Builder add(String outputVariableName, Act<T, R> act) {
+      return this.add(outputVariableName, act, defaultVariableName);
     }
     
-    public final <T, R> Builder add(String outputFieldName, Act<T, R> act, String inputFieldName) {
-      return this.addCall(actCall(outputFieldName, act, inputFieldName));
+    public final <T, R> Builder add(String outputVariableName, Act<T, R> act, String inputVariableName) {
+      return this.addCall(actCall(outputVariableName, act, inputVariableName));
     }
     
     @SuppressWarnings("unchecked")
@@ -181,11 +194,37 @@ public interface Scene {
       return this.addCall(assertionCall(variableName, new Value<>(), asList(assertions), variableName));
     }
     
+    /**
+     * Adds a given `scene` to this builder object.
+     * A call to the `scene` will be created (a `SceneCall` object), and it will be a child of the scene that this builder builds.
+     *
+     * The child call will use the working variable store of the parent scene (i.e., a scene built by this builder) as its input variable store.
+     * With this mechanism, the child can reference the values of the
+     *
+     * @param scene A scene to be added.
+     * @return This object,
+     */
     public final Builder add(Scene scene) {
-      String inputVariableStoreName = SceneCall.workingVariableStoreNameFor(this.oid());
-      return this.addCall(sceneCall(this.defaultVariableName, scene, new ResolverBundle(resolversFor(inputVariableStoreName, scene.outputVariableNames()))));
+      String variableStoreName = SceneCall.workingVariableStoreNameFor(this.oid());
+      return this.addCall(sceneCall(simpleClassNameOf(scene.getClass()),
+                                    scene,
+                                    new ResolverBundle(resolversFor(variableStoreName, scene.outputVariableNames()))));
     }
     
+    /**
+     * Adds a call that retries a given `call`.
+     * The call retries given `times` on a failure designated by a class `onException`.
+     * An interval between tries will be `interval` seconds.
+     *
+     * Note that `times` means number of "RE"-tries.
+     * If you give 1, it will be retried once after `interval` seconds, if the first try fails.
+     *
+     * @param call        A call to be retried
+     * @param times       Number of retries at maximum.
+     * @param onException An exception class on which retries should be attempted.
+     * @param interval    Interval between tries.
+     * @return A call that retries a given `call`.
+     */
     public final Builder retry(Call call, int times, Class<? extends Throwable> onException, int interval) {
       return this.addCall(AutotestSupport.retryCall(call, onException, times, interval));
     }
@@ -222,11 +261,25 @@ public interface Scene {
       return retry(call, 2);
     }
     
+    /**
+     * Adds a call to this object as a child.
+     * You need to ensure that requirements of `call` are satisfied in the context it will be run by yourself.
+     *
+     * For instance, if the call is a `SceneCall`, the variable store from which it reads needs to be prepared beforehand by one of preceding calls.
+     *
+     * @param call A `Call` object to be added.
+     * @return This object.
+     */
     public Builder addCall(Call call) {
       this.children.add(call);
       return this;
     }
     
+    /**
+     * Builds a `Scene` object.
+     *
+     * @return A `Scene` object.
+     */
     public Scene build() {
       return new Scene() {
         private final List<Call> children = Builder.this.children;
@@ -252,6 +305,10 @@ public interface Scene {
           return Scene.super.name() + "[" + defaultVariableName + "]";
         }
       };
+    }
+    
+    private String oid() {
+      return "id-" + System.identityHashCode(this);
     }
   }
 }

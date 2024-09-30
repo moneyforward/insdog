@@ -61,33 +61,31 @@ public interface ActionComposer {
   /**
    * Creates an action for a given `SceneCall` object.
    *
-   * @param sceneCall   A scene call from which an action should be created.
-   * @param resolverBundle A map from a variable name to a function which resolves its value from the
-   *                    ongoing context object
+   * @param sceneCall A scene call from which an action should be created.
    * @return A sequential action created from `sceneCall`.
    */
-  default Action create(SceneCall sceneCall, ResolverBundle resolverBundle) {
+  default Action create(SceneCall sceneCall) {
     return sequential(concat(Stream.of(sceneCall.begin()),
-                             Stream.of(sceneCall.targetScene().toSequentialAction(resolverBundle, this)),
+                             Stream.of(sceneCall.targetScene().toSequentialAction(this)),
                              Stream.of(sceneCall.end()))
                           .toList());
   }
   
-  default Action create(RetryCall retryCall, ResolverBundle resolverMap) {
-    return retry(retryCall.targetCall().toAction(this, resolverMap))
+  default Action create(RetryCall retryCall) {
+    return retry(retryCall.targetCall().toAction(this))
         .times(retryCall.times())
         .on(retryCall.onException())
         .withIntervalOf(retryCall.interval(), retryCall.intervalUnit())
         .$();
   }
   
-  default Action create(AssertionCall<?> call, ResolverBundle resolverBundle) {
+  default Action create(AssertionCall<?> call) {
     return sequential(
         Stream.concat(
-                  Stream.of(call.targetCall().toAction(this, resolverBundle)),
+                  Stream.of(call.targetCall().toAction(this)),
                   call.assertionsAsActCalls()
                       .stream()
-                      .map(each -> each.toAction(this, resolverBundle)))
+                      .map(each -> each.toAction(this)))
               .toList());
   }
   
@@ -147,11 +145,11 @@ public interface ActionComposer {
       }
       
       @Override
-      public Action create(SceneCall sceneCall, ResolverBundle resolverBundle) {
+      public Action create(SceneCall sceneCall) {
         var before = this.ongoingSceneCall;
         try {
           this.ongoingSceneCall = sceneCall;
-          return ActionComposer.super.create(sceneCall, resolverBundle);
+          return ActionComposer.super.create(sceneCall);
         } finally {
           this.ongoingSceneCall = before;
         }

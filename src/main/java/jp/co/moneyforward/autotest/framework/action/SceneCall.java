@@ -56,8 +56,8 @@ public final class SceneCall implements Call {
   
   
   @Override
-  public Action toAction(ActionComposer actionComposer, ResolverBundle ongoingResolverBundle) {
-    return actionComposer.create(this, ongoingResolverBundle);
+  public Action toAction(ActionComposer actionComposer) {
+    return actionComposer.create(this);
   }
   
   public Action begin() {

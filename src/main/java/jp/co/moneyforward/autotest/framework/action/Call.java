@@ -22,9 +22,8 @@ public sealed interface Call permits ActCall, CallDecorator, SceneCall {
    *
    * Each value in the `ongoingResolverBundle` is a function that resolves a value of a variable designated by a corresponding key.
    *
-   * @param actionComposer                     A visitor, which creates an action from this object.
-   * @param ongoingResolverBundle Resolvers to assign values to context variables referenced by a created action.
+   * @param actionComposer A visitor, which creates an action from this object.
    * @return An action created by `actionComposer`.
    */
-  Action toAction(ActionComposer actionComposer, ResolverBundle ongoingResolverBundle);
+  Action toAction(ActionComposer actionComposer);
 }

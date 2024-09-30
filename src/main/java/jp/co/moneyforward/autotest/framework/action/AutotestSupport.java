@@ -54,6 +54,15 @@ public enum AutotestSupport {
     return new AssertionCall<>(actCall(outputVariableName, act, inputVariableName), assertions);
   }
   
+  /**
+   * Returns a call that retries a given `call`.
+   *
+   * @param call        A call to be retried on a failure.
+   * @param onException An exception class on which `call` should be retried.
+   * @param times       Number of retried to be attempted.
+   * @param interval    Interval between tries.
+   * @return A call that retries a given `call`.
+   */
   public static RetryCall retryCall(Call call, Class<? extends Throwable> onException, int times, int interval) {
     return new RetryCall(call, onException, times, interval);
   }
