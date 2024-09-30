@@ -7,6 +7,7 @@ import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.framework.action.*;
 import jp.co.moneyforward.autotest.framework.action.AutotestSupport;
 import jp.co.moneyforward.autotest.framework.action.Resolver;
+import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import jp.co.moneyforward.autotest.ututils.ActUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
@@ -17,6 +18,7 @@ import java.util.function.Function;
 
 import static com.github.valid8j.fluent.Expectations.*;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
+import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.emptyResolverBundle;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.*;
 import static jp.co.moneyforward.autotest.ututils.ActionUtils.*;
 
@@ -42,7 +44,7 @@ public class VariablesTest extends TestBase {
                                 actCall("x", addToListAct(out), "x")));
     
     
-    Action action = AutotestSupport.sceneCall("output", scene, new ResolverBundle(List.of())).toAction(createActionComposer(), AutotestSupport.sceneCall("output", scene, new ResolverBundle(List.of())).variableResolverBundle());
+    Action action = AutotestSupport.sceneCall("output", scene, emptyResolverBundle()).toAction(createActionComposer(), AutotestSupport.sceneCall("output", scene, emptyResolverBundle()).variableResolverBundle());
     
     performAction(action, Writer.Std.OUT);
     
@@ -67,7 +69,7 @@ public class VariablesTest extends TestBase {
                   List.of(new Resolver("in", Resolver.valueFrom("SCENE1", "x"))))));
     
     
-    Action action = AutotestSupport.sceneCall("output", scene, new ResolverBundle(List.of())).toAction(createActionComposer(), AutotestSupport.sceneCall("output", scene, new ResolverBundle(List.of())).variableResolverBundle());
+    Action action = AutotestSupport.sceneCall("output", scene, emptyResolverBundle()).toAction(createActionComposer(), AutotestSupport.sceneCall("output", scene, emptyResolverBundle()).variableResolverBundle());
     
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
     actionPerformer.performAndReport(action, Writer.Std.OUT);
@@ -95,7 +97,7 @@ public class VariablesTest extends TestBase {
                                                                              .containing("Scott")), "in")),
                   List.of(new Resolver("in", Resolver.valueFrom("SCENE1", "x"))))));
     
-    Action action = AutotestSupport.sceneCall("OUT", scene, new ResolverBundle(List.of())).toAction(createActionComposer(), AutotestSupport.sceneCall("OUT", scene, new ResolverBundle(List.of())).variableResolverBundle());
+    Action action = AutotestSupport.sceneCall("OUT", scene, emptyResolverBundle()).toAction(createActionComposer(), AutotestSupport.sceneCall("OUT", scene, emptyResolverBundle()).variableResolverBundle());
     performAction(action, Writer.Std.OUT);
   }
   
@@ -166,6 +168,40 @@ public class VariablesTest extends TestBase {
         value(toList(out2.iterator())).toBe().notEmpty()
     );
   }
+  
+  @Test
+  void testRetryAction() {
+    class CustomException extends RuntimeException {
+    }
+    Act<String, String> passesOnSecondTry = new Act<>() {
+      int i = 0;
+      
+      @Override
+      public String perform(String value, ExecutionEnvironment executionEnvironment) {
+        if (i++ == 1)
+          return "pass";
+        throw new CustomException();
+      }
+    };
+    
+    LinkedList<String> out = new LinkedList<>();
+    Act<?, String> leaf = ActUtils.let("Scott Tiger");
+    Scene scene = scene(List.of(retryCall(actCall("x", passesOnSecondTry, "x"), CustomException.class, 1, 1)));
+    
+    Action action = AutotestSupport.sceneCall("output", scene, emptyResolverBundle())
+                                   .toAction(createActionComposer(),
+                                             AutotestSupport.sceneCall("output", scene, emptyResolverBundle()).variableResolverBundle());
+    
+    performAction(action, Writer.Std.OUT);
+    
+    assertStatement(value(out).elementAt(0)
+                              .asString()
+                              .toBe()
+                              .containing("HELLO")
+                              .containing("Scott Tiger"));
+    
+  }
+  
   
   @SafeVarargs
   private static HashMap<String, Function<Context, Object>> composeMapFrom(InternalUtils.Entry<String, Function<Context, Object>>... entries) {

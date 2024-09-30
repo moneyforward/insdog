@@ -9,18 +9,12 @@ import java.util.List;
 public enum ActUtils {
   ;
   
-  @SuppressWarnings("ClassEscapesDefinedScope")
   public static <T> Let<T> let(T value) {
     return new Let<>(value);
   }
   
-  @SuppressWarnings("ClassEscapesDefinedScope")
   public static Act<String, String> helloAct() {
     return name("helloAct", (value, executionEnvironment) -> "HELLO:" + value);
-  }
-  
-  public static Act<String, String> exclamationAct() {
-    return name("exclamationAct", (value, executionEnvironment) -> value + "!");
   }
   
   public static Act<String, String> printlnAct() {

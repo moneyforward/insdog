@@ -53,4 +53,8 @@ public enum AutotestSupport {
   public static <T, R> AssertionCall<R> assertionCall(String outputVariableName, Act<T, R> act, List<Function<R, Statement<R>>> assertions, String inputVariableName) {
     return new AssertionCall<>(actCall(outputVariableName, act, inputVariableName), assertions);
   }
+  
+  public static RetryCall retryCall(Call call, Class<? extends Throwable> onException, int times, int interval) {
+    return new RetryCall(call, onException, times, interval);
+  }
 }

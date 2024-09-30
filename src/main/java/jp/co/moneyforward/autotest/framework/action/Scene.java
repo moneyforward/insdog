@@ -187,7 +187,7 @@ public interface Scene {
     }
     
     public final Builder retry(Call call, int times, Class<? extends Throwable> onException, int interval) {
-      return this.addCall(new RetryCall(call, onException, times, interval));
+      return this.addCall(AutotestSupport.retryCall(call, onException, times, interval));
     }
     
     /**

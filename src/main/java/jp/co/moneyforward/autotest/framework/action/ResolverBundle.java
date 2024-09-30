@@ -23,4 +23,8 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
     }
     return resolverMap;
   }
+  
+  public static ResolverBundle emptyResolverBundle() {
+    return new ResolverBundle(List.of());
+  }
 }

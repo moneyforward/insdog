@@ -26,7 +26,7 @@ public record ActCall<T, R>(String outputVariableName, Act<T, R> act, String inp
   }
   
   @Override
-  public Action toAction(ActionComposer actionComposer, ResolverBundle resolverBundle) {
+  public Action toAction(ActionComposer actionComposer, ResolverBundle ongoingResolverBundle) {
     return actionComposer.create(this);
   }
   
