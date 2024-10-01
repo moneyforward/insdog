@@ -2,12 +2,11 @@ package jp.co.moneyforward.autotest.ut.framework.scene;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
-import com.github.valid8j.fluent.Expectations;
 import jp.co.moneyforward.autotest.framework.action.AutotestSupport;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.ResolverBundle;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
-import jp.co.moneyforward.autotest.framework.core.Resolver;
+import jp.co.moneyforward.autotest.framework.action.Resolver;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import jp.co.moneyforward.autotest.ututils.ActionUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
@@ -19,6 +18,7 @@ import java.util.List;
 
 import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.forms.Predicates.containsString;
+import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.actCall;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.helloAct;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.let;
 import static jp.co.moneyforward.autotest.ututils.ActionUtils.createActionComposer;
@@ -26,8 +26,8 @@ import static jp.co.moneyforward.autotest.ututils.ActionUtils.createActionCompos
 public class SceneTest extends TestBase {
   
   @Test
-  void whenChainActs() {
-    Scene scene = Scene.chainActs("testField", helloAct(), helloAct());
+  void whenSceneByChainingActs() {
+    Scene scene = Scene.fromActs("testField", helloAct(), helloAct());
     
     assertAll(value(scene).toBe().notNull(),
               value(scene.children()).size().toBe().equalTo(2));
@@ -39,10 +39,11 @@ public class SceneTest extends TestBase {
     
     
     List<String> out = new LinkedList<>();
+    final List<Resolver> in = List.of(new Resolver("in", c -> "Scott Tiger"));
     final jp.co.moneyforward.autotest.framework.action.SceneCall sceneCall = AutotestSupport.sceneCall("out",
                                                                                                        scene,
-                                                                                                       List.of(new Resolver("in", c -> "Scott Tiger")));
-    ActionUtils.performAction(createActionComposer().create(sceneCall, sceneCall.assignmentResolvers().orElseThrow()), createWriter(out));
+                                                                                                       new ResolverBundle(in));
+    ActionUtils.performAction(createActionComposer().create(sceneCall), createWriter(out));
     Assumptions.assumeFalse(false);
     assertStatement(value(out).toBe()
                               .containingElementsInOrder(List.of(containsString("BEGIN"),
@@ -51,16 +52,14 @@ public class SceneTest extends TestBase {
   
   @Test
   public void givenSceneWithSingleAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
-    Scene scene = new Scene.Builder("scene")
-        .add("out", helloAct(), "in")
-        .build();
+    Scene scene = new Scene.Builder("scene").add("out", helloAct(), "in").build();
     
     List<String> out = new LinkedList<>();
     Context context = Context.create();
-    final jp.co.moneyforward.autotest.framework.action.SceneCall sceneCall = AutotestSupport.sceneCall("OUT",
-                                                                                                       scene,
-                                                                                                       List.of(new Resolver("in", c -> "Scott Tiger")));
-    ActionUtils.performAction(createActionComposer().create(sceneCall, sceneCall.assignmentResolvers().orElseThrow()),
+    final var sceneCall = AutotestSupport.sceneCall("OUT",
+                                                    scene,
+                                                    new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
+    ActionUtils.performAction(createActionComposer().create(sceneCall),
                               context,
                               createWriter(out));
     assertAll(value(out).toBe()
@@ -75,8 +74,90 @@ public class SceneTest extends TestBase {
                             .containing("Scott Tiger"));
   }
   
+  
   @Test
-  public void givenSceneWithVariableReadingAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
+  void givenNestedScene_whenPerformed_thenActionTreeLooksCorrect() {
+    Scene scene = new Scene.Builder("scene")
+        .add(new Scene.Builder("inner").add("out", helloAct(), "in").build())
+        .build();
+    List<String> out = new LinkedList<>();
+    Context context = Context.create();
+    final var sceneCall = AutotestSupport.sceneCall("OUT",
+                                                    scene,
+                                                    new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
+    
+    ActionUtils.performAction(createActionComposer().create(sceneCall),
+                              context,
+                              createWriter(out));
+    
+    assertAll(value(out).toBe()
+                        .containingElementsInOrder(List.of(containsString("BEGIN"),
+                                                           containsString("helloAct"),
+                                                           containsString("END"))),
+              value(context).invoke("valueOf", "OUT")
+                            .invoke("get", "out")
+                            .asString()
+                            .toBe()
+                            .containing("HELLO")
+                            .containing("Scott Tiger"));
+  }
+  
+  @Test
+  void givenDoubleNestedScene_whenPerformed_thenActionTreeLooksCorrect() {
+    Scene scene = new Scene.Builder("scene")
+        .add(new Scene.Builder("inner1").add(new Scene.Builder("inner").add("out", helloAct(), "in").build()).build())
+        .build();
+    List<String> out = new LinkedList<>();
+    Context context = Context.create();
+    final var sceneCall = AutotestSupport.sceneCall("OUT",
+                                                    scene,
+                                                    new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
+    
+    ActionUtils.performAction(createActionComposer().create(sceneCall),
+                              context,
+                              createWriter(out));
+    
+    assertAll(value(out).toBe()
+                        .containingElementsInOrder(List.of(containsString("BEGIN"),
+                                                           containsString("helloAct"),
+                                                           containsString("END"))),
+              value(context).invoke("valueOf", "OUT")
+                            .invoke("get", "out")
+                            .asString()
+                            .toBe()
+                            .containing("HELLO")
+                            .containing("Scott Tiger"));
+  }
+  
+  @Test
+  void givenNestedSceneWithRetry_whenPerformed_thenActionTreeLooksCorrect() {
+    Scene scene = new Scene.Builder("scene")
+        .add(new Scene.Builder("inner").retry(actCall("out", helloAct(), "in")).build())
+        .build();
+    List<String> out = new LinkedList<>();
+    Context context = Context.create();
+    final var sceneCall = AutotestSupport.sceneCall("OUT",
+                                                    scene,
+                                                    new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
+    
+    ActionUtils.performAction(createActionComposer().create(sceneCall),
+                              context,
+                              createWriter(out));
+    
+    assertAll(value(out).toBe()
+                        .containingElementsInOrder(List.of(containsString("BEGIN"),
+                                                           containsString("helloAct"),
+                                                           containsString("END"))),
+              value(context).invoke("valueOf", "OUT")
+                            .invoke("get", "out")
+                            .asString()
+                            .toBe()
+                            .containing("HELLO")
+                            .containing("Scott Tiger"));
+  }
+  
+  @Test
+  void givenSceneWithVariableReadingAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
     Scene scene = new Scene.Builder("scene")
         .add("in", let("Scott Tiger"), "in")
         .add("out", helloAct(), "in")
@@ -86,9 +167,7 @@ public class SceneTest extends TestBase {
     List<String> out = new LinkedList<>();
     ActionUtils.performAction(createActionComposer().create(AutotestSupport.sceneCall("out",
                                                                                       scene,
-                                                                                      List.of()), AutotestSupport.sceneCall("out",
-                                                                                                                            scene,
-                                                                                                                            List.of()).assignmentResolvers().orElseThrow()),
+                                                                                      new ResolverBundle(List.of()))),
                               createWriter(out));
     assertStatement(value(out).toBe()
                               .containingElementsInOrder(List.of(containsString("BEGIN"),
@@ -97,54 +176,16 @@ public class SceneTest extends TestBase {
                                                                  containsString("END"))));
   }
   
-  
   @Test
-  public void givenSceneWithVariableReadingActPassingAssertionAppended_whenToActionExecuted_thenActionTreeThatPassesIfPerformed() {
+  void givenSceneWithVariableReadingAct_whenOutputVariableNames_thenOutputVariableNamesReturned() {
     Scene scene = new Scene.Builder("scene")
-        .add("out", let("John Doe"), "in")
-        .add("out",
-             helloAct().assertion(x -> value(x).toBe().equalTo("HELLO:John Doe"))
-                       .assertion(x -> value(x).toBe().containing("HELLO")),
-             "out")
+        .add("in", let("Scott Tiger"), "in")
+        .add("out", helloAct(), "in")
         .build();
     
+    List<String> out = scene.outputVariableNames();
     
-    List<String> out = new LinkedList<>();
-    ActionUtils.performAction(createActionComposer().create(AutotestSupport.sceneCall("out",
-                                                                                      scene,
-                                                                                      List.of()), AutotestSupport.sceneCall("out",
-                                                                                                                            scene,
-                                                                                                                            List.of()).assignmentResolvers().orElseThrow()),
-                              createWriter(out));
-    assertStatement(value(out).toBe()
-                              .containingElementsInOrder(List.of(containsString("BEGIN"),
-                                                                 containsString("let"),
-                                                                 containsString("helloAct"),
-                                                                 containsString("assertion").and(containsString("stringIsEqualTo")),
-                                                                 containsString("assertion").and(containsString("containsString")),
-                                                                 containsString("END"))));
-  }
-  
-  @Test
-  public void givenSceneWithVariableReadingActFailingAssertionAppended_whenToActionExecuted_thenActionTreeThatPassesIfPerformed() {
-    Scene scene = new Scene.Builder("scene")
-        .add("out", let("John Doe"), "in")
-        .add("out", helloAct().assertion(x -> value(x).toBe().equalTo("HELLO:Scott Tiger")), "in")
-        .build();
-    
-    
-    List<String> out = new LinkedList<>();
-    final jp.co.moneyforward.autotest.framework.action.SceneCall sceneCall = AutotestSupport.sceneCall("out",
-                                                                                                       scene,
-                                                                                                       List.of(new Resolver("in", c -> "Scott Tiger")));
-    ActionUtils.performAction(createActionComposer().create(sceneCall, sceneCall.assignmentResolvers().orElseThrow()),
-                              createWriter(out));
-    assertStatement(value(out).toBe()
-                              .containingElementsInOrder(List.of(containsString("BEGIN"),
-                                                                 containsString("let"),
-                                                                 containsString("helloAct"),
-                                                                 containsString("assertion"),
-                                                                 containsString("END"))));
+    assertStatement(value(out).toBe().equalTo(List.of("in", "out")));
   }
   
   public static ExecutionEnvironment createExecutionEnvironment() {

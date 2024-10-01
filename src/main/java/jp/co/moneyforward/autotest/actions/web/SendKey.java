@@ -3,7 +3,7 @@ package jp.co.moneyforward.autotest.actions.web;
 import com.github.valid8j.pcond.forms.Printables;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import java.util.function.Function;
@@ -19,7 +19,7 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
  * This feature is useful for secret strings to be sent to elements, but not to be printed such as passwords.
  *
  */
-public class SendKey implements LeafAct<Page, Page> {
+public class SendKey implements Act<Page, Page> {
   /**
    * A prefix to control a
    */
@@ -71,7 +71,7 @@ public class SendKey implements LeafAct<Page, Page> {
   @Override
   public String name() {
     String keys = keySequenceGenerator.get();
-    return LeafAct.super.name() + "[" + locatorFunction + "][" +
+    return Act.super.name() + "[" + locatorFunction + "][" +
         (keys.startsWith(MASK_PREFIX) ? MASK_PREFIX
                                       : keys) + "]";
   }

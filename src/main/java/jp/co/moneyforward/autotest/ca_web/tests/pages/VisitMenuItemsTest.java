@@ -62,10 +62,11 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   public static final String SELECTOR_FOR_BREADCRUMBS = "ul.ca-tab-large li.active a";
   public static final String SELECTOR_FOR_ACTIVE_SIMPLE_AUTOMATIC_JOURNAL_ENTRY_LINK = "ul.ca-tab li.active a[data-tab='simple']";
   public static final String SELECTOR_FOR_ACTIVE_COMPOUND_AUTOMATIC_JOURNAL_ENTRY_LINK = "ul.ca-tab li.active a[data-tab='compound']";
+  public static final String JS_SIDEBAR_OPENER = "#js-sidebar-opener";
   
   @Named
   @DependsOn("login")
-  public static Scene toHome() {
+  public Scene toHome() {
     return new Scene.Builder("page")
         .add(new Navigate(executionProfile().homeUrl()))
         .build();
@@ -73,7 +74,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("自動で仕訳_連携サービスから入力")
   @DependsOn("login")
-  public static Scene enterJournalAutomatically_fromLinkedService() {
+  public Scene enterJournalAutomaticallyFromLinkedService() {
     return new Scene.Builder("page")
         .with(
            /*
@@ -82,9 +83,9 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
              ,自動で仕訳_連携サービスから入力_通常・カード他,,load_action_file,visit.csv,,,"menu: 自動で仕訳, function: 連携サービスから入力"
              ,assert,,assert_text,ul[class='ca-tab-large'] li[class='active'] a,,eq,通帳・カード他
             */
-            b -> b.add(new Click(locatorByText("自動で仕訳")))
+            b -> b.add(new Click(locatorForEnteringJournalAutomatically()))
                   .add(new Click(linkLocatorByName("連携サービスから入力")))
-                  .assertion((Page p) -> value(p).function(locatorBySelector(SELECTOR_FOR_BREADCRUMBS))
+                  .assertion((Page p) -> value(p).function(locatorForBreadcrumbs())
                                                  .function(textContent())
                                                  .toBe()
                                                  .equalTo("通帳・カード他")))
@@ -136,9 +137,9 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("自動で仕訳_請求書から入力")
   @DependsOn("login")
-  public static Scene enterJournalAutomatically_fromInvoice() {
+  public Scene enterJournalAutomaticallyFromInvoice() {
     return new Scene.Builder("page")
-        .with(b -> b.add(new Click(locatorByText("自動で仕訳")))
+        .with(b -> b.add(new Click(locatorForEnteringJournalAutomatically()))
                     .add(new Click(linkLocatorByText("請求書から入力")))
                     .assertion((Page p) -> pageTitleIsEqualTo(p, "請求書から入力｜マネーフォワード クラウド会計")))
         .build();
@@ -151,9 +152,9 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("自動で仕訳_経費・債務支払いから入力")
   @DependsOn("login")
-  public static Scene enterJournalAutomatically_fromExpenseDebtPayment() {
+  public Scene enterJournalAutomaticallyFromExpenseDebtPayment() {
     return new Scene.Builder("page")
-        .with(b -> b.add(new Click(locatorByText("自動で仕訳")))
+        .with(b -> b.add(new Click(locatorForEnteringJournalAutomatically()))
                     .add(new Click(linkLocatorByText("経費・債務支払から入力")))
                     .assertion((Page p) -> pageTitleIsEqualTo(p, "経費・債務支払から入力｜マネーフォワード クラウド会計")))
         .build();
@@ -166,9 +167,9 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("自動で仕訳_給与から入力")
   @DependsOn("login")
-  public static Scene enterJournalAutomatically_fromSalaryPayment() {
+  public Scene enterJournalAutomaticallyFromSalaryPayment() {
     return new Scene.Builder("page")
-        .with(b -> b.add(new Click(locatorByText("自動で仕訳")))
+        .with(b -> b.add(new Click(locatorForEnteringJournalAutomatically()))
                     .add(new Click(linkLocatorByText("給与から入力")))
                     .assertion((Page p) -> pageTitleIsEqualTo(p, "給与から入力｜マネーフォワード クラウド会計")))
         .build();
@@ -180,7 +181,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("手動で仕訳_振替伝票入力")
   @DependsOn("login")
-  public static Scene enterJournalManually_fromTransferSlip() {
+  public Scene enterJournalManuallyFromTransferSlip() {
     return new Scene.Builder("page")
         .with(b -> b.add(new Click(locatorByText("手動で仕訳")))
                     .add(new Click(locatorBySelector("#js-ca-main-contents").andThen(byText("振替伝票入力"))))
@@ -194,7 +195,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("手動で仕訳_簡単入力")
   @DependsOn("login")
-  public static Scene enterJournalManually_withEasyInput() {
+  public Scene enterJournalManuallyWithEasyInput() {
     return new Scene.Builder("page")
         .with(b -> b.add(new Click(locatorByText("手動で仕訳")))
                     .add(new Click(linkLocatorByName("簡単入力")))
@@ -208,7 +209,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("手動で仕訳_仕訳帳入力")
   @DependsOn("login")
-  public static Scene enterJournalManually_fromJournalBook() {
+  public Scene enterJournalManuallyFromJournalBook() {
     return new Scene.Builder("page")
         .with(b -> b.add(new Click(locatorByText("手動で仕訳")))
                     .add(new Click(linkLocatorByName("仕訳帳入力")))
@@ -245,7 +246,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("手動で仕訳_取引から入力")
   @DependsOn("login")
-  public static Scene enterJournalManually_fromTransaction_Income() {
+  public Scene enterJournalManuallyFromTransactionIncome() {
     return new Scene.Builder("page")
         // 1. 手動で仕訳_取引から入力_収入
         .with(b -> b.add(new Click(locatorByText("手動で仕訳")))
@@ -269,7 +270,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
                                                    .equalTo("収入ルール")))
         // 4. 取引から入力に戻る -> 手動で仕訳_取引から入力_支出
         .with(b -> b.add(new Click(locatorBySelector("#js-ca-main-contents > div.ca-table-header > div > a")))
-                    .add(new Click(locatorBySelector(selectorForLargeTab()).andThen(byText("支出"))))
+                    .add(new Click(locatorForLargeTab().andThen(byText("支出"))))
                     .assertion((Page p) -> value(p).function(locatorForActiveLargeTab())
                                                    .function(textContent()).toBe().equalTo("支出")))
         // 5. 手動で仕訳_取引から入力_支出_支出先の設定
@@ -284,10 +285,6 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
         .build();
   }
   
-  private static Function<Page, Locator> locatorForActiveLargeTab() {
-    return locatorBySelector(selectorForActiveLargeTab());
-  }
-  
   /**
    * ,取引管理_債務管理,,load_action_file,visit.csv,,,"menu: 取引管理, function: 債務管理"
    * ,,,sleep,,,,1
@@ -295,7 +292,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("取引管理_債務管理")
   @DependsOn("login")
-  public static Scene transactionManagement_debtManagement() {
+  public Scene transactionManagementDebtManagement() {
     return new Scene.Builder("page")
         .add(new Click(locatorByText("取引管理")))
         .add(new Click(linkLocatorByText("債務管理")))
@@ -309,7 +306,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("会計帳簿_総勘定元帳_新形式(β)")
   @DependsOn("login")
-  public static Scene whenOpenGeneralLedgersUrlAndClickNewFormatBeta_thenPageLoadedAndNewFormatActivated() {
+  public Scene whenOpenGeneralLedgersUrlAndClickNewFormatBetaThenPageLoadedAndNewFormatActivated() {
     return new Scene.Builder("page")
         .add(new Navigate(executionProfile().generalLedgersUrl()))
         .assertion((Page p) -> value(p).function(toTitle())
@@ -324,7 +321,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("会計帳簿_総勘定元帳_旧形式")
   @DependsOn("login")
-  public static Scene whenOpenGeneralLedgersUrlAndClickOldFormat_thenOldFormatActivated() {
+  public Scene whenOpenGeneralLedgersUrlAndClickOldFormatThenOldFormatActivated() {
     return new Scene.Builder("page")
         .add(new Navigate(executionProfile().generalLedgersUrl()))
         .add(new Click(locatorByText("旧形式")))
@@ -340,7 +337,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("会計帳簿_補助元帳_新形式(β)")
   @DependsOn("login")
-  public static Scene whenOpenSubsidiaryLedgersUrlAndClickNewFormatBeta_thenPageLoadedAndNewFormatActivated() {
+  public Scene whenOpenSubsidiaryLedgersUrlAndClickNewFormatBetaThenPageLoadedAndNewFormatActivated() {
     return new Scene.Builder("page")
         .add(new Navigate(executionProfile().subsidiaryLedgersUrl()))
         .assertion((Page p) -> value(p).function(toTitle())
@@ -355,7 +352,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("会計帳簿_残高試算表_貸借対照表")
   @DependsOn("login")
-  public static Scene accountingBooks_trialBalance_balanceSheet() {
+  public Scene accountingBooksTrialBalanceInBalanceSheet() {
     return new Scene.Builder("page")
         .add(new Click(locatorByText("会計帳簿")))
         .add(new Click(linkLocatorByText("残高試算表")))
@@ -375,7 +372,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("会計帳簿_残高試算表_損益計算書")
   @DependsOn("login")
-  public static Scene accountingBooks_trialBalance_incomeStatementSheet() {
+  public Scene accountingBooksTrialBalanceIncomeStatementSheet() {
     return new Scene.Builder("page")
         .add(new Click(locatorByText("会計帳簿")))
         .add(new Click(linkLocatorByText("残高試算表")))
@@ -405,7 +402,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("会計帳簿_貸借対照表_推移表")
   @DependsOn("login")
-  public static Scene accountingBooks_transition() {
+  public Scene accountingBooksTransition() {
     return new Scene.Builder("page")
         .with(b -> b.add(new Click(locatorByText("会計帳簿")))
                     .add(new Click(linkLocatorByText("推移表")))
@@ -446,7 +443,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
    */
   @Named("会計帳簿_帳簿管理")
   @DependsOn("login")
-  public static Scene accountingBooks_booksSetting() {
+  public Scene accountingBooksBooksSetting() {
     return new Scene.Builder("page")
         .with(b -> b.add(new Click(locatorByText("会計帳簿")))
                     .add(new Click(linkLocatorByText("帳簿管理")))
@@ -461,7 +458,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("レポート_キャッシュフロー")
   @DependsOn("login")
-  public static Scene visitReportItems_cashFlow() {
+  public Scene visitReportItemsCashFlow() {
     return new Scene.Builder("page")
         /*
           ,レポート_キャッシュフローレポート,,load_action_file,visit.csv,,,"menu: レポート, function: キャッシュフローレポート"
@@ -475,7 +472,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("レポート_収益内訳")
   @DependsOn("login")
-  public static Scene visitReportItems_incomeBreakDown() {
+  public Scene visitReportItemsIncomeBreakDown() {
     return new Scene.Builder("page")
         /*
          ,レポート_収益レポート_収益内訳,,load_action_file,visit.csv,,,"menu: レポート, function: 収益レポート"
@@ -521,7 +518,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("レポート_費用レポート")
   @DependsOn("login")
-  public static Scene visitReportItems_expenseReport() {
+  public Scene visitReportItemsExpenseReport() {
     return new Scene.Builder("page")
         // ,レポート_費用レポート_費用内訳,,load_action_file,visit.csv,,,"menu: レポート, function: 費用レポート"
         // ,assert,,assert_title,,,eq,費用レポート｜マネーフォワード クラウド会計
@@ -587,7 +584,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("レポート_その他")
   @DependsOn("login")
-  public static Scene visitReportItems_misc() {
+  public Scene visitReportItemsMisc() {
     return new Scene.Builder("page")
         /*
           ,レポート_収入先レポート,,load_action_file,visit.csv,,,"menu: レポート, function: 収入先レポート"
@@ -657,7 +654,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("レポート_収益詳細")
   @DependsOn("login")
-  public static Scene visitReportItems_incomeDetail() {
+  public Scene visitReportItemsIncomeDetail() {
     return new Scene.Builder("page")
         /*
           ,レポート_キャッシュフローレポート,,load_action_file,visit.csv,,,"menu: レポート, function: キャッシュフローレポート"
@@ -703,7 +700,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("決算・申告")
   @DependsOn("login")
-  public static Scene visitSettlementAndDeclaration() {
+  public Scene visitSettlementAndDeclaration() {
     return new Scene.Builder("page")
         /*
           ,決算・申告_固定資産台帳_固定資産の一覧,,load_action_file,visit.csv,,,"menu: 決算・申告, function: 固定資産台帳"
@@ -815,7 +812,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("データ連携")
   @DependsOn("login")
-  public static Scene visitDataLinkItems() {
+  public Scene visitDataLinkItems() {
     return new Scene.Builder("page")
         /*
           ,データ連携_新規登録,,load_action_file,visit.csv,,,"menu: データ連携, function: 新規登録"
@@ -824,7 +821,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
           ,モーダル閉じ待ち,,sleep,,,,1.8
           ,assert,,assert_title,,,eq,新規登録｜マネーフォワード クラウド会計
          */
-        .with(b -> b.add(new Click(locatorBySelector("#js-sidebar-opener").andThen(byText("データ連携"))))
+        .with(b -> b.add(new Click(locatorBySelector(JS_SIDEBAR_OPENER).andThen(byText("データ連携"))))
                     .add(new Click(locatorBySelector("#js-ca-main-contents").andThen(byText("新規登録"))))
                     .assertion((Page p) -> pageTitleIsEqualTo(p, "新規登録｜マネーフォワード クラウド会計")))
         /*
@@ -833,7 +830,7 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
           ,データ連携_登録済一覧_連携サービスの選択,,click,#js-ca-main-contents div > a,text,eq,連携サービスの選択
           ,assert,,assert_text,#js-ca-main-contents > div.ca-general-container.mf-mb10,,match,.*で使用する連携サービスを選択してください。.*
          */
-        .with(b -> b.add(new Click(locatorBySelector("#js-sidebar-opener").andThen(byText("データ連携"))))
+        .with(b -> b.add(new Click(locatorBySelector(JS_SIDEBAR_OPENER).andThen(byText("データ連携"))))
                     .add(new Click(linkLocatorByName("登録済一覧")))
                     .assertion((Page p) -> pageTitleIsEqualTo(p, "登録済一覧｜マネーフォワード クラウド会計")))
         /*
@@ -850,28 +847,26 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   
   @Named("各種設定")
   @DependsOn("login")
-  public static Scene settingsItems() {
+  public Scene settingsItems() {
     return new Scene.Builder("page")
         /*
               ,各種設定_事業者,,load_action_file,visit.csv,,,"menu: 各種設定, function: 事業者"
               ,assert,,assert_title,,,eq,事業者｜マネーフォワード クラウド会計
          */
-        .with(
-            b -> clickMenuItemThenChild(b, "各種設定", "事業者")
-                .assertion((Page p) -> pageTitleIsEqualTo(p, "事業者｜マネーフォワード クラウド会計")))
+        .with(b -> clickMenuItemThenChild(b, "各種設定", "事業者")
+            .assertion((Page p) -> pageTitleIsEqualTo(p, "事業者｜マネーフォワード クラウド会計")))
         /*
               ,各種設定_開始残高,,load_action_file,visit.csv,,,"menu: 各種設定, function: 開始残高"
               ,assert,,assert_title,,,eq,開始残高｜マネーフォワード クラウド会計
               ,assert,,assert_text,ul[class='ca-tab-large'] li[class='active'] a,,eq,開始残高
          */
-        .with(
-            b -> clickMenuItemThenChild(b, "各種設定", "開始残高")
-                .assertion((Page p) -> pageTitleIsEqualTo(p, "開始残高｜マネーフォワード クラウド会計"))
-                .assertion((Page p) -> value(p).function(locatorForActiveLargeTab())
-                                               .function(textContent())
-                                               .asString()
-                                               .toBe()
-                                               .equalTo("開始残高")))
+        .with(b -> clickMenuItemThenChild(b, "各種設定", "開始残高")
+            .assertion((Page p) -> pageTitleIsEqualTo(p, "開始残高｜マネーフォワード クラウド会計"))
+            .assertion((Page p) -> value(p).function(locatorForActiveLargeTab())
+                                           .function(textContent())
+                                           .asString()
+                                           .toBe()
+                                           .equalTo("開始残高")))
         /*
               ,各種設定_開始残高_部門別開始残高,,click,ul[class='ca-tab-large'] li a,text,eq,部門別開始残高
               ,assert,,assert_title,,,eq,開始残高｜マネーフォワード クラウド会計
@@ -888,14 +883,13 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
               ,各種設定_勘定科目_通常入力用_貸借対照表,,load_action_file,visit.csv,,,"menu: 各種設定, function: 勘定科目"
               ,assert,,assert_text,div[class='ca-navigation-container-large'] li[class='active'] a,,eq,通常入力用
         */
-        .with(
-            b -> clickMenuItemThenChild(b, "各種設定", "勘定科目")
-                .assertion((Page p) -> pageTitleIsEqualTo(p, "勘定科目｜マネーフォワード クラウド会計"))
-                .assertion((Page p) -> value(p).function(locatorForActiveLargeTab())
-                                               .function(textContent())
-                                               .asString()
-                                               .toBe()
-                                               .equalTo("通常入力用")))
+        .with(b -> clickMenuItemThenChild(b, "各種設定", "勘定科目")
+            .assertion((Page p) -> pageTitleIsEqualTo(p, "勘定科目｜マネーフォワード クラウド会計"))
+            .assertion((Page p) -> value(p).function(locatorForActiveLargeTab())
+                                           .function(textContent())
+                                           .asString()
+                                           .toBe()
+                                           .equalTo("通常入力用")))
         /*
               ,各種設定_勘定科目_通常入力用_損益計算書,,click,ul[class='ca-tab-in-tab-large pull-left'] li a,text,eq,損益計算書
               ,assert,,assert_text,div[class='ca-navigation-container-large'] li[class='active'] a,,eq,通常入力用
@@ -1058,10 +1052,6 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
         .build();
   }
   
-  private static Function<Page, Locator> locatorForLargeTab() {
-    return locatorBySelector(selectorForLargeTab());
-  }
-  
   private static String selectorForLargeTab() {
     return "ul[class='ca-tab-large'] li a";
   }
@@ -1069,13 +1059,13 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
   /**
    * This might be unified with {@link jp.co.moneyforward.autotest.ca_web.accessmodels.CawebUtils#navigateToMenuItemUnderSidebarItem(String, String)}.
    *
-   * @param b A builder for a `Scene`.
+   * @param b            A builder for a `Scene`.
    * @param sideMenuItem A side menu item.
-   * @param childItem A child of `sideMenuitem`.
+   * @param childItem    A child of `sideMenuitem`.
    * @return A builder `b` for a scene.
    */
   private static Scene.Builder clickMenuItemThenChild(Scene.Builder b, String sideMenuItem, String childItem) {
-    return b.add(new Click(locatorBySelector("#js-sidebar-opener").andThen(byText(sideMenuItem))))
+    return b.add(new Click(locatorBySelector(JS_SIDEBAR_OPENER).andThen(byText(sideMenuItem))))
             .add(new Click(linkLocatorByName(childItem, false)));
   }
   
@@ -1085,6 +1075,27 @@ public class VisitMenuItemsTest extends CawebAccessingModel {
                    .equalTo(expectedPageTitle);
   }
   
+  /**
+   * Returns a function that figures out a locator for "自動で仕訳".
+   *
+   * @return A function that gives a locator for "自動で仕訳" from a given page.
+   */
+  private static Function<Page, Locator> locatorForEnteringJournalAutomatically() {
+    return locatorByText("自動で仕訳");
+  }
+  
+  
+  private static Function<Page, Locator> locatorForBreadcrumbs() {
+    return locatorBySelector(SELECTOR_FOR_BREADCRUMBS);
+  }
+  
+  private static Function<Page, Locator> locatorForLargeTab() {
+    return locatorBySelector(selectorForLargeTab());
+  }
+  
+  private static Function<Page, Locator> locatorForActiveLargeTab() {
+    return locatorBySelector(selectorForActiveLargeTab());
+  }
   
   private static String selectorForBookTab(String bookName) {
     return "ul[class*='js-book-tab-menu'] a[data-activate-tab-content='" + bookName + "']";

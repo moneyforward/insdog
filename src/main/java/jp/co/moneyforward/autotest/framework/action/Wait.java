@@ -13,7 +13,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @param <T> The type of the variable to handle.
  */
-public class Wait<T> implements LeafAct<T, T> {
+public class Wait<T> implements Act<T, T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(Wait.class);
   private final int time;
   private final TimeUnit unit;

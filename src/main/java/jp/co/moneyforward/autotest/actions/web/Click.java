@@ -9,6 +9,9 @@ import java.util.function.Function;
 
 /**
  * An act that models a user behavior, which clicks a specified element.
+ *
+ *
+ *
  */
 public class Click extends ClickBase {
   /**

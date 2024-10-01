@@ -7,13 +7,13 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.retry;
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.valid8j.Requires.requireNonNull;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
 
 /**
@@ -27,82 +27,116 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
  * Calls for scenes (`Scene`) and calls for acts (`Act`).
  * Corresponding to the subclasses of `Act`, there are subcategories of it, which are `LeafAct`, `AssertionAct`, and `PipelinedAct`.
  *
+ * In this interface, there are `create(XyzCall xyzCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall)` methods defined.
+ *
+ * `assignmentResolversFromCurrentCall` is a map from a variable name to a function which resolves its value from the
+ * ongoing context object.
+ * By relying on this object for resolving variable values referenced inside `Act` objects (, which are held by `Calls`), we can define `Act` objects
+ * work in different variable spaces without changing code (transparent to variable space name, which is determined by a call's object name).
+ *
  * @see Call
  * @see Scene
  * @see Act
- * @see ActionFactory
  */
 public interface ActionComposer {
+  /**
+   * A logger object
+   */
   Logger LOGGER = LoggerFactory.getLogger(ActionComposer.class);
   
-  Optional<SceneCall> currentSceneCall();
+  /**
+   * Returns currently ongoing `SceneCall` object.
+   *
+   * @return Currently ongoing `SceneCall` object.
+   */
+  SceneCall ongoingSceneCall();
   
+  /**
+   * Returns an execution environment in which actions created by this composer objects are performed.
+   *
+   * @return An execution environment.
+   */
   ExecutionEnvironment executionEnvironment();
   
-  default Action create(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
-    return sequential(concat(Stream.of(sceneCall.begin(assignmentResolversFromCurrentCall)),
-                             Stream.of(sceneCall.toSequentialAction(assignmentResolversFromCurrentCall, this)),
+  /**
+   * Creates an action for a given `SceneCall` object.
+   *
+   * @param sceneCall A scene call from which an action should be created.
+   * @return A sequential action created from `sceneCall`.
+   */
+  default Action create(SceneCall sceneCall) {
+    return sequential(concat(Stream.of(sceneCall.begin()),
+                             Stream.of(sceneCall.targetScene().toSequentialAction(this)),
                              Stream.of(sceneCall.end()))
                           .toList());
   }
   
-  default Action create(AssertionActCall<?, ?> call, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+  default Action create(RetryCall retryCall) {
+    return retry(retryCall.targetCall().toAction(this))
+        .times(retryCall.times())
+        .on(retryCall.onException())
+        .withIntervalOf(retryCall.interval(), retryCall.intervalUnit())
+        .$();
+  }
+  
+  default Action create(AssertionCall<?> call) {
     return sequential(
         Stream.concat(
-                  Stream.of(call.target().toAction(this, assignmentResolversFromCurrentCall)),
-                  call.assertionAsLeafActCalls()
+                  Stream.of(call.targetCall().toAction(this)),
+                  call.assertionsAsActCalls()
                       .stream()
-                      .map(each -> each.toAction(this, assignmentResolversFromCurrentCall)))
+                      .map(each -> each.toAction(this)))
               .toList());
   }
   
-  default Action create(LeafActCall<?, ?> actCall) {
-    SceneCall currentSceneCall = this.currentSceneCall().orElseThrow();
+  default Action create(ActCall<?, ?> actCall) {
+    SceneCall ongoingSceneCall = ongoingSceneCall();
     
-    return InternalUtils.action(actCall.act().name() + "[" + actCall.inputFieldName() + "]",
-                                toContextConsumerFromAct(currentSceneCall,
+    return InternalUtils.action(actCall.act().name() + "[" + actCall.inputVariableName() + "]",
+                                toContextConsumerFromAct(ongoingSceneCall,
                                                          actCall,
                                                          this.executionEnvironment()));
   }
   
-  private static <T, R> Consumer<Context> toContextConsumerFromAct(SceneCall currentSceneCall,
-                                                                   LeafActCall<T, R> actCall,
+  private static <T, R> Consumer<Context> toContextConsumerFromAct(SceneCall ongoingSceneCall,
+                                                                   ActCall<T, R> actCall,
                                                                    ExecutionEnvironment executionEnvironment) {
-    return toContextConsumerFromAct(c -> actCall.inputFieldValue(currentSceneCall, c),
+    return toContextConsumerFromAct(c -> actCall.resolveVariable(ongoingSceneCall, c),
                                     actCall.act(),
-                                    actCall.outputFieldName(),
-                                    currentSceneCall,
+                                    actCall.outputVariableName(),
+                                    ongoingSceneCall,
                                     executionEnvironment);
   }
   
-  private static <T, R> Consumer<Context> toContextConsumerFromAct(Function<Context, T> inputFieldValueResolver,
-                                                                   LeafAct<T, R> act,
-                                                                   String outputFieldName,
-                                                                   SceneCall currentSceneCall,
+  private static <T, R> Consumer<Context> toContextConsumerFromAct(Function<Context, T> inputVariableResolver,
+                                                                   Act<T, R> act,
+                                                                   String outputVariableName,
+                                                                   SceneCall ongoingSceneCall,
                                                                    ExecutionEnvironment executionEnvironment) {
     return c -> {
-      LOGGER.debug("ENTERING: {}:{}", currentSceneCall.scene.name(), act.name());
+      String targetSceneName = ongoingSceneCall.targetScene().name();
+      String actName = act.name();
+      LOGGER.debug("ENTERING: {}:{}", targetSceneName, actName);
       try {
-        var v = act.perform(inputFieldValueResolver.apply(c),
-                            executionEnvironment);
-        currentSceneCall.workArea(c).put(outputFieldName, v);
+        var v = act.perform(inputVariableResolver.apply(c), executionEnvironment);
+        ongoingSceneCall.workingVariableStore(c).put(outputVariableName, v);
       } catch (Error | RuntimeException e) {
         LOGGER.error(e.getMessage());
         LOGGER.debug(e.getMessage(), e);
         throw e;
       } finally {
-        LOGGER.debug("LEAVING:  {}:{}", currentSceneCall.scene.name(), act.name());
+        LOGGER.debug("LEAVING:  {}:{}", targetSceneName, actName);
       }
     };
   }
   
   static ActionComposer createActionComposer(final ExecutionEnvironment executionEnvironment) {
     return new ActionComposer() {
-      SceneCall currentSceneCall = null;
+      SceneCall ongoingSceneCall = null;
       
       @Override
-      public Optional<SceneCall> currentSceneCall() {
-        return Optional.ofNullable(currentSceneCall);
+      public SceneCall ongoingSceneCall() {
+        return requireNonNull(ongoingSceneCall);
       }
       
       @Override
@@ -111,13 +145,13 @@ public interface ActionComposer {
       }
       
       @Override
-      public Action create(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
-        var before = currentSceneCall;
+      public Action create(SceneCall sceneCall) {
+        var before = this.ongoingSceneCall;
         try {
-          currentSceneCall = sceneCall;
-          return ActionComposer.super.create(sceneCall, assignmentResolversFromCurrentCall);
+          this.ongoingSceneCall = sceneCall;
+          return ActionComposer.super.create(sceneCall);
         } finally {
-          currentSceneCall = before;
+          this.ongoingSceneCall = before;
         }
       }
     };

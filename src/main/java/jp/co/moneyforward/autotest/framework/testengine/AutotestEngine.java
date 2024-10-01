@@ -4,12 +4,13 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.framework.action.ActionComposer;
+import jp.co.moneyforward.autotest.framework.action.ResolverBundle;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.action.SceneCall;
 import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
-import jp.co.moneyforward.autotest.framework.core.Resolver;
+import jp.co.moneyforward.autotest.framework.action.Resolver;
 import jp.co.moneyforward.autotest.framework.exceptions.MethodInvocationException;
 import jp.co.moneyforward.autotest.framework.utils.Valid8JCliches.MakePrintable;
 import org.apache.logging.log4j.Level;
@@ -406,14 +407,12 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   private static List<Entry<String, Action>> toActions(Map<String, SceneCall> sceneCallMap, ActionComposer actionComposer, List<String> sceneNames) {
     return sceneNames.stream()
                      .filter(sceneCallMap::containsKey)
-                     .map((String each) -> new Entry<>(each,
-                                                       toAction(sceneCallMap.get(each),
-                                                                actionComposer)))
+                     .map((String each) -> new Entry<>(each, toAction(sceneCallMap.get(each), actionComposer)))
                      .toList();
   }
   
   private static Action toAction(SceneCall currentSceneCall, ActionComposer actionComposer) {
-    return actionComposer.create(currentSceneCall, currentSceneCall.assignmentResolvers().orElseThrow());
+    return actionComposer.create(currentSceneCall);
   }
   
   private static ExecutionEnvironment createExecutionEnvironment(ExtensionContext extensionContext) {
@@ -493,7 +492,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   private static SceneCall methodToSceneCall(Class<?> accessModelClass, Method method, AutotestRunner runner) {
     return sceneCall(nameOf(method),
                      createSceneFromMethod(method, runner),
-                     variableResolversFor(accessModelClass, method));
+                     new ResolverBundle(variableResolversFor(accessModelClass, method)));
   }
   
   private static Scene createSceneFromMethod(Method method, AutotestRunner runner) {
@@ -504,6 +503,16 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     }
   }
   
+  /**
+   * Creates resolvers (`Resolver`) for a scene call associated with a scene returned by `method`.
+   *
+   * Either `@DependsOn` or `@When` annotations attached to `method` tells the framework that methods which it depends on.
+   * This method scans `@Export` attached to those methods to figure out variables available to the `method`.
+   *
+   * @param accessModelClass An access model class to which method belongs.
+   * @param method           A method that returns a `Scene` object.
+   * @return A list of resolvers that a scene returned by `method` requires.
+   */
   private static List<Resolver> variableResolversFor(Class<?> accessModelClass, Method method) {
     return Stream.concat(variableResolversFor(method,
                                               accessModelClass,
@@ -516,6 +525,17 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                  .toList();
   }
   
+  /**
+   * Creates variable resolvers for a scene created from a method `m`.
+   *
+   * The scene created by `m` will be called "scene `m`" in this description, hereafter.
+   *
+   * @param m                         A method to create a scene, for which resolvers are created.
+   * @param accessModelClass          An access model class that defines a set of scene creating methods, on which `m` potentially depends.
+   * @param dependencyAnnotationClass Annotation class which holds dependency scenes.
+   * @param dependenciesResolver      A function that returns names of scenes on which scene `m` depends.
+   * @return Resolvers for a scene created by `m`.
+   */
   private static List<Resolver> variableResolversFor(Method m,
                                                      Class<?> accessModelClass,
                                                      Class<? extends Annotation> dependencyAnnotationClass,
@@ -526,12 +546,20 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                 dependencySceneName -> exportedVariablesOf(accessModelClass, dependencySceneName));
   }
   
-  private static List<Resolver> variableResolversFor(String[] dependencySceneNames,
+  /**
+   * Returns `Resolver`s for variables exported by scenes specified by `sceneNames`.
+   * A resolver in the list returns a value of a variable defined in a scene that exports it with the same name.
+   *
+   * @param sceneNames        Names of `Scene`s.
+   * @param exportedVariables A function that returns a list of export variables for a scene specified as a parameter.
+   * @return `Resolver`s for variables exported by specified scenes.
+   */
+  private static List<Resolver> variableResolversFor(String[] sceneNames,
                                                      Function<String, List<String>> exportedVariables) {
-    return Arrays.stream(dependencySceneNames)
-                 .flatMap((String dependencySceneName) -> exportedVariables.apply(dependencySceneName).stream()
-                                                                           .map(e -> Resolver.resolverFor(dependencySceneName,
-                                                                                                          e)))
+    return Arrays.stream(sceneNames)
+                 .flatMap((String sceneName) -> exportedVariables.apply(sceneName)
+                                                                 .stream()
+                                                                 .map((String n) -> Resolver.resolverFor(sceneName, n)))
                  .toList();
   }
   

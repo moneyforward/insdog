@@ -6,7 +6,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import jp.co.moneyforward.autotest.actions.web.PageAct;
 import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.Export;
@@ -21,12 +21,12 @@ public class CawebTermAccessingModel extends CawebAccessingModel {
   @Export({"page", "officeName"})
   public static Scene createOffice() {
     String officeName = executionProfile().officeName();
-    LeafAct<Page, Page>[] acts = new LeafAct[]{
+    Act<Page, Page>[] acts = new Act[]{
         navigateToTermSelection(),
         createOfficeViaNavis(officeName, executionProfile().userDisplayName())};
     Scene.Builder builder = new Scene.Builder("page");
-    builder.add("officeName", new LeafAct.Func<>((Function<Page, String>) page -> officeName), "page");
-    for (LeafAct<Page, Page> act : acts) {
+    builder.add("officeName", new Act.Func<>((Function<Page, String>) page -> officeName), "page");
+    for (Act<Page, Page> act : acts) {
       builder.add(act);
     }
     return builder.build();

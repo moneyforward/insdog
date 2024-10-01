@@ -1,7 +1,7 @@
 package jp.co.moneyforward.autotest.actions.web;
 
 import com.microsoft.playwright.Page;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 /**
@@ -11,7 +11,7 @@ import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
  *
  * @see ExecutionEnvironment#testOutputFilenameFor(String)
  */
-public class Screenshot implements LeafAct<Page, Page> {
+public class Screenshot implements Act<Page, Page> {
   /**
    * Creates an instance of this class.
    */

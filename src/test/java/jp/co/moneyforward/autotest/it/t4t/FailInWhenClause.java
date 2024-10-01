@@ -1,7 +1,7 @@
 package jp.co.moneyforward.autotest.it.t4t;
 
 import jp.co.moneyforward.autotest.ca_web.tests.selftest.SelfTest;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.annotations.Export;
@@ -33,8 +33,8 @@ public class FailInWhenClause extends SelfTest {
         })).build();
   }
   
-  private static LeafAct.Source<Object> createAct(final String name, final Supplier<String> action) {
-    return new LeafAct.Source<>() {
+  private static Act.Source<Object> createAct(final String name, final Supplier<String> action) {
+    return new Act.Source<>() {
       @Override
       protected Object value() {
         return action.get();

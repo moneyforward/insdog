@@ -3,7 +3,6 @@ package jp.co.moneyforward.autotest.ca_web.tests.term;
 import com.microsoft.playwright.Dialog;
 import com.microsoft.playwright.Page;
 import jp.co.moneyforward.autotest.actions.web.PageAct;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
@@ -53,7 +52,7 @@ public class OfficeDeletion extends CawebTermAccessingModel {
   @Named
   @When("deleteOffice")
   public static Scene thenOfficeDeleted() {
-    return InternalUtils.chainActs("page", new PageAct("Check if office removal message becomes visible") {
+    return Scene.fromActs("page", new PageAct("Check if office removal message becomes visible") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         page.getByText("事業者の退会が完了しました").waitFor();
