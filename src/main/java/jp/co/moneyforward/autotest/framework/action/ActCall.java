@@ -1,57 +1,47 @@
 package jp.co.moneyforward.autotest.framework.action;
 
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 
-import static com.github.valid8j.classic.Requires.requireNonNull;
+import static com.github.dakusui.valid8j.Requires.requireNonNull;
 
 /**
  * An act that models a call to a form, such as a function or an assertion.
  *
  * @param <T> Type input parameter
  */
-public abstract class ActCall<T> implements Call {
-  private final String inputFieldName;
-  private final String outputFieldName;
-  
+public record ActCall<T, R>(String outputVariableName, Act<T, R> act, String inputVariableName) implements Call {
   /**
    * Creates an instance of this class.
    *
-   * @param inputFieldName A name of a field for input.
-   * @param outputFieldName A name of a field for output.
+   * @param act                An act to be called.
+   * @param outputVariableName A name of a field for output.
+   * @param inputVariableName  A name of a field for input.
+   * @see Act
    */
-  protected ActCall(String inputFieldName, String outputFieldName) {
-    this.inputFieldName = requireNonNull(inputFieldName);
-    this.outputFieldName = requireNonNull(outputFieldName);
+  public ActCall(String outputVariableName, Act<T, R> act, String inputVariableName) {
+    this.inputVariableName = requireNonNull(inputVariableName);
+    this.outputVariableName = requireNonNull(outputVariableName);
+    this.act = requireNonNull(act);
+  }
+  
+  @Override
+  public Action toAction(ActionComposer actionComposer) {
+    return actionComposer.create(this);
   }
   
   /**
-   * Returns an input field name of this call.
+   * Returns an input variable's value for this `ActCall` object.
    *
-   * @return An input field name of this call.
-   */
-  String inputFieldName() {
-    return this.inputFieldName;
-  }
-  
-  /**
-   * Returns an input field's value of the `sceneCall`.
+   * This method is a shorthand of ```sceneCall.workingVariableStore(context).get(inputVariableName())```.
    *
-   * @param sceneCall A `sceneCall` whose input field value is returned.
+   * @param sceneCall An ongoing `sceneCall` to which this `ActCall` object belongs.
    * @param context   A context, in which the `sceneCall` 's input field value is resolved.
    * @return A value of an input field name of a `sceneCall`.
+   * @see ActCall#resolveVariable(SceneCall, Context)
    */
   @SuppressWarnings("unchecked")
-  T inputFieldValue(SceneCall sceneCall, Context context) {
-    return (T) sceneCall.workArea(context).get(inputFieldName());
-  }
-  
-  /**
-   * Returns a name of a field for output.
-   *
-   * @return A name of a field for output.
-   */
-  @Override
-  public String outputFieldName() {
-    return this.outputFieldName;
+  T resolveVariable(SceneCall sceneCall, Context context) {
+    return (T) sceneCall.workingVariableStore(context).get(inputVariableName());
   }
 }

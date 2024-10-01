@@ -1,7 +1,7 @@
 package jp.co.moneyforward.autotest.actions.web;
 
 import com.microsoft.playwright.Page;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
@@ -10,7 +10,7 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
  * A general-purpose act.
  * Convenient starting point for writing **autotest-ca** based tests.
  */
-public abstract class PageAct implements LeafAct<Page, Page> {
+public abstract class PageAct implements Act<Page, Page> {
   private final String description;
   
   /**

@@ -39,7 +39,7 @@ public class TermChange extends CawebTermAccessingModel {
   @Named
   @When("changeToPreviousTerm")
   public static Scene thenChangedToPreviousTerm() {
-    return Scene.chainActs("page", new PageAct("changeToPreviousTerm") {
+    return Scene.fromActs("page", new PageAct("changeToPreviousTerm") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         assertThat(page.getByText("前期に移動しました")).isVisible();
@@ -59,7 +59,7 @@ public class TermChange extends CawebTermAccessingModel {
   @Named
   @When("changeToNextTerm")
   public static Scene thenChangedToNextTerm() {
-    return Scene.chainActs("page", new PageAct("changeToPreviousTerm") {
+    return Scene.fromActs("page", new PageAct("changeToPreviousTerm") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         assertThat(page.getByText("事業者・年度を切替えました")).isVisible();

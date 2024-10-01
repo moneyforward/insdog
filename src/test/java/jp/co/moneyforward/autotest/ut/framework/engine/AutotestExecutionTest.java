@@ -13,32 +13,47 @@ import static com.github.valid8j.fluent.Expectations.assertStatement;
 import static com.github.valid8j.fluent.Expectations.value;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class AutotestExecutionTest extends TestBase {
+class AutotestExecutionTest extends TestBase {
   @Test
   void givenEmptyProperties_whenLoaderDefault() {
-    AutotestExecution.Spec spec = new AutotestExecution.Spec.Loader.Default().load(baseSpec(), new Properties());
+    AutotestExecution.Spec spec = loadSpecOverridingByProperties(new Properties());
     
-    assertStatement(value(specToString(spec)).toBe()
-                                             .containing("BEFORE_ALL:[]")
-                                             .containing("BEFORE_EACH:[]")
-                                             .containing("TESTS:[]")
-                                             .containing("AFTER_EACH:[]")
-                                             .containing("AFTER_ALL:[]"));
+    assertThatStagesOfSpecAreAllEmpty(spec);
+  }
+  
+  @Test
+  void givenPropertiesWithResolveDependenciesSetToTrue_whenLoaderDefault() {
+    AutotestExecution.Spec spec = loadSpecOverridingByProperties(new Properties() {{
+      put("jp.co.moneyforward.autotest.resolveDependencies", "true");
+    }});
+    
+    assertThatStagesOfSpecAreAllEmpty(spec);
+  }
+  
+  @Test
+  void givenPropertiesWithResolveDependenciesSetToFalse_whenLoaderDefault() {
+    AutotestExecution.Spec spec = loadSpecOverridingByProperties(new Properties() {{
+      put("jp.co.moneyforward.autotest.resolveDependencies", "false");
+    }});
+    
+    assertThatStagesOfSpecAreAllEmpty(spec);
   }
   
   @Test
   void givenValidNonEmptyProperties_whenLoaderDefault() {
-    Properties properties = new Properties();
-    properties.put(
-        "jp.co.moneyforward.autotest.scenes",
-        "inline:" +
-            "beforeAll=open;" +
-            "beforeEach=login;" +
-            "value=test1,test2;" +
-            "afterEach=logout,logout;" +
-            "afterAll=");
     
-    AutotestExecution.Spec spec = new AutotestExecution.Spec.Loader.Default().load(baseSpec(), properties);
+    AutotestExecution.Spec spec = loadSpecOverridingByProperties(new Properties() {
+      {
+        this.put(
+            "jp.co.moneyforward.autotest.scenes",
+            "inline:" +
+                "beforeAll=open;" +
+                "beforeEach=login;" +
+                "value=test1,test2;" +
+                "afterEach=logout,logout;" +
+                "afterAll=");
+      }
+    });
     
     assertStatement(value(specToString(spec)).toBe()
                                              .containing("BEFORE_ALL:[open]")
@@ -60,7 +75,7 @@ public class AutotestExecutionTest extends TestBase {
     assertThrows(IllegalArgumentException.class,
                  () -> {
                    try {
-                     new AutotestExecution.Spec.Loader.Default().load(baseSpec(), properties);
+                     loadSpecOverridingByProperties(properties);
                    } catch (IllegalArgumentException e) {
                      assertStatement(value(e.getMessage()).toBe()
                                                           .containing("Unknown stage name")
@@ -70,6 +85,19 @@ public class AutotestExecutionTest extends TestBase {
                      throw e;
                    }
                  });
+  }
+  
+  private static AutotestExecution.Spec loadSpecOverridingByProperties(Properties properties) {
+    return new AutotestExecution.Spec.Loader.Default().load(baseSpec(), properties);
+  }
+  
+  private static void assertThatStagesOfSpecAreAllEmpty(AutotestExecution.Spec spec) {
+    assertStatement(value(specToString(spec)).toBe()
+                                             .containing("BEFORE_ALL:[]")
+                                             .containing("BEFORE_EACH:[]")
+                                             .containing("TESTS:[]")
+                                             .containing("AFTER_EACH:[]")
+                                             .containing("AFTER_ALL:[]"));
   }
   
   private static String specToString(AutotestExecution.Spec spec) {

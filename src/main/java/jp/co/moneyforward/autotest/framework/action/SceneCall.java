@@ -6,93 +6,90 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
-public class SceneCall implements Call {
-  final Scene scene;
-  final Map<String, Function<Context, Object>> assignmentResolvers;
-  private final String outputFieldName;
+/**
+ * A class to model a "call" to a `Scene`.
+ */
+public final class SceneCall implements Call {
+  private final Scene scene;
+  private final ResolverBundle variableResolverBundle;
+  private final String outputVariableStoreName;
   
-  
-  public SceneCall(String outputFieldName, Scene scene, Map<String, Function<Context, Object>> assignmentResolvers) {
-    this.outputFieldName = requireNonNull(outputFieldName);
+  public SceneCall(String outputVariableStoreName, Scene scene, ResolverBundle resolverBundle) {
+    this.outputVariableStoreName = requireNonNull(outputVariableStoreName);
     this.scene = requireNonNull(scene);
-    this.assignmentResolvers = requireNonNull(assignmentResolvers);
+    this.variableResolverBundle = requireNonNull(resolverBundle);
   }
   
-  public SceneCall(Scene scene) {
-    this.outputFieldName = null;
-    this.scene = requireNonNull(scene);
-    this.assignmentResolvers = null;
+  /**
+   * Returns a `Scene` object targeted by this call.
+   *
+   * @return A `Scene` object.
+   */
+  public Scene targetScene() {
+    return this.scene;
   }
   
-  Action toSequentialAction(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall, ActionComposer actionComposer) {
-    return this.scene.toSequentialAction(assignmentResolversFromCurrentCall, actionComposer);
+  public String outputVariableStoreName() {
+    return this.outputVariableStoreName;
   }
   
-  String workAreaName() {
-    return "work-" + objectId();
+  public static String workingVariableStoreNameFor(String objectId) {
+    return "work-" + objectId;
   }
   
-  Map<String, Object> initializeWorkArea(Context context, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
-    var ret = new HashMap<String, Object>();
-    assignmentResolvers().orElse(assignmentResolversFromCurrentCall)
-                         .forEach((k, r) -> ret.put(k, r.apply(context)));
-    return ret;
+  public ResolverBundle variableResolverBundle() {
+    return variableResolverBundle;
   }
   
-  public Optional<Map<String, Function<Context, Object>>> assignmentResolvers() {
-    return Optional.ofNullable(assignmentResolvers);
+  /**
+   * Returns currently ongoing working variable store.
+   *
+   * @param context A context in which this call is being executed.
+   * @return A currently ongoing working variable store.
+   */
+  public Map<String, Object> workingVariableStore(Context context) {
+    return context.valueOf(workingVariableStoreNameFor(this.targetScene().oid()));
   }
   
-  Map<String, Object> workArea(Context context) {
-    return context.valueOf(workAreaName());
-  }
-  
-  String objectId() {
-    return scene.name() + ":" + System.identityHashCode(scene);
-  }
   
   @Override
-  public String outputFieldName() {
-    return requireNonNull(this.outputFieldName);
+  public Action toAction(ActionComposer actionComposer) {
+    return actionComposer.create(this);
   }
   
-  @Override
-  public Action toAction(ActionComposer actionComposer, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
-    return actionComposer.create(this, assignmentResolversFromCurrentCall);
-  }
-  
-  public Action begin(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
-    return beginSceneCall(this, assignmentResolversFromCurrentCall);
+  public Action begin() {
+    return beginSceneCall(this);
   }
   
   public Action end() {
-    if (this.outputFieldName != null)
-      return endSceneCall(this);
-    return endSceneCallDismissingOutput(this);
+    return endSceneCall(this);
   }
   
-  private static Action beginSceneCall(SceneCall sceneCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall) {
+ 
+  private static Action beginSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
-                                c -> c.assignTo(sceneCall.workAreaName(),
-                                                sceneCall.initializeWorkArea(c,
-                                                                             assignmentResolversFromCurrentCall)));
+                                c -> c.assignTo(workingVariableStoreNameFor(sceneCall.targetScene().oid()),
+                                                createWorkingVariableStore(sceneCall, c)));
   }
   
+  private static Map<String, Object> createWorkingVariableStore(SceneCall sceneCall,
+                                                                Context context) {
+    var ret = new HashMap<String, Object>();
+    sceneCall.variableResolverBundle()
+             .forEach((k, r) -> ret.put(k, r.apply(context)));
+    return ret;
+  }
+
+  /*
+   * Copies the map stored as "work area" to `outputFieldName` variable.
+   */
   private static Action endSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("END@" + sceneCall.scene.name(), c -> {
-      c.assignTo(sceneCall.outputFieldName(), c.valueOf(sceneCall.workAreaName()));
-      c.unassign(sceneCall.workAreaName());
-    });
-  }
-  
-  private static Action endSceneCallDismissingOutput(SceneCall sceneCall) {
-    return InternalUtils.action("END[dismissingOutput]@" + sceneCall.scene.name(), c -> {
+      c.assignTo(sceneCall.outputVariableStoreName(), c.valueOf(workingVariableStoreNameFor(sceneCall.targetScene().oid())));
+      c.unassign(workingVariableStoreNameFor(sceneCall.targetScene().oid()));
     });
   }
 }

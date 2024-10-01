@@ -1,18 +1,21 @@
 package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.actions.web.Value;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
+import static java.util.Arrays.asList;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.simpleClassNameOf;
 
 /**
  * An interface that represents a reusable unit of an action in autotest-ca's programming model.
@@ -20,17 +23,31 @@ import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
  *
  * Note that `Scene` uses the same map for both input and output.
  */
-public interface Scene extends ActionFactory {
-  static Scene chainActs(String fieldName, LeafAct<?, ?>... acts) {
-    Scene.Builder b = new Builder(fieldName);
-    for (LeafAct<?, ?> act : acts) {
+public interface Scene {
+  /**
+   * Creates a scene by chaining acts.
+   *
+   * @param variableName A variable chained acts read input value from and write output value to.
+   * @param acts         Acts from which a scene is created.
+   * @return Created scene.
+   */
+  static Scene fromActs(String variableName, Act<?, ?>... acts) {
+    Scene.Builder b = new Builder(variableName);
+    for (Act<?, ?> act : acts) {
       b.add(act);
     }
     return b.build();
   }
   
-  default Action toSequentialAction(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall, ActionComposer actionComposer) {
-    return sequential(toActions(assignmentResolversFromCurrentCall, actionComposer));
+  /**
+   * Creates a sequential action from the child calls of this object
+   *
+   * @param actionComposer A visitor that builds a sequential action from child calls of this object.
+   * @return A sequential action created from child calls
+   * @see Scene#children()
+   */
+  default Action toSequentialAction(ActionComposer actionComposer) {
+    return sequential(toActions(actionComposer));
   }
   
   /**
@@ -40,9 +57,61 @@ public interface Scene extends ActionFactory {
    */
   List<Call> children();
   
-  private List<Action> toActions(Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall, ActionComposer actionComposer) {
+  /**
+   * Returns an object identifier of this object.
+   *
+   * @return An object identifier of this object.
+   */
+  String oid();
+  
+  /**
+   * Returns a name of this object.
+   * The returned string will appear in an action tree printed during the action execution.
+   *
+   * @return A name of this object.
+   */
+  default String name() {
+    return simpleClassNameOf(this.getClass());
+  }
+  
+  /**
+   * Returns a list of variables that are assigned by child scenes of this object.
+   *
+   * @return A list of variables that are assigned by child scenes of this object.
+   */
+  default List<String> outputVariableNames() {
+    return this.children()
+               .stream()
+               .flatMap(Scene::outputVariableNamesOf)
+               .toList();
+  }
+  
+  default List<String> inputVariableNames() {
+    return this.children()
+               .stream()
+               .flatMap(Scene::inputVariableNamesOf)
+               .toList();
+  }
+  
+  private static Stream<String> outputVariableNamesOf(Call call) {
+    return switch (call) {
+      case SceneCall sceneCall -> sceneCall.targetScene().outputVariableNames().stream();
+      case ActCall<?, ?> actCall -> Stream.of(actCall.outputVariableName());
+      case CallDecorator<?> callDecorator -> outputVariableNamesOf(callDecorator.targetCall());
+    };
+  }
+  
+  private static Stream<String> inputVariableNamesOf(Call call) {
+    return switch (call) {
+      case SceneCall sceneCall -> sceneCall.targetScene().inputVariableNames().stream();
+      case ActCall<?, ?> actCall -> Stream.of(actCall.inputVariableName());
+      case CallDecorator<?> callDecorator -> inputVariableNamesOf(callDecorator.targetCall());
+    };
+  }
+  
+  private List<Action> toActions(ActionComposer actionComposer) {
     return children().stream()
-                     .map((Call each) -> each.toAction(actionComposer, assignmentResolversFromCurrentCall))
+                     .map((Call each) -> each.toAction(actionComposer))
                      .flatMap(InternalUtils::flattenIfSequential)
                      .toList();
   }
@@ -53,110 +122,201 @@ public interface Scene extends ActionFactory {
    * @see Scene
    */
   class Builder {
-    final String defaultFieldName;
+    final String defaultVariableName;
     private final List<Call> children = new LinkedList<>();
     
     /**
      * Creates an instance of this class.
      *
-     * @param defaultFieldName A name of field used when use `add` methods without explicit input/output target field names.
+     * @param defaultVariableName A name of field used when use `add` methods without explicit input/output target field names.
      */
-    public Builder(String defaultFieldName) {
-      this.defaultFieldName = requireNonNull(defaultFieldName);
+    public Builder(String defaultVariableName) {
+      this.defaultVariableName = requireNonNull(defaultVariableName);
     }
     
+    /**
+     * A "syntax-sugar" method to group a sequence of method calls to this `Builder` object.
+     *
+     * That is, you can do:
+     *
+     * ```java
+     * new SceneBuilder.with(b -> b.add(...)
+     * .add(...)
+     * .add(...))
+     * .build();
+     * ```
+     *
+     * Note that the operator `op` is supposed to return `this` object.
+     *
+     * @param op A unary operator that groups operator on this object.
+     * @return This object returned by `op`.
+     */
     public final Builder with(UnaryOperator<Builder> op) {
       return op.apply(this);
     }
     
-    
     /**
-     * Adds `leafAct` to this builder.
+     * Adds an `Act` to this builder.
      * `defaultFieldName` is used for both input and output.
      * Note that in case `T` and `R` are different, the field will have a different type after `leafAct` execution from the value before it is executed.
      *
-     * @param leafAct An act object to be added to this builder.
-     * @param <T>     Type of input parameter field.
-     * @param <R>     Type of output parameter field.
+     * @param act An act object to be added to this builder.
+     * @param <T> Type of input parameter field.
+     * @param <R> Type of output parameter field.
      * @return This object.
      */
-    public final <T, R> Builder add(LeafAct<T, R> leafAct) {
-      return this.add(defaultFieldName, leafAct, defaultFieldName);
+    public final <T, R> Builder add(Act<T, R> act) {
+      return this.add(defaultVariableName, act, defaultVariableName);
     }
     
-    public final <T, R> Builder add(LeafAct<T, R> leafAct, String inputFieldName) {
-      return this.add(defaultFieldName, leafAct, inputFieldName);
+    public final <T, R> Builder add(String outputVariableName, Act<T, R> act) {
+      return this.add(outputVariableName, act, defaultVariableName);
     }
     
-    public final <T, R> Builder add(String outputFieldName, LeafAct<T, R> leafAct) {
-      return this.add(outputFieldName, leafAct, defaultFieldName);
+    public final <T, R> Builder add(String outputVariableName, Act<T, R> act, String inputVariableName) {
+      return this.addCall(actCall(outputVariableName, act, inputVariableName));
     }
     
-    public final <T, R> Builder add(String outputFieldName, LeafAct<T, R> leafAct, String inputFieldName) {
-      return this.addCall(leafCall(outputFieldName, leafAct, inputFieldName));
-    }
-    
-    public final <T, R> Builder add(AssertionAct<T, R> assertionAct) {
-      return this.add(defaultFieldName, assertionAct, defaultFieldName);
-    }
-    
-    public final <T, R> Builder add(AssertionAct<T, R> assertionAct, String inputFieldName) {
-      return this.add(defaultFieldName, assertionAct, inputFieldName);
-    }
-    
-    public final <T, R> Builder add(String outputFieldName, AssertionAct<T, R> assertionAct) {
-      return this.add(outputFieldName, assertionAct, defaultFieldName);
-    }
-    
-    public final <T, R> Builder add(String outputFieldName, AssertionAct<T, R> assertionAct, String inputFieldName) {
-      return this.addCall(assertionCall(outputFieldName, assertionAct.parent(), assertionAct.assertions(), inputFieldName));
-    }
-    
+    @SuppressWarnings("unchecked")
     public final <R> Builder assertion(Function<R, Statement<R>> assertion) {
-      return this.assertion(defaultFieldName, assertion, defaultFieldName);
+      return this.assertions(defaultVariableName, assertion);
     }
     
-    public final <R> Builder assertion(Function<R, Statement<R>> assertionAct, String inputFieldName) {
-      return this.assertion(defaultFieldName, assertionAct, inputFieldName);
+    @SuppressWarnings("unchecked")
+    public final <R> Builder assertions(Function<R, Statement<R>>... assertions) {
+      return this.assertions(defaultVariableName, assertions);
     }
     
-    public final <R> Builder assertion(String outputFieldName, Function<R, Statement<R>> assertionAct) {
-      return this.assertion(outputFieldName, assertionAct, defaultFieldName);
+    /**
+     * Returns an `AssertionAct` object that verifies a variable in a currently ongoing scene call's variable store.
+     * The variable in the store is specified by  `inputFieldName`.
+     * This method is implemented as:
+     *
+     * `this.addCall(assertionCall(variableName, new Value<>(), singletonList(assertionAct), variableName))`,
+     * where `Value` is a trivial act which just copies its input variable to an output variable.
+     *
+     * @param <R>          Type of the variable specified by `inputVariableName`.
+     * @param variableName A name of an input variable to be verified.
+     * @param assertions   An assertion function
+     * @return This object
+     */
+    @SuppressWarnings("unchecked")
+    public final <R> Builder assertions(String variableName, Function<R, Statement<R>>... assertions) {
+      return this.addCall(assertionCall(variableName, new Value<>(), asList(assertions), variableName));
     }
     
-    public final <R> Builder assertion(String outputFieldName, Function<R, Statement<R>> assertionAct, String inputFieldName) {
-      return this.addCall(assertionCall(outputFieldName, new Value<>(), Collections.singletonList(assertionAct), inputFieldName));
-    }
-    
+    /**
+     * Adds a given `scene` to this builder object.
+     * A call to the `scene` will be created (a `SceneCall` object), and it will be a child of the scene that this builder builds.
+     *
+     * The child call will use the working variable store of the parent scene (i.e., a scene built by this builder) as its input variable store.
+     * With this mechanism, the child can reference the values of the
+     *
+     * @param scene A scene to be added.
+     * @return This object,
+     */
     public final Builder add(Scene scene) {
-      return this.addCall(sceneCall(scene));
+      return this.addCall(AutotestSupport.sceneCall(SceneCall.workingVariableStoreNameFor(this.oid()), scene));
     }
     
+    /**
+     * Adds a call that retries a given `call`.
+     * The call retries given `times` on a failure designated by a class `onException`.
+     * An interval between tries will be `interval` seconds.
+     *
+     * Note that `times` means number of "RE"-tries.
+     * If you give 1, it will be retried once after `interval` seconds, if the first try fails.
+     *
+     * @param call        A call to be retried
+     * @param times       Number of retries at maximum.
+     * @param onException An exception class on which retries should be attempted.
+     * @param interval    Interval between tries.
+     * @return A call that retries a given `call`.
+     */
+    public final Builder retry(Call call, int times, Class<? extends Throwable> onException, int interval) {
+      return this.addCall(AutotestSupport.retryCall(call, times, onException, interval));
+    }
+    
+    /**
+     * This method is implemented as a shorthand for `this.retry(call, times, onException, 5)`.
+     *
+     * @param call  A call to be retried
+     * @param times How many times `call` should be retried until it succeeds.
+     * @return This object
+     */
+    public final Builder retry(Call call, int times, Class<? extends Throwable> onException) {
+      return retry(call, times, onException, 5);
+    }
+    
+    /**
+     * This method is implemented as a shorthand for `this.retry(call, times, RuntimeException.class)`.
+     *
+     * @param call  A call to be retried
+     * @param times How many times `call` should be retried until it succeeds.
+     * @return This object
+     */
+    public final Builder retry(Call call, int times) {
+      return retry(call, times, RuntimeException.class);
+    }
+    
+    /**
+     * This method is implemented as a shorthand for `this.retry(call, 2)`.
+     *
+     * @param call A call object to be added.
+     * @return This object.
+     */
+    public final Builder retry(Call call) {
+      return retry(call, 2);
+    }
+    
+    /**
+     * Adds a call to this object as a child.
+     * You need to ensure that requirements of `call` are satisfied in the context it will be run by yourself.
+     *
+     * For instance, if the call is a `SceneCall`, the variable store from which it reads needs to be prepared beforehand by one of preceding calls.
+     *
+     * @param call A `Call` object to be added.
+     * @return This object.
+     */
     public Builder addCall(Call call) {
       this.children.add(call);
       return this;
     }
     
+    /**
+     * Builds a `Scene` object.
+     *
+     * @return A `Scene` object.
+     */
     public Scene build() {
       return new Scene() {
+        private final List<Call> children = Builder.this.children;
+        private final String oid = Builder.this.oid();
+        
         @Override
         public List<Call> children() {
-          return Builder.this.children;
+          return children;
+        }
+        
+        @Override
+        public String oid() {
+          return oid;
         }
         
         @Override
         public String toString() {
-          return name() + "@" + System.identityHashCode(this);
+          return name() + "@" + oid();
         }
         
         @Override
         public String name() {
-          return "Scene[" + defaultFieldName + "]";
+          return Scene.super.name() + "[" + defaultVariableName + "]";
         }
       };
     }
-  }
-  
-  record ParameterAssignment(String formalName, String sourceSceneName, String fieldNameInSourceScene) {
+    
+    private String oid() {
+      return "id-" + System.identityHashCode(this);
+    }
   }
 }

@@ -3,9 +3,9 @@ package jp.co.moneyforward.autotest.framework.utils;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.valid8j.pcond.forms.Predicates;
+import com.github.dakusui.osynth.core.utils.MethodUtils;
 import com.github.valid8j.pcond.forms.Printables;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.AutotestException;
 import org.eclipse.jgit.lib.Repository;
@@ -16,9 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -108,15 +106,10 @@ public enum InternalUtils {
     return new File(".");
   }
   
-  @SafeVarargs
-  public static <T> Scene chainActs(String variableName, LeafAct<T, T>... acts) {
-    Scene.Builder builder = new Scene.Builder(variableName);
-    for (LeafAct<T, T> act : acts) {
-      builder = builder.add(act);
-    }
-    return builder.build();
+  public static String simpleClassNameOf(Class<?> clazz) {
+    return MethodUtils.simpleClassNameOf(clazz);
   }
-  
+
   public static Stream<Action> flattenIfSequential(Action a) {
     return a instanceof Composite composite && !composite.isParallel() ? ((Composite) a).children().stream()
                                                                        : Stream.of(a);

@@ -18,7 +18,7 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
  * In such a case, you can use functions provided by `LocatorFunctions` in combination.
  *
  * ```
- *   new Click(PageFunctions.locatorBySelector("#js-sidebar-opener").andThen(LocatorFunctions.byText(sideMenuItem)))
+ * new Click(PageFunctions.locatorBySelector("#js-sidebar-opener").andThen(LocatorFunctions.byText(sideMenuItem)))
  * ```
  *
  * This is an example to find a locator, which is specified by a text `sideMenuItem` under a locator specified by a selector
@@ -34,7 +34,6 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
  * `SelectionMethod` can be `Name`, `Text`, `Label`, `Selector`, etc.
  *
  * Functions returned by methods in this class can be pretty printed on a call of `toString` method call.
- *
  *
  * @see LocatorFunctions
  */
@@ -56,7 +55,7 @@ public enum PageFunctions {
   /**
    * Returns a function that resolves a given `name` to a locator of a link whose name matches with it.
    *
-   * @param name A name of a link locator to be matched.
+   * @param name    A name of a link locator to be matched.
    * @param lenient `true` - partial match / `false` - exact match.
    * @return A function that resolves a given `name` to a locator of a link whose name matches with it.
    */
@@ -85,7 +84,7 @@ public enum PageFunctions {
    *
    * ```Page#GetByText(text, new Page.GetByTextOptions().setExact(!lenient)```
    *
-   * @param text A text to be matched.
+   * @param text    A text to be matched.
    * @param lenient `true` - lenient / `false` - strict.
    * @return A function that resolves a locator which matches `text` in a given `Page` object.
    */
@@ -128,7 +127,7 @@ public enum PageFunctions {
    * If `lenient`is set to `true`, a locator whose label contains `label` will be considered matched.
    * If it is `false`, a locator whose label is equal to `label` will be considered matched.
    *
-   * @param label A string to be matched with a label of a locator.
+   * @param label   A string to be matched with a label of a locator.
    * @param lenient `true` - lenient / `false` - strict.
    * @return a function that resolves a locator whose label matches with `label` in a given `Page`.
    */
@@ -151,6 +150,7 @@ public enum PageFunctions {
   
   /**
    * Returns a function that resolves a locator specified by `selector` in a given `Page`.
+   *
    * @param selector A selector string that specifies a locator.
    * @return A function that resolves a locator specified by `selector` in a given `Page`.
    */
@@ -188,7 +188,7 @@ public enum PageFunctions {
     return Printables.function("title", Page::title);
   }
   
-  private static Function<Page, Locator> linkLocatorByText(String text, boolean lenient) {
+  public static Function<Page, Locator> linkLocatorByText(String text, boolean lenient) {
     return Printables.function("link:@[text" + (lenient ? "~" : "=") + text + "]",
                                p -> p.getByRole(AriaRole.LINK,
                                                 new Page.GetByRoleOptions().setName(text)

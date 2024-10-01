@@ -196,7 +196,7 @@ public @interface AutotestExecution {
         }
         
         private static Optional<PlanningStrategy> parseResolveDependenciesProperty(Properties properties) {
-          String propertyKeyForResolveDependencies = "jp.co.moneyforwaed.autotest.resolveDependencies";
+          String propertyKeyForResolveDependencies = "jp.co.moneyforward.autotest.resolveDependencies";
           if (!properties.containsKey(propertyKeyForResolveDependencies)) {
             return Optional.empty();
           }
@@ -248,10 +248,6 @@ public @interface AutotestExecution {
           b.append(String.format("Property value: %s%n", propertyValue));
           return b.toString();
         }
-      }
-      
-      interface ExecutionEnvironmentFactory<E extends ExecutionEnvironment> {
-        E create();
       }
     }
   }

@@ -3,9 +3,10 @@ This package hols annotations defined by the **autotest** framework.
 ## `@AutotestExecution`: Test Class's Fallback Behaviors
 
 This annotation specifies the fallback (default) behaviors of your test class.
+The behavior can be overridden through CLI parameters.
 
 **NOTE:** Currently, there is no way to override the default behavior from higher level.
-You need to modify the code directly and re-compile for now.
+You need to modify the code directly and re-compile it for now.
 
 ## `@Named`: Identity
 

@@ -3,7 +3,7 @@ package jp.co.moneyforward.autotest.ut.builtins;
 import com.github.valid8j.pcond.forms.Printables;
 import com.microsoft.playwright.*;
 import jp.co.moneyforward.autotest.actions.web.*;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.github.valid8j.fluent.Expectations.*;
 import static org.mockito.Mockito.*;
 
-class BuiltInLeafActsTest extends TestBase {
+class BuiltInActsTest extends TestBase {
   @Test
   void givenVisibleLocator_whenPerformClick_thenLocatorIsClicked() {
     try (Page page = Mockito.mock(Page.class)) {
@@ -241,28 +241,28 @@ class BuiltInLeafActsTest extends TestBase {
   
   @Test
   void givenFuncWithPrintableFunction_whenName_thenValueFromOverriddenToStringIsReturned() {
-    LeafAct.Func<String, String> func = new LeafAct.Func<>(Printables.function("printableHello", x -> x));
+    Act.Func<String, String> func = new Act.Func<>(Printables.function("printableHello", x -> x));
     
     assertStatement(value(func.name()).toBe().equalTo("printableHello"));
   }
   
   @Test
   void givenFuncWithNonPrintableFunction_whenName_thenFixedValueIsReturned() {
-    LeafAct.Func<String, String> func = new LeafAct.Func<>(x -> x);
+    Act.Func<String, String> func = new Act.Func<>(x -> x);
     
     assertStatement(value(func.name()).toBe().equalTo("func"));
   }
   
   @Test
   void givenSinkWithName_whenName_thenValueFromOverriddenToStringIsReturned() {
-    LeafAct.Sink<String> func = new LeafAct.Sink<>("printableHello", x -> {});
+    Act.Sink<String> func = new Act.Sink<>("printableHello", x -> {});
     
     assertStatement(value(func.name()).toBe().equalTo("printableHello"));
   }
   
   @Test
   void givenSinkWithoutName_whenName_thenFixedValueIsReturned() {
-    LeafAct.Sink<String> sink = new LeafAct.Sink<>(x -> {});
+    Act.Sink<String> sink = new Act.Sink<>(x -> {});
     
     assertStatement(value(sink.name()).toBe().equalTo("sink"));
   }
@@ -270,7 +270,7 @@ class BuiltInLeafActsTest extends TestBase {
   @Test
   void givenSinkWithoutName_whenPerformed_thenGivenConsumerExercised() {
     var valueHolder = new AtomicReference<String>();
-    LeafAct.Sink<String> sink = new LeafAct.Sink<>(valueHolder::set);
+    Act.Sink<String> sink = new Act.Sink<>(valueHolder::set);
     
     sink.perform("XYZ", mock(ExecutionEnvironment.class));
     

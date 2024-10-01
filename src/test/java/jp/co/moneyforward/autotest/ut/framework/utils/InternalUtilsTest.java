@@ -2,10 +2,9 @@ package jp.co.moneyforward.autotest.ut.framework.utils;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.valid8j.fluent.Expectations;
 import com.github.valid8j.pcond.forms.Printables;
 import jp.co.moneyforward.autotest.framework.action.Call;
-import jp.co.moneyforward.autotest.framework.action.LeafAct;
+import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.AutotestException;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
@@ -20,12 +19,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.valid8j.fluent.Expectations.*;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class InternalUtilsTest extends TestBase {
   
@@ -183,14 +183,16 @@ class InternalUtilsTest extends TestBase {
     }
   }
   
+  /*
   @Test
   void whenChainActs_thenCreatedSceneLooksCorrect() {
-    Scene scene = InternalUtils.chainActs("var1", new LeafAct.Func<>((String x) -> x + "a"), new LeafAct.Func<>((String x) -> x + "b"));
+    Scene scene = InternalUtils.chainActs("var1", new Act.Func<>((String x) -> x + "a"), new Act.Func<>((String x) -> x + "b"));
     
-    assertStatement(value(scene.children().stream().map(Call::outputFieldName).toList())
+    assertStatement(value(scene.children().stream().map(Call::outputVariableName).toList())
                         .toBe()
                         .equalTo(List.of("var1", "var1")));
   }
+   */
   
   @Test
   void whenIsPresumablyRunningFromIde_thenFinishesWithoutException() {
@@ -260,9 +262,16 @@ class InternalUtilsTest extends TestBase {
     
     assertStatement(value(actual).length().toBe().equalTo(120));
   }
-
+  
+  @Test
+  void givenFileThrowingIoExceptionOnWrite_whenWriteTo_thenAutotestExceptionThrown() {
+    // Trying to a directory should result in an IOException.
+    var file = new File("/tmp/");
+    
+    assertThrows(AutotestException.class, () -> InternalUtils.writeTo(file, "FILE_CONTENT"));
+  }
+  
   private static <T> Function<Stream<T>, List<T>> toList() {
     return Printables.function("toList", Stream::toList);
   }
-  
 }
