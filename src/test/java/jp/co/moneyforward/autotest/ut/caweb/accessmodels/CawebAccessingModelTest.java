@@ -6,7 +6,7 @@ import com.github.valid8j.pcond.forms.Printables;
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.BrowserType.LaunchOptions;
 import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
-import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
+import jp.co.moneyforward.autotest.ca_web.core.CawebExecutionProfile;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.ututils.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -151,8 +151,8 @@ class CawebAccessingModelTest {
     return isHeadless;
   }
   
-  private static ExecutionProfile createExecutionProfile(final boolean headless) {
-    return new ExecutionProfile() {
+  private static CawebExecutionProfile createExecutionProfile(final boolean headless) {
+    return new CawebExecutionProfile() {
       
       @Override
       public String homeUrl() {

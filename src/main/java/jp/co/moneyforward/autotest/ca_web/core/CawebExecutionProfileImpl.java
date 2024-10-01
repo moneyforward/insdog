@@ -1,19 +1,19 @@
 package jp.co.moneyforward.autotest.ca_web.core;
 
 import com.eatthepath.otp.TimeBasedOneTimePasswordGenerator;
+import jp.co.moneyforward.autotest.framework.core.ExecutionProfile;
+import jp.co.moneyforward.autotest.framework.core.ExecutionProfile.CreateWith;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
-import org.apache.commons.codec.binary.Base32;
 
-import javax.crypto.SecretKey;
-import java.security.Key;
-
-class ExecutionProfileImpl implements ExecutionProfile {
+public class CawebExecutionProfileImpl implements CawebExecutionProfile {
+  
   private static final TimeBasedOneTimePasswordGenerator TIME_BASED_ONE_TIME_PASSWORD_GENERATOR = new TimeBasedOneTimePasswordGenerator();
-  final String differentiatingSuffix = InternalUtils.dateToSafeString(InternalUtils.now());
+  
+  private final String differentiatingSuffix = InternalUtils.dateToSafeString(InternalUtils.now());
   
   private final String sutDomainName;
   
-  ExecutionProfileImpl(String sutDomainName) {
+  public CawebExecutionProfileImpl(String sutDomainName) {
     this.sutDomainName = sutDomainName;
   }
   

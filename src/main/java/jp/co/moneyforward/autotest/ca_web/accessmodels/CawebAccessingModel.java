@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.core.Context.Impl;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.microsoft.playwright.*;
 import jp.co.moneyforward.autotest.actions.web.*;
-import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
+import jp.co.moneyforward.autotest.ca_web.core.CawebExecutionProfile;
 import jp.co.moneyforward.autotest.framework.action.Act.Func;
 import jp.co.moneyforward.autotest.framework.action.Act.Let;
 import jp.co.moneyforward.autotest.framework.action.Scene;
@@ -14,6 +14,7 @@ import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.Export;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
+import jp.co.moneyforward.autotest.framework.core.ExecutionProfile;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -58,11 +59,11 @@ public class CawebAccessingModel implements AutotestRunner {
    *
    * The variables in a profile should not change their values in one test execution.
    */
-  private static final ExecutionProfile executionProfile = ExecutionProfile.create();
+  private static final CawebExecutionProfile executionProfile = ExecutionProfile.create(CawebExecutionProfile.class);
   
   private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(getContext(), new HashMap<>());
   
-  public static ExecutionProfile executionProfile() {
+  public static CawebExecutionProfile executionProfile() {
     return executionProfile;
   }
   
@@ -117,8 +118,8 @@ public class CawebAccessingModel implements AutotestRunner {
    *
    * @return A login action.
    * @see CawebAccessingModel#executionProfile
-   * @see ExecutionProfile
-   * @see ExecutionProfile#totpKey
+   * @see CawebExecutionProfile
+   * @see CawebExecutionProfile#totpKey
    */
   @Named
   @ClosedBy("logout")
@@ -193,7 +194,7 @@ public class CawebAccessingModel implements AutotestRunner {
    * @param executionProfile An execution profile.
    * @return A browser context object.
    */
-  public static BrowserContext browserContextFrom(Browser b, ExecutionProfile executionProfile) {
+  public static BrowserContext browserContextFrom(Browser b, CawebExecutionProfile executionProfile) {
     return b.newContext(new Browser.NewContextOptions()
                             .setLocale(executionProfile.locale()));
   }
@@ -225,12 +226,11 @@ public class CawebAccessingModel implements AutotestRunner {
   /**
    * Launches a browser of specified type.
    *
-   * @param browserType A browser type to be launched.
+   * @param browserType      A browser type to be launched.
    * @param executionProfile An execution profile.
-   *
    * @return A launched browser.
    */
-  public static Browser launchBrowser(BrowserType browserType, ExecutionProfile executionProfile) {
+  public static Browser launchBrowser(BrowserType browserType, CawebExecutionProfile executionProfile) {
     boolean headless = executionProfile.setHeadless();
     if (headless)
       LOGGER.info("HEADLESS MODE");

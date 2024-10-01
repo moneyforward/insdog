@@ -5,11 +5,10 @@ import com.microsoft.playwright.Locator.GetByTextOptions;
 import com.microsoft.playwright.Page;
 import jp.co.moneyforward.autotest.actions.web.PageAct;
 import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
-import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
+import jp.co.moneyforward.autotest.ca_web.core.CawebExecutionProfile;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
-import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 import org.junit.jupiter.api.Tag;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
@@ -30,9 +29,9 @@ import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.
  *
  * - it can log in to the SUT with its password
  *
- * @see ExecutionProfile#userEmail()
- * @see ExecutionProfile#userPassword()
- * @see ExecutionProfile#accountServiceId()
+ * @see CawebExecutionProfile#userEmail()
+ * @see CawebExecutionProfile#userPassword()
+ * @see CawebExecutionProfile#accountServiceId()
  */
 @Tag("journal")
 @Tag("smoke")

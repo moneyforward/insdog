@@ -29,6 +29,7 @@ import static com.github.dakusui.valid8j.Requires.requireNonNull;
 import static com.github.valid8j.pcond.internals.InternalUtils.getMethod;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
+import static jp.co.moneyforward.autotest.actions.web.SendKey.MASK_PREFIX;
 
 /**
  * An internal utility class of the **autotest-ca** framework.
@@ -139,6 +140,10 @@ public enum InternalUtils {
     return string.substring(0, Math.min(length,
                                         crPos < 0 ? string.length()
                                                   : crPos));
+  }
+  
+  public static String mask(Object o) {
+    return Objects.toString(o).replaceAll("((" + MASK_PREFIX + ").*)", MASK_PREFIX);
   }
   
   public static class AssumptionViolation extends TestAbortedException {

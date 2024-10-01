@@ -4,7 +4,7 @@ import com.microsoft.playwright.Dialog;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import jp.co.moneyforward.autotest.actions.web.*;
-import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
+import jp.co.moneyforward.autotest.ca_web.core.CawebExecutionProfile;
 import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.action.Wait;
@@ -46,9 +46,9 @@ import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
  * - [1] [developer_tools/demo_aggregates](https://accounting-aweb-stg1.ebisubook.com/section9/developer_tools/demo_aggregates)
  * - [2] [会計専用管理画面(ca_aweb)の運用の手引 #ja](https://moneyforward.kibe.la/notes/161219)
  *
- * @see ExecutionProfile#userEmail()
- * @see ExecutionProfile#userPassword()
- * @see ExecutionProfile#accountServiceId()
+ * @see CawebExecutionProfile#userEmail()
+ * @see CawebExecutionProfile#userPassword()
+ * @see CawebExecutionProfile#accountServiceId()
  * @see CawebAccessingModel
  *
  */
