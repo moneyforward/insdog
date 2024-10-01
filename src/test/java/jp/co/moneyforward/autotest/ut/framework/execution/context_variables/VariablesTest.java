@@ -10,9 +10,11 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import jp.co.moneyforward.autotest.ututils.ActUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static com.github.valid8j.fluent.Expectations.*;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.actCall;
@@ -148,7 +150,8 @@ public class VariablesTest extends TestBase {
                                          new Scene.Builder("sceneCall1").addCall(actCall("var", let("Scott"), "NONE"))
                                                                         .addCall(actCall("var", helloAct(), "var"))
                                                                         .addCall(actCall("var", printlnAct(), "var"))
-                                                                        .build(), emptyResolverBundle());
+                                                                        .build(),
+                                         emptyResolverBundle());
     SceneCall sceneCall2 = new SceneCall("S2",
                                          new Scene.Builder("sceneCall2").addCall(actCall("foo", helloAct(), "foo"))
                                                                         .addCall(getStringStringAssertionActCall())
@@ -162,18 +165,44 @@ public class VariablesTest extends TestBase {
     performAction(createActionComposer().create(sceneCall1), actionPerformer, out1);
     performAction(createActionComposer().create(sceneCall2), actionPerformer, out2);
     
-    assertAll(
-        value(toList(out1.iterator())).toBe().notEmpty(),
-        value(toList(out2.iterator())).toBe().notEmpty()
-    );
+    assertAll(value(toList(out1.iterator())).toBe().notEmpty(),
+              value(toList(out2.iterator())).toBe().notEmpty());
   }
   
   @Test
-  void testRetryAction() {
+  void testRetryActionUsingRetryCallMethod() {
     LinkedList<String> out = new LinkedList<>();
     class CustomException extends RuntimeException {
     }
-    Act<String, String> passesOnSecondTry = new Act<>() {
+    Act<String, String> passesOnSecondTry = createActThatPassesOnSecondTry(out, CustomException::new);
+    Scene scene = scene(List.of(retryCall(actCall("x", passesOnSecondTry, "x"), 1, CustomException.class, 1)));
+    Action action = AutotestSupport.sceneCall("output", scene, emptyResolverBundle())
+                                   .toAction(createActionComposer());
+    
+    performAction(action, Writer.Std.OUT);
+    
+    assertOutputStringListContainingFailThenPass(out);
+  }
+  
+  
+  @Test
+  void testRetryActionUsingSceneBuilder() {
+    LinkedList<String> out = new LinkedList<>();
+    Act<String, String> passesOnSecondTry = createActThatPassesOnSecondTry(out, RuntimeException::new);
+    Scene scene = new Scene.Builder("defaultVariable")
+        .retry(actCall("x", passesOnSecondTry, "x"))
+        .build();
+    Action action = AutotestSupport.sceneCall("output", scene, emptyResolverBundle())
+                                   .toAction(createActionComposer());
+    
+    performAction(action, Writer.Std.OUT);
+    
+    assertOutputStringListContainingFailThenPass(out);
+    
+  }
+  
+  private static Act<String, String> createActThatPassesOnSecondTry(LinkedList<String> out, Supplier<RuntimeException> exceptionToBeThrownOnFirstTry) {
+    return new Act<>() {
       int i = 0;
       
       @Override
@@ -183,17 +212,12 @@ public class VariablesTest extends TestBase {
           return "pass";
         }
         out.add("fail");
-        throw new CustomException();
+        throw exceptionToBeThrownOnFirstTry.get();
       }
     };
-    
-    Scene scene = scene(List.of(retryCall(actCall("x", passesOnSecondTry, "x"), CustomException.class, 1, 1)));
-    
-    Action action = AutotestSupport.sceneCall("output", scene, emptyResolverBundle())
-                                   .toAction(createActionComposer());
-    
-    performAction(action, Writer.Std.OUT);
-    
+  }
+  
+  private static void assertOutputStringListContainingFailThenPass(LinkedList<String> out) {
     assertAll(value(out).elementAt(0)
                         .asString()
                         .toBe()
@@ -202,9 +226,7 @@ public class VariablesTest extends TestBase {
                         .asString()
                         .toBe()
                         .containing("pass"));
-    
   }
-  
   
   @SafeVarargs
   private static HashMap<String, Function<Context, Object>> composeMapFrom(InternalUtils.Entry<String, Function<Context, Object>>... entries) {

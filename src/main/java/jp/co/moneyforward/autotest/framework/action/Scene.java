@@ -4,9 +4,9 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.valid8j.pcond.fluent.Statement;
 import jp.co.moneyforward.autotest.actions.web.Value;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
-import org.opentest4j.AssertionFailedError;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
@@ -15,7 +15,6 @@ import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 import static java.util.Arrays.asList;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
-import static jp.co.moneyforward.autotest.framework.action.Resolver.resolversFor;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.simpleClassNameOf;
 
 /**
@@ -87,15 +86,27 @@ public interface Scene {
                .toList();
   }
   
-  private static Stream<String> outputVariableNamesOf(Call c) {
-    if (c instanceof SceneCall sceneCall) {
-      return sceneCall.targetScene().outputVariableNames().stream();
-    } else if (c instanceof ActCall<?, ?> actCall) {
-      return Stream.of(actCall.outputVariableName());
-    } else if (c instanceof CallDecorator<?>) {
-      return outputVariableNamesOf(((CallDecorator<?>) c).targetCall());
-    }
-    throw new AssertionError();
+  default List<String> inputVariableNames() {
+    return this.children()
+               .stream()
+               .flatMap(Scene::inputVariableNamesOf)
+               .toList();
+  }
+  
+  private static Stream<String> outputVariableNamesOf(Call call) {
+    return switch (call) {
+      case SceneCall sceneCall -> sceneCall.targetScene().outputVariableNames().stream();
+      case ActCall<?, ?> actCall -> Stream.of(actCall.outputVariableName());
+      case CallDecorator<?> callDecorator -> outputVariableNamesOf(callDecorator.targetCall());
+    };
+  }
+  
+  private static Stream<String> inputVariableNamesOf(Call call) {
+    return switch (call) {
+      case SceneCall sceneCall -> sceneCall.targetScene().inputVariableNames().stream();
+      case ActCall<?, ?> actCall -> Stream.of(actCall.inputVariableName());
+      case CallDecorator<?> callDecorator -> inputVariableNamesOf(callDecorator.targetCall());
+    };
   }
   
   private List<Action> toActions(ActionComposer actionComposer) {
@@ -205,10 +216,7 @@ public interface Scene {
      * @return This object,
      */
     public final Builder add(Scene scene) {
-      String variableStoreName = SceneCall.workingVariableStoreNameFor(this.oid());
-      return this.addCall(sceneCall(simpleClassNameOf(scene.getClass()),
-                                    scene,
-                                    new ResolverBundle(resolversFor(variableStoreName, scene.outputVariableNames()))));
+      return this.addCall(AutotestSupport.sceneCall(SceneCall.workingVariableStoreNameFor(this.oid()), scene));
     }
     
     /**
@@ -226,7 +234,7 @@ public interface Scene {
      * @return A call that retries a given `call`.
      */
     public final Builder retry(Call call, int times, Class<? extends Throwable> onException, int interval) {
-      return this.addCall(AutotestSupport.retryCall(call, onException, times, interval));
+      return this.addCall(AutotestSupport.retryCall(call, times, onException, interval));
     }
     
     /**
@@ -241,14 +249,14 @@ public interface Scene {
     }
     
     /**
-     * This method is implemented as a shorthand for `this.retry(call, times, AssertionFailedError.class)`.
+     * This method is implemented as a shorthand for `this.retry(call, times, RuntimeException.class)`.
      *
      * @param call  A call to be retried
      * @param times How many times `call` should be retried until it succeeds.
      * @return This object
      */
     public final Builder retry(Call call, int times) {
-      return retry(call, times, AssertionFailedError.class);
+      return retry(call, times, RuntimeException.class);
     }
     
     /**

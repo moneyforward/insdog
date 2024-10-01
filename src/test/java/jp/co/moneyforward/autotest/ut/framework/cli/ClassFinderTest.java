@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.forms.Predicates.*;
 import static jp.co.moneyforward.autotest.framework.cli.ClassFinder.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ClassFinderTest {
   @Test
@@ -71,7 +72,7 @@ public class ClassFinderTest {
                         .allMatch(Valid8JCliches.Transform.$(functionCanonicalName())
                                                           .check(containsString(Index.class.getPackageName()).and(endsWith("Test")))));
   }
-
+  
   @Test
   public void whenFindClassesUsingClassNamePartialMatch_thenMatchesFound() {
     List<Class<?>> out = new LinkedList<>();
@@ -168,7 +169,7 @@ public class ClassFinderTest {
     ClassFinder.create(Index.class.getPackageName())
                .findMatchingClasses(query)
                .forEach(out::add);
-
+    
     assertAll(value(out).toBe().notEmpty(),
               value(out).stream()
                         .toBe()
@@ -183,6 +184,23 @@ public class ClassFinderTest {
                .findMatchingClasses(query)
                .forEach(out::add);
     assertStatement(value(out).toBe().empty());
+  }
+  
+  @Test
+  public void whenFindClassesByExceptionThrowingPredicate_thenIntentionalExceptionThrown() {
+    class IntentionalException extends RuntimeException {
+    }
+    Predicate<Class<?>> query = aClass -> {
+      throw new IntentionalException();
+    };
+    ClassFinder classFinder = create(Index.class.getPackageName());
+    
+    assertThrows(IntentionalException.class,
+                 () -> executeFindMatchingClass(classFinder, query));
+  }
+  
+  private static void executeFindMatchingClass(ClassFinder classFinder, Predicate<Class<?>> query) {
+    classFinder.findMatchingClasses(query).forEach(System.out::println);
   }
   
   private static Function<Class<?>, List<Tag>> functionTags() {
@@ -225,7 +243,7 @@ public class ClassFinderTest {
   private static Predicate<Tag> predicateTagValueMatchesRegex(String expectedValue) {
     return Printables.predicate("tagValueMatchesRegex[" + expectedValue + "]", i -> i.value().matches(expectedValue));
   }
-
+  
   private static Predicate<List<Tag>> predicateAnyMatchInTagList(Predicate<Tag> valueIs) {
     return Printables.predicate("anyMatch[" + valueIs + "]", l -> l.stream().anyMatch(valueIs));
   }

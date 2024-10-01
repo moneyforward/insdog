@@ -24,6 +24,8 @@ import java.util.stream.Stream;
 import static com.github.valid8j.fluent.Expectations.*;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class InternalUtilsTest extends TestBase {
   
@@ -260,7 +262,15 @@ class InternalUtilsTest extends TestBase {
     
     assertStatement(value(actual).length().toBe().equalTo(120));
   }
-
+  
+  @Test
+  void givenFileThrowingIoExceptionOnWrite_whenWriteTo_thenAutotestExceptionThrown() {
+    // Trying to a directory should result in an IOException.
+    var file = new File("/tmp/");
+    
+    assertThrows(AutotestException.class, () -> InternalUtils.writeTo(file, "FILE_CONTENT"));
+  }
+  
   private static <T> Function<Stream<T>, List<T>> toList() {
     return Printables.function("toList", Stream::toList);
   }

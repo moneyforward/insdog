@@ -4,12 +4,35 @@ import com.github.valid8j.pcond.fluent.Statement;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static jp.co.moneyforward.autotest.framework.action.Resolver.resolversFor;
 
 /**
  * A facade class of the "autotest" framework.
  */
 public enum AutotestSupport {
   ;
+  
+  /**
+   * Returns a `Call` object for a given `scene`.
+   *
+   * This method internally calls `sceneCall(String,Scene,ResolverBundle)`.
+   * A `ResolverBundle` is created from `scene.inputVariableNames()` and `scene.outputVariableNames()`.
+   *
+   * @param variableStoreName A name of a variable store in which the `scene` is performed.
+   * @param scene             A scene for which a call is created.
+   * @return A created `SceneCall` object.
+   */
+  public static SceneCall sceneCall(String variableStoreName, Scene scene) {
+    return sceneCall(variableStoreName,
+                     scene,
+                     new ResolverBundle(resolversFor(variableStoreName,
+                                                     Stream.concat(scene.inputVariableNames().stream(),
+                                                                   scene.outputVariableNames().stream())
+                                                           .distinct()
+                                                           .toList())));
+  }
   
   /**
    * Returns a `Call` object for a given `scene`.
@@ -58,12 +81,12 @@ public enum AutotestSupport {
    * Returns a call that retries a given `call`.
    *
    * @param call        A call to be retried on a failure.
-   * @param onException An exception class on which `call` should be retried.
    * @param times       Number of retried to be attempted.
+   * @param onException An exception class on which `call` should be retried.
    * @param interval    Interval between tries.
    * @return A call that retries a given `call`.
    */
-  public static RetryCall retryCall(Call call, Class<? extends Throwable> onException, int times, int interval) {
+  public static RetryCall retryCall(Call call, int times, Class<? extends Throwable> onException, int interval) {
     return new RetryCall(call, onException, times, interval);
   }
 }
