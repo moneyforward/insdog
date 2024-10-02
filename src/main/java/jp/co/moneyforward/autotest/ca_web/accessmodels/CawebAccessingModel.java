@@ -18,12 +18,16 @@ import jp.co.moneyforward.autotest.framework.core.ExecutionProfile;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import static com.github.valid8j.fluent.Expectations.value;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.byText;
 import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.textContent;
 import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
+import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneCall;
+import static jp.co.moneyforward.autotest.framework.action.Scene.fromActs;
 
 /**
  * This accessing model assumes that the user provided by `EXECUTION_PROFILE` has already been registered and associated with
@@ -134,14 +138,16 @@ public class CawebAccessingModel implements AutotestRunner {
         .add(new Click(buttonLocatorByName("ログインする")))
         .add(new SendKey(locatorByLabel("パスワード"), executionProfile.userPassword()))
         .add(new Click("button[id='submitto']"))
-        .add(new SendKey(locatorByPlaceholder("000000"), executionProfile::totpForNow))
-        .add(new Click(buttonLocatorByName("認証する")))
-        .assertion((Page page) -> value(page).function(locatorBySelector("#page-homes > div.ca-container.js-ca-container > div.sidebar-container.js-sidebar-container").andThen(byText("ホーム")))
-                                             .function(textContent())
-                                             .toBe()
-                                             .equalTo("ホーム"))
+        .retry(new Scene.Builder("page")
+                   .add(new SendKey(locatorByPlaceholder("000000"), executionProfile::totpForNow))
+                   .add(new Click(buttonLocatorByName("認証する")))
+                   .assertion((Page page) -> value(page).function(locatorBySelector("#page-homes > div.ca-container.js-ca-container > div.sidebar-container.js-sidebar-container").andThen(byText("ホーム")))
+                                                        .function(textContent())
+                                                        .toBe()
+                                                        .equalTo("ホーム"))
+                   .build())
         .build();
-  }
+  }// textboxLocatorByName("otp_attempt")
   
   /**
    * Returns a scene, which performs a "logout" action.
