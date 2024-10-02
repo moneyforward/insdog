@@ -106,18 +106,6 @@ public enum PageFunctions {
   }
   
   /**
-   * Returns a function that resolve a locator to a textbox in a `Page`, whose name is equal to `name`.
-   *
-   * @param name A string to be matched with a locator's name.
-   * @return A  function that resolve a locator to a textbox in a `Page`, whose name is equal to `name`.
-   */
-  public static Function<Page, Locator> textboxLocatorByName(String name) {
-    return Printables.function("@[name=" + name + "]",
-                               p -> p.getByRole(AriaRole.TEXTBOX, new Page.GetByRoleOptions().setName(name)
-                                                                                             .setExact(true)));
-  }
-  
-  /**
    * Returns a function that resolves a locator whose label matches with `label` in a given `Page`.
    *
    * @param label A string to be matched with a label of a locator.
