@@ -5,7 +5,6 @@ import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 import org.junit.jupiter.api.Tag;
 
-@Tag("term")
 @Tag("smoke")
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
