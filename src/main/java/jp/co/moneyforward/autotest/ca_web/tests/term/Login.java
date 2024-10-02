@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Tag;
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
         planExecutionWith = PlanningStrategy.DEPENDENCY_BASED,
-        beforeEach = {},
+        beforeEach = {"screenshot"},
         value = {"login"},
-        afterEach = {}))
+        afterEach = {"screenshot"}))
 public class Login extends CawebAccessingModel {
 }
