@@ -6,7 +6,8 @@ import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Playwright;
 import jp.co.moneyforward.autotest.actions.web.*;
-import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
+import jp.co.moneyforward.autotest.ca_web.core.CawebExecutionProfile;
+import jp.co.moneyforward.autotest.ca_web.core.CawebExecutionProfileImpl;
 import jp.co.moneyforward.autotest.framework.action.Act.Func;
 import jp.co.moneyforward.autotest.framework.action.Act.Let;
 import jp.co.moneyforward.autotest.framework.action.Scene;
@@ -15,6 +16,7 @@ import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.Export;
 import jp.co.moneyforward.autotest.framework.annotations.Named;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
+import jp.co.moneyforward.autotest.framework.core.ExecutionProfile;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestInstance;
 
@@ -46,7 +48,7 @@ import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
 public class ProgrammingModelExample implements AutotestRunner {
   private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(getContext(), new HashMap<>());
   
-  private static final ExecutionProfile EXECUTION_PROFILE = ExecutionProfile.create();
+  private static final CawebExecutionProfile EXECUTION_PROFILE = ExecutionProfile.create(CawebExecutionProfile.class);
   
   private static Context getContext() {
     return new Impl() {

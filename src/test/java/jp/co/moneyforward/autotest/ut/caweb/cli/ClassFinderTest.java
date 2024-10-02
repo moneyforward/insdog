@@ -1,4 +1,4 @@
-package jp.co.moneyforward.autotest.ut.framework.cli;
+package jp.co.moneyforward.autotest.ut.caweb.cli;
 
 import com.github.valid8j.pcond.forms.Predicates;
 import com.github.valid8j.pcond.forms.Printables;
@@ -115,6 +115,7 @@ public class ClassFinderTest {
     ClassFinder.create(Index.class.getPackageName())
                .findMatchingClasses(query)
                .forEach(out::add);
+    
     assertAll(value(out).toBe()
                         .notEmpty(),
               value(out).stream()

@@ -1,14 +1,11 @@
 package jp.co.moneyforward.autotest.framework.cli;
 
 import com.github.valid8j.pcond.forms.Predicates;
-import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
-import jp.co.moneyforward.autotest.ca_web.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
-import org.junit.platform.commons.support.ModifierSupport;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.UniqueId;
@@ -24,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -36,11 +32,9 @@ import java.util.stream.Stream;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
-import static jp.co.moneyforward.autotest.actions.web.SendKey.MASK_PREFIX;
 import static jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment.testResultDirectoryFor;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.removeFile;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.writeTo;
-import static org.junit.platform.commons.support.ReflectionSupport.invokeMethod;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
 
@@ -214,7 +208,6 @@ public enum CliUtils {
       System.setProperty("jp.co.moneyforward.autotest.scenes", composeSceneDescriptorPropertyValue(executionDescriptors));
     AutotestEngine.configureLoggingForSessionLevel();
     initialize(executionProfile);
-    logExecutionProfile(CawebAccessingModel.executionProfile());
     Map<Class<?>, TestExecutionSummary> testReport = new HashMap<>();
     List<Class<?>> targetTestClasses = new ArrayList<>();
     Launcher launcher = LauncherFactory.create();
@@ -244,21 +237,6 @@ public enum CliUtils {
     logFailureSummary(testExecutionSummary);
     return testReport;
   }
-  
-  public static void logExecutionProfile(ExecutionProfile executionProfile) {
-    LOGGER.info("Execution Profile");
-    LOGGER.info("----");
-    Arrays.stream(executionProfile.getClass().getMethods())
-          .filter(ModifierSupport::isPublic)
-          .filter(m -> m.getParameters().length == 0)
-          .filter(m -> !ModifierSupport.isStatic(m))
-          .filter(m -> Objects.equals(executionProfile.getClass(), m.getDeclaringClass()))
-          .sorted(Comparator.comparing(Method::getName))
-          .forEach(m -> LOGGER.info(String.format("- %-30s -> %-30s", m.getName(), mask(invokeMethod(m, executionProfile)))));
-    LOGGER.info("----");
-    LOGGER.info("");
-  }
-  
   
   private static void logExecutionSummary(TestExecutionSummary testExecutionSummary) {
     LOGGER.info("----");
@@ -295,9 +273,5 @@ public enum CliUtils {
     return f.getTestIdentifier()
             .getUniqueIdObject()
             .getSegments();
-  }
-  
-  private static String mask(Object o) {
-    return Objects.toString(o).replaceAll("((" + MASK_PREFIX + ").*)", MASK_PREFIX);
   }
 }

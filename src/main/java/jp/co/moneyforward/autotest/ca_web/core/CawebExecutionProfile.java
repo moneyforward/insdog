@@ -1,59 +1,33 @@
 package jp.co.moneyforward.autotest.ca_web.core;
 
 import com.eatthepath.otp.TimeBasedOneTimePasswordGenerator;
-import com.github.dakusui.osynth.ObjectSynthesizer;
-import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
+import jp.co.moneyforward.autotest.framework.core.ExecutionProfile;
+import jp.co.moneyforward.autotest.framework.core.ExecutionProfile.CreateWith;
 import org.apache.commons.codec.binary.Base32;
 
 import javax.crypto.SecretKey;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.time.Instant;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
 
-import static com.github.dakusui.osynth.ObjectSynthesizer.methodCall;
-import static jp.co.moneyforward.autotest.framework.cli.CliUtils.getProfileOverriders;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.wrap;
 
 /**
  * A class that holds information, which doesn't change throughout an execution session of "autotest-ca"
  */
-public interface ExecutionProfile {
-  /**
-   * Creates an `ExecutionProfile` object.
-   *
-   * @return An `ExecutionProfile` object.
-   */
-  static ExecutionProfile create() {
-    return create(create(() -> InternalUtils.currentBranchNameFor(InternalUtils.projectDir())), getProfileOverriders());
-  }
-  
-  /**
-   * Creates an `ExecutionProfile` object.
-   *
-   * @param branchNameSupplier A supplier that gives a branch name.
-   * @return An `ExecutionProfile` object.
-   */
-  static ExecutionProfile create(Supplier<Optional<String>> branchNameSupplier) {
-    Optional<String> branchName = branchNameSupplier.get();
-    return branchName.filter(v -> v.contains("@"))
-                     .isPresent() ? new ExecutionProfileImpl(composeIdevDomainName(branchName.get()))
-                                  : new ExecutionProfileImpl("accounting-stg1.ebisubook.com");
-  }
-  
-  static ExecutionProfile create(ExecutionProfile base, Map<String, String> profileOverriders) {
-    if (profileOverriders == null) {
-      return base;
+@CreateWith(CawebExecutionProfile.Factory.class)
+public interface CawebExecutionProfile extends ExecutionProfile {
+  final class Factory implements ExecutionProfile.Factory<CawebExecutionProfile> {
+    private static String composeIdevDomainName(String branchName) {
+      return String.format("ca-web-%s.idev.test.musubu.co.in",
+                           branchName.substring(branchName.indexOf('@') + 1));
     }
-    ObjectSynthesizer objectSynthesizer = new ObjectSynthesizer();
-    for (Map.Entry<String, String> overrider : profileOverriders.entrySet())
-      objectSynthesizer.handle(methodCall(overrider.getKey()).with((self, args) -> profileOverriders.get(overrider.getKey())));
     
-    return objectSynthesizer.addInterface(ExecutionProfile.class)
-                            .synthesize(base)
-                            .castTo(ExecutionProfile.class);
+    @Override
+    public CawebExecutionProfile create(String branchName) {
+      return new CawebExecutionProfileImpl(branchName == null ? "accounting-stg1.ebisubook.com"
+                                                              : composeIdevDomainName(branchName));
+    }
   }
   
   /**
@@ -62,7 +36,7 @@ public interface ExecutionProfile {
    * The returned value will be like: `https:/{domain}/`
    *
    * @return a "home" url of the application.
-   * @see ExecutionProfile#domain()
+   * @see CawebExecutionProfile#domain()
    */
   default String homeUrl() {
     return String.format("https://%s/", domain());
@@ -89,7 +63,7 @@ public interface ExecutionProfile {
    * A password for an account specified by the returned value of `userEmail()` method.
    *
    * @return A password for `userEmail()`.
-   * @see ExecutionProfileImpl#userEmail()
+   * @see CawebExecutionProfileImpl#userEmail()
    */
   String userPassword();
   
@@ -98,7 +72,7 @@ public interface ExecutionProfile {
    * Time of the calling this method.
    *
    * @return A TOTP for the current time.
-   * @see ExecutionProfile#totpFor(Instant)
+   * @see CawebExecutionProfile#totpFor(Instant)
    */
   default String totpForNow() {
     return totpFor(Instant.now());
@@ -108,7 +82,7 @@ public interface ExecutionProfile {
    * A method that returns a TOTP for the next time step from the one for now.
    *
    * @return A TOTP for the next time step after the current time.
-   * @see ExecutionProfile#totpFor(Instant)
+   * @see CawebExecutionProfile#totpFor(Instant)
    */
   default String nextTotp() {
     return totpFor(Instant.now().plus(totp().getTimeStep()));
@@ -132,7 +106,7 @@ public interface ExecutionProfile {
    * Returns a key object from a returned value of `totpKeyString`.
    *
    * @return A secret key instance fot TOTP.
-   * @see ExecutionProfile#totpKeyString
+   * @see CawebExecutionProfile#totpKeyString
    */
   default Key totpKey() {
     return new SecretKey() {
@@ -226,9 +200,4 @@ public interface ExecutionProfile {
   String userDisplayName();
   
   String officeName();
-  
-  private static String composeIdevDomainName(String branchName) {
-    return String.format("ca-web-%s.idev.test.musubu.co.in",
-                         branchName.substring(branchName.indexOf('@') + 1));
-  }
 }
