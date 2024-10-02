@@ -86,7 +86,7 @@ public class CawebAccessingModel implements AutotestRunner {
   @Export({"window", "browser", "page"})
   public static Scene open() {
     TimeUnit timeUnit = SECONDS;
-    int time = 30;
+    int time = 10;
     String windowVariableName = "window";
     String browserVariableName = "browser";
     return new Scene.Builder("NONE")
@@ -139,7 +139,7 @@ public class CawebAccessingModel implements AutotestRunner {
         .add(new SendKey(locatorByLabel("パスワード"), executionProfile.userPassword()))
         .add(new Click("button[id='submitto']"))
         .retry(new Scene.Builder("page")
-                   .add(new SendKey(locatorByPlaceholder("000000"), executionProfile::totpForNow))
+                   .add(new SendKey(locatorBySelector("#otp_attempt"), executionProfile::totpForNow))
                    .add(new Click(buttonLocatorByName("認証する")))
                    .assertion((Page page) -> value(page).function(locatorBySelector("#page-homes > div.ca-container.js-ca-container > div.sidebar-container.js-sidebar-container").andThen(byText("ホーム")))
                                                         .function(textContent())
@@ -147,7 +147,7 @@ public class CawebAccessingModel implements AutotestRunner {
                                                         .equalTo("ホーム"))
                    .build())
         .build();
-  }// textboxLocatorByName("otp_attempt")
+  }
   
   /**
    * Returns a scene, which performs a "logout" action.
