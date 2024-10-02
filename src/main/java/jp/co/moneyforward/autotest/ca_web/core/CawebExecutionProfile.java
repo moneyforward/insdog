@@ -18,15 +18,15 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.wrap;
 @CreateWith(CawebExecutionProfile.Factory.class)
 public interface CawebExecutionProfile extends ExecutionProfile {
   final class Factory implements ExecutionProfile.Factory<CawebExecutionProfile> {
+    @Override
+    public CawebExecutionProfile create(String branchName) {
+      return new CawebExecutionProfileImpl(branchName != null && branchName.contains("@") ? composeIdevDomainName(branchName)
+                                                                                          : "accounting-stg1.ebisubook.com");
+    }
+    
     private static String composeIdevDomainName(String branchName) {
       return String.format("ca-web-%s.idev.test.musubu.co.in",
                            branchName.substring(branchName.indexOf('@') + 1));
-    }
-    
-    @Override
-    public CawebExecutionProfile create(String branchName) {
-      return new CawebExecutionProfileImpl(branchName == null ? "accounting-stg1.ebisubook.com"
-                                                              : composeIdevDomainName(branchName));
     }
   }
   
