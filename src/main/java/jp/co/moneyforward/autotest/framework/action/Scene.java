@@ -2,8 +2,10 @@ package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.valid8j.pcond.fluent.Statement;
+import com.microsoft.playwright.TimeoutError;
 import jp.co.moneyforward.autotest.actions.web.Value;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
+import org.opentest4j.AssertionFailedError;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -249,14 +251,18 @@ public interface Scene {
     }
     
     /**
-     * This method is implemented as a shorthand for `this.retry(call, times, RuntimeException.class)`.
+     * This method is implemented as a shorthand for `this.retry(call, times, AssertionFailedError.class)`.
      *
      * @param call  A call to be retried
      * @param times How many times `call` should be retried until it succeeds.
      * @return This object
      */
     public final Builder retry(Call call, int times) {
-      return retry(call, times, RuntimeException.class);
+      return retry(call, times, Throwable.class);
+    }
+    
+    public final Builder retry(Scene scene) {
+      return retry(sceneCall(SceneCall.workingVariableStoreNameFor(this.oid()), scene));
     }
     
     /**
