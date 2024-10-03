@@ -10,6 +10,7 @@ import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.junit.jupiter.api.Tag;
 
 import java.nio.file.Paths;
@@ -505,6 +506,7 @@ public class BusinessPlanScenario extends CawebAccessingModel {
   public Scene createMembers() {
     return new Scene.Builder("page")
         .add(new Click(locatorByText("メンバー追加")))
+        .add(createMembersWithRandomNumber())
         .build();
   }
   
@@ -513,27 +515,30 @@ public class BusinessPlanScenario extends CawebAccessingModel {
   @When("createMembers")
   public Scene thenCreateMembers() {
     return new Scene.Builder("page")
-        .add(assertMessageAndCloseModalForAddingMembers("メールアドレス"))
+        .add(elementIsEqualTo("#alert-success > p","メンバー追加メールを送信しました"))
         .build();
   }
   
   
   /**
-   * Confirm displayed message on "add members modal", then close it
+   * Open add-members-modal and fill member info with random number, then register
    *
    * @return The page act that performs the behavior in the description.
    */
-  public static PageAct assertMessageAndCloseModalForAddingMembers(final String displayedMessage) {
+  public static PageAct createMembersWithRandomNumber() {
     return new PageAct("Close modal for adding members") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         Locator addMembersModal= page.locator("#js-add-members-modal > div > div");
+        final String differentiatingSuffix = InternalUtils.dateToSafeString(InternalUtils.now());
         
         page.waitForSelector("#js-add-members-modal");
         
         if (addMembersModal.isVisible()) {
-          assertThat(addMembersModal.getByText(displayedMessage)).isVisible();
-          addMembersModal.locator("#btn-modal-close > img").click();
+          addMembersModal.locator("#user_email").click();
+          clickAndFill("#js-add-members-modal #user_email", "user"+ differentiatingSuffix+"@hogehoge.com").perform(page, executionEnvironment);
+          clickAndFill("#js-add-members-modal #office_member_name", "ユーザー"+ differentiatingSuffix).perform(page, executionEnvironment);
+          addMembersModal.locator("#invitation-form > div.text-center > input").click();
         }
       }
     };
