@@ -45,6 +45,10 @@ jobs:
           java-version: '21'
           cache: 'maven'
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
       - name: Build with Maven
         run: mvn -Dmaven.javadoc.skip=true package
 
@@ -61,6 +65,13 @@ jobs:
         with:
           name: test-result
           path: target/testResult/**
+        continue-on-error: true
+
+      - name: Publish test report
+        run: |
+          pip install trcli
+          ./build.sh compile-test-report
+          ./build.sh publish-test-report
         continue-on-error: true
 
       - name: Check for failures
