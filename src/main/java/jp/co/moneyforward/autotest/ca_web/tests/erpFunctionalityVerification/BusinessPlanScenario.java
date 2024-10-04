@@ -23,6 +23,7 @@ import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
 import static jp.co.moneyforward.autotest.actions.web.PageFunctions.locatorByText;
 import static jp.co.moneyforward.autotest.ca_web.accessmodels.CawebUtils.*;
 import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.DEPENDENCY_BASED;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.saveBinaryImageAsTmpFile;
 
 /**
  * Data need to prepare before execution, example Office: abc-135431
@@ -82,7 +83,7 @@ public class BusinessPlanScenario extends CawebAccessingModel {
   public Scene uploadInvoiceAsAI_OCR() {
     return new Scene.Builder("page")
         .add(new Click(locatorByText("アップロード")))
-        .add(fileUploadAsAI_OCR("src/main/resources/ca_web/invoiceImage.png"))
+        .add(fileUploadAsAI_OCR("ca_web/invoiceImage.png"))
         .build();
   }
   
@@ -554,10 +555,11 @@ public class BusinessPlanScenario extends CawebAccessingModel {
     return new PageAct("Upload file") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        String tmpFileName = saveBinaryImageAsTmpFile(filePath);
         
         //Select specified file and reflected it to page
         Locator fileInput = page.locator("input[type='file']");
-        fileInput.first().setInputFiles(Paths.get(filePath));
+        fileInput.first().setInputFiles(Paths.get(tmpFileName));
         
         page.waitForSelector("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > thead > tr");
         

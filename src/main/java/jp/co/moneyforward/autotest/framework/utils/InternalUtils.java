@@ -14,8 +14,7 @@ import org.opentest4j.TestAbortedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -323,6 +322,42 @@ public enum InternalUtils {
   public record Entry<K, V>(K key, V value) {
     public static <K, V> Entry<K, V> $(K key, V value) {
       return new Entry<>(key, value);
+    }
+  }
+  
+  /**
+   * Load the binary data of the image and save it as ‘image name_tmp’.
+   *
+   * @param imageFilePath Specify target file path under target/classes
+   * @return tmpFileName File name with '_tmp'
+   */
+  public static String saveBinaryImageAsTmpFile(final String imageFilePath) {
+    String fullFilePath = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().
+                                                       getResource(imageFilePath)).getFile();
+    String fileName = new File(fullFilePath).getName();
+    int lastPeriodIndex = fileName.lastIndexOf(".");
+    if (lastPeriodIndex == -1) {
+      lastPeriodIndex = fileName.length();
+    }
+    String tmpFileName = fileName.substring(0, lastPeriodIndex) + "_tmp" + fileName.substring(lastPeriodIndex);
+    try {
+      BufferedInputStream ibs = new BufferedInputStream(new FileInputStream(fullFilePath));
+      
+      BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(tmpFileName));
+      
+      try(ibs;bos) {
+        while(true) {
+          byte[] bt = ibs.readNBytes(1024);
+          if(bt.length == 0) break;
+          bos.write(bt);
+          bos.flush();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      return tmpFileName;
+    } catch (FileNotFoundException e) {
+      throw new RuntimeException(e);
     }
   }
 }
