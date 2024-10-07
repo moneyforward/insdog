@@ -22,7 +22,7 @@ import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
 import static jp.co.moneyforward.autotest.actions.web.PageFunctions.locatorByText;
 import static jp.co.moneyforward.autotest.ca_web.accessmodels.CawebUtils.*;
 import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.DEPENDENCY_BASED;
-import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.saveBinaryImageAsTmpFile;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.materializeResource;
 
 /**
  * Data need to prepare before execution, example Office: abc-140129
@@ -527,14 +527,14 @@ public class FreePlanScenario extends CawebAccessingModel {
   /**
    * Uploading files via AI OCR feature
    *
-   * @param filePath Path of the file want to upload
+   * @param imageResourcePath Path of the file want to upload
    * @return The page act that performs the behavior in the description
    */
-  public static PageAct fileUploadAsAI_OCR(final String filePath) {
+  public static PageAct fileUploadAsAI_OCR(final String imageResourcePath) {
     return new PageAct("Upload file") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        String tmpFileName = saveBinaryImageAsTmpFile(filePath);
+        String tmpFileName = materializeResource(imageResourcePath).getAbsolutePath();
         
         //Select specified file and reflected it to page
         Locator fileInput = page.locator("input[type='file']");

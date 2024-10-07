@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import static com.github.valid8j.fluent.Expectations.*;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -269,6 +270,38 @@ class InternalUtilsTest extends TestBase {
     var file = new File("/tmp/");
     
     assertThrows(AutotestException.class, () -> InternalUtils.writeTo(file, "FILE_CONTENT"));
+  }
+  
+  @Test
+  void givenNullToOutput_whenMaterializeResource_thenExceptionThrown() {
+    var resourcePath = "ca_web/invoiceImage.png";
+    
+    assertThrows(NullPointerException.class, () -> InternalUtils.materializeResource(null, resourcePath));
+  }
+  
+  @Test
+  void givenNullToResourcePath_whenMaterializeResource_thenExceptionThrown() {
+    assertThrows(NullPointerException.class, () -> InternalUtils.materializeResource(null));
+  }
+  
+  @Test
+  void givenNullToResourcePathAndOutput_whenMaterializeResource_thenExceptionThrown() {
+    assertThrows(NullPointerException.class, () -> InternalUtils.materializeResource(null, null));
+  }
+  
+  @Test
+  void givenNonExistResourcePath_whenMaterializeResource_thenExceptionThrown() {
+    var resourcePath = "nonExistImage.png";
+    
+    assertThrows(RuntimeException.class, () -> InternalUtils.materializeResource(resourcePath));
+  }
+  
+  @Test
+  void givenResourcePath_whenMaterializeResource_thenFileExists() {
+    var resourcePath = "ca_web/invoiceImage.png";
+    
+    File output = InternalUtils.materializeResource(resourcePath);
+    assertTrue(output.exists());
   }
   
   private static <T> Function<Stream<T>, List<T>> toList() {
