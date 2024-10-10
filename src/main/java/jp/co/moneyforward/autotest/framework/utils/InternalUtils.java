@@ -59,24 +59,26 @@ public enum InternalUtils {
    * @return An `Optional` of branch name `String`.
    */
   public static Optional<String> currentBranchNameFor(File projectDir) {
+    if (!projectDir.exists())
+      return Optional.empty();
+
+    var builder = new FileRepositoryBuilder()
+        .setMustExist(true)
+        .findGitDir(projectDir.getAbsoluteFile())
+        .readEnvironment();
+    if (builder.getGitDir() == null)
+      return Optional.empty();
+
     try {
-      File gitDir = new File(projectDir, ".git");
-      if (!gitDir.exists())
-        return Optional.empty();
       //NOSONAR
-      try (Repository repository = new FileRepositoryBuilder()
-          .setMustExist(true)
-          .setGitDir(gitDir)
-          .readEnvironment()
-          .build()) {
+      try (Repository repository = builder.build()) {
         return Optional.of(repository.getBranch());
       }
     } catch (IOException e) {
       throw wrap(e);
     }
   }
-  
-  
+
   public static boolean isPresumablyRunningFromIDE() {
     return !isRunByTool();
   }

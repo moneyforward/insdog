@@ -9,6 +9,7 @@ import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.AutotestException;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -28,31 +29,42 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class InternalUtilsTest extends TestBase {
-  
   @Test
   void givenEmptyDirectory_whenCurrentBranchName_thenEmpty() throws IOException {
-    Path dir = Path.of(".work/testdirs");
-    //noinspection ResultOfMethodCallIgnored
-    dir.toFile().mkdirs();
-    var given = Files.createTempDirectory(dir, this.getClass().getSimpleName()).toFile();
-    given.deleteOnExit();
-    
+    var projectDir = Files.createTempDirectory("test").toFile();
+    projectDir.deleteOnExit();
+    var given = Path.of(projectDir.getAbsolutePath(), "not_exist").toFile();
+
     var out = InternalUtils.currentBranchNameFor(given);
-    
+
     System.out.println(out);
     assertAll(value(out).toBe().predicate(Optional::isEmpty));
   }
-  
+
   @Test
   void givenCurrentDirectory_whenCurrentBranchName_thenNonEmpty() {
     var out = InternalUtils.currentBranchName();
-    
+
     System.out.println(out);
     assertAll(
         value(out).toBe().predicate(Optional::isPresent),
         value(out).function(Optional::get).asString().toBe().notEmpty());
   }
-  
+
+  @Test
+  void givenNonGitProjectDirectory_whenCurrentBranchNameForIsCalled_thenEmpty() throws IOException {
+    File projectDir = File.createTempFile("dummy", "dir");
+    require(value(projectDir.delete()).toBe().trueValue());
+    File gitDir = new File(projectDir, ".git");
+    require(value(gitDir.mkdirs()).toBe().trueValue());
+    gitDir.deleteOnExit();
+    projectDir.deleteOnExit();
+    var out = InternalUtils.currentBranchNameFor(projectDir);
+
+    System.out.println(out);
+    assertAll(value(out).toBe().predicate(Optional::isEmpty));
+  }
+
   @Test
   void givenValidDateString_whenDate_thenParsed() {
     var out = InternalUtils.date("Jul/04/2024");
@@ -200,24 +212,7 @@ class InternalUtilsTest extends TestBase {
     
     assertStatement(value(value).toBe().instanceOf(Boolean.class));
   }
-  
-  @Test
-  void givenNonGitProjectDirectory_whenCurrentBranchNameForIsCalled_thenIoExceptionThrown() throws IOException {
-    File projectDir = File.createTempFile("dummy", "dir");
-    require(value(projectDir.delete()).toBe().trueValue());
-    File gitDir = new File(projectDir, ".git");
-    require(value(gitDir.mkdirs()).toBe().trueValue());
-    gitDir.deleteOnExit();
-    projectDir.deleteOnExit();
-    assertThrows(IOException.class, () -> {
-      try {
-        System.out.println(InternalUtils.currentBranchNameFor(projectDir));
-      } catch (RuntimeException out) {
-        throw out.getCause();
-      }
-    });
-  }
-  
+
   @Test
   void givenNop_whenFlattenIfSequential_thenReturnedOriginalAction() {
     Action nop = ActionSupport.nop();
