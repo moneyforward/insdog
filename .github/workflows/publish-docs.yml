@@ -79,7 +79,7 @@ jobs:
           make print-secrets >> "$GITHUB_ENV"
 
       - name: Build with Maven not Skipping JavaDoc
-        run: mvn -B package test
+        run: mvn -B package
 
       - name: Compile Documentation Sets
         env:
