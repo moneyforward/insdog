@@ -81,7 +81,8 @@ public class PersonalPlanScenario extends CawebAccessingModel {
   public static Scene uploadInvoiceAsAI_OCR() {
     return new Scene.Builder("page")
         .add(new Click(locatorByText("アップロード")))
-        .add(fileUploadAsAI_OCR("ca_web/invoiceImage.png"))
+        .add(fileUploadAsAI_OCR("ca_web/invoiceImage.png",
+                                "領収書", "電帳法の対象外"))
         .build();
   }
   
@@ -205,7 +206,7 @@ public class PersonalPlanScenario extends CawebAccessingModel {
   @When("openAccountingBooks_generalJournal")
   public static Scene exportMFFormat_generalJournal() {
     return new Scene.Builder("page")
-        .add(exportMFFormat(assertAlertSuccessIsDisplayed()))
+        .add(exportFileAsMFFormat(assertAlertSuccessIsDisplayed()))
         .build();
   }
   
@@ -368,7 +369,7 @@ public class PersonalPlanScenario extends CawebAccessingModel {
   public static Scene openSettlementAndDeclaration_consumptionTaxReturn() {
     return new Scene.Builder("page")
         .add(new Navigate(executionProfile().homeUrl()))
-        .add(navigateToNewTabUnderSidebarItem("決算・申告", "消費税申告",
+        .add(navigateToNewTabUnderSidebarItemAndAct("決算・申告", "消費税申告",
                                               elementIsEqualTo("#__next > div.css-h2zygn > div > div > button",
                                                                "新規作成")))
         .build();
@@ -379,7 +380,7 @@ public class PersonalPlanScenario extends CawebAccessingModel {
   @DependsOn("login")
   public static Scene openDocumentManagement_cloudBox() {
     return new Scene.Builder("page")
-        .add(navigateToNewTabUnderSidebarItem("書類管理", "クラウドBox", elementIsEqualTo("#__next > div.flex.h-screen.flex-col > div.flex.max-h-\\[calc\\(100vh_-_40px\\)\\].min-h-\\[calc\\(900px_-_40px\\)\\].grow > main > div.mb-8 > div.box-border.flex.h-12.min-w-full.items-center.justify-between.border-b.border-iron.bg-white-100.px-4.text-7.leading-8.text-mine-shaft333 > div", "ファイル")))
+        .add(navigateToNewTabUnderSidebarItemAndAct("書類管理", "クラウドBox", elementIsEqualTo("#__next > div.flex.h-screen.flex-col > div.flex.max-h-\\[calc\\(100vh_-_40px\\)\\].min-h-\\[calc\\(900px_-_40px\\)\\].grow > main > div.mb-8 > div.box-border.flex.h-12.min-w-full.items-center.justify-between.border-b.border-iron.bg-white-100.px-4.text-7.leading-8.text-mine-shaft333 > div", "ファイル")))
         .build();
   }
   
@@ -458,7 +459,7 @@ public class PersonalPlanScenario extends CawebAccessingModel {
   @DependsOn("openVariousSettings_Category")
   public static Scene createDepartment() {
     return new Scene.Builder("page")
-        .add(createDepartment("#js-new-root-dept", "大部門"))
+        .add(clickButtonToDisplayModalAndEnterDepartmentNameAndRegister("#js-new-root-dept", "大部門"))
         .build();
   }
   
@@ -480,7 +481,7 @@ public class PersonalPlanScenario extends CawebAccessingModel {
   @DependsOn("openVariousSettings_Category")
   public Scene createSubDepartment() {
     return new Scene.Builder("page")
-        .add(createDepartment("#js-dept-rows > li > ul > li > a", "子部門"))
+        .add(clickButtonToDisplayModalAndEnterDepartmentNameAndRegister("#js-dept-rows > li > ul > li > a", "子部門"))
         .build();
   }
   
@@ -530,204 +531,6 @@ public class PersonalPlanScenario extends CawebAccessingModel {
   }
   
   /**
-   * There are two types of modal related to ERP. If either of them is displayed, close it.
-   *
-   * @return The page act that performs the behavior in the description.
-   */
-  public static PageAct assertMessageAndClosePremiumModalIndividualPersonal(final String displayedMessage) {
-    return new PageAct("Close modal for ERP features") {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        Locator individualPersonalModal = page.locator("#js-premium-modal-individual-personal");
-        Locator individualPersonalMiniModal = page.locator("#js-premium-modal-individual-personal-mini");
-        
-        
-        boolean modalAppeared = false;
-        long startTime = System.currentTimeMillis();
-        
-        // enhanced waitForSelector feature: wait for either corporateBusinessModal or smallBusinessModal is displayed
-        while (!modalAppeared && (System.currentTimeMillis() - startTime) < 5000) {
-          if (individualPersonalModal.isVisible() || individualPersonalMiniModal.isVisible()) {
-            modalAppeared = true;
-          } else {
-            page.waitForTimeout(100); // Wait for 100 milliseconds before checking again
-          }
-        }
-        
-        String modalCloseButtonSelector = "#btn-modal-close > img";
-        if (individualPersonalModal.isVisible()) {
-          assertThat(individualPersonalModal.getByText(displayedMessage)).isVisible();
-          
-          individualPersonalModal.locator(modalCloseButtonSelector).click();
-        } else {
-          assertThat(individualPersonalMiniModal.getByText(displayedMessage)).isVisible();
-          
-          individualPersonalMiniModal.locator(modalCloseButtonSelector).click();
-        }
-      }
-    };
-  }
-  
-  /**
-   * Uploading files via AI OCR feature
-   *
-   * @param imageResourcePath Path of the file want to upload
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct fileUploadAsAI_OCR(final String imageResourcePath) {
-    return new PageAct(String.format("Upload file as AI OCR, target: %s", imageResourcePath)) {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        String tmpFileName = materializeResource(imageResourcePath).getAbsolutePath();
-        
-        //Select specified file and reflected it to page
-        Locator fileInput = page.locator("input[type='file']");
-        fileInput.first().setInputFiles(Paths.get(tmpFileName));
-        
-        page.waitForSelector("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > thead > tr");
-        
-        // Select 書類種別
-        page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(4) > div").click();
-        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs").getByText("領収書").click();
-        
-        // Select 電子帳簿保存法区分
-        page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(5) > div").click();
-        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs").getByText("電帳法の対象外").click();
-        
-        page.locator("#voucher-journals-index > main > footer > div > button").click();
-      }
-    };
-  }
-  
-  /**
-   * Exporting data such as journal data, Click and select file type
-   * Run PageAct after the file has been prepared
-   *
-   * @param locatorExportButton Buttons for selecting the data format, it is usually described as "エクスポート"
-   * @param dataFormat name of data format
-   * @param pageAct PageAct after export has started
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct exportDataSpecifiedFormat(final String locatorExportButton, final String dataFormat, PageAct pageAct) {
-    return new PageAct(String.format("Click '%s'->'%s, and then act specified PageAct'", locatorExportButton, dataFormat)) {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        page.locator(locatorExportButton).click();
-        Page newPage = page.waitForPopup(()->{
-          page.getByRole(LINK, new Page.GetByRoleOptions().setName(dataFormat)).click();
-        });
-        
-        pageAct.perform(newPage, executionEnvironment);
-        
-        //newPage.close();
-      }
-    };
-  }
-  
-  /**
-   * Exporting MF format data
-   * Run PageAct after the file has been prepared
-   *
-   * @param pageAct PageAct after export has started
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct exportMFFormat(PageAct pageAct) {
-    return new PageAct("Select export data type as MF format, and then act specified PageAct") {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        page.locator("#download-btn-menu").click();
-        page.getByRole(LINK, new Page.GetByRoleOptions().setName("MF形式")).click();
-        
-        String exportFormSelector = "#page-books > div.modal.fade.modal-io.js-modal-exports-mf.in > div > div";
-        
-        page.waitForSelector(exportFormSelector);
-        page.locator("#js-export-form > dl > dd > button").click();
-        
-        pageAct.perform(page, executionEnvironment);
-      }
-    };
-  }
-  
-  /**
-   * Confirm that #alert-success is displayed
-   *
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct assertAlertSuccessIsDisplayed() {
-    return new PageAct("Confirm that #alert-success is displayed") {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        assertThat(page.locator("#alert-success > p")).isVisible();
-      }
-    };
-  }
-  
-  /**
-   * If click on the menu on the left to move to another page, PageAct performs
-   * When moving to an external service
-   *
-   * @param menuItem Menu button name
-   * @param menuSubItem Sub-menu button name related to the menu
-   * @param pageAct PageAct after new page displays
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct navigateToNewTabUnderSidebarItem(final String menuItem, final String menuSubItem, PageAct pageAct) {
-    return new PageAct(String.format("Click '%s'->'%s', and then act specified PageAct in new tab", menuItem, menuSubItem)) {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        page.getByText(menuItem).click();
-        Page newPage = page.waitForPopup(()->{
-          page.getByRole(LINK, new Page.GetByRoleOptions().setName(menuSubItem)).click();
-        });
-        pageAct.perform(newPage, executionEnvironment);
-      }
-    };
-  }
-  
-  /**
-   * Checking whether the page contains the elements expecting
-   *
-   * @param locatorTargetElement Locator of the element to be checked
-   * @param expectedElementText The text that is expected for the element
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct elementIsEqualTo(final String locatorTargetElement, final String expectedElementText) {
-    return new PageAct("assert that element-is-equal") {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        assertThat(page.locator(locatorTargetElement)).hasText(expectedElementText);
-      }
-    };
-  }
-  
-  /**
-   * Creating a departments
-   *
-   * @param locatorButton Locator of the button that displays the form for creating departments
-   * @param value Department name
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct createDepartment(final String locatorButton, final String value) {
-    return new PageAct("create category: Display modal and enter value") {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        Locator categoryFormModal = page.locator("#js-add-dept-modal");
-        
-        page.locator(locatorButton).first().click();
-        
-        page.waitForSelector("#js-add-dept-modal");
-        
-        if (categoryFormModal.isVisible()) {
-          categoryFormModal.locator("#dept_name").fill(value);
-          categoryFormModal.locator("#js-btn-add-dept").click();
-          
-        }
-        categoryFormModal.locator("#btn-modal-close > img").click();
-      }
-    };
-  }
-  
-  /**
    * Confirm displayed message on "add members modal", then close it
    *
    * @return The page act that performs the behavior in the description.
@@ -752,6 +555,64 @@ public class PersonalPlanScenario extends CawebAccessingModel {
     };
   }
   
+  /**
+   * Uploading files via AI OCR feature
+   *
+   * @param imageResourcePath Path of the file want to upload
+   * @param documentType Select the type of 書類種別 from (領収書/請求書)
+   * @param categoryOfElectronicBookkeeping Select the type of 電子帳簿保存法区分 from ([ 電子取引 ] メールや電子データで受領したもの/電帳法の対象外)
+   * @return The page act that performs the behavior in the description
+   */
+  public static PageAct fileUploadAsAI_OCR(final String imageResourcePath, final String documentType, final String categoryOfElectronicBookkeeping) {
+    return new PageAct(String.format("Upload target file (%s) as AI OCR, then select invoice type as %s and %s", imageResourcePath, documentType, categoryOfElectronicBookkeeping)) {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        String tmpFileName = materializeResource(imageResourcePath).getAbsolutePath();
+        
+        //Select specified file and reflected it to page
+        Locator fileInput = page.locator("input[type='file']");
+        fileInput.first().setInputFiles(Paths.get(tmpFileName));
+        
+        page.waitForSelector("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > thead > tr");
+        
+        // Select 書類種別
+        page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(4) > div").click();
+        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs")
+            .getByText(documentType).click();
+        
+        // Select 電子帳簿保存法区分
+        page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(5) > div").click();
+        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs")
+            .getByText(categoryOfElectronicBookkeeping).click();
+        
+        page.locator("#voucher-journals-index > main > footer > div > button").click();
+      }
+    };
+  }
+  
+  /**
+   * Exporting MF format data
+   * Run PageAct after the file has been prepared
+   *
+   * @param pageAct PageAct after export has started
+   * @return The page act that performs the behavior in the description
+   */
+  public static PageAct exportFileAsMFFormat(PageAct pageAct) {
+    return new PageAct("Select export data type as MF format, and then act specified PageAct") {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        page.locator("#download-btn-menu").click();
+        page.getByRole(LINK, new Page.GetByRoleOptions().setName("MF形式")).click();
+        
+        String exportFormSelector = "#page-books > div.modal.fade.modal-io.js-modal-exports-mf.in > div > div";
+        
+        page.waitForSelector(exportFormSelector);
+        page.locator("#js-export-form > dl > dd > button").click();
+        
+        pageAct.perform(page, executionEnvironment);
+      }
+    };
+  }
 }
 
 

@@ -7,6 +7,7 @@ import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebUtils;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.xml.sax.helpers.LocatorImpl;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -57,5 +58,31 @@ class CawebUtilsTest {
     
     verify(locatorToBeClicked).click();
     verify(locatorToBeWaitedOn).waitFor(any());
+  }
+  
+  @Test
+  void whenAssertAlertSuccessIsDisplayed_thenAlertSuccessIsDisplayed() {
+    ExecutionEnvironment env = Mockito.mock(ExecutionEnvironment.class);
+    Page page = Mockito.mock(Page.class);
+    Locator locatorToBeVisible = (Locator) Mockito.mock(LocatorImpl.class);
+    when(page.locator("#alert-success > p")).thenReturn(locatorToBeVisible);
+    
+    PageAct pageAct = CawebUtils.assertAlertSuccessIsDisplayed();
+    pageAct.perform(page, env);
+    
+    verify(locatorToBeVisible).isVisible();
+  }
+  
+  @Test
+  void whenElementIsEqualTo_thenElementIsEqualTo() {
+    ExecutionEnvironment env = Mockito.mock(ExecutionEnvironment.class);
+    Page page = Mockito.mock(Page.class);
+    Locator locator = Mockito.mock(Locator.class);
+    when(page.locator(any(String.class))).thenReturn(locator);
+    
+    PageAct pageAct = CawebUtils.elementIsEqualTo("DUMMY > SELECTOR > STRING>", "Hello, world!");
+    pageAct.perform(page, env);
+    
+    verify(locator).textContent().equals("Hello, world!");
   }
 }

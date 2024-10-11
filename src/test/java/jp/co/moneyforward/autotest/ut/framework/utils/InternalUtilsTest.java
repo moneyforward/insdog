@@ -10,9 +10,10 @@ import jp.co.moneyforward.autotest.framework.core.AutotestException;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.internal.matchers.Null;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
@@ -21,12 +22,13 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.valid8j.Requires.requireNonNull;
 import static com.github.valid8j.fluent.Expectations.*;
+import static java.lang.Thread.currentThread;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class InternalUtilsTest extends TestBase {
   
@@ -302,6 +304,16 @@ class InternalUtilsTest extends TestBase {
     
     File output = InternalUtils.materializeResource(resourcePath);
     assertTrue(output.exists());
+  }
+  
+  @Test
+  void giveIOException_whenExtracted_thenExceptionThrown() throws IOException {
+    BufferedInputStream in = mock(BufferedInputStream.class);
+    BufferedOutputStream out = mock(BufferedOutputStream.class);
+    
+    when(in.readNBytes(1024)).thenThrow(new IOException("Mocked IOException"));
+    
+    assertThrows(AutotestException.class, () -> {InternalUtils.extracted(in, out);});
   }
   
   private static <T> Function<Stream<T>, List<T>> toList() {

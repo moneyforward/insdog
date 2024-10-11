@@ -79,7 +79,8 @@ public class FreePlanIndividualPersonal extends CawebAccessingModel {
   public static Scene uploadInvoiceAsAI_OCR() {
     return new Scene.Builder("page")
         .add(new Click(locatorByText("アップロード")))
-        .add(fileUploadAsAI_OCR("ca_web/invoiceImage.png"))
+        .add(fileUploadAsAI_OCR("ca_web/invoiceImage.png",
+                                "領収書", "電帳法の対象外"))
         .build();
   }
   
@@ -191,7 +192,7 @@ public class FreePlanIndividualPersonal extends CawebAccessingModel {
   @When("openAccountingBooks_generalJournal")
   public static Scene exportMFFormat_generalJournal() {
     return new Scene.Builder("page")
-        .add(exportMFFormat(assertMessageAndClosePremiumModalIndividualPersonal("パーソナルプランへの加入が必要です")))
+        .add(exportFileAsMFFormat(assertMessageAndClosePremiumModalIndividualPersonal("パーソナルプランへの加入が必要です")))
         .build();
   }
   
@@ -330,7 +331,7 @@ public class FreePlanIndividualPersonal extends CawebAccessingModel {
   public static Scene openSettlementAndDeclaration_consumptionTaxReturn() {
     return new Scene.Builder("page")
         .add(new Navigate(executionProfile().homeUrl()))
-        .add(navigateToNewTabUnderSidebarItem("決算・申告", "消費税申告", assertMessageAndClosePremiumModalIndividualPersonal("パーソナルプランへの加入が必要です")))
+        .add(navigateToNewTabUnderSidebarItemAndAct("決算・申告", "消費税申告", assertMessageAndClosePremiumModalIndividualPersonal("パーソナルプランへの加入が必要です")))
         .build();
   }
   
@@ -339,7 +340,7 @@ public class FreePlanIndividualPersonal extends CawebAccessingModel {
   @DependsOn("login")
   public static Scene openDocumentManagement_cloudBox() {
     return new Scene.Builder("page")
-        .add(navigateToNewTabUnderSidebarItem("書類管理", "クラウドBox", elementIsEqualTo("#__next > div.flex.h-screen.flex-col > div.flex.max-h-\\[calc\\(100vh_-_40px\\)\\].min-h-\\[calc\\(900px_-_40px\\)\\].grow > main > div.mb-8 > div.flex.w-full.place-content-between.px-3\\.5.py-3.bg-\\[\\#FDE2DE\\] > div.flex.h-\\[22px\\].items-end.text-5 > span", "現在のプランでは、新規ファイルをアップロードできません。")))
+        .add(navigateToNewTabUnderSidebarItemAndAct("書類管理", "クラウドBox", elementIsEqualTo("#__next > div.flex.h-screen.flex-col > div.flex.max-h-\\[calc\\(100vh_-_40px\\)\\].min-h-\\[calc\\(900px_-_40px\\)\\].grow > main > div.mb-8 > div.flex.w-full.place-content-between.px-3\\.5.py-3.bg-\\[\\#FDE2DE\\] > div.flex.h-\\[22px\\].items-end.text-5 > span", "現在のプランでは、新規ファイルをアップロードできません。")))
         .build();
   }
   
@@ -415,7 +416,7 @@ public class FreePlanIndividualPersonal extends CawebAccessingModel {
   @DependsOn("openVariousSettings_Category")
   public static Scene createDepartment() {
     return new Scene.Builder("page")
-        .add(createDepartment("#js-new-root-dept", "大部門"))
+        .add(clickButtonToDisplayModalAndEnterDepartmentNameAndRegister("#js-new-root-dept", "大部門"))
         .build();
   }
   
@@ -467,7 +468,7 @@ public class FreePlanIndividualPersonal extends CawebAccessingModel {
    * @return The page act that performs the behavior in the description.
    */
   public static PageAct assertMessageAndClosePremiumModalIndividualPersonal(final String displayedMessage) {
-    return new PageAct("Close modal for ERP features") {
+    return new PageAct("Assert Displayed message on Premium Modal for Personal and close it") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         Locator individualPersonalModal = page.locator("#js-premium-modal-individual-personal");
@@ -504,10 +505,12 @@ public class FreePlanIndividualPersonal extends CawebAccessingModel {
    * Uploading files via AI OCR feature
    *
    * @param imageResourcePath Path of the file want to upload
+   * @param documentType Select the type of 書類種別 from (領収書/請求書)
+   * @param categoryOfElectronicBookkeeping Select the type of 電子帳簿保存法区分 from ([ 電子取引 ] メールや電子データで受領したもの/電帳法の対象外)
    * @return The page act that performs the behavior in the description
    */
-  public static PageAct fileUploadAsAI_OCR(final String imageResourcePath) {
-    return new PageAct(String.format("Upload file as AI OCR, target: %s", imageResourcePath)) {
+  public static PageAct fileUploadAsAI_OCR(final String imageResourcePath, final String documentType, final String categoryOfElectronicBookkeeping) {
+    return new PageAct(String.format("Upload target file (%s) as AI OCR, then select invoice type as %s and %s", imageResourcePath, documentType, categoryOfElectronicBookkeeping)) {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         String tmpFileName = materializeResource(imageResourcePath).getAbsolutePath();
@@ -520,38 +523,15 @@ public class FreePlanIndividualPersonal extends CawebAccessingModel {
         
         // Select 書類種別
         page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(4) > div").click();
-        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs").getByText("領収書").click();
+        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs")
+            .getByText(documentType).click();
         
         // Select 電子帳簿保存法区分
         page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(5) > div").click();
-        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs").getByText("電帳法の対象外").click();
+        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs")
+            .getByText(categoryOfElectronicBookkeeping).click();
         
         page.locator("#voucher-journals-index > main > footer > div > button").click();
-      }
-    };
-  }
-  
-  /**
-   * Exporting data such as journal data, Click and select file type
-   * Run PageAct after the file has been prepared
-   *
-   * @param locatorExportButton Buttons for selecting the data format, it is usually described as "エクスポート"
-   * @param dataFormat name of data format
-   * @param pageAct PageAct after export has started
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct exportDataSpecifiedFormat(final String locatorExportButton, final String dataFormat, PageAct pageAct) {
-    return new PageAct(String.format("Click '%s'->'%s, and then act specified PageAct'", locatorExportButton, dataFormat)) {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        page.locator(locatorExportButton).click();
-        Page newPage = page.waitForPopup(()->{
-          page.getByRole(LINK, new Page.GetByRoleOptions().setName(dataFormat)).click();
-        });
-        
-        pageAct.perform(newPage, executionEnvironment);
-        
-        //newPage.close();
       }
     };
   }
@@ -563,7 +543,7 @@ public class FreePlanIndividualPersonal extends CawebAccessingModel {
    * @param pageAct PageAct after export has started
    * @return The page act that performs the behavior in the description
    */
-  public static PageAct exportMFFormat(PageAct pageAct) {
+  public static PageAct exportFileAsMFFormat(PageAct pageAct) {
     return new PageAct("Select export data type as MF format, and then act specified PageAct") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
@@ -579,84 +559,4 @@ public class FreePlanIndividualPersonal extends CawebAccessingModel {
       }
     };
   }
-  
-  /**
-   * Confirm that #alert-success is displayed
-   *
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct assertAlertSuccessIsDisplayed() {
-    return new PageAct("Confirm that #alert-success is displayed") {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        assertThat(page.locator("#alert-success > p")).isVisible();
-      }
-    };
-  }
-  
-  /**
-   * If click on the menu on the left to move to another page, PageAct performs
-   * When moving to an external service
-   *
-   * @param menuItem Menu button name
-   * @param menuSubItem Sub-menu button name related to the menu
-   * @param pageAct PageAct after new page displays
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct navigateToNewTabUnderSidebarItem(final String menuItem, final String menuSubItem, PageAct pageAct) {
-    return new PageAct(String.format("Click '%s'->'%s', and then act specified PageAct in new tab", menuItem, menuSubItem)) {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        page.getByText(menuItem).click();
-        Page newPage = page.waitForPopup(()->{
-          page.getByRole(LINK, new Page.GetByRoleOptions().setName(menuSubItem)).click();
-        });
-        pageAct.perform(newPage, executionEnvironment);
-      }
-    };
-  }
-  
-  /**
-   * Checking whether the page contains the elements expecting
-   *
-   * @param locatorTargetElement Locator of the element to be checked
-   * @param expectedElementText The text that is expected for the element
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct elementIsEqualTo(final String locatorTargetElement, final String expectedElementText) {
-    return new PageAct("assert that element-is-equal") {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        assertThat(page.locator(locatorTargetElement)).hasText(expectedElementText);
-      }
-    };
-  }
-  
-  /**
-   * Creating a departments
-   *
-   * @param locatorButton Locator of the button that displays the form for creating departments
-   * @param value Department name
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct createDepartment(final String locatorButton, final String value) {
-    return new PageAct("create category: Display modal and enter value") {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        Locator categoryFormModal = page.locator("#js-add-dept-modal");
-        
-        page.locator(locatorButton).first().click();
-        
-        page.waitForSelector("#js-add-dept-modal");
-        
-        if (categoryFormModal.isVisible()) {
-          categoryFormModal.locator("#dept_name").fill(value);
-          categoryFormModal.locator("#js-btn-add-dept").click();
-          
-        }
-        categoryFormModal.locator("#btn-modal-close > img").click();
-      }
-    };
-  }
-  
 }

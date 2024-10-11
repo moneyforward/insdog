@@ -1,12 +1,17 @@
 package jp.co.moneyforward.autotest.ca_web.accessmodels;
 
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Locator.WaitForOptions;
 import com.microsoft.playwright.Page;
 import jp.co.moneyforward.autotest.actions.web.PageAct;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
+import java.nio.file.Paths;
+
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static com.microsoft.playwright.options.AriaRole.LINK;
 import static com.microsoft.playwright.options.WaitForSelectorState.HIDDEN;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.materializeResource;
 
 /**
  * A utility class for **caweb** application.
@@ -46,6 +51,28 @@ public enum CawebUtils {
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         page.locator(elementOfficeDropdownMenu).click();
         page.getByRole(LINK, new Page.GetByRoleOptions().setName(menuItem)).click();
+      }
+    };
+  }
+  
+  /**
+   * If click on the menu on the left to move to another page, PageAct performs
+   * When moving to an external service
+   *
+   * @param menuItem Menu button name
+   * @param menuSubItem Sub-menu button name related to the menu
+   * @param pageAct PageAct after new page displays
+   * @return The page act that performs the behavior in the description
+   */
+  public static PageAct navigateToNewTabUnderSidebarItemAndAct(final String menuItem, final String menuSubItem, PageAct pageAct) {
+    return new PageAct(String.format("Click '%s'->'%s', and then act specified PageAct in new tab", menuItem, menuSubItem)) {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        page.getByText(menuItem).click();
+        Page newPage = page.waitForPopup(()->{
+          page.getByRole(LINK, new Page.GetByRoleOptions().setName(menuSubItem)).click();
+        });
+        pageAct.perform(newPage, executionEnvironment);
       }
     };
   }
@@ -100,6 +127,86 @@ public enum CawebUtils {
         // Let's make this a shared function.
         page.getByText(elementTextToClick, new Page.GetByTextOptions().setExact(true)).nth(0).click();
         page.locator(".ca-saving-cover").waitFor(new WaitForOptions().setState(HIDDEN));
+      }
+    };
+  }
+  
+  /**
+   * Confirm that #alert-success is displayed
+   *
+   * @return The page act that performs the behavior in the description
+   */
+  public static PageAct assertAlertSuccessIsDisplayed() {
+    return new PageAct("Confirm that #alert-success is displayed") {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        assertThat(page.locator("#alert-success > p")).isVisible();
+      }
+    };
+  }
+  
+  /**
+   * Checking whether the page contains the elements expecting
+   *
+   * @param locatorTargetElement Locator of the element to be checked
+   * @param expectedElementText The text that is expected for the element
+   * @return The page act that performs the behavior in the description
+   */
+  public static PageAct elementIsEqualTo(final String locatorTargetElement, final String expectedElementText) {
+    return new PageAct("assert that element-is-equal") {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        assertThat(page.locator(locatorTargetElement)).hasText(expectedElementText);
+      }
+    };
+  }
+  
+  /**
+   * Exporting data such as journal data, Click and select file type
+   * Run PageAct after the file has been prepared
+   *
+   * @param locatorExportButton Buttons for selecting the data format, it is usually described as "エクスポート"
+   * @param dataFormat name of data format, ex PDF出力
+   * @param pageAct PageAct after export has started, ex Confirm file exporting status
+   * @return The page act that performs the behavior in the description
+   */
+  public static PageAct exportDataSpecifiedFormat(final String locatorExportButton, final String dataFormat, PageAct pageAct) {
+    return new PageAct(String.format("Click '%s'->'%s, and then act specified PageAct'", locatorExportButton, dataFormat)) {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        page.locator(locatorExportButton).click();
+        Page newPage = page.waitForPopup(()->{
+          page.getByRole(LINK, new Page.GetByRoleOptions().setName(dataFormat)).click();
+        });
+        
+        pageAct.perform(newPage, executionEnvironment);
+      }
+    };
+  }
+  
+  /**
+   * Creating a departments 部門
+   *
+   * @param locatorButton Locator of the button that displays the form for creating departments
+   * @param value Department name
+   * @return The page act that performs the behavior in the description
+   */
+  public static PageAct clickButtonToDisplayModalAndEnterDepartmentNameAndRegister(final String locatorButton, final String value) {
+    return new PageAct("create department: Display modal and enter value") {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        Locator categoryFormModal = page.locator("#js-add-dept-modal");
+        
+        page.locator(locatorButton).first().click();
+        
+        page.waitForSelector("#js-add-dept-modal");
+        
+        if (categoryFormModal.isVisible()) {
+          categoryFormModal.locator("#dept_name").fill(value);
+          categoryFormModal.locator("#js-btn-add-dept").click();
+          
+        }
+        categoryFormModal.locator("#btn-modal-close > img").click();
       }
     };
   }
