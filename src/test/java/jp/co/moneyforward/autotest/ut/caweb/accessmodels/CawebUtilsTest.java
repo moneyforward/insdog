@@ -115,8 +115,8 @@ class CawebUtilsTest {
     String dataFormat = "PDF";
     
     when(page.locator(locatorExportButton)).thenReturn(locator);
-    when(page.waitForPopup(any())).thenReturn(newPage);
     when(page.getByRole(LINK, new Page.GetByRoleOptions().setName(dataFormat))).thenReturn(fileFormatLocator);
+    when(page.waitForPopup(any())).thenReturn(newPage);
     
     PageAct pageAct1 = CawebUtils.exportDataSpecifiedFormat(locatorExportButton, dataFormat, pageAct);
     pageAct1.perform(page, env);

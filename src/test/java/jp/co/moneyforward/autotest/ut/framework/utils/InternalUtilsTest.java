@@ -307,6 +307,14 @@ class InternalUtilsTest extends TestBase {
   }
   
   @Test
+  void givenNonExistResourcePathAndOutput_whenMaterializeResource_thenExceptionThrown() {
+    var resourcePath = "nonExistImage.png";
+    var output = new File("/tmp/");
+    
+    assertThrows(RuntimeException.class, () -> InternalUtils.materializeResource(output, resourcePath));
+  }
+  
+  @Test
   void giveIOException_whenExtracted_thenExceptionThrown() throws IOException {
     BufferedInputStream in = mock(BufferedInputStream.class);
     BufferedOutputStream out = mock(BufferedOutputStream.class);
