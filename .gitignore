@@ -61,3 +61,5 @@ autotest-ca.iml
 .go
 .rc
 .sdkman
+
+.env

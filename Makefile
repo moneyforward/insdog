@@ -10,6 +10,11 @@ ABOUT: help
 	@echo "__ENV_RC__='${__ENV_RC__}'"
 	:
 
+## Pull secret variables from the special orphan branch
+pull-secrets:
+	@git fetch origin environment --depth 1
+	@git restore --source origin/environment -- .env
+
 ## Cleans all intermediate files, which should be generated only under `target` directory.
 clean: clean-mfdoc
 	mvn -B clean

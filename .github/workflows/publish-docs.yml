@@ -72,6 +72,11 @@ jobs:
           cache: 'maven'
           overwrite-settings: false
 
+      - name: Pull secret file
+        run: |
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+          make pull-secrets
+
       - name: Build with Maven not Skipping JavaDoc
         run: mvn package test
 

@@ -46,6 +46,11 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: Pull secret file
+        run: |
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+          make pull-secrets
+
       - name: Build with Maven
         run: mvn -Dmaven.javadoc.skip=true package
 
