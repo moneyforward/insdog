@@ -51,10 +51,6 @@ function exec_trcli() {
 function perform() {
   local _report_file="${1}" _title="${2}" _run_description=${3}
 
-  function tr_project() {
-    echo "autotest-ca"
-  }
-
   function tr_suite_name() {
     echo "UT-2"
   }
