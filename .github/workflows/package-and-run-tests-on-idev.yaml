@@ -71,6 +71,8 @@ jobs:
           pip install trcli
           ./build.sh compile-test-report
           ./build.sh publish-test-report
+        env:
+          NAMESPACE_NAME: ${{ github.event.inputs.namespaceName }}
         continue-on-error: true
 
       - name: Check for failures
