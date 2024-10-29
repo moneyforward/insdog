@@ -56,11 +56,7 @@ function perform() {
     if [ -z "${TESTRAIL_PROJECT}" ]; then
       abort "Please set the environment variable TESTRAIL_PROJECT."
     fi
-    local _project="${TESTRAIL_PROJECT:-}"
-    if [[ "${TEST_ENVIRONMENT:-}" != "" ]]; then
-      _project="${_project}-${TEST_ENVIRONMENT:-}"
-    fi
-    echo "${_project}"
+    echo "${TESTRAIL_PROJECT:-}"
   }
 
   ## A user name with which you can upload a TestRail instance by `tr_url` function.
@@ -94,7 +90,7 @@ function perform() {
     echo "${TESTRAIL_SUITE_NAME:-}"
   }
 
-  exec_trcli "${_report_file}" "${_title}" "${_run_description}"
+  exec_trcli "${_report_file}" "[$(tr_project)][${TEST_ENVIRONMENT:-unknown}] ${_title}" "${_run_description}"
 }
 
 function main() {
