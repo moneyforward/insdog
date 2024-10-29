@@ -77,6 +77,8 @@ jobs:
           pip install trcli
           ./build.sh compile-test-report
           ./build.sh publish-test-report
+        env:
+          TEST_ENVIRONMENT: "Staging"
         continue-on-error: true
 
       - name: Check for failures

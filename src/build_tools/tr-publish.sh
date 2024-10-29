@@ -57,8 +57,8 @@ function perform() {
       abort "Please set the environment variable TESTRAIL_PROJECT."
     fi
     local _project="${TESTRAIL_PROJECT:-}"
-    if [[ "${NAMESPACE_NAME:-}" != "" ]]; then
-      _project="${_project}-${NAMESPACE_NAME:-}"
+    if [[ "${TEST_ENVIRONMENT:-}" != "" ]]; then
+      _project="${_project}-${TEST_ENVIRONMENT:-}"
     fi
     echo "${_project}"
   }
