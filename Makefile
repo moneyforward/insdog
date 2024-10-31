@@ -15,15 +15,21 @@ pull-secrets:
 	@git fetch origin environment --depth 1
 	@git restore --source origin/environment -- .env
 
+print-secrets:
+	@cat .env | sed 's/export //g'
+
 ## Cleans all intermediate files, which should be generated only under `target` directory.
 clean: clean-mfdoc
 	mvn -B clean
+
 ## Compiles production source code only
 compile:
 	mvn -B clean compile
+
 ## Executes unit tests
 test:
 	mvn -B clean compile test
+
 ## Generates wiki-site on your local.
 ## Generated site is found under .work/doc/wiki
 ## Please upgrade your local bash version by using `brew install bash`.
@@ -70,7 +76,18 @@ javadoc:
 ## You need to run `build` target beforehand.
 run-all-tests:
 	java --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
-         -jar target/autotest-caweb.jar -q 'classname:~.*' run
+	       -jar target/autotest-caweb.jar \
+	       -q 'classname:~.*' \
+	       run
+
+## Run all tests in idev environment
+## You need to run `build` target beforehand.
+run-all-tests-on-idev-%:
+	java --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
+	       -jar target/autotest-caweb.jar \
+	       -q 'classname:~.*' \
+	       "--execution-profile=domain:ca-web-${@:run-all-tests-on-idev-%=%}.idev.test.musubu.co.in" \
+	       run
 
 ## Compile test report.
 ## You need to run `run` target beforehand.

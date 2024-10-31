@@ -50,6 +50,7 @@ jobs:
         run: |
           git config --global --add safe.directory "${GITHUB_WORKSPACE}"
           make pull-secrets
+          make print-secrets >> "$GITHUB_ENV"
 
       - name: Build with Maven
         run: mvn -Dmaven.javadoc.skip=true package
@@ -57,11 +58,7 @@ jobs:
       - name: Run all the tests
         id: main
         run: |
-          java  --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
-                -jar target/autotest-caweb.jar \
-                -q 'classname:~.*' \
-                "--execution-profile=domain:ca-web-${{ github.event.inputs.namespaceName }}.idev.test.musubu.co.in" \
-                run
+          ./build.sh run-all-tests-on-idev-${{ github.event.inputs.namespaceName }}
         continue-on-error: true
 
       - name: Upload test results
