@@ -1,8 +1,7 @@
 package jp.co.moneyforward.autotest.ca_web.core;
 
 import com.eatthepath.otp.TimeBasedOneTimePasswordGenerator;
-import jp.co.moneyforward.autotest.framework.core.ExecutionProfile;
-import jp.co.moneyforward.autotest.framework.core.ExecutionProfile.CreateWith;
+import jp.co.moneyforward.autotest.actions.web.SendKey;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 public class CawebExecutionProfileImpl implements CawebExecutionProfile {
@@ -41,17 +40,17 @@ public class CawebExecutionProfileImpl implements CawebExecutionProfile {
    */
   @Override
   public String userEmail() {
-    return "ukai.hiroshi+autotest1@moneyforward.co.jp";
+    return SendKey.MASK_PREFIX + System.getenv("TEST_USER_EMAIL");
   }
   
   @Override
   public String userPassword() {
-    return "MASK!!QAZ@WSX";
+    return SendKey.MASK_PREFIX + System.getenv("TEST_USER_PASSWORD");
   }
   
   @Override
   public String totpKeyString() {
-    return "SVW6 6DVC 3Z3P SNIN C454 G5HP 5Y5V ZDPA";
+    return System.getenv("TEST_TOTP_KEY");
   }
   
   @Override
@@ -61,12 +60,12 @@ public class CawebExecutionProfileImpl implements CawebExecutionProfile {
   
   @Override
   public String accountServiceId() {
-    return "MASK!WgeiXfUgHsPn90t5kQtS";
+    return SendKey.MASK_PREFIX + System.getenv("TEST_ACCOUNT_SERVICE_ID");
   }
   
   @Override
   public String accountServicePassword() {
-    return "MASK!eQCZmxlS1DlmB8Moe710";
+    return SendKey.MASK_PREFIX + System.getenv("TEST_ACCOUNT_SERVICE_PASSWORD");
   }
   
   /**
