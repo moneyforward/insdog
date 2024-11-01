@@ -354,11 +354,12 @@ public enum InternalUtils {
     requireNonNull(resourcePath);
     String fullFilePath = requireNonNull(currentThread().getContextClassLoader()
                                                         .getResource(resourcePath)).getFile();
-    try {
-      extracted(new BufferedInputStream(new FileInputStream(fullFilePath)), new BufferedOutputStream(new FileOutputStream(output)));
-    } catch (FileNotFoundException e) {
+    
+    try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(fullFilePath));
+         BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(output))) {
+      extracted(in, out);
+    } catch (IOException e) {
       throw wrap(e);
-      
     }
   }
   
@@ -370,7 +371,6 @@ public enum InternalUtils {
         if (bt.length == 0) break;
         out.write(bt);
         out.flush();
-        in.close();
       }
     } catch (IOException e) {
       throw wrap(e);
