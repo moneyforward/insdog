@@ -67,9 +67,7 @@ public enum CawebUtils {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         page.getByText(menuItem).click();
-        Page newPage = page.waitForPopup(()->{
-          page.getByRole(LINK, new Page.GetByRoleOptions().setName(menuSubItem)).click();
-        });
+        Page newPage = page.waitForPopup(()-> page.getByRole(LINK, new Page.GetByRoleOptions().setName(menuSubItem)).click());
         pageAct.perform(newPage, executionEnvironment);
       }
     };
@@ -143,9 +141,7 @@ public enum CawebUtils {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         page.locator(locatorExportButton).click();
-        Page newPage = page.waitForPopup(()->{
-          page.getByRole(LINK, new Page.GetByRoleOptions().setName(dataFormat)).click();
-        });
+        Page newPage = page.waitForPopup(()-> page.getByRole(LINK, new Page.GetByRoleOptions().setName(dataFormat)).click());
         
         pageAct.perform(newPage, executionEnvironment);
       }

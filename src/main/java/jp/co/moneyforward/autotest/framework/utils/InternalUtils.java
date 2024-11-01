@@ -333,7 +333,8 @@ public enum InternalUtils {
    */
   public static File materializeResource(String resourcePath) {
     try {
-      var output = createTempFile("tmp", ".png");
+      var tmpDir = Files.createTempDirectory("tmp");
+      var output = createTempFile("tmp", ".png", tmpDir.toFile());
       output.deleteOnExit();
       materializeResource(output, resourcePath);
       return output;
@@ -369,6 +370,7 @@ public enum InternalUtils {
         if (bt.length == 0) break;
         out.write(bt);
         out.flush();
+        in.close();
       }
     } catch (IOException e) {
       throw wrap(e);
