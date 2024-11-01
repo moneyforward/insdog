@@ -6,8 +6,6 @@ import com.microsoft.playwright.Page;
 import jp.co.moneyforward.autotest.actions.web.PageAct;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
-import java.nio.file.Paths;
-
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static com.microsoft.playwright.options.AriaRole.LINK;
 import static com.microsoft.playwright.options.WaitForSelectorState.HIDDEN;
@@ -127,36 +125,6 @@ public enum CawebUtils {
         // Let's make this a shared function.
         page.getByText(elementTextToClick, new Page.GetByTextOptions().setExact(true)).nth(0).click();
         page.locator(".ca-saving-cover").waitFor(new WaitForOptions().setState(HIDDEN));
-      }
-    };
-  }
-  
-  /**
-   * Confirm that #alert-success is displayed
-   *
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct assertAlertSuccessIsDisplayed() {
-    return new PageAct("Confirm that #alert-success is displayed") {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        assertThat(page.locator("#alert-success > p")).isVisible();
-      }
-    };
-  }
-  
-  /**
-   * Checking whether the page contains the elements expecting
-   *
-   * @param locatorTargetElement Locator of the element to be checked
-   * @param expectedElementText The text that is expected for the element
-   * @return The page act that performs the behavior in the description
-   */
-  public static PageAct elementIsEqualTo(final String locatorTargetElement, final String expectedElementText) {
-    return new PageAct("assert that element-is-equal") {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        assertThat(page.locator(locatorTargetElement)).hasText(expectedElementText);
       }
     };
   }

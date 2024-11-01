@@ -312,7 +312,7 @@ public class FreePlanScenario extends CawebAccessingModel {
   @DependsOn("login")
   public static Scene openDocumentManagement_cloudBox() {
     return new Scene.Builder("page")
-        .add(navigateToNewTabUnderSidebarItemAndAct("書類管理", "クラウドBox", elementIsEqualTo("#__next > div.flex.h-screen.flex-col > div.flex.max-h-\\[calc\\(100vh_-_40px\\)\\].min-h-\\[calc\\(900px_-_40px\\)\\].grow > main > div.mb-8 > div.flex.w-full.place-content-between.px-3\\.5.py-3.bg-\\[\\#FDE2DE\\] > div.flex.h-\\[22px\\].items-end.text-5 > span", "現在のプランでは、新規ファイルをアップロードできません。")))
+        .add(navigateToNewTabUnderSidebarItemAndAct("書類管理", "クラウドBox", assertLocatorHasExpectedText("#__next > div.flex.h-screen.flex-col > div.flex.max-h-\\[calc\\(100vh_-_40px\\)\\].min-h-\\[calc\\(900px_-_40px\\)\\].grow > main > div.mb-8 > div.flex.w-full.place-content-between.px-3\\.5.py-3.bg-\\[\\#FDE2DE\\] > div.flex.h-\\[22px\\].items-end.text-5 > span", "現在のプランでは、新規ファイルをアップロードできません。")))
         .build();
   }
   
@@ -633,6 +633,36 @@ public class FreePlanScenario extends CawebAccessingModel {
         page.locator("#js-export-form > dl > dd > button").click();
         
         pageAct.perform(page, executionEnvironment);
+      }
+    };
+  }
+  
+  /**
+   * Confirm that #alert-success is displayed
+   *
+   * @return The page act that performs the behavior in the description
+   */
+  public static PageAct assertAlertSuccessIsDisplayed() {
+    return new PageAct("Confirm that #alert-success is displayed") {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        assertThat(page.locator("#alert-success > p")).isVisible();
+      }
+    };
+  }
+  
+  /**
+   * Checking whether the page contains the elements expecting
+   *
+   * @param targetLocator Locator of the element to be checked
+   * @param expectedText The text that is expected for the element
+   * @return The page act that performs the behavior in the description
+   */
+  public static PageAct assertLocatorHasExpectedText(final String targetLocator, final String expectedText) {
+    return new PageAct("assert that element-is-equal") {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        assertThat(page.locator(targetLocator)).hasText(expectedText);
       }
     };
   }

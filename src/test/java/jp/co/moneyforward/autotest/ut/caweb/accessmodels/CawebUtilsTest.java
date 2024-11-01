@@ -2,13 +2,11 @@ package jp.co.moneyforward.autotest.ut.caweb.accessmodels;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.options.AriaRole;
 import jp.co.moneyforward.autotest.actions.web.PageAct;
 import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebUtils;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.xml.sax.helpers.LocatorImpl;
 
 import javax.management.relation.Role;
 
@@ -30,6 +28,22 @@ class CawebUtilsTest {
     pageAct.perform(page, env);
     
     verify(locatorToBeClicked).click();
+  }
+  
+  @Test
+  void whenNavigateToMenuItemUnderOfficeSettingItem_thenMenuItemUnderOfficeSettingItemIsClicked() {
+    ExecutionEnvironment env = Mockito.mock(ExecutionEnvironment.class);
+    Locator locatorOfficeDropdownMenu = Mockito.mock(Locator.class);
+    Locator locatorMenuItem = Mockito.mock(Locator.class);
+    Page page = Mockito.mock(Page.class);
+    when(page.locator(any(String.class))).thenReturn(locatorOfficeDropdownMenu);
+    when(page.getByRole(any(), any())).thenReturn(locatorMenuItem);
+    
+    PageAct pageAct = CawebUtils.navigateToMenuItemUnderOfficeSettingItem("Hello", "World");
+    pageAct.perform(page, env);
+    
+    verify(locatorOfficeDropdownMenu).click();
+    verify(locatorMenuItem).click();
   }
   
   @Test
@@ -88,19 +102,6 @@ class CawebUtilsTest {
     verify(locatorToBeWaitedOn).waitFor(any());
   }
   
-//  @Test
-//  void whenElementIsEqualTo_thenElementIsEqualTo() {
-//    ExecutionEnvironment env = Mockito.mock(ExecutionEnvironment.class);
-//    Page page = Mockito.mock(Page.class);
-//    Locator locator = Mockito.mock(Locator.class);
-//    when(page.locator(any(String.class))).thenReturn(locator);
-//
-//    PageAct pageAct = CawebUtils.elementIsEqualTo("DUMMY > SELECTOR > STRING>", "Hello, world!");
-//    pageAct.perform(page, env);
-//
-//    verify(locator).textContent().equals("Hello, world!");
-//  }
-  
   @Test
   void whenExportDataSpecifiedFormat_thenPageActPerformedInNewTab() {
     ExecutionEnvironment env = Mockito.mock(ExecutionEnvironment.class);
@@ -123,7 +124,6 @@ class CawebUtilsTest {
     
     verify(locator).click();
     verify(page).waitForPopup(any());
-//    verify(fileFormatLocator).click();
     verify(pageAct).perform(newPage, env);
   }
   

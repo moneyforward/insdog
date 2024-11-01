@@ -370,8 +370,8 @@ public class PersonalPlanScenario extends CawebAccessingModel {
     return new Scene.Builder("page")
         .add(new Navigate(executionProfile().homeUrl()))
         .add(navigateToNewTabUnderSidebarItemAndAct("決算・申告", "消費税申告",
-                                              elementIsEqualTo("#__next > div.css-h2zygn > div > div > button",
-                                                               "新規作成")))
+                                                    assertLocatorHasExpectedText("#__next > div.css-h2zygn > div > div > button",
+                                                                                 "新規作成")))
         .build();
   }
   
@@ -380,7 +380,7 @@ public class PersonalPlanScenario extends CawebAccessingModel {
   @DependsOn("login")
   public static Scene openDocumentManagement_cloudBox() {
     return new Scene.Builder("page")
-        .add(navigateToNewTabUnderSidebarItemAndAct("書類管理", "クラウドBox", elementIsEqualTo("#__next > div.flex.h-screen.flex-col > div.flex.max-h-\\[calc\\(100vh_-_40px\\)\\].min-h-\\[calc\\(900px_-_40px\\)\\].grow > main > div.mb-8 > div.box-border.flex.h-12.min-w-full.items-center.justify-between.border-b.border-iron.bg-white-100.px-4.text-7.leading-8.text-mine-shaft333 > div", "ファイル")))
+        .add(navigateToNewTabUnderSidebarItemAndAct("書類管理", "クラウドBox", assertLocatorHasExpectedText("#__next > div.flex.h-screen.flex-col > div.flex.max-h-\\[calc\\(100vh_-_40px\\)\\].min-h-\\[calc\\(900px_-_40px\\)\\].grow > main > div.mb-8 > div.box-border.flex.h-12.min-w-full.items-center.justify-between.border-b.border-iron.bg-white-100.px-4.text-7.leading-8.text-mine-shaft333 > div", "ファイル")))
         .build();
   }
   
@@ -610,6 +610,36 @@ public class PersonalPlanScenario extends CawebAccessingModel {
         page.locator("#js-export-form > dl > dd > button").click();
         
         pageAct.perform(page, executionEnvironment);
+      }
+    };
+  }
+  
+  /**
+   * Confirm that #alert-success is displayed
+   *
+   * @return The page act that performs the behavior in the description
+   */
+  public static PageAct assertAlertSuccessIsDisplayed() {
+    return new PageAct("Confirm that #alert-success is displayed") {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        assertThat(page.locator("#alert-success > p")).isVisible();
+      }
+    };
+  }
+  
+  /**
+   * Checking whether the page contains the elements expecting
+   *
+   * @param targetLocator Locator of the element to be checked
+   * @param expectedText The text that is expected for the element
+   * @return The page act that performs the behavior in the description
+   */
+  public static PageAct assertLocatorHasExpectedText(final String targetLocator, final String expectedText) {
+    return new PageAct("assert that element-is-equal") {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        assertThat(page.locator(targetLocator)).hasText(expectedText);
       }
     };
   }
