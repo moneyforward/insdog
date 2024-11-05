@@ -1,6 +1,10 @@
 package jp.co.moneyforward.autotest.ca_web.core;
 
 import com.eatthepath.otp.TimeBasedOneTimePasswordGenerator;
+import jp.co.moneyforward.autotest.ca_web.tests.erpFunctionalityVerification.BusinessPlanScenario;
+import jp.co.moneyforward.autotest.ca_web.tests.erpFunctionalityVerification.FreePlanIndividualPersonal;
+import jp.co.moneyforward.autotest.ca_web.tests.erpFunctionalityVerification.FreePlanScenario;
+import jp.co.moneyforward.autotest.ca_web.tests.erpFunctionalityVerification.PersonalPlanScenario;
 import jp.co.moneyforward.autotest.framework.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.framework.core.ExecutionProfile.CreateWith;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
@@ -104,7 +108,13 @@ public class CawebExecutionProfileImpl implements CawebExecutionProfile {
   }
   
   @Override
-  public String officeName() {
-    return "abc-" + differentiatingSuffix;
+  public String officeName(Object model) {
+    return switch (model) {
+      case BusinessPlanScenario businessPaid -> "abc-154206";
+      case FreePlanScenario businessFree -> "abc-173041";
+      case PersonalPlanScenario personalPaid -> "PersonalPaid";
+      case FreePlanIndividualPersonal personalFree -> "PersonalFree";
+      default -> "abc-" + differentiatingSuffix;
+    };
   }
 }

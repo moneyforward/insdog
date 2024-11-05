@@ -199,5 +199,5 @@ public interface CawebExecutionProfile extends ExecutionProfile {
   
   String userDisplayName();
   
-  String officeName();
+  String officeName(Object model);
 }

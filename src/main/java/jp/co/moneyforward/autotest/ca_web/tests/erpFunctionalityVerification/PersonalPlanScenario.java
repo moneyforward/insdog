@@ -63,6 +63,15 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.material
 public class PersonalPlanScenario extends CawebAccessingModel {
   @Named
   @Export("page")
+  @DependsOn("testInitialize")
+  public static Scene toHome() {
+    return new Scene.Builder("page")
+        .add(new Navigate(executionProfile().homeUrl()))
+        .build();
+  }
+  
+  @Named
+  @Export("page")
   @DependsOn("login")
   public static Scene openEnterJournalAutomatically_fromAI_OCR() {
     return new Scene.Builder("page")
