@@ -51,14 +51,46 @@ function exec_trcli() {
 function perform() {
   local _report_file="${1}" _title="${2}" _run_description=${3}
 
+  ## A name of TestRail project the Test Run should be created under.
   function tr_project() {
-    echo "autotest-ca"
+    if [ -z "${TESTRAIL_PROJECT}" ]; then
+      abort "Please set the environment variable TESTRAIL_PROJECT."
+    fi
+    echo "${TESTRAIL_PROJECT:-}"
+  }
+
+  ## A user name with which you can upload a TestRail instance by `tr_url` function.
+  function tr_username() {
+    if [ -z "${TESTRAIL_USERNAME}" ]; then
+      abort "Please set the environment variable TESTRAIL_USERNAME."
+    fi
+    echo "${TESTRAIL_USERNAME:-}"
+  }
+
+  ## A password used to access a TestRail instance (see `tr_url` function) by a user specified by `tr_username`.
+  function tr_password() {
+    if [ -z "${TESTRAIL_PASSWORD}" ]; then
+      abort "Please set the environment variable TESTRAIL_PASSWORD."
+    fi
+    echo "${TESTRAIL_PASSWORD:-}"
+  }
+
+  ## An url that specifies TestRail instance.
+  function tr_url() {
+    if [ -z "${TESTRAIL_URL}" ]; then
+      abort "Please set the environment variable TESTRAIL_URL."
+    fi
+    echo "${TESTRAIL_URL:-}"
   }
 
   function tr_suite_name() {
-    echo "UT-2"
+    if [ -z "${TESTRAIL_SUITE_NAME}" ]; then
+      abort "Please set the environment variable TESTRAIL_SUITE_NAME."
+    fi
+    echo "${TESTRAIL_SUITE_NAME:-}"
   }
-  exec_trcli "${_report_file}" "${_title}" "${_run_description}"
+
+  exec_trcli "${_report_file}" "[$(tr_project)][${TEST_ENVIRONMENT:-unknown}] ${_title}" "${_run_description}"
 }
 
 function main() {

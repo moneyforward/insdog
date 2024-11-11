@@ -5,9 +5,9 @@
 ## This script removes all the artifacts of autotest-ca except for the most recent 10 items.
 #####
 
-OWNER=moneyforward
-REPO="autotest-ca"
-TOKEN="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"
+OWNER=${GH_OWNER:-}
+REPO=${GH_REPO:-}
+TOKEN=${GH_TOKEN:-}
 
 function compose_github_artifacts_url() {
   local _id="${1}"
@@ -31,4 +31,3 @@ function main() {
 }
 
 main "${@}"
-
