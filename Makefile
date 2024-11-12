@@ -76,7 +76,7 @@ javadoc:
 ## You need to run `build` target beforehand.
 run-all-tests:
 	java --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
-	       -jar target/autotest-caweb.jar \
+	       -jar ca_web/target/autotest-caweb.jar \
 	       -q 'classname:~.*' \
 	       run
 
@@ -84,7 +84,7 @@ run-all-tests:
 ## You need to run `build` target beforehand.
 run-all-tests-on-idev-%:
 	java --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
-	       -jar target/autotest-caweb.jar \
+	       -jar ca_web/target/autotest-caweb.jar \
 	       -q 'classname:~.*' \
 	       "--execution-profile=domain:ca-web-${@:run-all-tests-on-idev-%=%}.idev.test.musubu.co.in" \
 	       run

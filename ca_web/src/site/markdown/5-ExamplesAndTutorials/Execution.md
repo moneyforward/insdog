@@ -8,7 +8,7 @@ Following is the usage of the CLI tool.
 
 To create the executable, please do `package-without-javadoc` at the project root directory.
 
-**NOTE:** As of today (June/2024), not a few features in this list are yet to be implemented.  
+**NOTE:** As of today (June/2024), not a few features in this list are yet to be implemented.
 
 ```text
 Usage: autotest-cli [-hV] [--execution-profile=<executionProfile>]
@@ -121,21 +121,21 @@ Commands:
 **Running all the tests:**
 
 ```text
-java -jar target/autotest-caweb.jar -q 'classname:~.*' run
+java -jar ca_web/target/autotest-caweb.jar -q 'classname:~.*' run
 ```
 
 The part `-q 'classname:~.*'` means: query (**-q**, **--query**) where **classname:** matches with regular expression (**~**) `.*`.
 If you want to do exact match, you can do `-q 'classname:=fully.qualified.ClassName`.
 For partial match, you can do: `-q 'classname:%ClassName'`
 
-Actually, just to run all tests, you can omit the `-q` option in the example because its default is desinged to be `classname:~.*`. 
+Actually, just to run all tests, you can omit the `-q` option in the example because its default is desinged to be `classname:~.*`.
 
 **List all tags:**
 
 Tag is an annotation attached to tests.
 
 ```text
-java -jar target/autotest-caweb.jar list-tags
+java -jar ca_web/target/autotest-caweb.jar list-tags
 ```
 
 This may print:
@@ -152,7 +152,7 @@ Check the `run` subcommand, either.
 **Run tests matching tags:**
 
 ```text
-java -jar target/autotest-caweb.jar -q 'tag:%bank' run
+java -jar ca_web/target/autotest-caweb.jar -q 'tag:%bank' run
 ```
 
 To define and attach tags to test classes, check [ProgrammingModel](ProgrammingModel.md).
@@ -162,7 +162,7 @@ To define and attach tags to test classes, check [ProgrammingModel](ProgrammingM
 This will print all the known tests:
 
 ```text
-java -jar target/autotest-caweb.jar list-tests
+java -jar ca_web/target/autotest-caweb.jar list-tests
 ```
 
 And it may print following:
@@ -173,10 +173,10 @@ class jp.co.moneyforward.autotest.ca_web.tests.pages.VisitMenuItemsTest
 ```
 
 By specifying queries (`-q`, `--query`), you can identify tests to be executed by `run` subcommand without actually executing them.
-That is, 
+That is,
 
 ```text
-java -jar target/autotest-caweb.jar -q 'tag:%bank' list-tests
+java -jar ca_web/target/autotest-caweb.jar -q 'tag:%bank' list-tests
 ```
 
 will print only:
@@ -192,7 +192,7 @@ Because `BankConnectingTest` is the only test to which `bank` tag is attached, c
 The query syntax can take `classname`, not only `tag`, as an attribute with which matching happens.
 
 ```text
-java -jar target/autotest-caweb.jar -q `classname:%BankConnectingTest`
+java -jar ca_web/target/autotest-caweb.jar -q `classname:%BankConnectingTest`
 ```
 
 

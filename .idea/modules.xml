@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/autotest.iml" filepath="$PROJECT_DIR$/autotest.iml" />
       <module fileurl="file://$PROJECT_DIR$/autotest-ca_web.iml" filepath="$PROJECT_DIR$/autotest-ca_web.iml" />
+      <module fileurl="file://$PROJECT_DIR$/autotest-framework.iml" filepath="$PROJECT_DIR$/autotest-framework.iml" />
     </modules>
   </component>
 </project>

@@ -123,7 +123,7 @@ It will show log like following.
 
 [source, bash]
 ----
-java -jar target/autotest-caweb.jar -q 'classname:~.*' run
+java -jar ca_web/target/autotest-caweb.jar -q 'classname:~.*' run
 Running tests in:[jp.co.moneyforward.autotest.ca_web.tests.bankaccount.BankConnectingTest]
 
 WARNING: sun.reflect.Reflection.getCallerClass is not supported. This will impact performance.
