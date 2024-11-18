@@ -78,10 +78,7 @@ public class IndividualFree extends CawebErpAccessingModel {
     return new Scene.Builder("page")
         .add(new Click(locatorByText("自動で仕訳")))
         .add(new Click(linkLocatorByText("AI-OCRから入力")))
-        .assertion((Page p) -> value(p).function(locatorBySelector("#voucher-journals-candidates-index > main > div.tabMenuWrapper___S4Z39 > nav > ul > li:nth-child(2)"))
-                                       .function(textContent())
-                                       .toBe()
-                                       .equalTo("仕訳候補"))
+        .add(assertLocatorIsDisplayed("#voucher-journals-candidates-index > main > div.body___WkbVx > table > tbody:nth-child(2)"))
         .build();
   }
   
@@ -90,7 +87,7 @@ public class IndividualFree extends CawebErpAccessingModel {
   @DependsOn("openEnterJournalAutomatically_fromAI_OCR")
   public Scene uploadInvoiceAsAI_OCR() {
     return new Scene.Builder("page")
-        .add(new Click(locatorByText("アップロード")))
+        .add(new Click(locatorByText("ファイル選択")))
         .add(fileUploadAsAI_OCR("ca_web/invoiceImage.png",
                                 "領収書", "電帳法の対象外"))
         .build();
@@ -186,7 +183,7 @@ public class IndividualFree extends CawebErpAccessingModel {
   @When("openAccountingBooks_generalJournal")
   public Scene exportPDF_generalJournal() {
     return new Scene.Builder("page")
-        .add(exportDataSpecifiedFormat("#download-btn-menu", "PDF出力", assertAlertSuccessIsDisplayed()))
+        .add(exportDataSpecifiedFormat("#download-btn-menu", "PDF出力", assertLocatorIsDisplayed("#alert-success > p")))
         .build();
   }
   
@@ -531,20 +528,6 @@ public class IndividualFree extends CawebErpAccessingModel {
         //Select specified file and reflected it to page
         Locator fileInput = page.locator("input[type='file']");
         fileInput.first().setInputFiles(Paths.get(tmpFileName));
-        
-        page.waitForSelector("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > thead > tr");
-        
-        // Select 書類種別
-        page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(4) > div").click();
-        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs")
-            .getByText(documentType).click();
-        
-        // Select 電子帳簿保存法区分
-        page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(5) > div").click();
-        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs")
-            .getByText(categoryOfElectronicBookkeeping).click();
-        
-        page.locator("#voucher-journals-index > main > footer > div > button").click();
       }
     };
   }
@@ -579,11 +562,11 @@ public class IndividualFree extends CawebErpAccessingModel {
    *
    * @return The page act that performs the behavior in the description
    */
-  public static PageAct assertAlertSuccessIsDisplayed() {
+  public static PageAct assertLocatorIsDisplayed(final String targetLocator) {
     return new PageAct("Confirm that #alert-success is displayed") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        assertThat(page.locator("#alert-success > p")).isVisible();
+        assertThat(page.locator(targetLocator)).isVisible();
       }
     };
   }

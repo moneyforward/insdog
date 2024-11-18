@@ -108,7 +108,7 @@ class CawebExecutionProfileTest {
     IndividualPersonal model = new IndividualPersonal();
     var officeName = createCawebExecutionProfile().officeName(model);
     
-    assertAll(value(officeName).toBe().equalTo("IndividualPersonal"));
+    assertAll(value(officeName).toBe().equalTo("PersonalPaid"));
   }
   
   @Test
@@ -116,7 +116,7 @@ class CawebExecutionProfileTest {
     IndividualFree model = new IndividualFree();
     var officeName = createCawebExecutionProfile().officeName(model);
     
-    assertAll(value(officeName).toBe().equalTo("IndividualFree"));
+    assertAll(value(officeName).toBe().equalTo("PersonalFree"));
   }
   
   @Test

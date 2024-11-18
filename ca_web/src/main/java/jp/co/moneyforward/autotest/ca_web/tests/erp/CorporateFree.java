@@ -30,6 +30,7 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.material
  * Pre-conditions
  * - ERP Plan type: Corporate Free / 法人 無料
  * - Register 2 members in メンバーの追加・管理 page in advance
+ * - Complete initial setting in 各種設定 > 事業者
  */
 @Tag("freePlan")
 @AutotestExecution(
@@ -82,10 +83,7 @@ public class CorporateFree extends CawebErpAccessingModel {
     return new Scene.Builder("page")
         .add(new Click(locatorByText("自動で仕訳")))
         .add(new Click(linkLocatorByText("AI-OCRから入力")))
-        .assertion((Page p) -> value(p).function(locatorBySelector("#voucher-journals-candidates-index > main > div.tabMenuWrapper___S4Z39 > nav > ul > li:nth-child(2)"))
-                                       .function(textContent())
-                                       .toBe()
-                                       .equalTo("仕訳候補"))
+        .add(assertLocatorIsDisplayed("#voucher-journals-candidates-index > main > div.body___WkbVx > table > tbody:nth-child(2)"))
         .build();
   }
   
@@ -94,9 +92,8 @@ public class CorporateFree extends CawebErpAccessingModel {
   @DependsOn("openEnterJournalAutomatically_fromAI_OCR")
   public static Scene uploadInvoiceAsAI_OCR() {
     return new Scene.Builder("page")
-        .add(new Click(locatorByText("アップロード")))
-        .add(fileUploadAsAI_OCR("ca_web/invoiceImage.png",
-                                "領収書", "電帳法の対象外"))
+        .add(new Click(locatorByText("ファイル選択")))
+        .add(fileUploadAsAI_OCR("ca_web/invoiceImage.png"))
         .build();
   }
   
@@ -190,7 +187,7 @@ public class CorporateFree extends CawebErpAccessingModel {
   @When("openAccountingBooks_generalJournal")
   public static Scene exportPDF_generalJournal() {
     return new Scene.Builder("page")
-        .add(exportDataSpecifiedFormat("#download-btn-menu","PDF出力", assertAlertSuccessIsDisplayed()))
+        .add(exportDataSpecifiedFormat("#download-btn-menu", "PDF出力", assertLocatorIsDisplayed("#alert-success > p")))
         .build();
   }
   
@@ -400,7 +397,7 @@ public class CorporateFree extends CawebErpAccessingModel {
   @DependsOn("openVariousSettings_office")
   public static Scene updateOfficeInfoAndCheckJournalHistoryRecord() {
     return new Scene.Builder("page")
-        .add(officeSetting("#js-ca-main-contents > form > table:nth-child(6) > tbody > tr:nth-child(8) > td > div.is-hidden.js-business-type-list-corporate > span:nth-child(6) > label", "11〜30人"))
+//        .add(officeSetting("#js-ca-main-contents > form > table:nth-child(6) > tbody > tr:nth-child(8) > td > div.is-hidden.js-business-type-list-corporate > span:nth-child(6) > label", "11〜30人"))
         .add(checkJournalHistoryRecord())
         .add(new Click(locatorByText("設定を保存")))
         .build();
@@ -554,30 +551,6 @@ public class CorporateFree extends CawebErpAccessingModel {
   }
   
   /**
-   * Changing items of office setting
-   *
-   * @param locatorIndustryCategoryCheckbox Locator of checkbox for industry category
-   * @param locatorEmployeeCount Locator of selection box for employee counts
-   * @return The page act that performs the behavior in the description
-   */
-  // TODO: Need to refactor following PageAct due to duplicated code
-  public static PageAct officeSetting(final String locatorIndustryCategoryCheckbox, final String locatorEmployeeCount) {
-    return new PageAct("Update Office setting, check a checkbox and select for selection box") {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        // Check a checkbox on 業種区分 section
-        page.locator(locatorIndustryCategoryCheckbox).check();
-        
-        // Update value on 従業員数 selection box
-        page.locator("#s2id_ca_office_setting_employee_count").click();
-        
-        Locator selectionOptionEmployeeCount = page.locator("#select2-drop > ul");
-        selectionOptionEmployeeCount.getByText(locatorEmployeeCount).click();
-      }
-    };
-  }
-  
-  /**
    * Enabling journal history saving function(仕訳履歴保存機能)
    *
    * @return The page act that performs the behavior in the description
@@ -595,13 +568,11 @@ public class CorporateFree extends CawebErpAccessingModel {
    * Uploading files via AI OCR feature
    *
    * @param imageResourcePath Path of the file want to upload
-   * @param documentType Select the type of 書類種別 from (領収書/請求書)
-   * @param categoryOfElectronicBookkeeping Select the type of 電子帳簿保存法区分 from ([ 電子取引 ] メールや電子データで受領したもの/電帳法の対象外)
    * @return The page act that performs the behavior in the description
    */
   // TODO: Need to refactor following PageAct due to duplicated code
-  public static PageAct fileUploadAsAI_OCR(final String imageResourcePath, final String documentType, final String categoryOfElectronicBookkeeping) {
-    return new PageAct(String.format("Upload target file (%s) as AI OCR, then select invoice type as %s and %s", imageResourcePath, documentType, categoryOfElectronicBookkeeping)) {
+  public static PageAct fileUploadAsAI_OCR(final String imageResourcePath) {
+    return new PageAct(String.format("Upload target file (%s) as AI OCR", imageResourcePath)) {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
         String tmpFileName = materializeResource(imageResourcePath).getAbsolutePath();
@@ -609,20 +580,6 @@ public class CorporateFree extends CawebErpAccessingModel {
         //Select specified file and reflected it to page
         Locator fileInput = page.locator("input[type='file']");
         fileInput.first().setInputFiles(Paths.get(tmpFileName));
-        
-        page.waitForSelector("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > thead > tr");
-        
-        // Select 書類種別
-        page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(4) > div").click();
-        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs")
-            .getByText(documentType).click();
-        
-        // Select 電子帳簿保存法区分
-        page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(5) > div").click();
-        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs")
-            .getByText(categoryOfElectronicBookkeeping).click();
-        
-        page.locator("#voucher-journals-index > main > footer > div > button").click();
       }
     };
   }
@@ -657,11 +614,11 @@ public class CorporateFree extends CawebErpAccessingModel {
    *
    * @return The page act that performs the behavior in the description
    */
-  public static PageAct assertAlertSuccessIsDisplayed() {
+  public static PageAct assertLocatorIsDisplayed(final String targetLocator) {
     return new PageAct("Confirm that #alert-success is displayed") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        assertThat(page.locator("#alert-success > p")).isVisible();
+        assertThat(page.locator(targetLocator)).isVisible();
       }
     };
   }

@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 
 import static com.github.valid8j.fluent.Expectations.value;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static com.microsoft.playwright.options.AriaRole.BUTTON;
 import static com.microsoft.playwright.options.AriaRole.LINK;
 import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.textContent;
 import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
@@ -29,6 +30,7 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.material
  *
  * Pre-conditions
  * - ERP Plan type: Corporate Business / 法人 ビジネス
+ * - Complete initial setting in 各種設定 > 事業者
  *
  */
 @Tag("businessPlan")
@@ -82,10 +84,7 @@ public class CorporateBusiness extends CawebErpAccessingModel {
     return new Scene.Builder("page")
         .add(new Click(locatorByText("自動で仕訳")))
         .add(new Click(linkLocatorByText("AI-OCRから入力")))
-        .assertion((Page p) -> value(p).function(locatorBySelector("#voucher-journals-candidates-index > main > div.tabMenuWrapper___S4Z39 > nav > ul > li:nth-child(2)"))
-                                       .function(textContent())
-                                       .toBe()
-                                       .equalTo("仕訳候補"))
+        .add(assertLocatorIsDisplayed("#voucher-journals-candidates-index > main > div.body___WkbVx > table > tbody:nth-child(2)"))
         .build();
   }
   
@@ -94,7 +93,7 @@ public class CorporateBusiness extends CawebErpAccessingModel {
   @DependsOn("openEnterJournalAutomatically_fromAI_OCR")
   public Scene uploadInvoiceAsAI_OCR() {
     return new Scene.Builder("page")
-        .add(new Click(locatorByText("アップロード")))
+        .add(new Click(locatorByText("ファイル選択")))
         .add(fileUploadAsAI_OCR("ca_web/invoiceImage.png",
                                 "領収書", "電帳法の対象外"))
         .build();
@@ -202,7 +201,7 @@ public class CorporateBusiness extends CawebErpAccessingModel {
   @When("openAccountingBooks_generalJournal")
   public Scene exportPDF_generalJournal() {
     return new Scene.Builder("page")
-        .add(exportDataSpecifiedFormat("#download-btn-menu","PDF出力", assertAlertSuccessIsDisplayed()))
+        .add(exportDataSpecifiedFormat("#download-btn-menu", "PDF出力", assertLocatorIsDisplayed("#alert-success > p")))
         .build();
   }
   
@@ -211,7 +210,7 @@ public class CorporateBusiness extends CawebErpAccessingModel {
   @When("openAccountingBooks_generalJournal")
   public Scene exportCSV_generalJournal() {
     return new Scene.Builder("page")
-        .add(exportDataSpecifiedFormat("#download-btn-menu","CSV出力", assertAlertSuccessIsDisplayed()))
+        .add(exportDataSpecifiedFormat("#download-btn-menu", "CSV出力", assertLocatorIsDisplayed("#alert-success > p")))
         .build();
   }
   
@@ -220,7 +219,7 @@ public class CorporateBusiness extends CawebErpAccessingModel {
   @When("openAccountingBooks_generalJournal")
   public Scene exportMFFormat_generalJournal() {
     return new Scene.Builder("page")
-        .add(exportFileAsMFFormat(assertAlertSuccessIsDisplayed()))
+        .add(exportFileAsMFFormat(assertLocatorIsDisplayed("#alert-success > p")))
         .build();
   }
   
@@ -324,7 +323,7 @@ public class CorporateBusiness extends CawebErpAccessingModel {
   @When("clickFileExport")
   public Scene thenClickFileExport() {
     return new Scene.Builder("page")
-        .add(assertAlertSuccessIsDisplayed())
+        .add(assertLocatorIsDisplayed("#alert-success > p"))
         .build();
   }
   
@@ -425,7 +424,6 @@ public class CorporateBusiness extends CawebErpAccessingModel {
   @DependsOn("openVariousSettings_office")
   public Scene updateOfficeInfoAndCheckJournalHistoryRecord() {
     return new Scene.Builder("page")
-        .add(officeSetting("#js-ca-main-contents > form > table:nth-child(6) > tbody > tr:nth-child(8) > td > div.is-hidden.js-business-type-list-corporate > span:nth-child(6) > label", "11〜30人"))
         .add(checkJournalHistoryRecord())
         .add(new Click(locatorByText("設定を保存")))
         .build();
@@ -577,30 +575,6 @@ public class CorporateBusiness extends CawebErpAccessingModel {
   }
   
   /**
-   * Changing items of office setting
-   *
-   * @param locatorIndustryCategoryCheckbox Locator of checkbox for industry category
-   * @param locatorEmployeeCount Locator of selection box for employee counts
-   * @return The page act that performs the behavior in the description
-   */
-  // TODO: Need to refactor following PageAct due to duplicated code
-  public static PageAct officeSetting(final String locatorIndustryCategoryCheckbox, final String locatorEmployeeCount) {
-    return new PageAct("Update Office setting, check a checkbox and select for selection box") {
-      @Override
-      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        // Check a checkbox on 業種区分 section
-        page.locator(locatorIndustryCategoryCheckbox).check();
-        
-        // Update value on 従業員数 selection box
-        page.locator("#s2id_ca_office_setting_employee_count").click();
-        
-        Locator selectionOptionEmployeeCount = page.locator("#select2-drop > ul");
-        selectionOptionEmployeeCount.getByText(locatorEmployeeCount).click();
-      }
-    };
-  }
-  
-  /**
    * Enabling journal history saving function(仕訳履歴保存機能)
    *
    * @return The page act that performs the behavior in the description
@@ -633,19 +607,15 @@ public class CorporateBusiness extends CawebErpAccessingModel {
         Locator fileInput = page.locator("input[type='file']");
         fileInput.first().setInputFiles(Paths.get(tmpFileName));
         
-        page.waitForSelector("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > thead > tr");
+        Locator locatorFileUploadModal =  page.locator("#voucher-journals-candidates-index > main > div:nth-child(1) > div > div.dialog___GHuHL.large___bTKw0");
         
         // Select 書類種別
-        page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(4) > div").click();
-        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs")
-            .getByText(documentType).click();
+        locatorFileUploadModal.getByText(documentType).click();
         
         // Select 電子帳簿保存法区分
-        page.locator("#voucher-journals-index > main > div.dndArea___Asggy > div > div.container___P5zPk > div > table > tbody > tr > td:nth-child(5) > div").click();
-        page.locator("#page-voucher-journals > div.ca-client-bootstrap-reset-css.ca-client-ca-web-reset-css.ca-client-searchable-select-for-spreadsheet-drop-down-list.dropDownList___XplIs")
-            .getByText(categoryOfElectronicBookkeeping).click();
+        locatorFileUploadModal.getByText(categoryOfElectronicBookkeeping).click();
         
-        page.locator("#voucher-journals-index > main > footer > div > button").click();
+        page.getByRole(BUTTON, new Page.GetByRoleOptions().setName("アップロード")).click();
       }
     };
   }
@@ -680,11 +650,11 @@ public class CorporateBusiness extends CawebErpAccessingModel {
    *
    * @return The page act that performs the behavior in the description
    */
-  public static PageAct assertAlertSuccessIsDisplayed() {
+  public static PageAct assertLocatorIsDisplayed(final String targetLocator) {
     return new PageAct("Confirm that #alert-success is displayed") {
       @Override
       protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-        assertThat(page.locator("#alert-success > p")).isVisible();
+        assertThat(page.locator(targetLocator)).isVisible();
       }
     };
   }
