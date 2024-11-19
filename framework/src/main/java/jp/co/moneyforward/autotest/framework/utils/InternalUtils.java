@@ -5,8 +5,6 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.osynth.core.utils.MethodUtils;
 import com.github.valid8j.pcond.forms.Printables;
-import jp.co.moneyforward.autotest.framework.action.Act;
-import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.AutotestException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -14,8 +12,7 @@ import org.opentest4j.TestAbortedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,6 +24,8 @@ import java.util.stream.Stream;
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.dakusui.valid8j.Requires.requireNonNull;
 import static com.github.valid8j.pcond.internals.InternalUtils.getMethod;
+import static java.io.File.createTempFile;
+import static java.lang.Thread.currentThread;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static jp.co.moneyforward.autotest.actions.web.SendKey.MASK_PREFIX;
@@ -112,7 +111,7 @@ public enum InternalUtils {
   public static String simpleClassNameOf(Class<?> clazz) {
     return MethodUtils.simpleClassNameOf(clazz);
   }
-
+  
   public static Stream<Action> flattenIfSequential(Action a) {
     return a instanceof Composite composite && !composite.isParallel() ? ((Composite) a).children().stream()
                                                                        : Stream.of(a);
@@ -325,6 +324,58 @@ public enum InternalUtils {
   public record Entry<K, V>(K key, V value) {
     public static <K, V> Entry<K, V> $(K key, V value) {
       return new Entry<>(key, value);
+    }
+  }
+  
+  /**
+   * Copies the contents of a resource file from the classpath to a temporary file
+   *
+   * @param resourcePath A path to a resource on a class path to be materialized
+   * @return a temporary file path containing the contents of the resource
+   */
+  public static File materializeResource(String resourcePath) {
+    requireNonNull(resourcePath);
+    try {
+      var output = createTempFile("tmp", ".png", new File(System.getProperty("user.dir")));
+      output.deleteOnExit();
+      materializeResource(output, resourcePath);
+      return output;
+    } catch (IOException e) {
+      throw wrap(e);
+    }
+  }
+  
+  /**
+   * Copies the contents of a resource file from the classpath to a specified output file.
+   *
+   * @param output output the file to which the resource contents will be written
+   * @param resourcePath A path to a resource on a class path to be materialized
+   */
+  public static void materializeResource(File output, final String resourcePath) {
+    requireNonNull(output);
+    requireNonNull(resourcePath);
+    String fullFilePath = requireNonNull(currentThread().getContextClassLoader()
+                                                        .getResource(resourcePath)).getFile();
+    
+    try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(fullFilePath));
+         BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(output))) {
+      extracted(in, out);
+    } catch (IOException e) {
+      throw wrap(e);
+    }
+  }
+  
+  public static void extracted(BufferedInputStream in1, BufferedOutputStream out1) {
+    try (var in = in1;
+         var out = out1) {
+      while (true) {
+        byte[] bt = in.readNBytes(1024);
+        if (bt.length == 0) break;
+        out.write(bt);
+        out.flush();
+      }
+    } catch (IOException e) {
+      throw wrap(e);
     }
   }
 }

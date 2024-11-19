@@ -34,6 +34,43 @@ public enum CawebUtils {
   }
   
   /**
+   * Returns an action that hovers a specified herder item, then clicks a specified menu item.
+   *
+   * @param menuItem A name of a menu item which is shown after clicking Office name on header item.
+   * @param elementOfficeDropdownMenu A locator of office menu item to hover over.
+   * @return An action that hovers an item specified by `officeMenuItemName`, then clicks `menuItem`.
+   */
+  public static PageAct navigateToMenuItemUnderOfficeSettingItem(final String menuItem, final String elementOfficeDropdownMenu) {
+    return new PageAct(String.format("Click '%s'->'%s'", elementOfficeDropdownMenu, menuItem)) {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        page.locator(elementOfficeDropdownMenu).click();
+        page.getByRole(LINK, new Page.GetByRoleOptions().setName(menuItem)).click();
+      }
+    };
+  }
+  
+  /**
+   * If click on the menu on the left to move to another page, PageAct performs
+   * When moving to an external service
+   *
+   * @param menuItem Menu button name
+   * @param menuSubItem Sub-menu button name related to the menu
+   * @param pageAct PageAct after new page displays
+   * @return The page act that performs the behavior in the description
+   */
+  public static PageAct navigateToNewTabUnderSidebarItemAndAct(final String menuItem, final String menuSubItem, PageAct pageAct) {
+    return new PageAct(String.format("Click '%s'->'%s', and then act specified PageAct in new tab", menuItem, menuSubItem)) {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        page.getByText(menuItem).click();
+        Page newPage = page.waitForPopup(()-> page.getByRole(LINK, new Page.GetByRoleOptions().setName(menuSubItem)).click());
+        pageAct.perform(newPage, executionEnvironment);
+      }
+    };
+  }
+  
+  /**
    * Returns an action that clicks an element specified by `selector` and then fills a `value` in it.
    *
    * @param selector A selector string to specify an element in a `page`.

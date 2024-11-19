@@ -220,7 +220,7 @@ class CawebAccessingModelTest {
       }
       
       @Override
-      public String officeName() {
+      public String officeName(CawebAccessingModel model) {
         return "";
       }
     };

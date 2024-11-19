@@ -31,8 +31,8 @@ public class TermChange extends CawebTermAccessingModel {
   @Named
   @DependsOn("createOffice")
   @Export("page")
-  public static Scene changeToPreviousTerm() {
-    String officeName = executionProfile().officeName();
+  public Scene changeToPreviousTerm() {
+    String officeName = executionProfile().officeName(this);
     return previousTerm(officeName);
   }
   
@@ -50,8 +50,8 @@ public class TermChange extends CawebTermAccessingModel {
   @Named
   @DependsOn("changeToPreviousTerm")
   @Export("page")
-  public static Scene changeToNextTerm() {
-    String officeName = executionProfile().officeName();
+  public Scene changeToNextTerm() {
+    String officeName = executionProfile().officeName(this);
     return nextTerm(officeName);
   }
   

@@ -19,8 +19,8 @@ public class CawebTermAccessingModel extends CawebAccessingModel {
   @Named
   @DependsOn("login")
   @Export({"page", "officeName"})
-  public static Scene createOffice() {
-    String officeName = executionProfile().officeName();
+  public Scene createOffice() {
+    String officeName = executionProfile().officeName(this);
     Act<Page, Page>[] acts = new Act[]{
         navigateToTermSelection(),
         createOfficeViaNavis(officeName, executionProfile().userDisplayName())};

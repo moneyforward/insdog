@@ -1,6 +1,7 @@
 package jp.co.moneyforward.autotest.ca_web.core;
 
 import com.eatthepath.otp.TimeBasedOneTimePasswordGenerator;
+import jp.co.moneyforward.autotest.ca_web.accessmodels.CawebAccessingModel;
 import jp.co.moneyforward.autotest.framework.core.ExecutionProfile;
 import jp.co.moneyforward.autotest.framework.core.ExecutionProfile.CreateWith;
 import org.apache.commons.codec.binary.Base32;
@@ -199,5 +200,13 @@ public interface CawebExecutionProfile extends ExecutionProfile {
   
   String userDisplayName();
   
-  String officeName();
+  /**
+   * A officeName specified by the returned value of `officeName()` method.
+   *
+   * The returned value will be like: `abc-12345`
+   *
+   * @param model A test class which running
+   * @return A password for `officeName()`.
+   */
+  String officeName(CawebAccessingModel model);
 }

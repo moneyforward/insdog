@@ -3,17 +3,12 @@ package jp.co.moneyforward.autotest.ut.framework.utils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.valid8j.pcond.forms.Printables;
-import jp.co.moneyforward.autotest.framework.action.Call;
-import jp.co.moneyforward.autotest.framework.action.Act;
-import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.AutotestException;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
@@ -25,8 +20,8 @@ import java.util.stream.Stream;
 import static com.github.valid8j.fluent.Expectations.*;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 class InternalUtilsTest extends TestBase {
   @Test
@@ -264,6 +259,48 @@ class InternalUtilsTest extends TestBase {
     var file = new File("/tmp/");
     
     assertThrows(AutotestException.class, () -> InternalUtils.writeTo(file, "FILE_CONTENT"));
+  }
+  
+  @Test
+  void givenNullToOutput_whenMaterializeResource_thenExceptionThrown() {
+    var resourcePath = "ca_web/invoiceImage.png";
+    
+    assertThrows(NullPointerException.class, () -> InternalUtils.materializeResource(null, resourcePath));
+  }
+  
+  @Test
+  void givenNullToResourcePath_whenMaterializeResource_thenExceptionThrown() {
+    assertThrows(NullPointerException.class, () -> InternalUtils.materializeResource(null));
+  }
+  
+  @Test
+  void givenNullToResourcePathAndOutput_whenMaterializeResource_thenExceptionThrown() {
+    assertThrows(NullPointerException.class, () -> InternalUtils.materializeResource(null, null));
+  }
+  
+  @Test
+  void givenNonExistResourcePath_whenMaterializeResource_thenExceptionThrown() {
+    var resourcePath = "nonExistImage.png";
+    
+    assertThrows(RuntimeException.class, () -> InternalUtils.materializeResource(resourcePath));
+  }
+  
+  @Test
+  void givenResourcePath_whenMaterializeResource_thenFileExists() {
+    var resourcePath = "ca_web/invoiceImage.png";
+    
+    File output = InternalUtils.materializeResource(resourcePath);
+    assertTrue(output.exists());
+  }
+  
+  @Test
+  void giveIOException_whenExtracted_thenExceptionThrown() throws IOException {
+    BufferedInputStream in = mock(BufferedInputStream.class);
+    BufferedOutputStream out = mock(BufferedOutputStream.class);
+    
+    when(in.readNBytes(1024)).thenThrow(new IOException("Mocked IOException"));
+    
+    assertThrows(AutotestException.class, () -> InternalUtils.extracted(in, out));
   }
   
   private static <T> Function<Stream<T>, List<T>> toList() {

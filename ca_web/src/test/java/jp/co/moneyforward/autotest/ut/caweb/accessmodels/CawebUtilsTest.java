@@ -58,4 +58,45 @@ class CawebUtilsTest {
     verify(locatorToBeClicked).click();
     verify(locatorToBeWaitedOn).waitFor(any());
   }
+  
+  @Test
+  void whenNavigateToMenuItemUnderOfficeSettingItem_thenMenuItemIsClicked() {
+    ExecutionEnvironment env = Mockito.mock(ExecutionEnvironment.class);
+    Page page = Mockito.mock(Page.class);
+    Locator locator = Mockito.mock(Locator.class);
+    Locator locatorToBeClicked = Mockito.mock(Locator.class);
+    when(page.locator(any(String.class))).thenReturn(locator);
+    when(page.getByRole(any(), any())).thenReturn(locatorToBeClicked);
+    
+    PageAct pageAct = CawebUtils.navigateToMenuItemUnderOfficeSettingItem("Hello", "World");
+    pageAct.perform(page, env);
+    
+    verify(locator).click();
+    verify(locatorToBeClicked).click();
+  }
+  
+  @Test
+  void whenNavigateToNewTabUnderSidebarItemAndAct_thenMenuItemIsClickedAndActPageAct() {
+    ExecutionEnvironment env = Mockito.mock(ExecutionEnvironment.class);
+    Page page = Mockito.mock(Page.class);
+    Locator locator = Mockito.mock(Locator.class);
+    Locator locatorToBeClicked = Mockito.mock(Locator.class);
+    PageAct pageActForNewTab = Mockito.mock(PageAct.class);
+    Page newPage = Mockito.mock(Page.class);
+    when(page.getByText(any(String.class))).thenReturn(locator);
+    when(page.getByRole(any(), any())).thenReturn(locatorToBeClicked);
+    when(page.waitForPopup(any())).thenAnswer(invocation -> {
+      Runnable runnable = invocation.getArgument(0);
+      runnable.run();
+      return newPage;
+    });
+    
+    
+    PageAct pageAct = CawebUtils.navigateToNewTabUnderSidebarItemAndAct("Hello", "world", pageActForNewTab);
+    pageAct.perform(page, env);
+    
+    verify(locator).click();
+    verify(locatorToBeClicked).click();
+    verify(pageActForNewTab).perform(newPage, env);
+  }
 }

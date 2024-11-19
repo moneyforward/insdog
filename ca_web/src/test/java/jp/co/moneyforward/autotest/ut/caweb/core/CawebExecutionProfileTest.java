@@ -3,8 +3,14 @@ package jp.co.moneyforward.autotest.ut.caweb.core;
 import com.eatthepath.otp.TimeBasedOneTimePasswordGenerator;
 import com.github.dakusui.osynth.ObjectSynthesizer;
 import jp.co.moneyforward.autotest.ca_web.core.CawebExecutionProfile;
+import jp.co.moneyforward.autotest.ca_web.tests.erp.CorporateFree;
+import jp.co.moneyforward.autotest.ca_web.tests.erp.CorporateBusiness;
+import jp.co.moneyforward.autotest.ca_web.tests.erp.IndividualFree;
+import jp.co.moneyforward.autotest.ca_web.tests.erp.IndividualPersonal;
+import jp.co.moneyforward.autotest.ca_web.tests.term.TermChange;
 import jp.co.moneyforward.autotest.framework.core.AutotestException;
 import jp.co.moneyforward.autotest.framework.core.ExecutionProfile;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.SecretKey;
@@ -79,6 +85,47 @@ class CawebExecutionProfileTest {
     assertAll(value(key.getAlgorithm()).toBe().equalTo("HmacSHA1"));
     assertAll(value(key.getFormat()).toBe().nullValue());
     assertAll(value(key.getEncoded()).toBe().instanceOf(byte[].class));
+  }
+  
+  @Test
+  void whenOfficeNameWithBusinessPaidClass_thenFixedOfficeNameReturned() {
+    CorporateBusiness model = new CorporateBusiness();
+    var officeName = createCawebExecutionProfile().officeName(model);
+    
+    assertAll(value(officeName).toBe().equalTo("abc-154206"));
+  }
+  
+  @Test
+  void whenOfficeNameWithBusinessFreeClass_thenFixedOfficeNameReturned() {
+    CorporateFree model = new CorporateFree();
+    var officeName = createCawebExecutionProfile().officeName(model);
+    
+    assertAll(value(officeName).toBe().equalTo("abc-140129"));
+  }
+  
+  @Test
+  void whenOfficeNameWithPersonalPaidClass_thenFixedOfficeNameReturned() {
+    IndividualPersonal model = new IndividualPersonal();
+    var officeName = createCawebExecutionProfile().officeName(model);
+    
+    assertAll(value(officeName).toBe().equalTo("PersonalPaid"));
+  }
+  
+  @Test
+  void whenOfficeNameWithPersonalFreeClass_thenFixedOfficeNameReturned() {
+    IndividualFree model = new IndividualFree();
+    var officeName = createCawebExecutionProfile().officeName(model);
+    
+    assertAll(value(officeName).toBe().equalTo("PersonalFree"));
+  }
+  
+  @Test
+  void whenOfficeNameWithClassOtherThanSpecified_thenDefaultOfficeNameReturned() {
+    TermChange model = new TermChange();
+    var officeName = createCawebExecutionProfile().officeName(model);
+    final String differentiatingSuffix = InternalUtils.dateToSafeString(InternalUtils.now());
+    
+    assertAll(value(officeName).toBe().equalTo("abc-"+differentiatingSuffix));
   }
   
   /**
