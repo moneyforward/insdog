@@ -89,6 +89,14 @@ For SDET(FW) or SDET(PM), Ultimate edition is recommended.
 
 You can just open a test class such as `VisitAllMenuItemsTest.java` and run it with the "Play" button (a green triangle) to run it.
 
+NOTE:: To work with environment variables in IntelliJ IDEA, you need to install the `EnvFile` plugin:
+1. Open IntelliJ IDEA.
+2. Go to `IntelliJ IDEA` > `Settings`.
+3. Navigate to `Plugins`.
+4. Search for `EnvFile` in the Marketplace tab.
+5. Click `Install` to add the plugin.
+6. Restart IntelliJ IDEA if prompted.
+
 You can request "Ultimate"'s license here: https://join.slack.com/share/enQtNzUxMDM3NDQ5MjAwMi00ZWI3NmU2ZjZiYjEzN2Y2OGNiOGE0NDA4NDIzNDEyNzljYmMwNTI1NjRhMDk1YzVhOWJmNTRlYjRlZTkwMTUx[contact_cio_manged-tools] slack channel.
 
 === Playing with `./build.sh`
