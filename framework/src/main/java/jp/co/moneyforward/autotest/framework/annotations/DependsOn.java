@@ -3,7 +3,9 @@ package jp.co.moneyforward.autotest.framework.annotations;
 import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
+import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
@@ -16,6 +18,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @see PlanningStrategy#DEPENDENCY_BASED
  */
 @Retention(RUNTIME)
+@Target(METHOD)
 public @interface DependsOn {
   /**
    * Returns names of scenes on which attached scene method is depending.
