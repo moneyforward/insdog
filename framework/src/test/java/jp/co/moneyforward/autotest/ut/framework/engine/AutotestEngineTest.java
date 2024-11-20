@@ -1,6 +1,5 @@
 package jp.co.moneyforward.autotest.ut.framework.engine;
 
-import com.github.valid8j.fluent.Expectations;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import jp.co.moneyforward.autotest.ut.testclasses.*;
 import jp.co.moneyforward.autotest.ututils.TestBase;

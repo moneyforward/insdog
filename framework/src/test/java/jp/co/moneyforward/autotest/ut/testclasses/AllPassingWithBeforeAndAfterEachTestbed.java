@@ -12,7 +12,7 @@ import jp.co.moneyforward.autotest.framework.annotations.Named;
         afterEach = {"logout"}))
 public class AllPassingWithBeforeAndAfterEachTestbed extends TestbedBase {
   @Named
-  public static Scene fail() {
+  public Scene fail() {
     return new Scene.Builder("fail").add("out", (value, executionEnvironment) -> {
       throw new ActionException("Intentional Exception!");
     }).build();

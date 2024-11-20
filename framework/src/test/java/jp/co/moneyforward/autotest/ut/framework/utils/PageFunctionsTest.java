@@ -38,7 +38,6 @@ class PageFunctionsTest {
   
   @Test
   void whenButtonLocatorByName_thenLocatorIsReturned() {
-    boolean v = false;
     Function<Page, Locator> function = PageFunctions.buttonLocatorByName("test");
     
     try (Page page = Mockito.mock(Page.class)) {
@@ -107,7 +106,6 @@ class PageFunctionsTest {
   
   @Test
   void whenLinkLocatorByText_thenLocatorIsReturned() {
-    boolean v = false;
     thenLinkLocatorIsReturned(PageFunctions.linkLocatorByText("test"));
   }
   
@@ -119,7 +117,6 @@ class PageFunctionsTest {
   
   @Test
   void whenLinkLocatorByExactText_thenLocatorIsReturned() {
-    boolean v = false;
     thenLinkLocatorIsReturned(PageFunctions.linkLocatorByExactText("test"));
   }
   
@@ -155,7 +152,6 @@ class PageFunctionsTest {
     Function<Page, String> function = PageFunctions.toTitle();
     
     try (Page page = Mockito.mock(Page.class)) {
-      Locator mockedLocator = mock(Locator.class);
       when(page.title()).thenReturn("helloTitle");
       String title = function.apply(page);
       
