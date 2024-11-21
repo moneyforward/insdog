@@ -98,7 +98,7 @@ compile-test-report:
 ## Publish test report.
 ## You need to run `compile-test-report` target beforehand.
 publish-test-report:
-	$(BASH) -eu $(CA_WB_MODULE_DIR)/src/build_tools/tr-publish.sh target/testReport.xml
+	$(BASH) -eu $(CA_WB_MODULE_DIR)/src/build_tools/tr-publish.sh target/testReport.xml '$(TR_TITLE)'
 
 ## Creates a autotest-caweb.jar without javadoc to save time
 package-without-javadoc:
