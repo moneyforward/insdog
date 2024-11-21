@@ -87,6 +87,8 @@ We use *IntelliJ IDEA* for daily development.
 You can use either Community or Ultimate edition.
 For SDET(FW) or SDET(PM), Ultimate edition is recommended.
 
+You can install required the plugins from the `Install required plugins` button at the bottom right when you open *IntelliJ IDEA* without them.
+
 You can just open a test class such as `VisitAllMenuItemsTest.java` and run it with the "Play" button (a green triangle) to run it.
 
 You can request "Ultimate"'s license here: https://join.slack.com/share/enQtNzUxMDM3NDQ5MjAwMi00ZWI3NmU2ZjZiYjEzN2Y2OGNiOGE0NDA4NDIzNDEyNzljYmMwNTI1NjRhMDk1YzVhOWJmNTRlYjRlZTkwMTUx[contact_cio_manged-tools] slack channel.
