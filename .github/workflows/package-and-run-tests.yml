@@ -10,6 +10,8 @@ on:
   push:
     branches:
       - develop@*
+  schedule:
+    - cron:  '30 1 * * *' # 10:30 JST
 
 jobs:
   build:
