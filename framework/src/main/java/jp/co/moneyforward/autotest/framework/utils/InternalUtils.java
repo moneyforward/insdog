@@ -359,15 +359,15 @@ public enum InternalUtils {
     
     try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(fullFilePath));
          BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(output))) {
-      extracted(in, out);
+      copyTo(in, out);
     } catch (IOException e) {
       throw wrap(e);
     }
   }
   
-  public static void extracted(BufferedInputStream in1, BufferedOutputStream out1) {
-    try (var in = in1;
-         var out = out1) {
+  public static void copyTo(BufferedInputStream i, BufferedOutputStream o) {
+    try (var in = i;
+         var out = o) {
       while (true) {
         byte[] bt = in.readNBytes(1024);
         if (bt.length == 0) break;

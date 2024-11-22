@@ -289,7 +289,7 @@ class InternalUtilsTest extends TestBase {
     
     when(in.readNBytes(1024)).thenThrow(new IOException("Mocked IOException"));
     
-    assertThrows(AutotestException.class, () -> InternalUtils.extracted(in, out));
+    assertThrows(AutotestException.class, () -> InternalUtils.copyTo(in, out));
   }
   
   private static <T> Function<Stream<T>, List<T>> toList() {

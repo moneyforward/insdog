@@ -9,7 +9,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 /**
  * A test dependency controlling annotation.
  *
- * This annotation is used only when the `PlanningStrategy#DEPENDENCY_BASED` is activated and usually attached to methods for test results checking.
+ * This annotation is read by the framework only when the `PlanningStrategy#DEPENDENCY_BASED` is activated and usually attached to methods for test results checking.
  * This annotation can be attached to an action method (a `Scene` returning method).
  *
  * Even if the method to which this annotation is attached is not included in the explicit test scenario, it will be

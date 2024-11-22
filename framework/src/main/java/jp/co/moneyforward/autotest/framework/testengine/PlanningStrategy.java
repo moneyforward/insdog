@@ -100,5 +100,13 @@ public enum PlanningStrategy {
     }
   };
   
+  /**
+   * Returns an execution plan based on the design which this instance specifies.
+   *
+   * @param executionSpec A "spec" object of the execution given at runtime.
+   * @param sceneCallGraph A graph that describes relationships between sceneCalls.
+   * @param assertions A map from a normal scene to assertion scenes.
+   * @return An execution plan.
+   */
   public abstract AutotestEngine.ExecutionPlan planExecution(AutotestExecution.Spec executionSpec, Map<String, List<String>> sceneCallGraph, Map<String, List<String>> assertions);
 }

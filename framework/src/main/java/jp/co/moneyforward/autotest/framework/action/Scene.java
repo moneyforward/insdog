@@ -2,10 +2,9 @@ package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.valid8j.pcond.fluent.Statement;
-import com.microsoft.playwright.TimeoutError;
+import jp.co.moneyforward.autotest.actions.web.PageAct;
 import jp.co.moneyforward.autotest.actions.web.Value;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
-import org.opentest4j.AssertionFailedError;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -39,6 +38,22 @@ public interface Scene {
       b.add(act);
     }
     return b.build();
+  }
+  
+  /**
+   * Creates a scene object from a given name and acts.
+   *
+   * @param sceneName A name of the created scene.
+   * @param acts      acts to be added to the returned scene.
+   * @return A created scene.
+   */
+  @SafeVarargs
+  static <T> Scene create(String sceneName, Act<T, T>... acts) {
+    Builder builder = new Builder(sceneName);
+    for (Act<T, T> act : acts) {
+      builder.add(act);
+    }
+    return builder.build();
   }
   
   /**
@@ -181,7 +196,7 @@ public interface Scene {
     
     @SuppressWarnings("unchecked")
     public final <R> Builder assertion(Function<R, Statement<R>> assertion) {
-      return this.assertions(defaultVariableName, assertion);
+      return this.assertions(assertion);
     }
     
     @SuppressWarnings("unchecked")

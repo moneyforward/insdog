@@ -4,6 +4,8 @@ import com.microsoft.playwright.Page;
 import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
+import java.util.function.BiConsumer;
+
 import static com.github.valid8j.classic.Requires.requireNonNull;
 
 /**
@@ -23,6 +25,15 @@ public abstract class PageAct implements Act<Page, Page> {
    */
   protected PageAct(String description) {
     this.description = requireNonNull(description);
+  }
+  
+  public static PageAct pageAct(String description, BiConsumer<Page, ExecutionEnvironment> action) {
+    return new PageAct(description) {
+      @Override
+      protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+        action.accept(page, executionEnvironment);
+      }
+    };
   }
   
   /**

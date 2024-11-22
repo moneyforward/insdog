@@ -11,7 +11,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 /**
  * An annotation to define a dependency of a method to which this is attached.
  *
- * This annotation is used only when the `PlanningStrategy#DEPENDENCY_BASED` is activated and usually attached to methods for test results checking.
+ * This annotation is read by the framework only when the `PlanningStrategy#DEPENDENCY_BASED` is activated and usually attached to methods for performing action to be verified.
+ *
  * This and `@When` annotations are used mutually exclusively.
  *
  * @see When

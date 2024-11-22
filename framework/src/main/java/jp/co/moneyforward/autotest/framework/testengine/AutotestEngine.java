@@ -592,8 +592,24 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                        .value());
   }
   
+  /**
+   * This method is called for every method `m` in a test class to be run if `m` is:
+   *
+   * * Annotated with `@Named`.
+   * * Not annotated with `@Disabled`.
+   *
+   * If all the validations are passed, method `m` itself will be returned.
+   * Otherwise, an exception will be thrown.
+   *
+   * @param m A method to be validated.
+   * @return `m` itself.
+   */
   private static Method validateSceneProvidingMethod(Method m) {
     // TODO: https://app.asana.com/0/1206402209253009/1207418182714921/f
+    // @When and @DependsOn are mutually exclusively used.
+    // Methods specified by {@When,@DependsOn}#value() must be found in the class to which `m` belongs.
+    // If "!" is appended to a method name in {@When,@DependsOn}#value(), the method must NOT have @ClosedBy.
+    // - Because it may be performed multiple times.
     return m;
   }
   
