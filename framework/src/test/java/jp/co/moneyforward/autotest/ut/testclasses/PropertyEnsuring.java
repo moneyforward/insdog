@@ -23,26 +23,26 @@ public class PropertyEnsuring implements AutotestRunner {
   
   @Named
   @Export
-  @ClosedBy("closePageSession")
-  public Scene openPageSession() {
+  @ClosedBy("closeExecutionSession")
+  public Scene openExecutionSession() {
     return create("openPageSession");
   }
   
   @Named
-  public Scene closePageSession() {
+  public Scene closeExecutionSession() {
     return create("closeExecutionSession");
   }
   
   @Named
   @Export
-  @DependsOn("openPageSession")
+  @DependsOn("openExecutionSession")
   public Scene loadLoginSession() {
     return create("loadLoginSession");
   }
   
   @Named
   @Export
-  @DependsOn("openPageSession")
+  @DependsOn("openExecutionSession")
   public Scene login() {
     return create("login",
                   pageAct("enterUsername", (p, e) -> {

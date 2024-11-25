@@ -90,11 +90,11 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   @Override
   public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext context) {
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), "main");
-    return actions(executionPlan(context),
-                   ExecutionPlan::value,
-                   sceneCallMap(context),
-                   executionEnvironment).stream()
-                                        .map(AutotestEngine::toTestTemplateInvocationContext);
+    ActionComposer actionComposer = createActionComposer(executionEnvironment);
+    return sceneNamesToActionEntries(executionPlan(context).value(),
+                                     sceneCallMap(context),
+                                     actionComposer).stream()
+                                                    .map(AutotestEngine::toTestTemplateInvocationContext);
   }
   
   @Override
@@ -108,28 +108,26 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     
     logExecutionPlan(testClass(context), executionPlan(context));
     
-    actions(executionPlan(context),
-            ExecutionPlan::beforeAll,
-            sceneCallMap(context),
-            executionEnvironment)
-        .stream()
-        .map(each -> performActionEntry(each, out -> runner.beforeAll(each.value(), runner.createWriter(out))))
-        .filter(each -> {
-          if (each.hasSucceeded())
-            passedScenesInBeforeAll(context).add(each.name());
-          return true;
-        })
-        .filter((SceneExecutionResult sceneExecutionResult) -> {
-          sceneExecutionResult.throwIfFailed();
-          return true;
-        })
-        // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
-        // Then, stream again. Otherwise, the log will not become so readable.
-        .toList()
-        .forEach(r -> {
-          LOGGER.info(r.composeMessageHeader(testClass(context), stageName));
-          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(testClass(context), stageName, l)));
-        });
+    sceneNamesToActionEntries(executionPlan(context).beforeAll(),
+                              sceneCallMap(context),
+                              createActionComposer(executionEnvironment)).stream()
+                                                                         .map(each -> performActionEntry(each, out -> runner.beforeAll(each.value(), runner.createWriter(out))))
+                                                                         .filter(each -> {
+                                                                           if (each.hasSucceeded())
+                                                                             passedScenesInBeforeAll(context).add(each.name());
+                                                                           return true;
+                                                                         })
+                                                                         .filter((SceneExecutionResult sceneExecutionResult) -> {
+                                                                           sceneExecutionResult.throwIfFailed();
+                                                                           return true;
+                                                                         })
+                                                                         // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
+                                                                         // Then, stream again. Otherwise, the log will not become so readable.
+                                                                         .toList()
+                                                                         .forEach(r -> {
+                                                                           LOGGER.info(r.composeMessageHeader(testClass(context), stageName));
+                                                                           r.out().forEach(l -> LOGGER.info(composeResultMessageLine(testClass(context), stageName, l)));
+                                                                         });
   }
   
   private static void prepareBeforeAllStage(ExtensionContext context, Properties properties) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -142,7 +140,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                                 .filter(m -> m.isAnnotationPresent(Named.class))
                                                 .filter(m -> !m.isAnnotationPresent(Disabled.class))
                                                 .map(AutotestEngine::validateSceneProvidingMethod)
-                                                .map(m -> new Entry<>(nameOf(m), methodToSceneCall(accessModelClass, m, runner)))
+                                                .map(m -> new Entry<>(nameOf(m),
+                                                                      methodToSceneCall(accessModelClass, m, runner)))
                                                 .collect(toMap(Entry::key, Entry::value));
     
     AutotestExecution.Spec spec = loadExecutionSpec(runner, properties);
@@ -168,30 +167,28 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-before.log"), Level.INFO);
     newPassedInBeforeEach(context);
     AutotestRunner runner = autotestRunner(context);
-    actions(executionPlan(context),
-            ExecutionPlan::beforeEach,
-            sceneCallMap(context),
-            executionEnvironment)
-        .stream()
-        .map((Entry<String, Action> each) -> performActionEntry(each,
-                                                                out -> runner.beforeEach(each.value(),
-                                                                                         runner.createWriter(out))))
-        .filter((SceneExecutionResult each) -> {
-          if (each.hasSucceeded())
-            passedInBeforeEach(context).add(each.name());
-          return true;
-        })
-        .filter((SceneExecutionResult sceneExecutionResult) -> {
-          sceneExecutionResult.throwIfFailed();
-          return true;
-        })
-        // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
-        // Then, stream again. Otherwise, the log will not become so readable.
-        .toList()
-        .forEach(r -> {
-          LOGGER.info(r.composeMessageHeader(testClass(context), stageName));
-          r.out().forEach(l -> LOGGER.info(composeResultMessageLine(testClass(context), stageName, l)));
-        });
+    sceneNamesToActionEntries(executionPlan(context).beforeEach(),
+                              sceneCallMap(context),
+                              createActionComposer(executionEnvironment)).stream()
+                                                                         .map((Entry<String, Action> each) -> performActionEntry(each,
+                                                                                                                                 out -> runner.beforeEach(each.value(),
+                                                                                                                                                          runner.createWriter(out))))
+                                                                         .filter((SceneExecutionResult each) -> {
+                                                                           if (each.hasSucceeded())
+                                                                             passedInBeforeEach(context).add(each.name());
+                                                                           return true;
+                                                                         })
+                                                                         .filter((SceneExecutionResult sceneExecutionResult) -> {
+                                                                           sceneExecutionResult.throwIfFailed();
+                                                                           return true;
+                                                                         })
+                                                                         // In order to ensure all the actions are finished, accumulate the all entries into the list, first.
+                                                                         // Then, stream again. Otherwise, the log will not become so readable.
+                                                                         .toList()
+                                                                         .forEach(r -> {
+                                                                           LOGGER.info(r.composeMessageHeader(testClass(context), stageName));
+                                                                           r.out().forEach(l -> LOGGER.info(composeResultMessageLine(testClass(context), stageName, l)));
+                                                                         });
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-main.log"), Level.INFO);
   }
   
@@ -202,16 +199,16 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-after.log"), Level.INFO);
     AutotestRunner runner = autotestRunner(context);
     List<ExceptionEntry> errors = new ArrayList<>();
-    actions(executionPlan(context),
-            p -> Stream.concat(p.afterEach().stream(),
-                               reverse(p.beforeEach())
-                                   .stream()
-                                   .filter(x -> passedInBeforeEachStage(context, x))
-                                   .map(x -> sceneClosers(context).get(x))
-                                   .filter(x -> !p.afterEach().contains(x)))
-                       .toList(),
-            sceneCallMap(context),
-            executionEnvironment)
+    ExecutionPlan executionPlan = executionPlan(context);
+    sceneNamesToActionEntries(Stream.concat(executionPlan.afterEach().stream(),
+                                            reverse(executionPlan.beforeEach())
+                                                .stream()
+                                                .filter(x -> passedInBeforeEachStage(context, x))
+                                                .map(x -> sceneClosers(context).get(x))
+                                                .filter(x -> !executionPlan.afterEach().contains(x)))
+                                    .toList(),
+                              sceneCallMap(context),
+                              createActionComposer(executionEnvironment))
         .stream()
         .map((Entry<String, Action> each) -> performActionEntry(each,
                                                                 out -> runner.afterEach(each.value(), runner.createWriter(out))))
@@ -238,16 +235,15 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-afterAll.log"), Level.INFO);
     try {
       List<ExceptionEntry> errors = new ArrayList<>();
-      actions(executionPlan(context),
-              p -> Stream.concat(p.afterAll().stream(),
-                                 reverse(p.beforeAll())
-                                     .stream()
-                                     .filter(x -> passedInBeforeAllStage(context, x))
-                                     .map(x -> sceneClosers(context).get(x))
-                                     .filter(x -> !p.afterAll().contains(x)))
-                         .toList(),
-              sceneCallMap(context),
-              executionEnvironment)
+      ExecutionPlan executionPlan = executionPlan(context);
+      sceneNamesToActionEntries(Stream.concat(executionPlan.afterAll().stream(),
+                                              reverse(executionPlan.beforeAll()).stream()
+                                                                                .filter(x -> passedInBeforeAllStage(context, x))
+                                                                                .map(x -> sceneClosers(context).get(x))
+                                                                                .filter(x -> !executionPlan.afterAll().contains(x)))
+                                      .toList(),
+                                sceneCallMap(context),
+                                createActionComposer(executionEnvironment))
           .stream()
           .map(each -> performActionEntry(each, out -> runner.afterAll(each.value(), runner.createWriter(out))))
           .filter(r -> {
@@ -417,23 +413,16 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   
-  private static List<Entry<String, Action>> actions(ExecutionPlan executionPlan,
-                                                     Function<ExecutionPlan, List<String>> toSceneNames,
-                                                     Map<String, SceneCall> sceneCallMap,
-                                                     ExecutionEnvironment executionEnvironment) {
-    return toActions(sceneCallMap,
-                     createActionComposer(executionEnvironment),
-                     toSceneNames.apply(executionPlan));
-  }
-  
-  private static List<Entry<String, Action>> toActions(Map<String, SceneCall> sceneCallMap, ActionComposer actionComposer, List<String> sceneNames) {
+  private static List<Entry<String, Action>> sceneNamesToActionEntries(List<String> sceneNames,
+                                                                       Map<String, SceneCall> sceneCallMap,
+                                                                       ActionComposer actionComposer) {
     return sceneNames.stream()
                      .filter(sceneCallMap::containsKey)
-                     .map((String each) -> new Entry<>(each, toAction(sceneCallMap.get(each), actionComposer)))
+                     .map((String each) -> new Entry<>(each, sceneNameToAction(sceneCallMap.get(each), actionComposer)))
                      .toList();
   }
   
-  private static Action toAction(SceneCall currentSceneCall, ActionComposer actionComposer) {
+  private static Action sceneNameToAction(SceneCall currentSceneCall, ActionComposer actionComposer) {
     return actionComposer.create(currentSceneCall);
   }
   
