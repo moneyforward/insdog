@@ -116,16 +116,32 @@ public interface Scene {
     return switch (call) {
       case SceneCall sceneCall -> sceneCall.targetScene().outputVariableNames().stream();
       case ActCall<?, ?> actCall -> Stream.of(actCall.outputVariableName());
+      case EnsuredCall ensuredCall -> outputVariableNamesOf(ensuredCall);
       case CallDecorator<?> callDecorator -> outputVariableNamesOf(callDecorator.targetCall());
     };
+  }
+  
+  private static Stream<String> outputVariableNamesOf(EnsuredCall ensuredCall) {
+    return Stream.concat(outputVariableNamesOf(ensuredCall.targetCall()),
+                         ensuredCall.ensurers()
+                                    .stream()
+                                    .flatMap(Scene::outputVariableNamesOf)).distinct();
   }
   
   private static Stream<String> inputVariableNamesOf(Call call) {
     return switch (call) {
       case SceneCall sceneCall -> sceneCall.targetScene().inputVariableNames().stream();
       case ActCall<?, ?> actCall -> Stream.of(actCall.inputVariableName());
+      case EnsuredCall ensuredCall -> inputVariableNamesOf(ensuredCall);
       case CallDecorator<?> callDecorator -> inputVariableNamesOf(callDecorator.targetCall());
     };
+  }
+  
+  private static Stream<String> inputVariableNamesOf(EnsuredCall ensuredCall) {
+    return Stream.concat(inputVariableNamesOf(ensuredCall.targetCall()),
+                         ensuredCall.ensurers()
+                                    .stream()
+                                    .flatMap(Scene::inputVariableNamesOf)).distinct();
   }
   
   private List<Action> toActions(ActionComposer actionComposer) {
