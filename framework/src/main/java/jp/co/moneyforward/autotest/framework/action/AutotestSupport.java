@@ -24,25 +24,30 @@ public enum AutotestSupport {
    * @param scene             A scene for which a call is created.
    * @return A created `SceneCall` object.
    */
-  public static SceneCall sceneCall(String variableStoreName, Scene scene) {
-    return sceneCall(variableStoreName,
-                     scene,
-                     new ResolverBundle(resolversFor(variableStoreName,
-                                                     Stream.concat(scene.inputVariableNames().stream(),
-                                                                   scene.outputVariableNames().stream())
-                                                           .distinct()
-                                                           .toList())));
+  public static SceneCall sceneToSceneCall(String variableStoreName, Scene scene) {
+    return sceneToSceneCall(variableStoreName,
+                            scene,
+                            new ResolverBundle(resolversFor(variableStoreName,
+                                                            Stream.concat(scene.inputVariableNames().stream(),
+                                                                          scene.outputVariableNames().stream())
+                                                                  .distinct()
+                                                                  .toList())));
   }
   
   /**
    * Returns a `Call` object for a given `scene`.
+   *
+   * A `resolverBundle` is responsible for figuring out values of input and output variables of `scene`.
+   * The working area is usually specified by `outputVariableStoreName`.
+   * Note, it is `outputVariableStoreName`.
+   *
    *
    * @param outputVariableStoreName A name of variable store, where the children of `scene` write there output variables.
    * @param scene                   A scene for which a call is created
    * @param resolverBundle          A resolver bundle which gives values of variables during the execution of the returned scene call.
    * @return A `SceneCall` object for `scene`.
    */
-  public static SceneCall sceneCall(String outputVariableStoreName, Scene scene, ResolverBundle resolverBundle) {
+  public static SceneCall sceneToSceneCall(String outputVariableStoreName, Scene scene, ResolverBundle resolverBundle) {
     return new SceneCall(outputVariableStoreName, scene, resolverBundle);
   }
   

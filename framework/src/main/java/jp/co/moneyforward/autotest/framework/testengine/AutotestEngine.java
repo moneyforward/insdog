@@ -3,14 +3,10 @@ package jp.co.moneyforward.autotest.framework.testengine;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.valid8j.pcond.fluent.Statement;
-import jp.co.moneyforward.autotest.framework.action.ActionComposer;
-import jp.co.moneyforward.autotest.framework.action.ResolverBundle;
-import jp.co.moneyforward.autotest.framework.action.Scene;
-import jp.co.moneyforward.autotest.framework.action.SceneCall;
+import jp.co.moneyforward.autotest.framework.action.*;
 import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
-import jp.co.moneyforward.autotest.framework.action.Resolver;
 import jp.co.moneyforward.autotest.framework.exceptions.MethodInvocationException;
 import jp.co.moneyforward.autotest.framework.utils.Valid8JCliches.MakePrintable;
 import org.apache.logging.log4j.Level;
@@ -45,7 +41,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.toMap;
-import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneCall;
+import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneToSceneCall;
 import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngine.Stage.*;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.composeResultMessageLine;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.reverse;
@@ -136,13 +132,13 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                    .map(o -> (AutotestRunner) o)
                                    .orElseThrow(RuntimeException::new);
     Class<?> accessModelClass = validateTestClass(runner.getClass());
-    Map<String, SceneCall> sceneCallMap = Arrays.stream(accessModelClass.getMethods())
-                                                .filter(m -> m.isAnnotationPresent(Named.class))
-                                                .filter(m -> !m.isAnnotationPresent(Disabled.class))
-                                                .map(AutotestEngine::validateSceneProvidingMethod)
-                                                .map(m -> new Entry<>(nameOf(m),
-                                                                      methodToSceneCall(accessModelClass, m, runner)))
-                                                .collect(toMap(Entry::key, Entry::value));
+    Map<String, Method> sceneMethodMap = sceneMethodMapOf(accessModelClass);
+    Map<String, Call> sceneCallMap = Arrays.stream(accessModelClass.getMethods())
+                                           .filter(m -> sceneMethodMap.containsKey(nameOf(m)))
+                                           .map(AutotestEngine::validateSceneProvidingMethod)
+                                           .map(m -> new Entry<>(nameOf(m),
+                                                                 methodToCall(m, accessModelClass, runner)))
+                                           .collect(toMap(Entry::key, Entry::value));
     
     AutotestExecution.Spec spec = loadExecutionSpec(runner, properties);
     ExecutionPlan executionPlan = planExecution(spec,
@@ -158,6 +154,15 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     executionContextStore.put("sceneClosers", closers);
     executionContextStore.put("executionPlan", executionPlan);
     newPassedInBeforeAll(context);
+  }
+  
+  
+  private static Map<String, Method> sceneMethodMapOf(Class<?> accessModelClass) {
+    return Arrays.stream(accessModelClass.getMethods())
+                 .filter(m -> m.isAnnotationPresent(Named.class))
+                 .filter(m -> !m.isAnnotationPresent(Disabled.class))
+                 .map(AutotestEngine::validateSceneProvidingMethod)
+                 .collect(toMap(AutotestEngine::nameOf, Function.identity()));
   }
   
   @Override
@@ -484,6 +489,16 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return aClass;
   }
   
+  /**
+   * Returns a "name" a given `method`.
+   * If the method has `@Named` annotation and its value is set, the value will be returned.
+   * If the value is equal to `Named.DEFAULT_VALUE`, the name of the method itself will be returned.
+   *
+   * This method should be called for a method with `@Named` annotation.
+   *
+   * @param m A method whose name should be returned.
+   * @return The name of the method the framework recognizes.
+   */
   private static String nameOf(Method m) {
     Named annotation = m.getAnnotation(Named.class);
     //NOSONAR
@@ -493,6 +508,13 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return m.getName();
   }
   
+  /**
+   * Note that resolution is done based on the value of `Named` annotation first.
+   *
+   * @param name  A name of a method to be found.
+   * @param klass A class from which a method is searched.
+   * @return An optional containing a found method, otherwise, empty.
+   */
   private static Optional<Method> findMethodByName(String name, Class<?> klass) {
     return Arrays.stream(klass.getMethods())
                  .filter(m -> m.isAnnotationPresent(Named.class))
@@ -500,13 +522,43 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                  .findFirst();
   }
   
-  private static SceneCall methodToSceneCall(Class<?> accessModelClass, Method method, AutotestRunner runner) {
-    return sceneCall(nameOf(method),
-                     createSceneFromMethod(method, runner),
-                     new ResolverBundle(variableResolversFor(accessModelClass, method)));
+  private static Call methodToCall(Method method, Class<?> accessModelClass, AutotestRunner runner) {
+    PreparedBy[] preparedByAnnotations = method.getAnnotationsByType(PreparedBy.class);
+    if (preparedByAnnotations.length > 0) {
+      return new EnsuredCall(methodToSceneCall(method, accessModelClass, runner),
+                             annotationsToEnsurers(preparedByAnnotations, accessModelClass, runner, method));
+    }
+    return methodToSceneCall(method, accessModelClass, runner);
   }
   
-  private static Scene createSceneFromMethod(Method method, AutotestRunner runner) {
+  private static List<Call> annotationsToEnsurers(PreparedBy[] preparedByAnnotations, Class<?> accessModelClass, AutotestRunner runner, Method targetMethod) {
+    return Arrays.stream(preparedByAnnotations)
+                 .map(ann -> annotationToEnsurer(ann, accessModelClass, runner, targetMethod))
+                 .toList();
+  }
+  
+  private static Call annotationToEnsurer(PreparedBy ann, Class<?> accessModelClass, AutotestRunner runner, Method targetMethod) {
+    // defaultVariableName of Scene.Builder is only used during build process.
+    // Once a scene is built, it won't be used neither by the scene nor the builder.
+    Scene.Builder b = new Scene.Builder("ANYTHING");
+    Arrays.stream(ann.value())
+          .map(n -> findMethodByName(n, accessModelClass).orElseThrow(NoSuchElementException::new))
+          .map(m -> methodToScene(m, runner))
+          .forEach(b::add);
+    return new SceneCall(nameOf(targetMethod), b.build(), new ResolverBundle(variableResolversFor(accessModelClass, targetMethod)));
+  }
+  
+  private static SceneCall methodToSceneCall(Method method, Class<?> accessModelClass, AutotestRunner runner) {
+    return methodToSceneCall(method, nameOf(method), accessModelClass, runner);
+  }
+  
+  private static SceneCall methodToSceneCall(Method method, String outputVariableStoreName, Class<?> accessModelClass, AutotestRunner runner) {
+    return AutotestSupport.sceneToSceneCall(outputVariableStoreName,
+                                            methodToScene(method, runner),
+                                            new ResolverBundle(variableResolversFor(accessModelClass, method)));
+  }
+  
+  private static Scene methodToScene(Method method, AutotestRunner runner) {
     try {
       return (Scene) method.invoke(runner);
     } catch (IllegalAccessException | InvocationTargetException e) {

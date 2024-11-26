@@ -2,7 +2,6 @@ package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.valid8j.pcond.fluent.Statement;
-import jp.co.moneyforward.autotest.actions.web.PageAct;
 import jp.co.moneyforward.autotest.actions.web.Value;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
@@ -16,6 +15,7 @@ import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 import static java.util.Arrays.asList;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
+import static jp.co.moneyforward.autotest.framework.action.SceneCall.workingVariableStoreNameFor;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.simpleClassNameOf;
 
 /**
@@ -144,6 +144,8 @@ public interface Scene {
     
     /**
      * Creates an instance of this class.
+     * \
+     * Note that `defaultVariableName` is only used by this `Builder`, not directly by the `Scene` built by this object.
      *
      * @param defaultVariableName A name of field used when use `add` methods without explicit input/output target field names.
      */
@@ -233,7 +235,7 @@ public interface Scene {
      * @return This object,
      */
     public final Builder add(Scene scene) {
-      return this.addCall(AutotestSupport.sceneCall(SceneCall.workingVariableStoreNameFor(this.oid()), scene));
+      return this.addCall(sceneToSceneCall(workingVariableStoreNameFor(this.oid()), scene));
     }
     
     /**
@@ -277,7 +279,7 @@ public interface Scene {
     }
     
     public final Builder retry(Scene scene) {
-      return retry(sceneCall(SceneCall.workingVariableStoreNameFor(this.oid()), scene));
+      return retry(sceneToSceneCall(workingVariableStoreNameFor(this.oid()), scene));
     }
     
     /**

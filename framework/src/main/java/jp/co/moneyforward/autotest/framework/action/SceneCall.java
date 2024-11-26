@@ -17,12 +17,32 @@ public final class SceneCall implements Call {
   private final ResolverBundle variableResolverBundle;
   private final String outputVariableStoreName;
   
-  public SceneCall(String outputVariableStoreName, Scene scene, ResolverBundle resolverBundle) {
+  /**
+   * Creates an instance of this class.
+   *
+   * outputVariableStoreName specifies a name of a context variable (**actionunit**), to which the output of `scene`
+   * is written.
+   *
+   * `resolverBundle` is used to compute input variable values.
+   *
+   * @param outputVariableStoreName A name of variable store, to which the `scene` writes its output.
+   * @param scene A scene to be performed by this call.
+   * @param resolverBundle A bundle of resolvers.
+   */
+  public SceneCall(String outputVariableStoreName,
+                   Scene scene,
+                   ResolverBundle resolverBundle) {
     this.outputVariableStoreName = requireNonNull(outputVariableStoreName);
     this.scene = requireNonNull(scene);
     this.variableResolverBundle = requireNonNull(resolverBundle);
   }
   
+  @Override
+  public Action toAction(ActionComposer actionComposer) {
+    return actionComposer.create(this);
+  }
+  
+
   /**
    * Returns a `Scene` object targeted by this call.
    *
@@ -36,10 +56,21 @@ public final class SceneCall implements Call {
     return this.outputVariableStoreName;
   }
   
+  /**
+   * Returns a working variable store name for a given object ID.
+   *
+   * @param objectId An object ID for which a working variable store is created.
+   * @return A working variable store name.
+   */
   public static String workingVariableStoreNameFor(String objectId) {
     return "work-" + objectId;
   }
   
+  /**
+   * Returns a bundle of variable resolvers of this object.
+   *
+   * @return A bundle of variable resolvers.
+   */
   public ResolverBundle variableResolverBundle() {
     return variableResolverBundle;
   }
@@ -55,15 +86,26 @@ public final class SceneCall implements Call {
   }
   
   
-  @Override
-  public Action toAction(ActionComposer actionComposer) {
-    return actionComposer.create(this);
-  }
-  
+  /**
+   * Returns an action, which marks a beginning of a sequence of main actions.
+   *
+   * The action copies a map of the InsDog's framework variables for this scene call to a context variable whose name
+   * is computed by `workingVariableStoreNameFor(this.targetScene().oid())`.
+   *
+   * @return An action, which marks a beginning of a sequence of main actions.
+   */
   public Action begin() {
     return beginSceneCall(this);
   }
   
+  /**
+   * Returns an action, which marks an ending of a sequence of main actions.
+   *
+   * The action copies to a map of the InsDog's framework variables for this scene call from a context variable whose
+   * name is computed by `workingVariableStoreNameFor(this.targetScene().oid())`.
+   *
+   * @return An action, which marks an ending of a sequence of main actions.
+   */
   public Action end() {
     return endSceneCall(this);
   }
