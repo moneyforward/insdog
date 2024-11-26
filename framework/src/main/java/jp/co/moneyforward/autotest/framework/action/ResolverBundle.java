@@ -1,11 +1,19 @@
 package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Context;
+import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
+import jp.co.moneyforward.autotest.framework.annotations.Export;
+import jp.co.moneyforward.autotest.framework.annotations.When;
+import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 
 /**
  * A bundle of variable resolver.
@@ -33,15 +41,90 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
     this(resolverToMap(resolvers));
   }
   
+  public static ResolverBundle emptyResolverBundle() {
+    return new ResolverBundle(List.of());
+  }
+  
+  public static List<Resolver> variableResolversFor(Scene scene, String variableStoreName) {
+    return Resolver.resolversFor(variableStoreName,
+                                 Stream.concat(scene.inputVariableNames().stream(),
+                                               scene.outputVariableNames().stream())
+                                       .distinct()
+                                       .toList());
+  }
+
+  /**
+   * Creates resolvers (`Resolver`) for a scene call associated with a scene returned by `method`.
+   *
+   * Either `@DependsOn` or `@When` annotations attached to `method` tells the framework that methods which it depends on.
+   * This method scans `@Export` attached to those methods to figure out variables available to the `method`.
+   *
+   * @param method           A method that returns a `Scene` object.
+   * @param accessModelClass An access model class to which method belongs.
+   * @return A list of resolvers that a scene returned by `method` requires.
+   */
+  public static List<Resolver> variableResolversFor(Method method, Class<?> accessModelClass) {
+    return Stream.concat(variableResolversFor(method,
+                                              accessModelClass,
+                                              DependsOn.class,
+                                              m -> m.getAnnotation(DependsOn.class).value()).stream(),
+                         variableResolversFor(method,
+                                              accessModelClass,
+                                              When.class,
+                                              m -> m.getAnnotation(When.class).value()).stream())
+                 .toList();
+  }
+  
+  /**
+   * Creates variable resolvers for a scene created from a method `m`.
+   *
+   * The scene created by `m` will be called "scene `m`" in this description, hereafter.
+   *
+   * @param m                         A method to create a scene, for which resolvers are created.
+   * @param accessModelClass          An access model class that defines a set of scene creating methods, on which `m` potentially depends.
+   * @param dependencyAnnotationClass Annotation class which holds dependency scenes.
+   * @param dependenciesResolver      A function that returns names of scenes on which scene `m` depends.
+   * @return Resolvers for a scene created by `m`.
+   */
+  private static List<Resolver> variableResolversFor(Method m,
+                                                    Class<?> accessModelClass,
+                                                    Class<? extends Annotation> dependencyAnnotationClass,
+                                                    Function<Method, String[]> dependenciesResolver) {
+    if (!m.isAnnotationPresent(dependencyAnnotationClass))
+      return emptyList();
+    return variableResolversFor(dependenciesResolver.apply(m),
+                                dependencySceneName -> exportedVariablesOf(accessModelClass, dependencySceneName));
+  }
+  
+  /**
+   * Returns `Resolver`s for variables exported by scenes specified by `sceneNames`.
+   * A resolver in the list returns a value of a variable defined in a scene that exports it with the same name.
+   *
+   * @param sceneNames        Names of `Scene`s.
+   * @param exportedVariables A function that returns a list of export variables for a scene specified as a parameter.
+   * @return `Resolver`s for variables exported by specified scenes.
+   */
+  private static List<Resolver> variableResolversFor(String[] sceneNames,
+                                                     Function<String, List<String>> exportedVariables) {
+    return Arrays.stream(sceneNames)
+                 .flatMap((String sceneName) -> exportedVariables.apply(sceneName)
+                                                                 .stream()
+                                                                 .map((String n) -> Resolver.resolverFor(sceneName, n)))
+                 .toList();
+  }
+  
+  private static List<String> exportedVariablesOf(Class<?> accessModelClass, String methodName) {
+    return List.of(AutotestEngine.findMethodByName(methodName, accessModelClass)
+                                 .orElseThrow(() -> new NoSuchElementException(format("A method named:'%s' was not found in class:'%s'", methodName, accessModelClass.getCanonicalName())))
+                                 .getAnnotation(Export.class)
+                                 .value());
+  }
+  
   private static Map<String, Function<Context, Object>> resolverToMap(List<Resolver> resolvers) {
     Map<String, Function<Context, Object>> resolverMap = new HashMap<>();
     for (Resolver resolver : resolvers) {
       resolverMap.put(resolver.variableName(), resolver.resolverFunction());
     }
     return resolverMap;
-  }
-  
-  public static ResolverBundle emptyResolverBundle() {
-    return new ResolverBundle(List.of());
   }
 }

@@ -4,9 +4,8 @@ import com.github.valid8j.pcond.fluent.Statement;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
-import static jp.co.moneyforward.autotest.framework.action.Resolver.resolversFor;
+import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.variableResolversFor;
 
 /**
  * A facade class of the "autotest" framework.
@@ -27,11 +26,7 @@ public enum AutotestSupport {
   public static SceneCall sceneToSceneCall(String variableStoreName, Scene scene) {
     return sceneToSceneCall(variableStoreName,
                             scene,
-                            new ResolverBundle(resolversFor(variableStoreName,
-                                                            Stream.concat(scene.inputVariableNames().stream(),
-                                                                          scene.outputVariableNames().stream())
-                                                                  .distinct()
-                                                                  .toList())));
+                            new ResolverBundle(variableResolversFor(scene, variableStoreName)));
   }
   
   /**
@@ -40,7 +35,6 @@ public enum AutotestSupport {
    * A `resolverBundle` is responsible for figuring out values of input and output variables of `scene`.
    * The working area is usually specified by `outputVariableStoreName`.
    * Note, it is `outputVariableStoreName`.
-   *
    *
    * @param outputVariableStoreName A name of variable store, where the children of `scene` write there output variables.
    * @param scene                   A scene for which a call is created

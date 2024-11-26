@@ -100,6 +100,7 @@ public interface Scene {
     return this.children()
                .stream()
                .flatMap(Scene::outputVariableNamesOf)
+               .distinct()
                .toList();
   }
   
@@ -107,6 +108,7 @@ public interface Scene {
     return this.children()
                .stream()
                .flatMap(Scene::inputVariableNamesOf)
+               .distinct()
                .toList();
   }
   

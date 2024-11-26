@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
@@ -515,7 +514,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
    * @param klass A class from which a method is searched.
    * @return An optional containing a found method, otherwise, empty.
    */
-  private static Optional<Method> findMethodByName(String name, Class<?> klass) {
+  public static Optional<Method> findMethodByName(String name, Class<?> klass) {
     return Arrays.stream(klass.getMethods())
                  .filter(m -> m.isAnnotationPresent(Named.class))
                  .filter(m -> Objects.equals(nameOf(m), name))
@@ -545,7 +544,9 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
           .map(n -> findMethodByName(n, accessModelClass).orElseThrow(NoSuchElementException::new))
           .map(m -> methodToScene(m, runner))
           .forEach(b::add);
-    return new SceneCall(nameOf(targetMethod), b.build(), new ResolverBundle(variableResolversFor(accessModelClass, targetMethod)));
+    return new SceneCall(nameOf(targetMethod),
+                         b.build(),
+                         new ResolverBundle(ResolverBundle.variableResolversFor(targetMethod, accessModelClass)));
   }
   
   private static SceneCall methodToSceneCall(Method method, Class<?> accessModelClass, AutotestRunner runner) {
@@ -555,7 +556,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   private static SceneCall methodToSceneCall(Method method, String outputVariableStoreName, Class<?> accessModelClass, AutotestRunner runner) {
     return AutotestSupport.sceneToSceneCall(outputVariableStoreName,
                                             methodToScene(method, runner),
-                                            new ResolverBundle(variableResolversFor(accessModelClass, method)));
+                                            new ResolverBundle(ResolverBundle.variableResolversFor(method, accessModelClass)));
   }
   
   private static Scene methodToScene(Method method, AutotestRunner runner) {
@@ -564,73 +565,6 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new MethodInvocationException("Failed to create a scene with: " + method, e);
     }
-  }
-  
-  /**
-   * Creates resolvers (`Resolver`) for a scene call associated with a scene returned by `method`.
-   *
-   * Either `@DependsOn` or `@When` annotations attached to `method` tells the framework that methods which it depends on.
-   * This method scans `@Export` attached to those methods to figure out variables available to the `method`.
-   *
-   * @param accessModelClass An access model class to which method belongs.
-   * @param method           A method that returns a `Scene` object.
-   * @return A list of resolvers that a scene returned by `method` requires.
-   */
-  private static List<Resolver> variableResolversFor(Class<?> accessModelClass, Method method) {
-    return Stream.concat(variableResolversFor(method,
-                                              accessModelClass,
-                                              DependsOn.class,
-                                              m -> m.getAnnotation(DependsOn.class).value()).stream(),
-                         variableResolversFor(method,
-                                              accessModelClass,
-                                              When.class,
-                                              m -> m.getAnnotation(When.class).value()).stream())
-                 .toList();
-  }
-  
-  /**
-   * Creates variable resolvers for a scene created from a method `m`.
-   *
-   * The scene created by `m` will be called "scene `m`" in this description, hereafter.
-   *
-   * @param m                         A method to create a scene, for which resolvers are created.
-   * @param accessModelClass          An access model class that defines a set of scene creating methods, on which `m` potentially depends.
-   * @param dependencyAnnotationClass Annotation class which holds dependency scenes.
-   * @param dependenciesResolver      A function that returns names of scenes on which scene `m` depends.
-   * @return Resolvers for a scene created by `m`.
-   */
-  private static List<Resolver> variableResolversFor(Method m,
-                                                     Class<?> accessModelClass,
-                                                     Class<? extends Annotation> dependencyAnnotationClass,
-                                                     Function<Method, String[]> dependenciesResolver) {
-    if (!m.isAnnotationPresent(dependencyAnnotationClass))
-      return emptyList();
-    return variableResolversFor(dependenciesResolver.apply(m),
-                                dependencySceneName -> exportedVariablesOf(accessModelClass, dependencySceneName));
-  }
-  
-  /**
-   * Returns `Resolver`s for variables exported by scenes specified by `sceneNames`.
-   * A resolver in the list returns a value of a variable defined in a scene that exports it with the same name.
-   *
-   * @param sceneNames        Names of `Scene`s.
-   * @param exportedVariables A function that returns a list of export variables for a scene specified as a parameter.
-   * @return `Resolver`s for variables exported by specified scenes.
-   */
-  private static List<Resolver> variableResolversFor(String[] sceneNames,
-                                                     Function<String, List<String>> exportedVariables) {
-    return Arrays.stream(sceneNames)
-                 .flatMap((String sceneName) -> exportedVariables.apply(sceneName)
-                                                                 .stream()
-                                                                 .map((String n) -> Resolver.resolverFor(sceneName, n)))
-                 .toList();
-  }
-  
-  private static List<String> exportedVariablesOf(Class<?> accessModelClass, String methodName) {
-    return List.of(findMethodByName(methodName, accessModelClass)
-                       .orElseThrow(() -> new NoSuchElementException(format("A method named:'%s' was not found in class:'%s'", methodName, accessModelClass.getCanonicalName())))
-                       .getAnnotation(Export.class)
-                       .value());
   }
   
   /**

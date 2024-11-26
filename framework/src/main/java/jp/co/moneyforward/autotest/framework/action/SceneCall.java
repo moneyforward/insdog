@@ -26,8 +26,8 @@ public final class SceneCall implements Call {
    * `resolverBundle` is used to compute input variable values.
    *
    * @param outputVariableStoreName A name of variable store, to which the `scene` writes its output.
-   * @param scene A scene to be performed by this call.
-   * @param resolverBundle A bundle of resolvers.
+   * @param scene                   A scene to be performed by this call.
+   * @param resolverBundle          A bundle of resolvers.
    */
   public SceneCall(String outputVariableStoreName,
                    Scene scene,
@@ -42,7 +42,7 @@ public final class SceneCall implements Call {
     return actionComposer.create(this);
   }
   
-
+  
   /**
    * Returns a `Scene` object targeted by this call.
    *
@@ -110,13 +110,19 @@ public final class SceneCall implements Call {
     return endSceneCall(this);
   }
   
- 
   private static Action beginSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
                                 c -> c.assignTo(workingVariableStoreNameFor(sceneCall.targetScene().oid()),
                                                 createWorkingVariableStore(sceneCall, c)));
   }
   
+  /**
+   * Returns a map (variable store), with which a targetScene can interact to store/read data.
+   *
+   * @param sceneCall A scene call for which a returned map is created.
+   * @param context   A context in which actions created from the target scene are performed.
+   * @return A data store map.
+   */
   private static Map<String, Object> createWorkingVariableStore(SceneCall sceneCall,
                                                                 Context context) {
     var ret = new HashMap<String, Object>();
@@ -124,7 +130,7 @@ public final class SceneCall implements Call {
              .forEach((k, r) -> ret.put(k, r.apply(context)));
     return ret;
   }
-
+  
   /*
    * Copies the map stored as "work area" to `outputFieldName` variable.
    */
