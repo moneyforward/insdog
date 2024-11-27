@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.function.Function;
 
 import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.resolverBundleFor;
-import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.variableResolversFor;
 
 /**
  * A facade class of the "autotest" framework.
  */
 public enum AutotestSupport {
   ;
+  
   /**
    * Returns a `Call` object for a given `scene`.
    *

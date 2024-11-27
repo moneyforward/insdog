@@ -48,9 +48,9 @@ public interface Scene extends WithOid {
    */
   @SafeVarargs
   static <T> Scene create(String sceneName, Act<T, T>... acts) {
-    Builder builder = new Builder(sceneName);
+    Builder builder = new Builder().name(sceneName);
     for (Act<T, T> act : acts) {
-      builder.add(act);
+      builder.add("var", act, "var");
     }
     return builder.build();
   }
@@ -158,17 +158,28 @@ public interface Scene extends WithOid {
   class Builder implements WithOid {
     final String defaultVariableName;
     private final List<Call> children = new LinkedList<>();
+    private String name = null;
     
     /**
      * Creates an instance of this class.
-     * \
+     *
      * Note that `defaultVariableName` is only used by this `Builder`, not directly by the `Scene` built by this object.
      *
      * @param defaultVariableName A name of field used when use `add` methods without explicit input/output target field names.
      */
     public Builder(String defaultVariableName) {
-      this.defaultVariableName = requireNonNull(defaultVariableName);
+      this.defaultVariableName = defaultVariableName;
     }
+    
+    public Builder() {
+      this(null);
+    }
+    
+    public Builder name(String name) {
+      this.name = requireNonNull(name);
+      return this;
+    }
+    
     
     /**
      * A "syntax-sugar" method to group a sequence of method calls to this `Builder` object.
@@ -202,11 +213,11 @@ public interface Scene extends WithOid {
      * @return This object.
      */
     public final <T, R> Builder add(Act<T, R> act) {
-      return this.add(defaultVariableName, act, defaultVariableName);
+      return this.add(defaultVariableName(), act, defaultVariableName());
     }
     
     public final <T, R> Builder add(String outputVariableName, Act<T, R> act) {
-      return this.add(outputVariableName, act, defaultVariableName);
+      return this.add(outputVariableName, act, defaultVariableName());
     }
     
     public final <T, R> Builder add(String outputVariableName, Act<T, R> act, String inputVariableName) {
@@ -220,7 +231,7 @@ public interface Scene extends WithOid {
     
     @SuppressWarnings("unchecked")
     public final <R> Builder assertions(Function<R, Statement<R>>... assertions) {
-      return this.assertions(defaultVariableName, assertions);
+      return this.assertions(defaultVariableName(), assertions);
     }
     
     /**
@@ -323,10 +334,6 @@ public interface Scene extends WithOid {
       return this;
     }
     
-    private SceneCall toSceneCall(Scene scene) {
-      return sceneToSceneCall(scene, this.workingVariableStoreName());
-    }
-
     /**
      * Builds a `Scene` object.
      *
@@ -354,7 +361,8 @@ public interface Scene extends WithOid {
         
         @Override
         public String name() {
-          return Scene.super.name();
+          return name != null ? name
+                              : Scene.super.name();
         }
       };
     }
@@ -362,6 +370,14 @@ public interface Scene extends WithOid {
     @Override
     public String oid() {
       return "id-" + System.identityHashCode(this);
+    }
+    
+    private String defaultVariableName() {
+      return requireNonNull(this.defaultVariableName);
+    }
+    
+    private SceneCall toSceneCall(Scene scene) {
+      return sceneToSceneCall(scene, this.workingVariableStoreName());
     }
   }
 }

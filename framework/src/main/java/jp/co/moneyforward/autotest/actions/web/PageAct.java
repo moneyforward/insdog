@@ -27,6 +27,13 @@ public abstract class PageAct implements Act<Page, Page> {
     this.description = requireNonNull(description);
   }
   
+  /**
+   * Creates a `PageAct` with a given description and an action
+   *
+   * @param description A string to describe created page act.
+   * @param action      An action to be performed.
+   * @return A page act that performs `action`.
+   */
   public static PageAct pageAct(String description, BiConsumer<Page, ExecutionEnvironment> action) {
     return new PageAct(description) {
       @Override
@@ -60,6 +67,7 @@ public abstract class PageAct implements Act<Page, Page> {
   
   /**
    * Returns a name of this object.
+   *
    * @return A name of this object.
    */
   @Override

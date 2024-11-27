@@ -29,7 +29,8 @@ public final class SceneCall implements Call, WithOid {
    * @param outputVariableStoreName A name of variable store, to which the `scene` writes its output.
    * @param resolverBundle          A bundle of resolvers.
    */
-  public SceneCall(Scene scene, String outputVariableStoreName,
+  public SceneCall(Scene scene,
+                   String outputVariableStoreName,
                    ResolverBundle resolverBundle) {
     this.outputVariableStoreName = requireNonNull(outputVariableStoreName);
     this.scene = requireNonNull(scene);
@@ -39,6 +40,11 @@ public final class SceneCall implements Call, WithOid {
   @Override
   public Action toAction(ActionComposer actionComposer) {
     return actionComposer.create(this);
+  }
+  
+  @Override
+  public String oid() {
+    return this.targetScene().oid();
   }
   
   /**
@@ -97,30 +103,10 @@ public final class SceneCall implements Call, WithOid {
     return endSceneCall(this);
   }
   
-  @Override
-  public String oid() {
-    return this.targetScene().oid();
-  }
-  
   private static Action beginSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
                                 c -> c.assignTo(sceneCall.workingVariableStoreName(),
-                                                createWorkingVariableStore(sceneCall, c)));
-  }
-  
-  /**
-   * Returns a map (variable store), with which a targetScene can interact to store/read data.
-   *
-   * @param sceneCall A scene call for which a returned map is created.
-   * @param context   A context in which actions created from the target scene are performed.
-   * @return A data store map.
-   */
-  private static Map<String, Object> createWorkingVariableStore(SceneCall sceneCall,
-                                                                Context context) {
-    var ret = new HashMap<String, Object>();
-    sceneCall.variableResolverBundle()
-             .forEach((k, r) -> ret.put(k, r.apply(context)));
-    return ret;
+                                                composeWorkingVariableStore(sceneCall, c)));
   }
   
   /*
@@ -131,5 +117,21 @@ public final class SceneCall implements Call, WithOid {
       c.assignTo(sceneCall.outputVariableStoreName(), c.valueOf(sceneCall.workingVariableStoreName()));
       c.unassign(sceneCall.workingVariableStoreName());
     });
+  }
+  
+  
+  /**
+   * Returns a map (variable store), with which a targetScene can interact to store/read data.
+   *
+   * @param sceneCall A scene call for which a returned map is created.
+   * @param context   A context in which actions created from the target scene are performed.
+   * @return A data store map.
+   */
+  private static Map<String, Object> composeWorkingVariableStore(SceneCall sceneCall,
+                                                                 Context context) {
+    var ret = new HashMap<String, Object>();
+    sceneCall.variableResolverBundle()
+             .forEach((k, r) -> ret.put(k, r.apply(context)));
+    return ret;
   }
 }

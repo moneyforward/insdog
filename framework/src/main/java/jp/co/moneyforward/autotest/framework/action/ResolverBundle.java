@@ -3,8 +3,10 @@ package jp.co.moneyforward.autotest.framework.action;
 import com.github.dakusui.actionunit.core.Context;
 import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.Export;
+import jp.co.moneyforward.autotest.framework.annotations.PreparedBy;
 import jp.co.moneyforward.autotest.framework.annotations.When;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
+import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -16,7 +18,7 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 
 /**
- * A bundle of variable resolver.
+ * A bundle of variable resolvers.
  *
  * A variable resolver figures out a value of a variable specified by a variable name.
  * This class bundles a set of such resolvers and associated each resolver with a variable name which the resolver
@@ -41,12 +43,29 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
     this(resolverToMap(resolvers));
   }
   
+  /**
+   * Returns a resolver bundle object which figures out variable values for a given `Scene`.
+   * The variables are looked up from a variable store specified by the argument `variableStoreName`.
+   *
+   * @param scene             A scene for which resolver bundle is created.
+   * @param variableStoreName A name of variable store, where variable values are looked up.
+   * @return A new resolver bundle.
+   */
   public static ResolverBundle resolverBundleFor(Scene scene, String variableStoreName) {
     return new ResolverBundle(variableResolversFor(scene, variableStoreName));
   }
   
   public static ResolverBundle resolverBundleFor(Method targetMethod, Class<?> accessModelClass) {
     return new ResolverBundle(variableResolversFor(targetMethod, accessModelClass));
+  }
+  
+  /**
+   * Returns an empty resolver bundle.
+   *
+   * @return An empty resolver bundle.
+   */
+  public static ResolverBundle emptyResolverBundle() {
+    return new ResolverBundle(List.of());
   }
   
   /**
@@ -62,7 +81,7 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
    *                          which are used by the scene.
    * @return A list of variable resolvers.
    */
-  public static List<Resolver> variableResolversFor(Scene scene, String variableStoreName) {
+  private static List<Resolver> variableResolversFor(Scene scene, String variableStoreName) {
     return Resolver.resolversFor(variableStoreName,
                                  Stream.concat(scene.inputVariableNames().stream(),
                                                scene.outputVariableNames().stream())
@@ -82,25 +101,22 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
    * @param accessModelClass An access model class to which method belongs.
    * @return A list of resolvers that a scene returned by `method` requires.
    */
-  public static List<Resolver> variableResolversFor(Method method, Class<?> accessModelClass) {
-    return Stream.concat(variableResolversFor(method,
-                                              accessModelClass,
-                                              DependsOn.class,
-                                              m -> m.getAnnotation(DependsOn.class).value()).stream(),
-                         variableResolversFor(method,
-                                              accessModelClass,
-                                              When.class,
-                                              m -> m.getAnnotation(When.class).value()).stream())
-                 .toList();
-  }
-  
-  /**
-   * Returns an empty resolver bundle.
-   *
-   * @return An empty resolver bundle.
-   */
-  public static ResolverBundle emptyResolverBundle() {
-    return new ResolverBundle(List.of());
+  private static List<Resolver> variableResolversFor(Method method, Class<?> accessModelClass) {
+    return InternalUtils.concat(variableResolversFor(method,
+                                                     accessModelClass,
+                                                     DependsOn.class,
+                                                     m -> m.getAnnotation(DependsOn.class).value()).stream(),
+                                variableResolversFor(method,
+                                                     accessModelClass,
+                                                     When.class,
+                                                     m -> m.getAnnotation(When.class).value()).stream(),
+                                variableResolversFor(method,
+                                                     accessModelClass,
+                                                     PreparedBy.class,
+                                                     m -> Arrays.stream(m.getAnnotationsByType(PreparedBy.class))
+                                                                .flatMap(a -> Arrays.stream(a.value()))
+                                                                .toArray(String[]::new)).stream())
+                        .toList();
   }
   
   /**
@@ -119,10 +135,11 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
                                                      Class<?> accessModelClass,
                                                      Class<? extends Annotation> dependencyAnnotationClass,
                                                      Function<Method, String[]> dependenciesResolver) {
-    if (!m.isAnnotationPresent(dependencyAnnotationClass))
+    if (m.getAnnotationsByType(dependencyAnnotationClass).length == 0)
       return emptyList();
     return variableResolversFor(dependenciesResolver.apply(m),
-                                dependencySceneName -> exportedVariablesOf(accessModelClass, dependencySceneName));
+                                dependencySceneName -> exportedVariablesOf(accessModelClass,
+                                                                           dependencySceneName));
   }
   
   /**
