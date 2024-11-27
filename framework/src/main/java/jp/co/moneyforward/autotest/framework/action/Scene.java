@@ -15,7 +15,6 @@ import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 import static java.util.Arrays.asList;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
-import static jp.co.moneyforward.autotest.framework.action.SceneCall.workingVariableStoreNameFor;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.simpleClassNameOf;
 
 /**
@@ -24,7 +23,7 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.simpleCl
  *
  * Note that `Scene` uses the same map for both input and output.
  */
-public interface Scene {
+public interface Scene extends WithOid {
   /**
    * Creates a scene by chaining acts.
    *
@@ -156,7 +155,7 @@ public interface Scene {
    *
    * @see Scene
    */
-  class Builder {
+  class Builder implements WithOid {
     final String defaultVariableName;
     private final List<Call> children = new LinkedList<>();
     
@@ -253,7 +252,7 @@ public interface Scene {
      * @return This object,
      */
     public final Builder add(Scene scene) {
-      return this.addCall(sceneToSceneCall(workingVariableStoreNameFor(this.oid()), scene));
+      return this.addCall(toSceneCall(scene));
     }
     
     /**
@@ -297,7 +296,7 @@ public interface Scene {
     }
     
     public final Builder retry(Scene scene) {
-      return retry(sceneToSceneCall(workingVariableStoreNameFor(this.oid()), scene));
+      return retry(toSceneCall(scene));
     }
     
     /**
@@ -324,6 +323,10 @@ public interface Scene {
       return this;
     }
     
+    private SceneCall toSceneCall(Scene scene) {
+      return sceneToSceneCall(scene, this.workingVariableStoreName());
+    }
+
     /**
      * Builds a `Scene` object.
      *
@@ -351,12 +354,13 @@ public interface Scene {
         
         @Override
         public String name() {
-          return Scene.super.name() + "[" + defaultVariableName + "]";
+          return Scene.super.name();
         }
       };
     }
     
-    private String oid() {
+    @Override
+    public String oid() {
       return "id-" + System.identityHashCode(this);
     }
   }

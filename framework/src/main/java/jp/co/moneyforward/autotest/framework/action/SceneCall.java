@@ -12,7 +12,7 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 /**
  * A class to model a "call" to a `Scene`.
  */
-public final class SceneCall implements Call {
+public final class SceneCall implements Call, WithOid {
   private final Scene scene;
   private final ResolverBundle variableResolverBundle;
   private final String outputVariableStoreName;
@@ -25,12 +25,11 @@ public final class SceneCall implements Call {
    *
    * `resolverBundle` is used to compute input variable values.
    *
-   * @param outputVariableStoreName A name of variable store, to which the `scene` writes its output.
    * @param scene                   A scene to be performed by this call.
+   * @param outputVariableStoreName A name of variable store, to which the `scene` writes its output.
    * @param resolverBundle          A bundle of resolvers.
    */
-  public SceneCall(String outputVariableStoreName,
-                   Scene scene,
+  public SceneCall(Scene scene, String outputVariableStoreName,
                    ResolverBundle resolverBundle) {
     this.outputVariableStoreName = requireNonNull(outputVariableStoreName);
     this.scene = requireNonNull(scene);
@@ -41,7 +40,6 @@ public final class SceneCall implements Call {
   public Action toAction(ActionComposer actionComposer) {
     return actionComposer.create(this);
   }
-  
   
   /**
    * Returns a `Scene` object targeted by this call.
@@ -54,16 +52,6 @@ public final class SceneCall implements Call {
   
   public String outputVariableStoreName() {
     return this.outputVariableStoreName;
-  }
-  
-  /**
-   * Returns a working variable store name for a given object ID.
-   *
-   * @param objectId An object ID for which a working variable store is created.
-   * @return A working variable store name.
-   */
-  public static String workingVariableStoreNameFor(String objectId) {
-    return "work-" + objectId;
   }
   
   /**
@@ -82,9 +70,8 @@ public final class SceneCall implements Call {
    * @return A currently ongoing working variable store.
    */
   public Map<String, Object> workingVariableStore(Context context) {
-    return context.valueOf(workingVariableStoreNameFor(this.targetScene().oid()));
+    return context.valueOf(this.workingVariableStoreName());
   }
-  
   
   /**
    * Returns an action, which marks a beginning of a sequence of main actions.
@@ -110,9 +97,14 @@ public final class SceneCall implements Call {
     return endSceneCall(this);
   }
   
+  @Override
+  public String oid() {
+    return this.targetScene().oid();
+  }
+  
   private static Action beginSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
-                                c -> c.assignTo(workingVariableStoreNameFor(sceneCall.targetScene().oid()),
+                                c -> c.assignTo(sceneCall.workingVariableStoreName(),
                                                 createWorkingVariableStore(sceneCall, c)));
   }
   
@@ -136,8 +128,8 @@ public final class SceneCall implements Call {
    */
   private static Action endSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("END@" + sceneCall.scene.name(), c -> {
-      c.assignTo(sceneCall.outputVariableStoreName(), c.valueOf(workingVariableStoreNameFor(sceneCall.targetScene().oid())));
-      c.unassign(workingVariableStoreNameFor(sceneCall.targetScene().oid()));
+      c.assignTo(sceneCall.outputVariableStoreName(), c.valueOf(sceneCall.workingVariableStoreName()));
+      c.unassign(sceneCall.workingVariableStoreName());
     });
   }
 }

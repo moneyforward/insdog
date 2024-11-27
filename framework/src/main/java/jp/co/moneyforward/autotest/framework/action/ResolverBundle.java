@@ -41,10 +41,27 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
     this(resolverToMap(resolvers));
   }
   
-  public static ResolverBundle emptyResolverBundle() {
-    return new ResolverBundle(List.of());
+  public static ResolverBundle resolverBundleFor(Scene scene, String variableStoreName) {
+    return new ResolverBundle(variableResolversFor(scene, variableStoreName));
   }
   
+  public static ResolverBundle resolverBundleFor(Method targetMethod, Class<?> accessModelClass) {
+    return new ResolverBundle(variableResolversFor(targetMethod, accessModelClass));
+  }
+  
+  /**
+   * Returns a variable resolvers of a given `scene` based on its children's input and output variable names.
+   * The returned variable resolvers figure out the value of a given variable name from a Map context variable.
+   * The context variable is specified by a `variableStoreName`.
+   *
+   * This is "de facto"-based method to create variable resolvers, so to say.
+   *
+   * @param scene             A scene for which variable resolvers are created and returned.
+   * @param variableStoreName A name of a context variable that stores a map.
+   *                          From the map, the returned resolvers figure out the values of given variable names,
+   *                          which are used by the scene.
+   * @return A list of variable resolvers.
+   */
   public static List<Resolver> variableResolversFor(Scene scene, String variableStoreName) {
     return Resolver.resolversFor(variableStoreName,
                                  Stream.concat(scene.inputVariableNames().stream(),
@@ -52,12 +69,14 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
                                        .distinct()
                                        .toList());
   }
-
+  
   /**
    * Creates resolvers (`Resolver`) for a scene call associated with a scene returned by `method`.
    *
    * Either `@DependsOn` or `@When` annotations attached to `method` tells the framework that methods which it depends on.
    * This method scans `@Export` attached to those methods to figure out variables available to the `method`.
+   *
+   * This is "de juro"-based method to create variable resolvers, so to say.
    *
    * @param method           A method that returns a `Scene` object.
    * @param accessModelClass An access model class to which method belongs.
@@ -76,9 +95,19 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
   }
   
   /**
+   * Returns an empty resolver bundle.
+   *
+   * @return An empty resolver bundle.
+   */
+  public static ResolverBundle emptyResolverBundle() {
+    return new ResolverBundle(List.of());
+  }
+  
+  /**
    * Creates variable resolvers for a scene created from a method `m`.
    *
    * The scene created by `m` will be called "scene `m`" in this description, hereafter.
+   * Variable resolvers created based on annotations specified by `dependencyAnnotationClass`, which is usually `@DependsOn`.
    *
    * @param m                         A method to create a scene, for which resolvers are created.
    * @param accessModelClass          An access model class that defines a set of scene creating methods, on which `m` potentially depends.
@@ -87,9 +116,9 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
    * @return Resolvers for a scene created by `m`.
    */
   private static List<Resolver> variableResolversFor(Method m,
-                                                    Class<?> accessModelClass,
-                                                    Class<? extends Annotation> dependencyAnnotationClass,
-                                                    Function<Method, String[]> dependenciesResolver) {
+                                                     Class<?> accessModelClass,
+                                                     Class<? extends Annotation> dependencyAnnotationClass,
+                                                     Function<Method, String[]> dependenciesResolver) {
     if (!m.isAnnotationPresent(dependencyAnnotationClass))
       return emptyList();
     return variableResolversFor(dependenciesResolver.apply(m),

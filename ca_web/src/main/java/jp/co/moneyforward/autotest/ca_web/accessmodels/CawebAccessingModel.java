@@ -24,7 +24,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.byText;
 import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.textContent;
 import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
-import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneToSceneCall;
 
 /**
  * This accessing model assumes that the user provided by `EXECUTION_PROFILE` has already been registered and associated with

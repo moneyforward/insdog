@@ -5,6 +5,7 @@ import com.github.valid8j.pcond.fluent.Statement;
 import java.util.List;
 import java.util.function.Function;
 
+import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.resolverBundleFor;
 import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.variableResolversFor;
 
 /**
@@ -12,21 +13,20 @@ import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.variab
  */
 public enum AutotestSupport {
   ;
-  
   /**
    * Returns a `Call` object for a given `scene`.
    *
    * This method internally calls `sceneCall(String,Scene,ResolverBundle)`.
    * A `ResolverBundle` is created from `scene.inputVariableNames()` and `scene.outputVariableNames()`.
    *
-   * @param variableStoreName A name of a variable store in which the `scene` is performed.
    * @param scene             A scene for which a call is created.
+   * @param variableStoreName A name of a variable store in which the `scene` is performed.
    * @return A created `SceneCall` object.
    */
-  public static SceneCall sceneToSceneCall(String variableStoreName, Scene scene) {
-    return sceneToSceneCall(variableStoreName,
-                            scene,
-                            new ResolverBundle(variableResolversFor(scene, variableStoreName)));
+  public static SceneCall sceneToSceneCall(Scene scene, String variableStoreName) {
+    return sceneToSceneCall(scene,
+                            variableStoreName,
+                            resolverBundleFor(scene, variableStoreName));
   }
   
   /**
@@ -36,13 +36,13 @@ public enum AutotestSupport {
    * The working area is usually specified by `outputVariableStoreName`.
    * Note, it is `outputVariableStoreName`.
    *
-   * @param outputVariableStoreName A name of variable store, where the children of `scene` write there output variables.
    * @param scene                   A scene for which a call is created
+   * @param outputVariableStoreName A name of variable store, where the children of `scene` write there output variables.
    * @param resolverBundle          A resolver bundle which gives values of variables during the execution of the returned scene call.
    * @return A `SceneCall` object for `scene`.
    */
-  public static SceneCall sceneToSceneCall(String outputVariableStoreName, Scene scene, ResolverBundle resolverBundle) {
-    return new SceneCall(outputVariableStoreName, scene, resolverBundle);
+  public static SceneCall sceneToSceneCall(Scene scene, String outputVariableStoreName, ResolverBundle resolverBundle) {
+    return new SceneCall(scene, outputVariableStoreName, resolverBundle);
   }
   
   /**

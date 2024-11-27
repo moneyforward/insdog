@@ -38,9 +38,11 @@ import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.internals.InternalUtils.wrapIfNecessary;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toMap;
-import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneToSceneCall;
+import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.resolverBundleFor;
+import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.variableResolversFor;
 import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngine.Stage.*;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.composeResultMessageLine;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.reverse;
@@ -544,9 +546,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
           .map(n -> findMethodByName(n, accessModelClass).orElseThrow(NoSuchElementException::new))
           .map(m -> methodToScene(m, runner))
           .forEach(b::add);
-    return new SceneCall(nameOf(targetMethod),
-                         b.build(),
-                         new ResolverBundle(ResolverBundle.variableResolversFor(targetMethod, accessModelClass)));
+    return new SceneCall(b.build(), nameOf(targetMethod),
+                         resolverBundleFor(targetMethod, accessModelClass));
   }
   
   private static SceneCall methodToSceneCall(Method method, Class<?> accessModelClass, AutotestRunner runner) {
@@ -554,9 +555,9 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   private static SceneCall methodToSceneCall(Method method, String outputVariableStoreName, Class<?> accessModelClass, AutotestRunner runner) {
-    return AutotestSupport.sceneToSceneCall(outputVariableStoreName,
-                                            methodToScene(method, runner),
-                                            new ResolverBundle(ResolverBundle.variableResolversFor(method, accessModelClass)));
+    List<Resolver> resolvers = variableResolversFor(method, accessModelClass);
+    return AutotestSupport.sceneToSceneCall(methodToScene(method, runner), outputVariableStoreName,
+                                            new ResolverBundle(resolvers));
   }
   
   private static Scene methodToScene(Method method, AutotestRunner runner) {
