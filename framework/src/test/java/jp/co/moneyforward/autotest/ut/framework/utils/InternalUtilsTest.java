@@ -283,7 +283,7 @@ class InternalUtilsTest extends TestBase {
   }
   
   @Test
-  void giveIOException_whenExtracted_thenExceptionThrown() throws IOException {
+  void giveIOException_whenCopyTo_thenExceptionThrown() throws IOException {
     BufferedInputStream in = mock(BufferedInputStream.class);
     BufferedOutputStream out = mock(BufferedOutputStream.class);
     

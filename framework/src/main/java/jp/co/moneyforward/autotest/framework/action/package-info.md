@@ -40,6 +40,7 @@ classDiagram
     Call <|-- Decorator
     Decorator <|-- AssertionCall : C -> ActCall
     Decorator <|-- RetryCall
+    Decorator <|-- EnsuredCall
     Call <|-- ActCall
     ActCall "1" --> "1" Act: "target"
     Decorator "1" --> "1" Call: "target"

@@ -354,20 +354,19 @@ public enum InternalUtils {
   public static void materializeResource(File output, final String resourcePath) {
     requireNonNull(output);
     requireNonNull(resourcePath);
-    String fullFilePath = requireNonNull(currentThread().getContextClassLoader()
-                                                        .getResource(resourcePath)).getFile();
     
-    try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(fullFilePath));
-         BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(output))) {
+    try (var fileInputStream = requireNonNull(currentThread().getContextClassLoader().getResourceAsStream(resourcePath));
+         var in = new BufferedInputStream(fileInputStream);
+         var out = new BufferedOutputStream(new FileOutputStream(output))) {
       copyTo(in, out);
     } catch (IOException e) {
       throw wrap(e);
     }
   }
   
-  public static void copyTo(BufferedInputStream i, BufferedOutputStream o) {
-    try (var in = i;
-         var out = o) {
+  public static void copyTo(InputStream in1, OutputStream out1) {
+    try (var in = in1;
+         var out = out1) {
       while (true) {
         byte[] bt = in.readNBytes(1024);
         if (bt.length == 0) break;
