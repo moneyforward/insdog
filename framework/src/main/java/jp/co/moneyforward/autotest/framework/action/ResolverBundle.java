@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
+import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngine.findMethodByName;
 
 /**
  * A bundle of variable resolvers.
@@ -138,8 +139,13 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
     if (m.getAnnotationsByType(dependencyAnnotationClass).length == 0)
       return emptyList();
     return variableResolversFor(dependenciesResolver.apply(m),
-                                dependencySceneName -> exportedVariablesOf(accessModelClass,
-                                                                           dependencySceneName));
+                                dependencySceneName -> exportedVariablesOf(findMethodByName(dependencySceneName, accessModelClass).orElseThrow(() -> messageForNoSuchMethod(accessModelClass, dependencySceneName))));
+  }
+  
+  private static NoSuchElementException messageForNoSuchMethod(Class<?> accessModelClass, String dependencySceneName) {
+    return new NoSuchElementException(String.format("A method named:'%s' was not found in class:'%s'",
+                                                    dependencySceneName,
+                                                    accessModelClass.getCanonicalName()));
   }
   
   /**
@@ -159,11 +165,8 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
                  .toList();
   }
   
-  private static List<String> exportedVariablesOf(Class<?> accessModelClass, String methodName) {
-    return List.of(AutotestEngine.findMethodByName(methodName, accessModelClass)
-                                 .orElseThrow(() -> new NoSuchElementException(format("A method named:'%s' was not found in class:'%s'", methodName, accessModelClass.getCanonicalName())))
-                                 .getAnnotation(Export.class)
-                                 .value());
+  private static List<String> exportedVariablesOf(Method method) {
+    return List.of(method.getAnnotation(Export.class).value());
   }
   
   private static Map<String, Function<Context, Object>> resolverToMap(List<Resolver> resolvers) {

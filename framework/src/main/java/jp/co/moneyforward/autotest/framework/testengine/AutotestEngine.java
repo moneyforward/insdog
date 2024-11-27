@@ -41,6 +41,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toMap;
+import static jp.co.moneyforward.autotest.framework.action.ActionComposer.createActionComposer;
 import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.resolverBundleFor;
 import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngine.Stage.*;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.composeResultMessageLine;
@@ -249,6 +250,12 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     }
   }
   
+  /**
+   * Creates an execution environment object for a given test class.
+   *
+   * @param testClassName A test class name for which an execution environment is created.
+   * @return An execution environment object.
+   */
   public static ExecutionEnvironment createExecutionEnvironment(String testClassName) {
     require(value(testClassName).toBe().notNull());
     return new ExecutionEnvironment() {
@@ -416,7 +423,6 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     });
     throw wrap(errors.getFirst().exception);
   }
-  
   
   private static List<Entry<String, Action>> sceneNamesToActionEntries(List<String> sceneNames,
                                                                        Map<String, SceneCall> sceneCallMap,
@@ -600,11 +606,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return m;
   }
   
-  public static ActionComposer createActionComposer(ExecutionEnvironment executionEnvironment) {
-    return ActionComposer.createActionComposer(executionEnvironment);
-  }
-  
-  public static void configureLogging(Path logFilePath, Level logLevel) {
+  private static void configureLogging(Path logFilePath, Level logLevel) {
     LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     Configuration config = ctx.getConfiguration();
     
@@ -733,7 +735,11 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
       this.out = requireNonNull(out);
     }
     
-    
+    /**
+     * Returns a name of this object.
+     *
+     * @return A name
+     */
     public String name() {
       return this.name;
     }

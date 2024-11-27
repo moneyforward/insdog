@@ -367,6 +367,11 @@ public interface Scene extends WithOid {
       };
     }
     
+    /**
+     * Returns an object identifier of this object.
+     *
+     * @return An object identifier of this object.
+     */
     @Override
     public String oid() {
       return "id-" + System.identityHashCode(this);

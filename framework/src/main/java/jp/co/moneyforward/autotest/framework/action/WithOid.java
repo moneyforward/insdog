@@ -1,6 +1,11 @@
 package jp.co.moneyforward.autotest.framework.action;
 
 public interface WithOid {
+  /**
+   * Returns an object identifier of this object.
+   *
+   * @return An object identifier of this object.
+   */
   String oid();
   
   /**

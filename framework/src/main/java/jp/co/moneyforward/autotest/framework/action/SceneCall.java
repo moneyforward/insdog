@@ -42,6 +42,11 @@ public final class SceneCall implements Call, WithOid {
     return actionComposer.create(this);
   }
   
+  /**
+   * Returns an object identifier of this object.
+   *
+   * @return An object identifier of this object.
+   */
   @Override
   public String oid() {
     return this.targetScene().oid();
