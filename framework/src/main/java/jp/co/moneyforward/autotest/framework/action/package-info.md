@@ -1,4 +1,4 @@
-This is a package to provide "action" model of the **autotest-ca** framework.
+This is a package to provide "action" model of the **InsDog** framework.
 
 Actions performed over the SUT are modeled as `Call` and `Act` in the framework, which creates `Action` using the concept of **actionunit** library.
 
@@ -33,12 +33,14 @@ classDiagram
         class Decorator~C extends Call~
         class RetryCall~C extends Call~
         class AssertionCall
+        class EnsuredCall
         class ActCall
     }
     Call <|-- SceneCall
     Call <|-- Decorator
     Decorator <|-- AssertionCall : C -> ActCall
     Decorator <|-- RetryCall
+    Decorator <|-- EnsuredCall
     Call <|-- ActCall
     ActCall "1" --> "1" Act: "target"
     Decorator "1" --> "1" Call: "target"
@@ -74,19 +76,19 @@ classDiagram
     Call ..> Action: "create"
 ```
 
-In the concepts of the **autotest-ca** framework, a test consists of two elements.
+In the concepts of the **InsDog** framework, a test consists of two elements.
 **Scenes** and **Acts**.
 
-A **Scene** is a structure of **Acts**.
+A **Scene** is a composite structure of **Acts**.
 
 **Act** can be implemented by a test programmer, typically **SDET-FW**, to model a reusable real world action such as **Click**, **Navigate**, **Screenshot**, etc.  
 
 A **Scene** is a unit that the framework manipulates and executes.
 A user programmer is expected to build a *Scene* to the execution framework in a way which it can recognize.
-A call is defined for structural action such as ''leaf'', ''assertion'', ''sequential'', ''retry'', and so on.
+A ''call'' is defined for an action such as ''leaf'', ''assertion'', ''sequential'', ''retry'', and so on.
 An **Act** is a unit of a behavior, that user programmers can define as a Java code directly, and from which they build a scene.
 **Calls** are classes to model an internal structure through which an **Action** (**actionunit**) tree is built.
-It is held by `Scene.Builder` and translated into the tree by **ActionComposer**.
+It is held by `Scene.Builder` and translated into an action tree by **ActionComposer**.
 
 ''**ActionComposer**'' and ''**Calls**'' consists a ''**Visitor**'' pattern.
 A call is an 'element' in **Visitor** pattern.
@@ -97,51 +99,6 @@ A call is an 'element' in **Visitor** pattern.
 A variable store is one form of a variable.
 For clarity's sake, we introduce a "simple variable" to distinguish them without confusion.
 
-```mermaid
-classDiagram
-    class Context
-    class Variable~T~ {
-        String name
-        Resolver~T~ resolver
-        resolve(Context) T
-        name() String
-    }
-    class VariableStoreVariable {
-        resolve(Context) VariableStore
-        <T> resove(Context, String) T
-    }
-    class SimpleVariable~T~ {
-        <<final>>
-    }
-    class Resolver~T~ {
-        resolve(Context) T
-    }
-    class VariableStore {
-    }
-    
-    VariableStore "1" --> "*" Variable
-    Variable~T~ <|-- "T: VariableStore" VariableStoreVariable
-    Variable~T~ <|-- SimpleVariable
-    Function~Context; T~ <|-- Resolver~T~
-    Resolver ..> Context
-    Resolver ..> T
-
-    VariableStoreVariable ..> Resolver
-    SimpleVariable~T~ ..> "1" Resolver~T~
-    note for VariableStore "This is a note."
-```
-
-In order to achieve "static scope" behavior, we have a mechanism described below:
-
-t.b.d
-
-```mermaid
-classDiagram
-
-  class VariableScope {
-      
-  }
-```
 
 ```mermaid
 classDiagram
@@ -176,6 +133,9 @@ classDiagram
         class AssertionCall {
             Action toAction(...)
         }
+        class EnsuredCall {
+            Action toAction(...)
+        }
         class VariableStore {
             final Map~String,Object~ store
             V lookUp(String variableName)
@@ -206,14 +166,16 @@ classDiagram
     TargetingCall "1" *--> "1" Call
     TargetingCall <|-- RetryCall
     TargetingCall <|-- AssertionCall
+    TargetingCall <|-- EnsuredCall
+    EnsuredCall ..> ActionComposer
     AssertionCall ..> ActionComposer
     RetryCall ..> ActionComposer
-   
+
     Call <|-- SceneCall
     Scene "1" --> "*" Call
-    SceneCall "1" --> "variableStore" VariableStore
     SceneCall *--> "1" Scene
     SceneCall ..> ActionComposer
+    SceneCall "1" --> "variableStore" VariableStore
 
     ActionComposer ..> LeafAction
     ActionComposer ..> AssertionActions
@@ -228,11 +190,11 @@ classDiagram
     Scene <.. SceneBuilder
 ```
 
-## Data Management of Scenes and Acts
+## Variable Management of Scenes and Acts
 
 A scene and its acts have inputs and outputs.
 Those variables are stored in a map, which is then a variable in a "context" of **actionunit**.
-This map is called "variable-space" in this document.
+This map is called "variable-store" in this document.
 
 **Scenes** and **Acts** interacts with each others through those variables in variable-spaces.
 Dependencies between **Scenes** are described by annotations defined in user programs.

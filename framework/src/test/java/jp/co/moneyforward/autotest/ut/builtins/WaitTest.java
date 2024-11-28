@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import static com.github.valid8j.fluent.Expectations.*;
 import static jp.co.moneyforward.autotest.ut.framework.scene.SceneTest.createExecutionEnvironment;
 
-public class WaitTest {
+class WaitTest {
   @Test
   void givenWait_whenPerform() {
     var wait = new Wait<String>(1, TimeUnit.MICROSECONDS, "for unit test");

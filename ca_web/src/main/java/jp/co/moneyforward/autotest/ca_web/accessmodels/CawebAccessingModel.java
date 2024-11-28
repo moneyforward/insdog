@@ -18,16 +18,12 @@ import jp.co.moneyforward.autotest.framework.core.ExecutionProfile;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
 import static com.github.valid8j.fluent.Expectations.value;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.byText;
 import static jp.co.moneyforward.autotest.actions.web.LocatorFunctions.textContent;
 import static jp.co.moneyforward.autotest.actions.web.PageFunctions.*;
-import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.sceneCall;
-import static jp.co.moneyforward.autotest.framework.action.Scene.fromActs;
 
 /**
  * This accessing model assumes that the user provided by `EXECUTION_PROFILE` has already been registered and associated with

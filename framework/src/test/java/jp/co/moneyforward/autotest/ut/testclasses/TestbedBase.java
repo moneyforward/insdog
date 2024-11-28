@@ -13,22 +13,22 @@ import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
         afterEach = {"logout"}))
 public abstract class TestbedBase implements AutotestRunner {
   @Named
-  public static Scene login() {
+  public Scene login() {
     return new Scene.Builder("login").build();
   }
   
   @Named
-  public static Scene connect() {
+  public Scene connect() {
     return new Scene.Builder("connect").build();
   }
   
   @Named
-  public static Scene disconnect() {
+  public Scene disconnect() {
     return new Scene.Builder("disconnect").build();
   }
   
   @Named
-  public static Scene logout() {
+  public Scene logout() {
     return new Scene.Builder("logout").build();
   }
   

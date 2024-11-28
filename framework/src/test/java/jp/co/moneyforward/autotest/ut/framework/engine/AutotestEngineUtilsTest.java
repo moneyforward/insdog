@@ -9,10 +9,10 @@ import static com.github.valid8j.fluent.Expectations.assertStatement;
 import static com.github.valid8j.fluent.Expectations.value;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class AutotestEngineUtilsTest {
+class AutotestEngineUtilsTest {
   
   @Test
-  public void whenNonSpecified_thenEmpty() {
+  void whenNonSpecified_thenEmpty() {
     List<String> specified = new ArrayList<>();
     Map<String, List<String>> graph = prepareInitialGraph();
     
@@ -22,7 +22,7 @@ public class AutotestEngineUtilsTest {
   }
   
   @Test
-  public void whenOneWithoutDependencySpecified_thenItIsReturned() {
+  void whenOneWithoutDependencySpecified_thenItIsReturned() {
     List<String> specified = List.of("open");
     Map<String, List<String>> graph = prepareInitialGraph();
     
@@ -32,7 +32,7 @@ public class AutotestEngineUtilsTest {
   }
   
   @Test
-  public void whenOneWithDependencySpecified_thenItIsReturnedWithDependency() {
+  void whenOneWithDependencySpecified_thenItIsReturnedWithDependency() {
     List<String> specified = List.of("login");
     Map<String, List<String>> graph = prepareInitialGraph();
     
@@ -42,7 +42,7 @@ public class AutotestEngineUtilsTest {
   }
   
   @Test
-  public void whenOneWithIndirectDependencySpecified_thenItIsReturnedWithDependency() {
+  void whenOneWithIndirectDependencySpecified_thenItIsReturnedWithDependency() {
     List<String> specified = List.of("connect");
     Map<String, List<String>> graph = prepareInitialGraph();
     
@@ -52,7 +52,7 @@ public class AutotestEngineUtilsTest {
   }
   
   @Test
-  public void whenOnesSpecifiedIncludingAllDependencies_thenOrderIsKept() {
+  void whenOnesSpecifiedIncludingAllDependencies_thenOrderIsKept() {
     List<String> specified = List.of("open", "login", "connect");
     Map<String, List<String>> graph = prepareInitialGraph();
     
@@ -62,7 +62,7 @@ public class AutotestEngineUtilsTest {
   }
   
   @Test
-  public void whenOnesSpecifiedNotInOrderOfDependencies_thenDependencyIsRespectedOverSpecifiedOrder() {
+  void whenOnesSpecifiedNotInOrderOfDependencies_thenDependencyIsRespectedOverSpecifiedOrder() {
     List<String> specified = List.of("connect", "login", "open");
     Map<String, List<String>> graph = prepareInitialGraph();
     
@@ -73,7 +73,7 @@ public class AutotestEngineUtilsTest {
   
   
   @Test
-  public void whenOneNotInGraph_thenNosuchElementIsThrown() {
+  void whenOneNotInGraph_thenNosuchElementIsThrown() {
     List<String> specified = List.of("hello!");
     Map<String, List<String>> graph = prepareInitialGraph();
     

@@ -14,7 +14,7 @@ public interface Act<T, R> {
   /**
    * Applies this function the given argument: `value`(`T`) and returns the result (`R`).
    *
-   * @param value An argument value.
+   * @param value                An argument value.
    * @param executionEnvironment An environment in which this function is executed.
    * @return the function result.
    */
@@ -28,7 +28,15 @@ public interface Act<T, R> {
   default String name() {
     return InternalUtils.simpleClassNameOf(this.getClass());
   }
-
+  
+  static <T, R> Act<T, R> create(Function<T, R> func) {
+    return new Func<>(func);
+  }
+  
+  static <T, R> Act<T, R> create(String name, Function<T, R> action) {
+    return create(Printables.function(name, action));
+  }
+  
   /**
    * A leaf act, which represents a value assignment behavior.
    *
@@ -58,6 +66,7 @@ public interface Act<T, R> {
     
     /**
      * A name of this act.
+     *
      * @return A name of this act.
      */
     @Override
@@ -102,6 +111,7 @@ public interface Act<T, R> {
   class Sink<T> extends Func<T, Void> {
     /**
      * Creates an instance of this class.
+     *
      * @param sink A consumer that processes a target value in the context
      */
     public Sink(Consumer<T> sink) {

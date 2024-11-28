@@ -29,23 +29,23 @@ class InternalUtilsTest extends TestBase {
     var projectDir = Files.createTempDirectory("test").toFile();
     projectDir.deleteOnExit();
     var given = Path.of(projectDir.getAbsolutePath(), "not_exist").toFile();
-
+    
     var out = InternalUtils.currentBranchNameFor(given);
-
+    
     System.out.println(out);
     assertAll(value(out).toBe().predicate(Optional::isEmpty));
   }
-
+  
   @Test
   void givenCurrentDirectory_whenCurrentBranchName_thenNonEmpty() {
     var out = InternalUtils.currentBranchName();
-
+    
     System.out.println(out);
     assertAll(
         value(out).toBe().predicate(Optional::isPresent),
         value(out).function(Optional::get).asString().toBe().notEmpty());
   }
-
+  
   @Test
   void givenNonGitProjectDirectory_whenCurrentBranchNameForIsCalled_thenEmpty() throws IOException {
     File projectDir = File.createTempFile("dummy", "dir");
@@ -55,11 +55,11 @@ class InternalUtilsTest extends TestBase {
     gitDir.deleteOnExit();
     projectDir.deleteOnExit();
     var out = InternalUtils.currentBranchNameFor(projectDir);
-
+    
     System.out.println(out);
     assertAll(value(out).toBe().predicate(Optional::isEmpty));
   }
-
+  
   @Test
   void givenValidDateString_whenDate_thenParsed() {
     var out = InternalUtils.date("Jul/04/2024");
@@ -190,24 +190,13 @@ class InternalUtilsTest extends TestBase {
     }
   }
   
-  /*
-  @Test
-  void whenChainActs_thenCreatedSceneLooksCorrect() {
-    Scene scene = InternalUtils.chainActs("var1", new Act.Func<>((String x) -> x + "a"), new Act.Func<>((String x) -> x + "b"));
-    
-    assertStatement(value(scene.children().stream().map(Call::outputVariableName).toList())
-                        .toBe()
-                        .equalTo(List.of("var1", "var1")));
-  }
-   */
-  
   @Test
   void whenIsPresumablyRunningFromIde_thenFinishesWithoutException() {
     boolean value = InternalUtils.isPresumablyRunningFromIDE();
     
     assertStatement(value(value).toBe().instanceOf(Boolean.class));
   }
-
+  
   @Test
   void givenNop_whenFlattenIfSequential_thenReturnedOriginalAction() {
     Action nop = ActionSupport.nop();
@@ -294,13 +283,13 @@ class InternalUtilsTest extends TestBase {
   }
   
   @Test
-  void giveIOException_whenExtracted_thenExceptionThrown() throws IOException {
+  void giveIOException_whenCopyTo_thenExceptionThrown() throws IOException {
     BufferedInputStream in = mock(BufferedInputStream.class);
     BufferedOutputStream out = mock(BufferedOutputStream.class);
     
     when(in.readNBytes(1024)).thenThrow(new IOException("Mocked IOException"));
     
-    assertThrows(AutotestException.class, () -> InternalUtils.extracted(in, out));
+    assertThrows(AutotestException.class, () -> InternalUtils.copyTo(in, out));
   }
   
   private static <T> Function<Stream<T>, List<T>> toList() {

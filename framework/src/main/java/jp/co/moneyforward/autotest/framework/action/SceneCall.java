@@ -12,15 +12,44 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 /**
  * A class to model a "call" to a `Scene`.
  */
-public final class SceneCall implements Call {
+public final class SceneCall implements Call, WithOid {
   private final Scene scene;
   private final ResolverBundle variableResolverBundle;
   private final String outputVariableStoreName;
   
-  public SceneCall(String outputVariableStoreName, Scene scene, ResolverBundle resolverBundle) {
+  /**
+   * Creates an instance of this class.
+   *
+   * outputVariableStoreName specifies a name of a context variable (**actionunit**), to which the output of `scene`
+   * is written.
+   *
+   * `resolverBundle` is used to compute input variable values.
+   *
+   * @param scene                   A scene to be performed by this call.
+   * @param outputVariableStoreName A name of variable store, to which the `scene` writes its output.
+   * @param resolverBundle          A bundle of resolvers.
+   */
+  public SceneCall(Scene scene,
+                   String outputVariableStoreName,
+                   ResolverBundle resolverBundle) {
     this.outputVariableStoreName = requireNonNull(outputVariableStoreName);
     this.scene = requireNonNull(scene);
     this.variableResolverBundle = requireNonNull(resolverBundle);
+  }
+  
+  @Override
+  public Action toAction(ActionComposer actionComposer) {
+    return actionComposer.create(this);
+  }
+  
+  /**
+   * Returns an object identifier of this object.
+   *
+   * @return An object identifier of this object.
+   */
+  @Override
+  public String oid() {
+    return this.targetScene().oid();
   }
   
   /**
@@ -36,10 +65,11 @@ public final class SceneCall implements Call {
     return this.outputVariableStoreName;
   }
   
-  public static String workingVariableStoreNameFor(String objectId) {
-    return "work-" + objectId;
-  }
-  
+  /**
+   * Returns a bundle of variable resolvers of this object.
+   *
+   * @return A bundle of variable resolvers.
+   */
   public ResolverBundle variableResolverBundle() {
     return variableResolverBundle;
   }
@@ -51,45 +81,62 @@ public final class SceneCall implements Call {
    * @return A currently ongoing working variable store.
    */
   public Map<String, Object> workingVariableStore(Context context) {
-    return context.valueOf(workingVariableStoreNameFor(this.targetScene().oid()));
+    return context.valueOf(this.workingVariableStoreName());
   }
   
-  
-  @Override
-  public Action toAction(ActionComposer actionComposer) {
-    return actionComposer.create(this);
-  }
-  
+  /**
+   * Returns an action, which marks a beginning of a sequence of main actions.
+   *
+   * The action copies a map of the InsDog's framework variables for this scene call to a context variable whose name
+   * is computed by `workingVariableStoreNameFor(this.targetScene().oid())`.
+   *
+   * @return An action, which marks a beginning of a sequence of main actions.
+   */
   public Action begin() {
     return beginSceneCall(this);
   }
   
+  /**
+   * Returns an action, which marks an ending of a sequence of main actions.
+   *
+   * The action copies to a map of the InsDog's framework variables for this scene call from a context variable whose
+   * name is computed by `workingVariableStoreNameFor(this.targetScene().oid())`.
+   *
+   * @return An action, which marks an ending of a sequence of main actions.
+   */
   public Action end() {
     return endSceneCall(this);
   }
   
- 
   private static Action beginSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
-                                c -> c.assignTo(workingVariableStoreNameFor(sceneCall.targetScene().oid()),
-                                                createWorkingVariableStore(sceneCall, c)));
+                                c -> c.assignTo(sceneCall.workingVariableStoreName(),
+                                                composeWorkingVariableStore(sceneCall, c)));
   }
   
-  private static Map<String, Object> createWorkingVariableStore(SceneCall sceneCall,
-                                                                Context context) {
-    var ret = new HashMap<String, Object>();
-    sceneCall.variableResolverBundle()
-             .forEach((k, r) -> ret.put(k, r.apply(context)));
-    return ret;
-  }
-
   /*
    * Copies the map stored as "work area" to `outputFieldName` variable.
    */
   private static Action endSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("END@" + sceneCall.scene.name(), c -> {
-      c.assignTo(sceneCall.outputVariableStoreName(), c.valueOf(workingVariableStoreNameFor(sceneCall.targetScene().oid())));
-      c.unassign(workingVariableStoreNameFor(sceneCall.targetScene().oid()));
+      c.assignTo(sceneCall.outputVariableStoreName(), c.valueOf(sceneCall.workingVariableStoreName()));
+      c.unassign(sceneCall.workingVariableStoreName());
     });
+  }
+  
+  
+  /**
+   * Returns a map (variable store), with which a targetScene can interact to store/read data.
+   *
+   * @param sceneCall A scene call for which a returned map is created.
+   * @param context   A context in which actions created from the target scene are performed.
+   * @return A data store map.
+   */
+  private static Map<String, Object> composeWorkingVariableStore(SceneCall sceneCall,
+                                                                 Context context) {
+    var ret = new HashMap<String, Object>();
+    sceneCall.variableResolverBundle()
+             .forEach((k, r) -> ret.put(k, r.apply(context)));
+    return ret;
   }
 }

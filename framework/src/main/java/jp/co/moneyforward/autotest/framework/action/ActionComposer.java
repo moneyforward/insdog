@@ -1,6 +1,8 @@
 package jp.co.moneyforward.autotest.framework.action;
 
+import com.github.dakusui.actionunit.actions.Ensured;
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.actionunit.core.Context;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
@@ -69,6 +71,14 @@ public interface ActionComposer {
                              Stream.of(sceneCall.targetScene().toSequentialAction(this)),
                              Stream.of(sceneCall.end()))
                           .toList());
+  }
+  
+  default Action create(EnsuredCall ensuredCall) {
+    Ensured.Builder b = ActionSupport.ensure(ensuredCall.targetCall().toAction(this));
+    for (Call each : ensuredCall.ensurers()) {
+      b.with(each.toAction(this));
+    }
+    return b.$();
   }
   
   default Action create(RetryCall retryCall) {

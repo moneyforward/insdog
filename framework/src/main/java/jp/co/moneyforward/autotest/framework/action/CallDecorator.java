@@ -20,8 +20,8 @@ public sealed interface CallDecorator<C extends Call> extends Call permits CallD
    *
    * @param <C> A call class to be decorated by this class.
    */
-  abstract sealed class Base<C extends Call> implements CallDecorator<C> permits AssertionCall, RetryCall {
-    private final C target;
+    abstract sealed class Base<C extends Call> implements CallDecorator<C> permits AssertionCall, RetryCall, EnsuredCall {
+      private final C target;
     
     /**
      * Creates an object of this class.

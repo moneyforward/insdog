@@ -2,10 +2,8 @@ package jp.co.moneyforward.autotest.framework.action;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.valid8j.pcond.fluent.Statement;
-import com.microsoft.playwright.TimeoutError;
 import jp.co.moneyforward.autotest.actions.web.Value;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
-import org.opentest4j.AssertionFailedError;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +23,7 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.simpleCl
  *
  * Note that `Scene` uses the same map for both input and output.
  */
-public interface Scene {
+public interface Scene extends WithOid {
   /**
    * Creates a scene by chaining acts.
    *
@@ -39,6 +37,22 @@ public interface Scene {
       b.add(act);
     }
     return b.build();
+  }
+  
+  /**
+   * Creates a scene object from a given name and acts.
+   *
+   * @param sceneName A name of the created scene.
+   * @param acts      acts to be added to the returned scene.
+   * @return A created scene.
+   */
+  @SafeVarargs
+  static <T> Scene create(String sceneName, Act<T, T>... acts) {
+    Builder builder = new Builder().name(sceneName);
+    for (Act<T, T> act : acts) {
+      builder.add("var", act, "var");
+    }
+    return builder.build();
   }
   
   /**
@@ -85,6 +99,7 @@ public interface Scene {
     return this.children()
                .stream()
                .flatMap(Scene::outputVariableNamesOf)
+               .distinct()
                .toList();
   }
   
@@ -92,6 +107,7 @@ public interface Scene {
     return this.children()
                .stream()
                .flatMap(Scene::inputVariableNamesOf)
+               .distinct()
                .toList();
   }
   
@@ -99,16 +115,32 @@ public interface Scene {
     return switch (call) {
       case SceneCall sceneCall -> sceneCall.targetScene().outputVariableNames().stream();
       case ActCall<?, ?> actCall -> Stream.of(actCall.outputVariableName());
+      case EnsuredCall ensuredCall -> outputVariableNamesOf(ensuredCall);
       case CallDecorator<?> callDecorator -> outputVariableNamesOf(callDecorator.targetCall());
     };
+  }
+  
+  private static Stream<String> outputVariableNamesOf(EnsuredCall ensuredCall) {
+    return Stream.concat(outputVariableNamesOf(ensuredCall.targetCall()),
+                         ensuredCall.ensurers()
+                                    .stream()
+                                    .flatMap(Scene::outputVariableNamesOf)).distinct();
   }
   
   private static Stream<String> inputVariableNamesOf(Call call) {
     return switch (call) {
       case SceneCall sceneCall -> sceneCall.targetScene().inputVariableNames().stream();
       case ActCall<?, ?> actCall -> Stream.of(actCall.inputVariableName());
+      case EnsuredCall ensuredCall -> inputVariableNamesOf(ensuredCall);
       case CallDecorator<?> callDecorator -> inputVariableNamesOf(callDecorator.targetCall());
     };
+  }
+  
+  private static Stream<String> inputVariableNamesOf(EnsuredCall ensuredCall) {
+    return Stream.concat(inputVariableNamesOf(ensuredCall.targetCall()),
+                         ensuredCall.ensurers()
+                                    .stream()
+                                    .flatMap(Scene::inputVariableNamesOf)).distinct();
   }
   
   private List<Action> toActions(ActionComposer actionComposer) {
@@ -123,18 +155,31 @@ public interface Scene {
    *
    * @see Scene
    */
-  class Builder {
+  class Builder implements WithOid {
     final String defaultVariableName;
     private final List<Call> children = new LinkedList<>();
+    private String name = null;
     
     /**
      * Creates an instance of this class.
      *
+     * Note that `defaultVariableName` is only used by this `Builder`, not directly by the `Scene` built by this object.
+     *
      * @param defaultVariableName A name of field used when use `add` methods without explicit input/output target field names.
      */
     public Builder(String defaultVariableName) {
-      this.defaultVariableName = requireNonNull(defaultVariableName);
+      this.defaultVariableName = defaultVariableName;
     }
+    
+    public Builder() {
+      this(null);
+    }
+    
+    public Builder name(String name) {
+      this.name = requireNonNull(name);
+      return this;
+    }
+    
     
     /**
      * A "syntax-sugar" method to group a sequence of method calls to this `Builder` object.
@@ -168,11 +213,11 @@ public interface Scene {
      * @return This object.
      */
     public final <T, R> Builder add(Act<T, R> act) {
-      return this.add(defaultVariableName, act, defaultVariableName);
+      return this.add(defaultVariableName(), act, defaultVariableName());
     }
     
     public final <T, R> Builder add(String outputVariableName, Act<T, R> act) {
-      return this.add(outputVariableName, act, defaultVariableName);
+      return this.add(outputVariableName, act, defaultVariableName());
     }
     
     public final <T, R> Builder add(String outputVariableName, Act<T, R> act, String inputVariableName) {
@@ -181,12 +226,12 @@ public interface Scene {
     
     @SuppressWarnings("unchecked")
     public final <R> Builder assertion(Function<R, Statement<R>> assertion) {
-      return this.assertions(defaultVariableName, assertion);
+      return this.assertions(assertion);
     }
     
     @SuppressWarnings("unchecked")
     public final <R> Builder assertions(Function<R, Statement<R>>... assertions) {
-      return this.assertions(defaultVariableName, assertions);
+      return this.assertions(defaultVariableName(), assertions);
     }
     
     /**
@@ -218,7 +263,7 @@ public interface Scene {
      * @return This object,
      */
     public final Builder add(Scene scene) {
-      return this.addCall(AutotestSupport.sceneCall(SceneCall.workingVariableStoreNameFor(this.oid()), scene));
+      return this.addCall(toSceneCall(scene));
     }
     
     /**
@@ -262,7 +307,7 @@ public interface Scene {
     }
     
     public final Builder retry(Scene scene) {
-      return retry(sceneCall(SceneCall.workingVariableStoreNameFor(this.oid()), scene));
+      return retry(toSceneCall(scene));
     }
     
     /**
@@ -316,13 +361,28 @@ public interface Scene {
         
         @Override
         public String name() {
-          return Scene.super.name() + "[" + defaultVariableName + "]";
+          return name != null ? name
+                              : Scene.super.name();
         }
       };
     }
     
-    private String oid() {
+    /**
+     * Returns an object identifier of this object.
+     *
+     * @return An object identifier of this object.
+     */
+    @Override
+    public String oid() {
       return "id-" + System.identityHashCode(this);
+    }
+    
+    private String defaultVariableName() {
+      return requireNonNull(this.defaultVariableName);
+    }
+    
+    private SceneCall toSceneCall(Scene scene) {
+      return sceneToSceneCall(scene, this.workingVariableStoreName());
     }
   }
 }

@@ -1,6 +1,5 @@
 package jp.co.moneyforward.autotest.ut.framework.engine;
 
-import com.github.valid8j.fluent.Expectations;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import jp.co.moneyforward.autotest.ut.testclasses.*;
 import jp.co.moneyforward.autotest.ututils.TestBase;
@@ -97,10 +96,25 @@ public class AutotestEngineTest extends TestBase {
   }
   
   @Test
+  void givenStateEnsuringByFallingBackDependencies_whenRunTests_thenFinishesNormally() {
+    // Create a custom listener that will validate test results
+    TestResultValidatorExtension validator = new TestResultValidatorExtension();
+    validator.addExpectation(forTestMatching(".*login.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*connect.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*disconnect.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*logout.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*fail.*").shouldBeFailed());
+    
+    runTests(validator, StateEnsuringByFallingBackDependencies.class);
+  }
+  
+  @Test
   void examineAutotestEngineCanRunAndReportTestResultsForEmptyTestClass() {
     // Create a custom listener that will validate test results
     TestResultValidatorExtension validator = new TestResultValidatorExtension();
     runTests(validator, EmptyTestbed.class);
+    
+    assertStatement(value(true).toBe().trueValue());
   }
   
   @Test

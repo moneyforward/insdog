@@ -10,7 +10,6 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import jp.co.moneyforward.autotest.ututils.ActUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
-import org.opentest4j.AssertionFailedError;
 
 import java.util.*;
 import java.util.function.Function;
@@ -26,7 +25,7 @@ import static jp.co.moneyforward.autotest.ututils.ActionUtils.*;
 public class VariablesTest extends TestBase {
   public static SceneCall sceneCall(String outputFieldName, List<Call> children, List<Resolver> assignments) {
     var scene = scene(children);
-    return AutotestSupport.sceneCall(outputFieldName, scene, new ResolverBundle(assignments));
+    return (SceneCall) AutotestSupport.sceneToSceneCall(scene, outputFieldName, new ResolverBundle(assignments));
   }
   
   public static Scene scene(List<Call> children) {
@@ -45,7 +44,7 @@ public class VariablesTest extends TestBase {
                                 actCall("x", addToListAct(out), "x")));
     
     
-    Action action = AutotestSupport.sceneCall("output", scene, emptyResolverBundle()).toAction(createActionComposer());
+    Action action = AutotestSupport.sceneToSceneCall(scene, "output", emptyResolverBundle()).toAction(createActionComposer());
     
     performAction(action, Writer.Std.OUT);
     
@@ -70,7 +69,7 @@ public class VariablesTest extends TestBase {
                   List.of(new Resolver("in", Resolver.valueFrom("SCENE1", "x"))))));
     
     
-    Action action = AutotestSupport.sceneCall("output", scene, emptyResolverBundle()).toAction(createActionComposer());
+    Action action = AutotestSupport.sceneToSceneCall(scene, "output", emptyResolverBundle()).toAction(createActionComposer());
     
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
     actionPerformer.performAndReport(action, Writer.Std.OUT);
@@ -98,7 +97,7 @@ public class VariablesTest extends TestBase {
                                                                              .containing("Scott")), "in")),
                   List.of(new Resolver("in", Resolver.valueFrom("SCENE1", "x"))))));
     
-    Action action = AutotestSupport.sceneCall("OUT", scene, emptyResolverBundle()).toAction(createActionComposer());
+    Action action = AutotestSupport.sceneToSceneCall(scene, "OUT", emptyResolverBundle()).toAction(createActionComposer());
     performAction(action, Writer.Std.OUT);
   }
   
@@ -146,16 +145,14 @@ public class VariablesTest extends TestBase {
   
   @Test
   void action3() {
-    SceneCall sceneCall1 = new SceneCall("S1",
-                                         new Scene.Builder("sceneCall1").addCall(actCall("var", let("Scott"), "NONE"))
-                                                                        .addCall(actCall("var", helloAct(), "var"))
-                                                                        .addCall(actCall("var", printlnAct(), "var"))
-                                                                        .build(),
+    SceneCall sceneCall1 = new SceneCall(new Scene.Builder("sceneCall1").addCall(actCall("var", let("Scott"), "NONE"))
+                                   .addCall(actCall("var", helloAct(), "var"))
+                                   .addCall(actCall("var", printlnAct(), "var"))
+                                   .build(), "S1",
                                          emptyResolverBundle());
-    SceneCall sceneCall2 = new SceneCall("S2",
-                                         new Scene.Builder("sceneCall2").addCall(actCall("foo", helloAct(), "foo"))
-                                                                        .addCall(getStringStringAssertionActCall())
-                                                                        .build(),
+    SceneCall sceneCall2 = new SceneCall(new Scene.Builder("sceneCall2").addCall(actCall("foo", helloAct(), "foo"))
+                                   .addCall(getStringStringAssertionActCall())
+                                   .build(), "S2",
                                          new ResolverBundle(composeMapFrom(InternalUtils.Entry.$("foo",
                                                                                                  context -> context.<Map<String, Object>>valueOf("S1").get("var")))));
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
@@ -176,7 +173,7 @@ public class VariablesTest extends TestBase {
     }
     Act<String, String> passesOnSecondTry = createActThatPassesOnSecondTry(out, CustomException::new);
     Scene scene = scene(List.of(retryCall(actCall("x", passesOnSecondTry, "x"), 1, CustomException.class, 1)));
-    Action action = AutotestSupport.sceneCall("output", scene, emptyResolverBundle())
+    Action action = AutotestSupport.sceneToSceneCall(scene, "output", emptyResolverBundle())
                                    .toAction(createActionComposer());
     
     performAction(action, Writer.Std.OUT);
@@ -192,7 +189,7 @@ public class VariablesTest extends TestBase {
     Scene scene = new Scene.Builder("defaultVariable")
         .retry(actCall("x", passesOnSecondTry, "x"))
         .build();
-    Action action = AutotestSupport.sceneCall("output", scene, emptyResolverBundle())
+    Action action = AutotestSupport.sceneToSceneCall(scene, "output", emptyResolverBundle())
                                    .toAction(createActionComposer());
     
     performAction(action, Writer.Std.OUT);

@@ -6,6 +6,7 @@ import jp.co.moneyforward.autotest.ut.cli.testpackage.tags.Hello2TaggedClass;
 import jp.co.moneyforward.autotest.ut.cli.testpackage.tags.NoTaggedClass;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,6 +28,16 @@ class CliUtilsTest extends TestBase {
     
     assertStatement(value(tags).toBe()
                                .equalTo(asList("hello1", "hello2")));
+  }
+  
+  @Test
+  void whenInitialize_thenFinishesNormally() {
+    var result = CliUtils.runTests("jp.co.moneyforward.autotest.testclasses",
+                                   new String[]{"classname:.*Test"},
+                                   new String[0],
+                                   new String[0]);
+    
+    assertStatement(value(result).toBe().notNull());
   }
   
   @Test

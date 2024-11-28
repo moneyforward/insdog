@@ -2,11 +2,8 @@ package jp.co.moneyforward.autotest.ut.framework.scene;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
-import jp.co.moneyforward.autotest.framework.action.AutotestSupport;
-import jp.co.moneyforward.autotest.framework.action.ResolverBundle;
-import jp.co.moneyforward.autotest.framework.action.Scene;
+import jp.co.moneyforward.autotest.framework.action.*;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
-import jp.co.moneyforward.autotest.framework.action.Resolver;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import jp.co.moneyforward.autotest.ututils.ActionUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
@@ -34,15 +31,14 @@ public class SceneTest extends TestBase {
   }
   
   @Test
-  public void givenEmptyScene_whenToActionExecuted_thenActionTreeLooksCorrect() {
+  void givenEmptyScene_whenToActionExecuted_thenActionTreeLooksCorrect() {
     Scene scene = new Scene.Builder("scene").build();
     
     
     List<String> out = new LinkedList<>();
     final List<Resolver> in = List.of(new Resolver("in", c -> "Scott Tiger"));
-    final jp.co.moneyforward.autotest.framework.action.SceneCall sceneCall = AutotestSupport.sceneCall("out",
-                                                                                                       scene,
-                                                                                                       new ResolverBundle(in));
+    final jp.co.moneyforward.autotest.framework.action.SceneCall sceneCall = AutotestSupport.sceneToSceneCall(scene, "out",
+                                                                                                              new ResolverBundle(in));
     ActionUtils.performAction(createActionComposer().create(sceneCall), createWriter(out));
     Assumptions.assumeFalse(false);
     assertStatement(value(out).toBe()
@@ -51,14 +47,13 @@ public class SceneTest extends TestBase {
   }
   
   @Test
-  public void givenSceneWithSingleAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
+  void givenSceneWithSingleAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
     Scene scene = new Scene.Builder("scene").add("out", helloAct(), "in").build();
     
     List<String> out = new LinkedList<>();
     Context context = Context.create();
-    final var sceneCall = AutotestSupport.sceneCall("OUT",
-                                                    scene,
-                                                    new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
+    final var sceneCall = AutotestSupport.sceneToSceneCall(scene, "OUT",
+                                                           new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
     ActionUtils.performAction(createActionComposer().create(sceneCall),
                               context,
                               createWriter(out));
@@ -81,9 +76,8 @@ public class SceneTest extends TestBase {
         .build();
     List<String> out = new LinkedList<>();
     Context context = Context.create();
-    final var sceneCall = AutotestSupport.sceneCall("OUT",
-                                                    scene,
-                                                    new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
+    final var sceneCall = AutotestSupport.sceneToSceneCall(scene, "OUT",
+                                                           new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
     
     ActionUtils.performAction(createActionComposer().create(sceneCall),
                               context,
@@ -108,9 +102,8 @@ public class SceneTest extends TestBase {
         .build();
     List<String> out = new LinkedList<>();
     Context context = Context.create();
-    final var sceneCall = AutotestSupport.sceneCall("OUT",
-                                                    scene,
-                                                    new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
+    final var sceneCall = AutotestSupport.sceneToSceneCall(scene, "OUT",
+                                                           new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
     
     ActionUtils.performAction(createActionComposer().create(sceneCall),
                               context,
@@ -135,9 +128,8 @@ public class SceneTest extends TestBase {
         .build();
     List<String> out = new LinkedList<>();
     Context context = Context.create();
-    final var sceneCall = AutotestSupport.sceneCall("OUT",
-                                                    scene,
-                                                    new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
+    final var sceneCall = AutotestSupport.sceneToSceneCall(scene, "OUT",
+                                                           new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
     
     ActionUtils.performAction(createActionComposer().create(sceneCall),
                               context,
@@ -163,9 +155,8 @@ public class SceneTest extends TestBase {
         .build();
     List<String> out = new LinkedList<>();
     Context context = Context.create();
-    final var sceneCall = AutotestSupport.sceneCall("OUT",
-                                                    scene,
-                                                    new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
+    final var sceneCall = AutotestSupport.sceneToSceneCall(scene, "OUT",
+                                                           new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
     
     ActionUtils.performAction(createActionComposer().create(sceneCall),
                               context,
@@ -192,9 +183,8 @@ public class SceneTest extends TestBase {
     
     
     List<String> out = new LinkedList<>();
-    ActionUtils.performAction(createActionComposer().create(AutotestSupport.sceneCall("out",
-                                                                                      scene,
-                                                                                      new ResolverBundle(List.of()))),
+    ActionUtils.performAction(createActionComposer().create(AutotestSupport.sceneToSceneCall(scene, "out",
+                                                                                             new ResolverBundle(List.of()))),
                               createWriter(out));
     assertStatement(value(out).toBe()
                               .containingElementsInOrder(List.of(containsString("BEGIN"),

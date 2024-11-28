@@ -358,13 +358,13 @@ public enum InternalUtils {
     try (var fileInputStream = requireNonNull(currentThread().getContextClassLoader().getResourceAsStream(resourcePath));
          var in = new BufferedInputStream(fileInputStream);
          var out = new BufferedOutputStream(new FileOutputStream(output))) {
-      extracted(in, out);
+      copyTo(in, out);
     } catch (IOException e) {
       throw wrap(e);
     }
   }
   
-  public static void extracted(BufferedInputStream in1, BufferedOutputStream out1) {
+  public static void copyTo(InputStream in1, OutputStream out1) {
     try (var in = in1;
          var out = out1) {
       while (true) {

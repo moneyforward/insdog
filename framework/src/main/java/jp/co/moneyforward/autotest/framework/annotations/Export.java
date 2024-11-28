@@ -6,8 +6,32 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * An annotation to specify the fields that can be used by other scenes.
+ *
+ * ```java
+ * @Named
+ * @Export
+ * public Scene aMethod() {
+ *   return Scene.perform()
+ *               .acts()
+ *               .object();
+ * }
+ *
+ * @Named
+ * @DependsOn("aMethod")
+ * public Scene bMethod() {
+ *   return ...;
+ * }
+ * ```
+ *
+ * The method with this annotation can be referenced by other method (`bMethod`) using `@DependsOn` annotation.
+ * The scene in the referencing method can access fields written by a scene in referenced method (`aMethod`).
  */
 @Retention(RUNTIME)
 public @interface Export {
+  /**
+   * Variable names to be exported from the scene returned by the method this annotation is attached to.
+   *
+   * @return Exported variable names.
+   */
   String[] value() default {};
 }
