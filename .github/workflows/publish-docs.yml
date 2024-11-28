@@ -40,29 +40,10 @@ jobs:
       - name: Configure Maven settings
         run: |
           mkdir -p ~/.m2
-          echo "<settings>
-                  <servers>
-                    <server>
-                      <id>github</id>
-                      <username>${{ github.actor }}</username>
-                      <password>${{ secrets.GH_PAT }}</password>
-                    </server>
-                  </servers>
-                  <profiles>
-                    <profile>
-                      <id>github</id>
-                      <repositories>
-                        <repository>
-                          <id>github</id>
-                          <url>https://maven.pkg.github.com/moneyforward/mddoclet</url>
-                        </repository>
-                      </repositories>
-                    </profile>
-                  </profiles>
-                  <activeProfiles>
-                    <activeProfile>github</activeProfile>
-                  </activeProfiles>
-                </settings>" > ~/.m2/settings.xml
+          envsubst --allow GH_USERNAME,GH_PAT < ./.github/m2_settings.template.xml > ~/.m2/settings.xml
+        env:
+          GH_USERNAME: ${{ github.actor }}
+          GH_PAT: ${{ secrets.GH_PAT }}
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4

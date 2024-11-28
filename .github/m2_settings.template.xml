@@ -1,0 +1,23 @@
+<settings>
+    <servers>
+        <server>
+            <id>github</id>
+            <username>${GH_USERNAME}</username>
+            <password>${GH_PAT}</password>
+        </server>
+    </servers>
+    <profiles>
+        <profile>
+            <id>github</id>
+            <repositories>
+                <repository>
+                    <id>github</id>
+                    <url>https://maven.pkg.github.com/moneyforward/mddoclet</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>github</activeProfile>
+    </activeProfiles>
+</settings>
