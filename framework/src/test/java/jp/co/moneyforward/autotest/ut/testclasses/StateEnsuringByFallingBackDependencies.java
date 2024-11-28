@@ -1,18 +1,14 @@
 package jp.co.moneyforward.autotest.ut.testclasses;
 
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
-import com.microsoft.playwright.Page;
 import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution.Spec;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
-import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static jp.co.moneyforward.autotest.actions.web.PageAct.pageAct;
 import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.DEPENDENCY_BASED;
 
 @AutotestExecution(

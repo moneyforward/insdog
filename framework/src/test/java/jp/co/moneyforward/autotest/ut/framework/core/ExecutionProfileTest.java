@@ -8,11 +8,12 @@ import static com.github.valid8j.fluent.Expectations.value;
 
 class ExecutionProfileTest {
   @ExecutionProfile.CreateWith(ExecutionProfileExample.Factory.class)
-  public static class ExecutionProfileExample implements ExecutionProfile {
+  public interface ExecutionProfileExample extends ExecutionProfile {
     public static class Factory implements ExecutionProfile.Factory<ExecutionProfileExample> {
       @Override
       public ExecutionProfileExample create(String branchName) {
-        return new ExecutionProfileExample();
+        return new ExecutionProfileExample() {
+        };
       }
     }
   }

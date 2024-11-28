@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run Coverage" type="JUnit" factoryName="JUnit">
-    <module name="framework" />
+  <configuration default="false" name="Run Coverage (ca_web)" type="JUnit" factoryName="JUnit">
+    <module name="ca_web" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="jp.co.moneyforward.autotest.it.*" />
