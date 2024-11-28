@@ -18,46 +18,16 @@ jobs:
       image: mcr.microsoft.com/playwright/java:v1.45.1-jammy
 
     steps:
-      - name: Export environment variables
-        run: |
-          echo "JAVA_TOOL_OPTIONS=\"-Duser.home=${HOME}\"" >> $GITHUB_ENV
-
-      - name: Install dependencies
-        run: |
-          apt-get update
-          apt-get install -y \
-            git make \
-            fonts-ipafont-gothic fonts-ipafont-mincho \
-            libasound2-dev libc-dev-bin libc-devtools libc6-dev libcrypt-dev \
-            libgd3 libjpeg-turbo8-dev libjpeg8-dev libnsl-dev libtirpc-dev \
-            linux-libc-dev manpages manpages-dev rpcsvc-proto liba52-0.7.4 \
-            libgraphene-1.0-0 libmpeg2-4 libopencore-amrnb0 libopencore-amrwb0 \
-            libsidplay1v5
+      - name: Install Git
+        run: apt-get update && apt-get install -y git
 
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure Maven settings
-        run: |
-          mkdir -p ~/.m2
-          envsubst --allow GH_USERNAME,GH_PAT < ./.github/m2_settings.template.xml > ~/.m2/settings.xml
-        env:
-          GH_USERNAME: ${{ github.actor }}
-          GH_PAT: ${{ secrets.GH_PAT }}
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: ./.github/actions/setup-playwright-container
         with:
-          distribution: 'temurin'  # AdoptOpenJDK is now Eclipse Temurin
-          java-version: '21'
-          cache: 'maven'
-          overwrite-settings: false
-
-      - name: Pull secret file
-        run: |
-          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
-          make pull-secrets
-          make print-secrets >> "$GITHUB_ENV"
+          require-m2-settings: 'true'
+          gh_pat: ${{ secrets.GH_PAT }}
 
       - name: Build with Maven not Skipping JavaDoc
         run: mvn -B package
