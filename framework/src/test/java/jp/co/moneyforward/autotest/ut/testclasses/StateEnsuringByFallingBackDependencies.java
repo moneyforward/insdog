@@ -10,8 +10,8 @@ import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
-import static java.util.function.Function.identity;
 import static jp.co.moneyforward.autotest.actions.web.PageAct.pageAct;
 import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.DEPENDENCY_BASED;
 
@@ -27,22 +27,22 @@ public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
   @ClosedBy("closeExecutionSession")
   public Scene openExecutionSession() {
     return Scene.create("openPageSession",
-                        Act.create("openWindow", identity()),
-                        Act.create("openBrowser", identity()));
+                        act("openWindow"),
+                        act("openBrowser"));
   }
   
   @Named
   public Scene closeExecutionSession() {
     return Scene.create("closeExecutionSession",
-                        Act.create("closeBrowser", identity()),
-                        Act.create("closeWindow", identity()));
+                        act("closeBrowser"),
+                        act("closeWindow"));
   }
   
   @Named
   @Export
   @DependsOn("openExecutionSession")
   public Scene toHomeScreen() {
-    return Scene.create("toHome", Act.create("goToHomeScreenByDirectlyEnteringUrl", identity()));
+    return Scene.create("toHome", act("goToHomeScreenByDirectlyEnteringUrl"));
   }
   
   @Named
@@ -50,7 +50,7 @@ public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
   @DependsOn("openExecutionSession")
   public Scene loadLoginSession() {
     return Scene.create("loadLoginSession",
-                        Act.create("loadLoginSessionFromFile", identity()));
+                        act("loadLoginSessionFromFile"));
   }
   
   @Named
@@ -58,46 +58,53 @@ public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
   @DependsOn("openExecutionSession")
   public Scene saveLoginSession() {
     return Scene.create("saveLoginSession",
-                        Act.create("saveLoginSessionToFile", identity()));
+                        act("saveLoginSessionToFile"));
   }
   
+  /**
+   * Let's not specify "logout" for login.
+   *
+   * A test for log-in and log-out to be performed as expected should be a separate and independent test class.
+   *
+   * @return A scene that performs "login"
+   */
   @Named
   @Export
   @DependsOn("openExecutionSession")
   public Scene login() {
     return Scene.create("login",
-                        pageAct("enterUsername", emptyAction()),
-                        pageAct("enterPassword", emptyAction()),
-                        pageAct("clickLogin", emptyAction()),
-                        pageAct("enterTOTP", emptyAction()),
-                        pageAct("submit", emptyAction()));
+                        act("enterUsername"),
+                        act("enterPassword"),
+                        act("clickLogin"),
+                        act("enterTOTP"),
+                        act("submit"));
   }
   
   @Named
   @Export
   @DependsOn("openExecutionSession")
   @PreparedBy({"toHomeScreen"})
-  @PreparedBy({"loadLoginSession"})
+  @PreparedBy({"loadLoginSession", "toHomeScreen"})
   @PreparedBy({"login", "saveLoginSession"})
   public Scene isLoggedIn() {
-    return Scene.create("isLoggedIn");
+    return Scene.create("isLoggedIn", act("checkIfIamOnHomeScreen"));
   }
   
   @Named
   @DependsOn("isLoggedIn")
   public Scene connect() {
-    return new Scene.Builder("connect").build();
+    return Scene.create("connect", act("connectBank"));
   }
   
   @Named
   @DependsOn("isLoggedIn")
   public Scene disconnect() {
-    return new Scene.Builder("disconnect").build();
+    return Scene.create("disconnect", act("disconnectBank"));
   }
   
   @Named
   public Scene logout() {
-    return new Scene.Builder("logout").build();
+    return Scene.create("logout", act("loggingOut"));
   }
   
   @Override
@@ -105,8 +112,14 @@ public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
     return ReportingActionPerformer.create();
   }
   
-  private static BiConsumer<Page, ExecutionEnvironment> emptyAction() {
-    return (p, e) -> {
+  private static Act<Object, Object> act(String description) {
+    return Act.create(description, emptyFunction(description));
+  }
+  
+  private static Function<Object, Object> emptyFunction(String description) {
+    return x -> {
+      System.out.println(description);
+      return x;
     };
   }
 }
