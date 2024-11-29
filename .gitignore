@@ -53,7 +53,7 @@ hs_err_pid*
 *~
 
 # IntelliJ's file
-autotest-ca.iml
+insdog.iml
 
 # Auto-generated files
 .dependencies

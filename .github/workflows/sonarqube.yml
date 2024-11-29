@@ -30,7 +30,7 @@ jobs:
           require-m2-settings: 'true'
           gh_pat: ${{ secrets.GH_PAT }}
 
-      - name: Build and Verify autotest-ca
+      - name: Build and Verify InspektorDog
         run: mvn -B -Dmaven.javadoc.skip=true verify
 
       - name: Run SonarQube scanner
@@ -42,13 +42,13 @@ jobs:
              -Dsonar.projectKey=autotest-ca
              -Dsonar.projectName=autotest-ca
              -Dsonar.scm.provider=git
-             -Dsonar.java.sources=framework/src/main/java,ca_web/src/main/java
-             -Dsonar.java.tests=framework/src/test/java,ca_web/src/test/java
-             -Dsonar.java.binaries=framework/target/classes,ca_web/target/classes
-             -Dsonar.coverage.jacoco.xmlReportPaths=framework/target/site/jacoco/framework/jacoco.xml,framework/target/site/jacoco/all/jacoco.xml,ca_web/target/site/jacoco/caweb/jacoco.xml
-             -Dsonar.sources=framework/src/main/java,ca_web/src/main/java
-             -Dsonar.tests=framework/src/test/java,ca_web/src/test/java
-             -Dsonar.exclusions=framework/src/**/tests/**,framework/src/**/examples/**,ca_web/src/**/tests/**,ca_web/src/**/examples/**,
+             -Dsonar.java.sources=src/main/java
+             -Dsonar.java.tests=src/test/java
+             -Dsonar.java.binaries=target/classes
+             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+             -Dsonar.sources=src/main/java
+             -Dsonar.tests=src/test/java
+             -Dsonar.exclusions=src/**/tests/**,src/**/examples/**
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}

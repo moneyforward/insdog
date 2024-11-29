@@ -1,11 +1,11 @@
 # We use Makefile for simplifying mvn command's usage.
-# Since autotest-ca is a Java-based component, its binary build and release should be done through mvn, without relying on Makefile.
+# Since InspektorDog (shortened "insdog") is a Java-based component, its binary build and release should be done through mvn, without relying on Makefile.
 
 BASH:=$(shell which bash)
 PROJ_DIR:=$(shell pwd)
 
-## This is a Makefile for "autotest-ca" project.
-## - https://github.com/moneyforward/autotest-ca/wiki/9-ContributionGuidelines%7CMakefile
+## This is a Makefile for "InspektorDog" project.
+## - https://github.com/moneyforward/insdog/wiki/9-ContributionGuidelines%7CMakefile
 ABOUT: help
 	@echo "__ENV_RC__='${__ENV_RC__}'"
 	:
