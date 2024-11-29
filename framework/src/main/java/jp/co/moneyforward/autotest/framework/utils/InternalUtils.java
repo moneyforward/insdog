@@ -60,14 +60,14 @@ public enum InternalUtils {
   public static Optional<String> currentBranchNameFor(File projectDir) {
     if (!projectDir.exists())
       return Optional.empty();
-
+    
     var builder = new FileRepositoryBuilder()
         .setMustExist(true)
         .findGitDir(projectDir.getAbsoluteFile())
         .readEnvironment();
     if (builder.getGitDir() == null)
       return Optional.empty();
-
+    
     try {
       //NOSONAR
       try (Repository repository = builder.build()) {
@@ -77,7 +77,7 @@ public enum InternalUtils {
       throw wrap(e);
     }
   }
-
+  
   public static boolean isPresumablyRunningFromIDE() {
     return !isRunByTool();
   }
@@ -311,8 +311,11 @@ public enum InternalUtils {
   }
   
   public static void removeFile(File file) {
-    boolean removed = requireNonNull(file).delete();
-    LOGGER.trace("File:'{}' was removed: {}", file, removed);
+    try {
+      Files.delete(requireNonNull(file).toPath());
+    } catch (IOException e) {
+      throw wrap(e);
+    }
   }
   
   public static <T> List<T> reverse(List<T> list) {
@@ -336,7 +339,7 @@ public enum InternalUtils {
   public static File materializeResource(String resourcePath) {
     requireNonNull(resourcePath);
     try {
-      var output = createTempFile("tmp", ".png", new File(System.getProperty("user.dir")));
+      var output = createTempFile("tmp", ".png", temporaryDirectory());
       output.deleteOnExit();
       materializeResource(output, resourcePath);
       return output;
@@ -348,14 +351,14 @@ public enum InternalUtils {
   /**
    * Copies the contents of a resource file from the classpath to a specified output file.
    *
-   * @param output output the file to which the resource contents will be written
+   * @param output       output the file to which the resource contents will be written
    * @param resourcePath A path to a resource on a class path to be materialized
    */
   public static void materializeResource(File output, final String resourcePath) {
     requireNonNull(output);
     requireNonNull(resourcePath);
-    
-    try (var fileInputStream = requireNonNull(currentThread().getContextClassLoader().getResourceAsStream(resourcePath));
+    var fileInputStreamOptional = Optional.ofNullable(currentThread().getContextClassLoader().getResourceAsStream(resourcePath));
+    try (var fileInputStream = fileInputStreamOptional.orElseThrow(() -> new FileNotFoundException("Not found resource:<" + resourcePath + "> on the classpath"));
          var in = new BufferedInputStream(fileInputStream);
          var out = new BufferedOutputStream(new FileOutputStream(output))) {
       copyTo(in, out);
@@ -376,5 +379,19 @@ public enum InternalUtils {
     } catch (IOException e) {
       throw wrap(e);
     }
+  }
+  
+  static final File TEMPORARY_DIRECTORY;
+  
+  public static File temporaryDirectory() {
+    return TEMPORARY_DIRECTORY;
+  }
+  
+  static {
+    File dir = new File(new File(new File(System.getProperty("user.dir")), ".dependencies"), "tmp");
+    if (dir.mkdirs()) {
+      LOGGER.debug("Created temporary directory: {}", dir);
+    }
+    TEMPORARY_DIRECTORY = dir;
   }
 }
