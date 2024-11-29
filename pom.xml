@@ -421,7 +421,7 @@
                             <goal>prepare-agent-integration</goal>
                         </goals>
                         <configuration>
-                            <destFile>${project.build.directory}/jacoco-integration-tests.exec</destFile>
+                            <destFile>${project.build.directory}/jacoco/jacoco-integration-tests.exec</destFile>
                             <propertyName>failsafeArgLine</propertyName>
                         </configuration>
                     </execution>
@@ -441,7 +441,7 @@
                                     </includes>
                                 </fileSet>
                             </fileSets>
-                            <destFile>${project.build.directory}/jacoco-merged.exec</destFile>
+                            <destFile>${project.build.directory}/jacoco/jacoco-merged.exec</destFile>
                         </configuration>
                     </execution>
                     <!-- Generate a single report from the merged results -->
@@ -452,7 +452,7 @@
                             <goal>report</goal>
                         </goals>
                         <configuration>
-                            <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
+                            <dataFile>${project.build.directory}/jacoco/jacoco-merged.exec</dataFile>
                             <outputDirectory>${project.reporting.outputDirectory}/jacoco/all</outputDirectory>
                             <excludes>
                                 <exclude>jp/co/moneyforward/autotest/examples/**</exclude>
@@ -462,16 +462,16 @@
 
                     <!-- Generate a report for package1 -->
                     <execution>
-                        <id>report-caweb</id>
+                        <id>report</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
                         <configuration>
                             <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
-                            <outputDirectory>${project.reporting.outputDirectory}/jacoco/caweb</outputDirectory>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco/</outputDirectory>
                             <includes>
-                                <include>jp/co/moneyforward/autotest/ca_web/**</include>
+                                <include>jp/co/moneyforward/autotest/jacoco/**</include>
                             </includes>
                         </configuration>
                     </execution>
