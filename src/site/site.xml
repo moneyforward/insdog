@@ -4,7 +4,6 @@
             <item href="quickstart.html" name="Quick Start"/>
         </menu>
         <menu ref="reports" inherit="top"/>
-        <menu ref="modules"/>
     </body>
     <skin>
         <groupId>org.apache.maven.skins</groupId>
