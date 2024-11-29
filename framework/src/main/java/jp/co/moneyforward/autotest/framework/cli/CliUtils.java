@@ -55,13 +55,12 @@ public enum CliUtils {
     return profileOverriders;
   }
   
-  @SuppressWarnings({"RedundantCast"})
   public static List<String> listTags(String rootPackageName) {
     return ClassFinder.create(rootPackageName)
                       .findMatchingClasses(Predicates.alwaysTrue())
                       .map(c -> (Class<?>) c)
                       .flatMap((Function<Class<?>, Stream<Tag>>) CliUtils::tagAnnotationsFrom)
-                      .map(e -> ((Tag) e).value()) // Workaround compilation error from IDEA.
+                      .map(Tag::value)
                       .distinct()
                       .toList();
   }

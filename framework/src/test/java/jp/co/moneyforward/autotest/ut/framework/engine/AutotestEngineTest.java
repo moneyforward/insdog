@@ -118,20 +118,25 @@ public class AutotestEngineTest extends TestBase {
   }
   
   @Test
-  void givenOutOfMemoryThrowingCnsumer_whenPerformActionEntry_thenOutOfMemoryWillBeThrownWithNoWrapping() {
+  void givenOutOfMemoryThrowingConsumer_whenPerformActionEntry_thenOutOfMemoryWillBeThrownWithNoWrapping() {
     Consumer<List<String>> action = v -> {
       throw new OutOfMemoryError("INTENTIONAL");
     };
     
-    assertThrows(OutOfMemoryError.class,
-                 () -> {
-                   try {
-                     AutotestEngine.performActionEntry("KEY1", action);
-                   } catch (OutOfMemoryError e) {
-                     assertStatement(value(e).getMessage().toBe().containing("INTENTIONAL"));
-                     throw e;
-                   }
-                 });
+    OutOfMemoryError e = assertThrows(OutOfMemoryError.class,
+                                      () -> AutotestEngine.performActionEntry("KEY1", action));
+    assertStatement(value(e).getMessage().toBe().containing("INTENTIONAL"));
+  }
+  
+  @Test
+  void givenExceptionThrowingConsumer_whenPerformActionEntry_thenResultReturned() {
+    Consumer<List<String>> action = v -> {
+      throw new RuntimeException("INTENTIONAL");
+    };
+    
+    AutotestEngine.SceneExecutionResult result = AutotestEngine.performActionEntry("KEY1", action);
+    
+    assertStatement(value(result).toBe().notNull());
   }
   
   private static void runTests(TestResultValidatorExtension validator, Class<?> testClass) {

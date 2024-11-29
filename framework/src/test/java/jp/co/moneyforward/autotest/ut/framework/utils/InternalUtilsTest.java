@@ -8,7 +8,10 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
@@ -17,11 +20,12 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static com.github.valid8j.fluent.Expectations.assertAll;
 import static com.github.valid8j.fluent.Expectations.*;
 import static java.util.stream.Collectors.toSet;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class InternalUtilsTest extends TestBase {
   @Test
@@ -258,6 +262,17 @@ class InternalUtilsTest extends TestBase {
   }
   
   @Test
+  void givenNonExistingResourcePath_whenMaterializeResource_thenExceptionThrown() throws IOException {
+    var resourcePath = "not/existing/image.png";
+    File parentFile = File.createTempFile("test", "test").getParentFile();
+    
+    AutotestException e = assertThrows(AutotestException.class, () -> {
+      InternalUtils.materializeResource(parentFile, resourcePath);
+    });
+    assertStatement(value(e).getMessage().toBe().containing(resourcePath));
+  }
+  
+  @Test
   void givenNullToResourcePath_whenMaterializeResource_thenExceptionThrown() {
     assertThrows(NullPointerException.class, () -> InternalUtils.materializeResource(null));
   }
@@ -283,13 +298,40 @@ class InternalUtilsTest extends TestBase {
   }
   
   @Test
-  void giveIOException_whenCopyTo_thenExceptionThrown() throws IOException {
+  void givenIOException_whenCopyTo_thenExceptionThrown() throws IOException {
     BufferedInputStream in = mock(BufferedInputStream.class);
     BufferedOutputStream out = mock(BufferedOutputStream.class);
     
     when(in.readNBytes(1024)).thenThrow(new IOException("Mocked IOException"));
     
     assertThrows(AutotestException.class, () -> InternalUtils.copyTo(in, out));
+  }
+  
+  @Test
+  void givenCurrentDate_whenDateToSafeString_thenSafeStringIsReturned() {
+    Date date = new Date();
+    
+    String returned = InternalUtils.dateToSafeString(date);
+    
+    System.out.println(returned);
+    assertStatement(value(returned).toBe().notNull().notEmpty());
+  }
+  
+  @Test
+  void givenNonExistingFile_whenRemoveFile_thenExceptionThrown() {
+    Exception e = assertThrows(AutotestException.class,
+                               () -> InternalUtils.removeFile(new File("NOTEXISTINGFILE")));
+    assertStatement(value(e.getMessage()).toBe().containing("NOTEXISTINGFILE"));
+  }
+  
+  @Test
+  void givenExistingNormalFile_whenRemoveFile_thenRemoved() throws IOException {
+    File file = File.createTempFile(InternalUtilsTest.class.getSimpleName(), "tmp");
+    file.deleteOnExit();
+    
+    InternalUtils.removeFile(file);
+    
+    assertFalse(file.exists());
   }
   
   private static <T> Function<Stream<T>, List<T>> toList() {
