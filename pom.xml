@@ -6,7 +6,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>ca_web</module>
         <module>framework</module>
     </modules>
 
