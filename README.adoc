@@ -1,1 +1,1 @@
-framework/src/site/asciidoc/quickstart.adoc
+src/site/asciidoc/quickstart.adoc

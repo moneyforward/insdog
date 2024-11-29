@@ -29,6 +29,7 @@
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/ca_web/pom.xml" />
+        <option value="$PROJECT_DIR$/framework/pom.xml" />
       </set>
     </option>
   </component>
