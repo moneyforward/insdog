@@ -3,11 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>jp.co.moneyforward.sdet</groupId>
     <artifactId>insdog</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <version>1.0.0-SNAPSHOT</version>
-    <description>A library to synthesize an object from interfaces dynamically
-    </description>
+    <description>An action-based testing framework and library</description>
 
     <name>insdog</name>
     <url>http://moneyforward.github.io/${project.name}</url>
@@ -456,27 +455,75 @@
                             <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
                             <outputDirectory>${project.reporting.outputDirectory}/jacoco/all</outputDirectory>
                             <excludes>
-                                <exclude>jp/co/moneyforward/autotest/framework/selftest/**</exclude>
+                                <exclude>jp/co/moneyforward/autotest/examples/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
 
                     <!-- Generate a report for package1 -->
                     <execution>
-                        <id>report-framework</id>
+                        <id>report-caweb</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
                         <configuration>
                             <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
-                            <outputDirectory>${project.reporting.outputDirectory}/jacoco/framework</outputDirectory>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco/caweb</outputDirectory>
                             <includes>
-                                <include>jp/co/moneyforward/autotest/**</include>
+                                <include>jp/co/moneyforward/autotest/ca_web/**</include>
                             </includes>
-                            <excludes>
-                                <exclude>jp/co/moneyforward/autotest/framework/selftest/**</exclude>
-                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution><!-- Remove diagram caches -->
+                        <id>remove diag-*.png files</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>
+                                    ${basedir}/src/build_tools/remove-adoc-diags.sh
+                                </argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution><!-- Remove diagram caches -->
+                        <id>remove package-info.java files</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>
+                                    ${basedir}/src/build_tools/remove-package-info-java.sh
+                                </argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution><!-- Run our version calculation script -->
+                        <id>package-info.java generation</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>
+                                    ${basedir}/src/build_tools/package-info-md_to_package-info-java.sh
+                                </argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>
@@ -493,6 +540,133 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>${asciidoctor.maven.plugin.version}</version>
+                <dependencies>
+                    <!-- Comment this section to use the default jruby artifact provided by the plugin -->
+                    <dependency>
+                        <groupId>org.jruby</groupId>
+                        <artifactId>jruby-complete</artifactId>
+                        <version>${jruby.version}</version>
+                    </dependency>
+                    <!-- Comment this section to use the default AsciidoctorJ artifact provided by the plugin -->
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj</artifactId>
+                        <version>${asciidoctorj.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-diagram</artifactId>
+                        <version>${asciidoctorj.diagram.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <sourceDirectory>src/main/site/asciidoc</sourceDirectory>
+                    <requires>
+                        <require>asciidoctor-diagram</require>
+                    </requires>
+                    <attributes>
+                        <!-- Example below shows how to specify in this pom instead of System's PATH, the location of dot command of Graphviz, required by PlantUML libraries -->
+                        <!-- Windows:
+                            <graphvizdot>C:\Program Files (x86)\Graphviz2.38\bin\dot.exe</graphvizdot>
+                        -->
+                        <!-- *nix :
+                            <graphvizdot>/usr/local/bin/dot</graphvizdot>
+                        -->
+                    </attributes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-html-doc</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>html5</backend>
+                            <outputDirectory>target/site</outputDirectory>
+                            <attributes>
+                                <imagesdir>.</imagesdir>
+                                <toc>left</toc>
+                                <icons>font</icons>
+                                <sectanchors>true</sectanchors>
+                                <idprefix/>
+                                <idseparator>-</idseparator>
+                            </attributes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>${project.build.directory}/autotest-caweb.jar</outputFile>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>jp.co.moneyforward.autotest.ca_web.cli.Cli</mainClass>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>**/META-INF/*.SF</exclude>
+                                        <exclude>**/META-INF/*.DSA</exclude>
+                                        <exclude>**/META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <dependencies>
+                    <!-- Comment this section to use the default jruby artifact provided by the plugin -->
+                    <dependency>
+                        <groupId>org.jruby</groupId>
+                        <artifactId>jruby-complete</artifactId>
+                        <version>${jruby.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctor-maven-plugin</artifactId>
+                        <version>${asciidoctor.maven.plugin.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <!-- disable generateReports if you don't want to include the built-in reports -->
+                    <generateReports>true</generateReports>
+                    <generateSitemap>true</generateSitemap>
+                    <relativizeSiteLinks>false</relativizeSiteLinks>
+                    <locales>en</locales>
+                    <inputEncoding>UTF-8</inputEncoding>
+                    <outputEncoding>UTF-8</outputEncoding>
+                    <skipDeploy>false</skipDeploy>
+                    <!-- asciidoc -->
+                    <!-- optional site-wide AsciiDoc attributes -->
+                    <!-- attributes>
+                        <icons>font</icons>
+                        <source-highlighter>coderay</source-highlighter>
+                        <coderay-css>style</coderay-css>
+                        <toclevels>2</toclevels>
+                    </attributes>
+                </asciidoc -->
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -517,7 +691,7 @@
                     </reportSet>
                 </reportSets>
                 <configuration>
-                  <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
+                    <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
                 </configuration>
             </plugin>
 

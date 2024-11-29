@@ -1,23 +1,23 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: autotest-ca
-  description: A tool for testing ca_web.
+  name: insdog
+  description: A tool and framework for testing applications
   annotations:
-    github.com/project-slug: moneyforward/autotest-ca
-    backstage.io/techdocs-ref: url:https://github.com/moneyforward/autotest-ca/tree/techdocs
+    github.com/project-slug: moneyforward/insdog
+    backstage.io/techdocs-ref: url:https://github.com/moneyforward/insdog/tree/techdocs
   # It is claimed in [1] that icons defined in the doc[2].
   # However, [1] doesn't tell anything about a key starts with 'kind:' such as 'kind:system'.
   # [1] https://backstage.io/docs/features/software-catalog/descriptor-format/#links-optional
   # [2] https://github.com/backstage/backstage/blob/master/packages/app-defaults/src/defaults/icons.tsx
   links:
-    - url: https://github.com/moneyforward/autotest-ca/
+    - url: https://github.com/moneyforward/insdog/
       title: GitHub
       icon: github
     - url: https://app.asana.com/0/1206402209253009/1206402209253009
       title: Asana
       icon: dashboard
-    - url: https://sonar.mfvn.dev/dashboard?id=autotest-ca
+    - url: https://sonar.mfvn.dev/dashboard?id=insdog
       title: SonarQube
       icon: dashboard
     - url: https://moneyforward.tmxtestrail.com/index.php?/projects/overview/35
@@ -26,7 +26,7 @@ metadata:
     - url: https://accounting-stg1.ebisubook.com/
       title: Staging Instance
       icon: system
-    - url: https://github.com/moneyforward/autotest-ca/wiki
+    - url: https://github.com/moneyforward/insdog/wiki
       title: "Wiki: For notes, drafts, ideas, etc."
       icon: docs
     - url: https://moneyforward.slack.com/archives/C06RW82AN79
@@ -38,6 +38,5 @@ spec:
   lifecycle: unknown
   owner: autotest-ca-dev
   dependsOn:
-  - Component:ca_web
   - Component:mddoclet
   - Component:mfdoc
