@@ -60,7 +60,7 @@ public enum CliUtils {
                       .findMatchingClasses(Predicates.alwaysTrue())
                       .map(c -> (Class<?>) c)
                       .flatMap((Function<Class<?>, Stream<Tag>>) CliUtils::tagAnnotationsFrom)
-                      .map(Tag::value) // Workaround compilation error from IDEA.
+                      .map(Tag::value)
                       .distinct()
                       .toList();
   }
