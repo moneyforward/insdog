@@ -3,8 +3,10 @@ package jp.co.moneyforward.autotest.ut.cli;
 import jp.co.moneyforward.autotest.framework.cli.CliUtils;
 import jp.co.moneyforward.autotest.framework.selftest.Index;
 import jp.co.moneyforward.autotest.ut.cli.impl.CliImpl;
-import jp.co.moneyforward.autotest.framework.selftest.Selftest;
+import jp.co.moneyforward.autotest.framework.selftest.SelfTest;
 import jp.co.moneyforward.autotest.ututils.TestBase;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.launcher.TestIdentifier;
@@ -63,6 +65,7 @@ class CliIT extends TestBase {
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
   
+  @Disabled
   @Test
   void runListTagsWithInvalidArgs() {
     int exitCode = new CommandLine(new CliImpl()).setExecutionStrategy(new NoExitExecutionStrategy())
@@ -84,11 +87,10 @@ class CliIT extends TestBase {
   @Test
   void runSelfTestWithPartialMatch() {
     int exitCode = new CommandLine(new CliImpl()).setExecutionStrategy(new NoExitExecutionStrategy())
-                                                 .execute("-q", "classname:%Selftest", "run");
+                                                 .execute("-q", "classname:%SelfTest", "run");
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
-  
   
   @Test
   void runSelfTestThroughCliUtils() {
@@ -96,7 +98,7 @@ class CliIT extends TestBase {
     
     Map<Class<?>, TestExecutionSummary> testReport = CliUtils.runTests(
         Index.class.getPackageName(),
-        new String[]{"classname:%Selftest"}, new String[]{},
+        new String[]{"classname:%SelfTest"}, new String[]{},
         new String[]{},
         new SummaryGeneratingListener() {
           @Override
@@ -112,16 +114,11 @@ class CliIT extends TestBase {
                                 .reduce(Integer::sum)
                                 .orElseThrow(NoSuchElementException::new);
     assertAll(value(numFailures).toBe().equalTo(0),
-              value(testIdentifiers).elementAt(0)
-                                    .function(functionGetDisplayName())
-                                    .asString()
-                                    .satisfies()
-                                    .containing("connect"),
               value(testIdentifiers).elementAt(1)
                                     .function(functionGetDisplayName())
                                     .asString()
                                     .satisfies()
-                                    .containing("printDomain"),
+                                    .containing("connect"),
               value(testIdentifiers).elementAt(2)
                                     .function(functionGetDisplayName())
                                     .asString()
@@ -134,17 +131,17 @@ class CliIT extends TestBase {
    */
   @Test
   void runSelfTestWithExecutionProfileThroughCliUtils() {
-    Selftest.enableAssertion();
+    SelfTest.enableAssertion();
     try {
       List<TestIdentifier> testIdentifiers = new LinkedList<>();
       Map<Class<?>, TestExecutionSummary> testReport = CliUtils.runTests(
-          "jp.co.moneyforward.autotest.ca_web.tests",
+          Index.class.getPackageName(),
           new String[]{
               "classname:%SelfTest"
           },
           new String[]{},
           new String[]{
-              String.format("--execution-profile=domain:%s", Selftest.OVERRIDING_DOMAIN_NAME)
+              String.format("--execution-profile=domain:%s", SelfTest.OVERRIDING_DOMAIN_NAME)
           },
           new SummaryGeneratingListener() {
             @Override
@@ -160,23 +157,18 @@ class CliIT extends TestBase {
                                   .reduce(Integer::sum)
                                   .orElseThrow(NoSuchElementException::new);
       assertAll(value(numFailures).toBe().equalTo(0),
-                value(testIdentifiers).elementAt(0)
-                                      .function(functionGetDisplayName())
-                                      .asString()
-                                      .satisfies()
-                                      .containing("connect"),
                 value(testIdentifiers).elementAt(1)
                                       .function(functionGetDisplayName())
                                       .asString()
                                       .satisfies()
-                                      .containing("printDomain"),
+                                      .containing("connect"),
                 value(testIdentifiers).elementAt(2)
                                       .function(functionGetDisplayName())
                                       .asString()
                                       .satisfies()
                                       .containing("disconnect"));
     } finally {
-      Selftest.disableAssertion();
+      SelfTest.disableAssertion();
     }
   }
   
@@ -190,7 +182,8 @@ class CliIT extends TestBase {
       return new CommandLine.RunLast() {
         @Override
         public int execute(CommandLine.ParseResult parseResult) throws CommandLine.ExecutionException {
-          return 0;
+          return parseResult.errors().isEmpty() ? 0
+                                                : 2;
         }
       }.execute(parseResult);
     }

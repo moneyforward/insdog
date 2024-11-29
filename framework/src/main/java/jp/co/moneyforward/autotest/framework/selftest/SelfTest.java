@@ -10,6 +10,8 @@ import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 
 import java.util.HashMap;
 
+import static com.github.valid8j.fluent.Expectations.value;
+
 /**
  * A test to check if the framework works as designed.
  * This test is designed not to access the **caweb** application.
@@ -17,9 +19,9 @@ import java.util.HashMap;
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
         planExecutionWith = PlanningStrategy.DEPENDENCY_BASED,
-        value = {"connect", "printDomain", "disconnect"}
+        value = {"connect", "disconnect"}
     ))
-public class Selftest implements AutotestRunner {
+public class SelfTest implements AutotestRunner {
   private static boolean enableAssertion = false;
   public static final String OVERRIDING_DOMAIN_NAME = "overriding.domain.name.co.jp";
   private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(Context.create(), new HashMap<>());
@@ -51,7 +53,7 @@ public class Selftest implements AutotestRunner {
         .add(new Act.Let<>("CONNECT"))
         .build();
   }
-
+  
   @Named
   @Export("page")
   @DependsOn("login")
