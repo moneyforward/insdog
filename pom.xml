@@ -565,7 +565,7 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <sourceDirectory>src/main/site/asciidoc</sourceDirectory>
+                    <sourceDirectory>src/site/asciidoc</sourceDirectory>
                     <requires>
                         <require>asciidoctor-diagram</require>
                     </requires>
@@ -691,7 +691,7 @@
                     </reportSet>
                 </reportSets>
                 <configuration>
-                    <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
+                    <dataFile>${project.build.directory}/jacoco/jacoco-merged.exec</dataFile>
                 </configuration>
             </plugin>
 
