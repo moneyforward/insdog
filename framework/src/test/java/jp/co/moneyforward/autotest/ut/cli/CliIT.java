@@ -1,8 +1,9 @@
-package jp.co.moneyforward.autotest.it;
+package jp.co.moneyforward.autotest.ut.cli;
 
-import jp.co.moneyforward.autotest.ca_web.cli.Cli;
-import jp.co.moneyforward.autotest.ca_web.tests.selftest.SelfTest;
 import jp.co.moneyforward.autotest.framework.cli.CliUtils;
+import jp.co.moneyforward.autotest.framework.selftest.Index;
+import jp.co.moneyforward.autotest.ut.cli.impl.CliImpl;
+import jp.co.moneyforward.autotest.framework.selftest.Selftest;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.TestExecutionResult;
@@ -29,50 +30,50 @@ import static com.github.valid8j.pcond.forms.Printables.function;
  *
  * For instance, from IntelliJ IDEA, only one test fails and the others are skipped.
  */
-public class CliIT extends TestBase {
+class CliIT extends TestBase {
   
   @Test
-  public void testHelp() {
-    int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
-                                             .execute("--help");
+  void testHelp() {
+    int exitCode = new CommandLine(new CliImpl()).setExecutionStrategy(new NoExitExecutionStrategy())
+                                                 .execute("--help");
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
   
   @Test
-  public void testHelpFrom_Cli$main() {
-    Cli.main("--help");
+  void testHelpFrom_Cli$main() {
+    CliImpl.main("--help");
     // Always passing as long as it reaches here as the exit code is already checked by `testHelp` test method.
     assertStatement(value(true).toBe().equalTo(true));
   }
   
   @Test
-  public void runSelfTest() {
-    int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
-                                             .execute("-q", "classname:~.*SelfTest.*", "run");
+  void runSelfTest() {
+    int exitCode = new CommandLine(new CliImpl()).setExecutionStrategy(new NoExitExecutionStrategy())
+                                                 .execute("-q", "classname:~.*SelfTest.*", "run");
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
   
   @Test
-  public void runListTestClasses() {
-    int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
-                                             .execute("list-testclasses");
+  void runListTestClasses() {
+    int exitCode = new CommandLine(new CliImpl()).setExecutionStrategy(new NoExitExecutionStrategy())
+                                                 .execute("list-testclasses");
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
   
   @Test
-  public void runListTagsWithInvalidArgs() {
-    int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
-                                             .execute("-q", "classname??.*", "list-testclasses");
+  void runListTagsWithInvalidArgs() {
+    int exitCode = new CommandLine(new CliImpl()).setExecutionStrategy(new NoExitExecutionStrategy())
+                                                 .execute("-q", "classname??.*", "list-testclasses");
     assertStatement(value(exitCode).toBe().equalTo(2));
   }
   
   @Test
-  public void runListTags() {
-    int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
-                                             .execute("list-tags");
+  void runListTags() {
+    int exitCode = new CommandLine(new CliImpl()).setExecutionStrategy(new NoExitExecutionStrategy())
+                                                 .execute("list-tags");
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
@@ -81,21 +82,21 @@ public class CliIT extends TestBase {
    * This test just checks if the CommandLine#execute finishes without an error.
    */
   @Test
-  public void runSelfTestWithPartialMatch() {
-    int exitCode = new CommandLine(new Cli()).setExecutionStrategy(new NoExitExecutionStrategy())
-                                             .execute("-q", "classname:%SelfTest", "run");
+  void runSelfTestWithPartialMatch() {
+    int exitCode = new CommandLine(new CliImpl()).setExecutionStrategy(new NoExitExecutionStrategy())
+                                                 .execute("-q", "classname:%Selftest", "run");
     
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
   
   
   @Test
-  public void runSelfTestThroughCliUtils() {
+  void runSelfTestThroughCliUtils() {
     List<TestIdentifier> testIdentifiers = new LinkedList<>();
     
     Map<Class<?>, TestExecutionSummary> testReport = CliUtils.runTests(
-        "jp.co.moneyforward.autotest.ca_web.tests",
-        new String[]{"classname:%SelfTest"}, new String[]{},
+        Index.class.getPackageName(),
+        new String[]{"classname:%Selftest"}, new String[]{},
         new String[]{},
         new SummaryGeneratingListener() {
           @Override
@@ -133,7 +134,7 @@ public class CliIT extends TestBase {
    */
   @Test
   void runSelfTestWithExecutionProfileThroughCliUtils() {
-    SelfTest.enableAssertion();
+    Selftest.enableAssertion();
     try {
       List<TestIdentifier> testIdentifiers = new LinkedList<>();
       Map<Class<?>, TestExecutionSummary> testReport = CliUtils.runTests(
@@ -143,7 +144,7 @@ public class CliIT extends TestBase {
           },
           new String[]{},
           new String[]{
-              String.format("--execution-profile=domain:%s", SelfTest.OVERRIDING_DOMAIN_NAME)
+              String.format("--execution-profile=domain:%s", Selftest.OVERRIDING_DOMAIN_NAME)
           },
           new SummaryGeneratingListener() {
             @Override
@@ -175,7 +176,7 @@ public class CliIT extends TestBase {
                                       .satisfies()
                                       .containing("disconnect"));
     } finally {
-      SelfTest.disableAssertion();
+      Selftest.disableAssertion();
     }
   }
   
@@ -189,7 +190,7 @@ public class CliIT extends TestBase {
       return new CommandLine.RunLast() {
         @Override
         public int execute(CommandLine.ParseResult parseResult) throws CommandLine.ExecutionException {
-          return super.execute(parseResult);
+          return 0;
         }
       }.execute(parseResult);
     }

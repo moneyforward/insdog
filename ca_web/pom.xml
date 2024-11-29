@@ -278,7 +278,7 @@
                             <outputFile>${project.build.directory}/autotest-caweb.jar</outputFile>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>jp.co.moneyforward.autotest.ca_web.cli.Cli</mainClass>
+                                    <mainClass>jp.co.moneyforward.autotest.ut.cli.impl.Cli</mainClass>
                                 </transformer>
                             </transformers>
                             <filters>

@@ -1,12 +1,7 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run Coverage (ca_web)" type="JUnit" factoryName="JUnit">
-    <module name="ca_web" />
+  <configuration default="false" name="Run Coverage (framework)" type="JUnit" factoryName="JUnit">
+    <module name="framework" />
     <extension name="coverage">
-      <pattern>
-        <option name="PATTERN" value="jp.co.moneyforward.autotest.it.*" />
-        <option name="ENABLED" value="true" />
-        <option name="INCLUDE" value="false" />
-      </pattern>
       <pattern>
         <option name="PATTERN" value="jp.co.moneyforward.autotest.ut.*" />
         <option name="ENABLED" value="true" />
@@ -26,6 +21,19 @@
         <option name="PATTERN" value="jp.co.moneyforward.autotest.examples.*" />
         <option name="ENABLED" value="true" />
         <option name="INCLUDE" value="false" />
+      </pattern>
+      <pattern>
+        <option name="PATTERN" value="jp.co.moneyforward.autotest.it.*" />
+        <option name="ENABLED" value="true" />
+        <option name="INCLUDE" value="false" />
+      </pattern>
+      <pattern>
+        <option name="PATTERN" value="jp.co.moneyforward.autotest.ut.cli.impl.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+      <pattern>
+        <option name="PATTERN" value="jp.co.moneyforward.autotest.framework.*" />
+        <option name="ENABLED" value="true" />
       </pattern>
     </extension>
     <extension name="net.ashald.envfile">

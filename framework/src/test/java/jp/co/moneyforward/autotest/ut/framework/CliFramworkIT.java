@@ -40,7 +40,7 @@ class CliFramworkIT extends TestBase {
     assertStatement(value(exitCode).toBe().equalTo(0));
   }
   
-  static class NoExitExecutionStrategy implements CommandLine.IExecutionStrategy {
+  public static class NoExitExecutionStrategy implements CommandLine.IExecutionStrategy {
     @Override
     public int execute(CommandLine.ParseResult parseResult) {
       return new CommandLine.RunLast() {

@@ -1,6 +1,5 @@
-package jp.co.moneyforward.autotest.ca_web.cli;
+package jp.co.moneyforward.autotest.ut.cli.impl;
 
-import jp.co.moneyforward.autotest.ca_web.tests.Index;
 import jp.co.moneyforward.autotest.framework.cli.CliBase;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -12,8 +11,8 @@ import picocli.CommandLine.Command;
     name = "autotest-cli", mixinStandardHelpOptions = true,
     version = "0.0",
     description = "A command line interface of 'autotest-ca', an automated testing tool for 'caweb'.")
-public class Cli extends CliBase {
-  private static final String ROOT_PACKAGE_NAME = Index.class.getPackageName();
+public class CliImpl extends CliBase {
+  private static final String ROOT_PACKAGE_NAME = "jp.co.moneyforward.autotest.ut.testclasses";
   
   /**
    * Returns a root package under which classes to run by this CLI are searched.
@@ -32,9 +31,9 @@ public class Cli extends CliBase {
    * @see CliBase
    */
   public static void main(String... args) {
-    int exitCode = new CommandLine(new Cli()).execute(args);
+    int exitCode = new CommandLine(new CliImpl()).execute(args);
     if (exitCode != 0) {
-      System.exit(exitCode);
+      throw new RuntimeException(Integer.toString(exitCode));
     }
   }
 }
