@@ -22,9 +22,19 @@
       <option name="url" value="https://repo1.maven.org/maven2" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="github-mavenpkg" />
+      <option name="name" value="github-mavenpkg" />
+      <option name="url" value="https://maven.pkg.github.com/moneyforward/insdog" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="jboss.community" />
       <option name="name" value="JBoss Community repository" />
       <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="github-mavenpkg-mddoclet" />
+      <option name="name" value="github-mavenpkg-mddoclet" />
+      <option name="url" value="https://maven.pkg.github.com/moneyforward/mddoclet" />
     </remote-repository>
   </component>
 </project>
