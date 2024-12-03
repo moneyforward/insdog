@@ -81,6 +81,10 @@ publish-test-report:
 package-without-javadoc:
 	mvn -B -Dmaven.javadoc.skip=true clean compile package
 
+## Does "mvn package"
+package:
+	mvn -B clean compile package
+
 ## Build.
 ## Internally executes `package-without-javadoc` target.
 build: package-without-javadoc
