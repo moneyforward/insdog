@@ -40,9 +40,31 @@
             <email>dakusui@gmail.com</email>
         </developer>
         <developer>
-            <id>
-
-            </id>
+            <id>rinsyan0518</id>
+            <name>Takamitsu Hamajo</name>
+        </developer>
+        <developer>
+            <id>sukezan</id>
+            <name>Koske Yamagami| Kay</name>
+        </developer>
+        <developer>
+            <id>moneyforward-hoai-nam-dao</id>
+            <name>Hoai Nam Dao</name>
+        </developer>
+        <developer>
+            <id>kwallaschek</id>
+            <name>Kay Wallaschek</name>
+        </developer>
+        <developer>
+            <id>Kota</id>
+            <name>yagikota</name>
+        </developer>
+        <developer>
+            <id>vinhyenvodoi98</id>
+        </developer>
+        <developer>
+            <id>clover</id>
+            <name>clover-zhao</name>
         </developer>
     </developers>
 
@@ -103,6 +125,10 @@
         <repository>
             <id>github-mavenpkg</id>
             <url>https://maven.pkg.github.com/moneyforward/insdog</url>
+        </repository>
+        <repository>
+            <id>github-mavenpkg-mddoclet</id>
+            <url>https://maven.pkg.github.com/moneyforward/mddoclet</url>
         </repository>
     </repositories>
 
