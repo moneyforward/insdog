@@ -5,7 +5,7 @@
     <artifactId>insdog</artifactId>
     <packaging>jar</packaging>
 
-    <version>0.1.2-SNAPSHOT</version>
+    <version>0.1.6-SNAPSHOT</version>
     <description>An action-based testing framework and library</description>
 
     <name>insdog</name>
@@ -101,8 +101,8 @@
 
     <repositories>
         <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/moneyforward/mddoclet</url>
+            <id>github-mavenpkg</id>
+            <url>https://maven.pkg.github.com/moneyforward/insdog</url>
         </repository>
     </repositories>
 
@@ -673,7 +673,7 @@
 
     <distributionManagement>
         <repository>
-            <id>github</id>
+            <id>github-mavenpkg</id>
             <url>https://maven.pkg.github.com/moneyforward/insdog</url>
         </repository>
     </distributionManagement>
