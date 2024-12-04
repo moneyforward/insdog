@@ -47,10 +47,10 @@ public interface Scene extends WithOid {
    * @return A created scene.
    */
   @SafeVarargs
-  static <T> Scene create(String sceneName, Act<T, T>... acts) {
+  static <T> Scene create(String sceneName, ActCall<T, T>... acts) {
     Builder builder = new Builder().name(sceneName);
-    for (Act<T, T> act : acts) {
-      builder.add("var", act, "var");
+    for (ActCall<T, T> eachCall : acts) {
+      builder.addCall(eachCall);
     }
     return builder.build();
   }

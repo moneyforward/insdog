@@ -66,7 +66,7 @@ public class VariablesTest extends TestBase {
                   List.of()),
         sceneCall("SCENE2",
                   List.of(actCall("y", addToListAct(out), "in")),
-                  List.of(new Resolver("in", Resolver.valueFrom("SCENE1", "x"))))));
+                  List.of(new Resolver("in", Resolver.resolveVariable("x", "SCENE1"))))));
     
     
     Action action = AutotestSupport.sceneToSceneCall(scene, "output", emptyResolverBundle()).toAction(createActionComposer());
@@ -95,7 +95,7 @@ public class VariablesTest extends TestBase {
                                                         List.of(x -> value(x).toBe()
                                                                              .startingWith("HELLO:")
                                                                              .containing("Scott")), "in")),
-                  List.of(new Resolver("in", Resolver.valueFrom("SCENE1", "x"))))));
+                  List.of(new Resolver("in", Resolver.resolveVariable("x", "SCENE1"))))));
     
     Action action = AutotestSupport.sceneToSceneCall(scene, "OUT", emptyResolverBundle()).toAction(createActionComposer());
     performAction(action, Writer.Std.OUT);
@@ -128,7 +128,7 @@ public class VariablesTest extends TestBase {
     SceneCall sceneCall2 = sceneCall("S2",
                                      List.of(actCall("var", helloAct(), "foo"),
                                              actCall("var", printlnAct(), "foo")),
-                                     List.of(new Resolver("foo", Resolver.valueFrom("S1", "var"))));
+                                     List.of(new Resolver("foo", Resolver.resolveVariable("var", "S1"))));
     
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
     var out1 = new Writer.Impl();

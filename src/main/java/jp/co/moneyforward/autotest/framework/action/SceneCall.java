@@ -14,7 +14,7 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
  */
 public final class SceneCall implements Call, WithOid {
   private final Scene scene;
-  private final ResolverBundle variableResolverBundle;
+  private final ResolverBundle resolverBundle;
   private final String outputVariableStoreName;
   
   /**
@@ -34,7 +34,7 @@ public final class SceneCall implements Call, WithOid {
                    ResolverBundle resolverBundle) {
     this.outputVariableStoreName = requireNonNull(outputVariableStoreName);
     this.scene = requireNonNull(scene);
-    this.variableResolverBundle = requireNonNull(resolverBundle);
+    this.resolverBundle = requireNonNull(resolverBundle);
   }
   
   @Override
@@ -61,6 +61,11 @@ public final class SceneCall implements Call, WithOid {
     return this.scene;
   }
   
+  /**
+   * A name of "output" variable store, where this `SceneCall` writes its final result at the end of execution.
+   *
+   * @return A name of variable store, which this `SceneCall` writes its result to.
+   */
   public String outputVariableStoreName() {
     return this.outputVariableStoreName;
   }
@@ -70,8 +75,8 @@ public final class SceneCall implements Call, WithOid {
    *
    * @return A bundle of variable resolvers.
    */
-  public ResolverBundle variableResolverBundle() {
-    return variableResolverBundle;
+  public ResolverBundle resolverBundle() {
+    return resolverBundle;
   }
   
   /**
@@ -108,6 +113,12 @@ public final class SceneCall implements Call, WithOid {
     return endSceneCall(this);
   }
   
+  /**
+   * Creates an action that prepares variable store for a given `SceneCall` object.
+   *
+   * @param sceneCall A call for which a preparation action is created.
+   * @return A created Action.
+   */
   private static Action beginSceneCall(SceneCall sceneCall) {
     return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
                                 c -> c.assignTo(sceneCall.workingVariableStoreName(),
@@ -127,15 +138,17 @@ public final class SceneCall implements Call, WithOid {
   
   /**
    * Returns a map (variable store), with which a targetScene can interact to store/read data.
+   * Initial values of variables are resolved by giving a `context` parameter value to each element in `resolverBundle`.
    *
    * @param sceneCall A scene call for which a returned map is created.
    * @param context   A context in which actions created from the target scene are performed.
    * @return A data store map.
+   * @see ResolverBundle
    */
   private static Map<String, Object> composeWorkingVariableStore(SceneCall sceneCall,
                                                                  Context context) {
     var ret = new HashMap<String, Object>();
-    sceneCall.variableResolverBundle()
+    sceneCall.resolverBundle()
              .forEach((k, r) -> ret.put(k, r.apply(context)));
     return ret;
   }

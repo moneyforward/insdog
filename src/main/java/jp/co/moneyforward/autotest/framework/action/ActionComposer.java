@@ -78,7 +78,9 @@ public interface ActionComposer {
     for (Call each : ensuredCall.ensurers()) {
       b.with(each.toAction(this));
     }
-    return b.$();
+    return sequential(concat(Stream.of(ensuredCall.begin()),
+                             Stream.of(b.$()),
+                             Stream.of(ensuredCall.end())).toList());
   }
   
   default Action create(RetryCall retryCall) {
@@ -129,7 +131,8 @@ public interface ActionComposer {
       LOGGER.debug("ENTERING: {}:{}", targetSceneName, actName);
       try {
         var v = act.perform(inputVariableResolver.apply(c), executionEnvironment);
-        ongoingSceneCall.workingVariableStore(c).put(outputVariableName, v);
+        ongoingSceneCall.workingVariableStore(c)
+                        .put(outputVariableName, v);
       } catch (Error | RuntimeException e) {
         LOGGER.error(e.getMessage());
         LOGGER.debug(e.getMessage(), e);
