@@ -13,8 +13,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.retry;
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.valid8j.Requires.requireNonNull;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
 
@@ -74,16 +73,11 @@ public interface ActionComposer {
   }
   
   default Action create(EnsuredCall ensuredCall) {
-    Ensured.Builder b = ActionSupport.ensure(ensuredCall.targetCall().toAction(this));
+    Ensured.Builder b = ensure(ensuredCall.targetCall().toAction(this));
     for (Call each : ensuredCall.ensurers()) {
-      b.with(sequential(
-          ensuredCall.beginEnsurer(each),
-          each.toAction(this),
-          ensuredCall.endEnsurer(each)));
+      b.with(each.toAction(this));
     }
-    return sequential(concat(Stream.of(ensuredCall.begin()),
-                             Stream.of(b.$()),
-                             Stream.of(ensuredCall.end())).toList());
+    return b.$();
   }
   
   default Action create(RetryCall retryCall) {

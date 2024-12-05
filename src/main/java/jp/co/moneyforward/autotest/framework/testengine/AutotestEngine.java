@@ -665,9 +665,8 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   private static Call methodToCall(Method method, Class<?> accessModelClass, AutotestRunner runner) {
     PreparedBy[] preparedByAnnotations = method.getAnnotationsByType(PreparedBy.class);
     if (preparedByAnnotations.length > 0) {
-      Scene scene;
-      return new EnsuredCall(sceneToSceneCall(scene = methodToScene(method, runner),
-                                              resolverBundleFor(scene, "xyw"),
+      return new EnsuredCall(sceneToSceneCall(methodToScene(method, runner),
+                                              resolverBundleFromDependenciesOf(method, accessModelClass),
                                               nameOf(method)),
                              annotationsToEnsurers(preparedByAnnotations, accessModelClass, runner, method),
                              nameOf(method),
@@ -693,9 +692,9 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
         return List.of(new ParameterResolver() {
           @Override
           public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-            return parameterContext.getParameter().getType().isAssignableFrom(Action.class) ||
-                parameterContext.getParameter().getType().isAssignableFrom(String.class) ||
-                parameterContext.getParameter().getType().isAssignableFrom(Writer.class);
+            return parameterContext.getParameter().getType().isAssignableFrom(Action.class)
+                || parameterContext.getParameter().getType().isAssignableFrom(String.class)
+                || parameterContext.getParameter().getType().isAssignableFrom(Writer.class);
           }
           
           @Override

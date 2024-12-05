@@ -3,13 +3,11 @@ package jp.co.moneyforward.autotest.framework.action;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import jp.co.moneyforward.autotest.framework.annotations.PreparedBy;
-import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.nop;
 import static com.github.dakusui.valid8j.Requires.requireNonNull;
 
 /**
@@ -57,31 +55,6 @@ public final class EnsuredCall extends CallDecorator.Base<SceneCall> {
    */
   public List<SceneCall> ensurers() {
     return this.ensurers;
-  }
-  
-  public Action begin() {
-    return InternalUtils.action("BEGIN@" + targetCall().targetScene().name(),
-                                c -> c.assignTo(workingVariableStoreName(),
-                                                composeWorkingVariableStore(this, c)));
-  }
-  
-  public Action end() {
-    return InternalUtils.action("END@" + targetCall().targetScene().name(), c -> {
-      c.assignTo(outputVariableStoreName(), c.valueOf(workingVariableStoreName()));
-      c.unassign(workingVariableStoreName());
-    });
-  }
-  
-  public Action beginEnsurer(Call each) {
-    return nop();
-  }
-  
-  public Action endEnsurer(Call each) {
-    return nop();
-  }
-  
-  private String workingVariableStoreName() {
-    return targetCall().targetScene().workingVariableStoreName();
   }
   
   /**
