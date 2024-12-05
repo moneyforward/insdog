@@ -43,6 +43,7 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toMap;
 import static jp.co.moneyforward.autotest.framework.action.ActionComposer.createActionComposer;
 import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.resolverBundleFor;
+import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.resolverBundleFromDependenciesOf;
 import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngine.Stage.*;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.composeResultMessageLine;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.reverse;
@@ -79,11 +80,27 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.reverse;
 public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, TestTemplateInvocationContextProvider, AfterEachCallback, AfterAllCallback {
   private static final Logger LOGGER = LoggerFactory.getLogger(AutotestEngine.class);
   
+  /**
+   * Returns `true` to let the framework know this engine supports test template.
+   * Note that test template is pre-defined as `runTestAction(String, Action)` method in `AutotestRunner` class and
+   * test programmers do not need to defined it by themselves.
+   *
+   * @param extensionContext the extension context for the test template method about
+   *                         to be invoked; never {@code null}
+   * @return `true`.
+   */
   @Override
   public boolean supportsTestTemplate(ExtensionContext extensionContext) {
     return true;
   }
   
+  /**
+   * Returns a stream of `TestTemplateInvocationContext` objects.
+   *
+   * @param context the extension context for the test template method about
+   *                to be invoked; never {@code null}
+   * @return A stream of `TestTemplateInvocationContext` objects.
+   */
   @Override
   public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext context) {
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(context).withSceneName(context.getDisplayName(), "main");
@@ -94,8 +111,13 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                                     .map(AutotestEngine::toTestTemplateInvocationContext);
   }
   
+  /**
+   * Executes actions planned for **Before All** stage.
+   *
+   * @param executionContext the current extension context; never {@code null}
+   */
   @Override
-  public void beforeAll(ExtensionContext executionContext) throws Exception {
+  public void beforeAll(ExtensionContext executionContext) throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
     prepareBeforeAllStage(executionContext, System.getProperties());
     
     AutotestRunner runner = autotestRunner(executionContext);
@@ -127,6 +149,11 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                                                          });
   }
   
+  /**
+   * Executes actions planned for **Before Each** stage.
+   *
+   * @param executionContext the current extension context; never {@code null}
+   */
   @Override
   public void beforeEach(ExtensionContext executionContext) {
     String stageName = BEFORE_EACH.stageName();
@@ -159,6 +186,11 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-main.log"), Level.INFO);
   }
   
+  /**
+   * Executes actions planned for **After Each** stage.
+   *
+   * @param executionContext the current extension context; never {@code null}
+   */
   @Override
   public void afterEach(ExtensionContext executionContext) {
     String stageName = "afterEach";
@@ -194,6 +226,11 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     if (!errors.isEmpty()) reportErrors(errors);
   }
   
+  /**
+   * Executes actions planned for **After All** stage.
+   *
+   * @param executionContext the current extension context; never {@code null}
+   */
   @Override
   public void afterAll(ExtensionContext executionContext) {
     AutotestRunner runner = autotestRunner(executionContext);
@@ -528,52 +565,15 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                  .findFirst();
   }
   
-  private static Call methodToCall(Method method, Class<?> accessModelClass, AutotestRunner runner) {
-    PreparedBy[] preparedByAnnotations = method.getAnnotationsByType(PreparedBy.class);
-    if (preparedByAnnotations.length > 0) {
-      ResolverBundle resolverBundle = resolverBundleFor(method, accessModelClass);
-      String outputVariableStoreName = nameOf(method);
-      Scene scene;
-      return new EnsuredCall(sceneToSceneCall(scene = methodToScene(method, runner),
-                                              resolverBundleFor(scene, "xyw"),
-                                              outputVariableStoreName),
-                             annotationsToEnsurers(preparedByAnnotations, accessModelClass, runner, method),
-                             outputVariableStoreName,
-                             resolverBundle);
-    }
-    ResolverBundle resolverBundle = resolverBundleFor(method, accessModelClass);
-    String outputVariableStoreName = nameOf(method);
-    return sceneToSceneCall(methodToScene(method, runner), resolverBundle, outputVariableStoreName);
-  }
-  
-  private static List<Call> annotationsToEnsurers(PreparedBy[] preparedByAnnotations, Class<?> accessModelClass, AutotestRunner runner, Method targetMethod) {
-    return Arrays.stream(preparedByAnnotations)
-                 .map(ann -> annotationToEnsurer(ann, accessModelClass, runner, targetMethod))
-                 .toList();
-  }
-  
-  /**
-   * Returns a call that performs actions defined by `@PreparedBy` annotation (`preparedBy`).
-   *
-   * The call performs scenes specified by `@PreparedBy#value()` one by one sequentially.
-   *
-   * @param preparedBy       An instnce of `@PreparedBy` annotation from which the returned `Call` is created.
-   * @param accessModelClass An access model class
-   * @param runner           A runner object by which the call is performed, eventually.
-   * @param targetMethod     A target method of an `EnsuredCall` to which returned `Call` belongs.
-   * @return A call object that corresponds to `preparedBy` annotation object.
-   */
-  private static Call annotationToEnsurer(PreparedBy preparedBy, Class<?> accessModelClass, AutotestRunner runner, Method targetMethod) {
+  private static Scene createScene(PreparedBy preparedByValue, Class<?> accessModelClass, AutotestRunner runner) {
     // defaultVariableName of Scene.Builder is only used during build process.
     // Once a scene is built, it won't be used neither by the scene nor the builder.
-    Scene.Builder b = new Scene.Builder("ANYTHING");
-    Arrays.stream(preparedBy.value())
+    Scene.Builder b = new Scene.Builder();
+    Arrays.stream(preparedByValue.value())
           .map(n -> findMethodByName(n, accessModelClass).orElseThrow(NoSuchElementException::new))
           .map(m -> methodToScene(m, runner))
           .forEach(b::add);
-    return new SceneCall(b.name("ensurer").build(),
-                         nameOf(targetMethod),
-                         resolverBundleFor(targetMethod, accessModelClass));
+    return b.name("ensurer").build();
   }
   
   private static SceneCall sceneToSceneCall(Scene scene, ResolverBundle resolverBundle, String outputVariableStoreName) {
@@ -660,6 +660,30 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     
     // Apply changes
     ctx.updateLoggers();
+  }
+  
+  private static Call methodToCall(Method method, Class<?> accessModelClass, AutotestRunner runner) {
+    PreparedBy[] preparedByAnnotations = method.getAnnotationsByType(PreparedBy.class);
+    if (preparedByAnnotations.length > 0) {
+      Scene scene;
+      return new EnsuredCall(sceneToSceneCall(scene = methodToScene(method, runner),
+                                              resolverBundleFor(scene, "xyw"),
+                                              nameOf(method)),
+                             annotationsToEnsurers(preparedByAnnotations, accessModelClass, runner, method),
+                             nameOf(method),
+                             resolverBundleFromDependenciesOf(method, accessModelClass));
+    }
+    return sceneToSceneCall(methodToScene(method, runner),
+                            resolverBundleFromDependenciesOf(method, accessModelClass),
+                            nameOf(method));
+  }
+  
+  private static List<SceneCall> annotationsToEnsurers(PreparedBy[] preparedByAnnotations, Class<?> accessModelClass, AutotestRunner runner, Method targetMethod) {
+    return Arrays.stream(preparedByAnnotations)
+                 .map(ann -> new SceneCall(createScene(ann, accessModelClass, runner),
+                                           resolverBundleFromDependenciesOf(targetMethod, accessModelClass),
+                                           nameOf(targetMethod)))
+                 .toList();
   }
   
   private static TestTemplateInvocationContext toTestTemplateInvocationContext(Entry<String, Action> actionEntry) {

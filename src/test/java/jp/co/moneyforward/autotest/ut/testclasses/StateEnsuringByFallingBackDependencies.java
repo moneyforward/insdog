@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.DEPENDENCY_BASED;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.createContext;
 
 @AutotestExecution(
     defaultExecution = @Spec(
@@ -21,7 +22,7 @@ import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.
         planExecutionWith = DEPENDENCY_BASED
     ))
 public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
-  final Context context = Context.create();
+  final Context context = createContext();
   
   @Named
   @Export({"window", "browser", "page"})

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.nop;
 import static com.github.dakusui.valid8j.Requires.requireNonNull;
 
 /**
@@ -28,7 +29,7 @@ import static com.github.dakusui.valid8j.Requires.requireNonNull;
  * @see EnsuredCall#EnsuredCall(SceneCall, List, String, ResolverBundle)  EnsuredCall
  */
 public final class EnsuredCall extends CallDecorator.Base<SceneCall> {
-  private final List<Call> ensurers;
+  private final List<SceneCall> ensurers;
   private final ResolverBundle resolverBundle;
   private final String outputVariableStoreName;
   
@@ -37,7 +38,7 @@ public final class EnsuredCall extends CallDecorator.Base<SceneCall> {
    *
    * @param target A target class to be decorated.
    */
-  public EnsuredCall(SceneCall target, List<Call> ensurers, String outputVariableStoreName, ResolverBundle resolverBundle) {
+  public EnsuredCall(SceneCall target, List<SceneCall> ensurers, String outputVariableStoreName, ResolverBundle resolverBundle) {
     super(target);
     this.ensurers = List.copyOf(requireNonNull(ensurers));
     this.outputVariableStoreName = outputVariableStoreName;
@@ -54,44 +55,33 @@ public final class EnsuredCall extends CallDecorator.Base<SceneCall> {
    *
    * @return A list of "ensurer" calls.
    */
-  public List<Call> ensurers() {
+  public List<SceneCall> ensurers() {
     return this.ensurers;
   }
   
   public Action begin() {
-    return beginCall(this);
+    return InternalUtils.action("BEGIN@" + targetCall().targetScene().name(),
+                                c -> c.assignTo(workingVariableStoreName(),
+                                                composeWorkingVariableStore(this, c)));
   }
   
   public Action end() {
-    return endCall(this);
+    return InternalUtils.action("END@" + targetCall().targetScene().name(), c -> {
+      c.assignTo(outputVariableStoreName(), c.valueOf(workingVariableStoreName()));
+      c.unassign(workingVariableStoreName());
+    });
   }
   
-  /**
-   * DUPLICATED!!
-   * Creates an action that prepares variable store for a given `SceneCall` object.
-   *
-   * @param ensuredCall A call for which a preparation action is created.
-   * @return A created Action.
-   */
-  private static Action beginCall(EnsuredCall ensuredCall) {
-    return InternalUtils.action("BEGIN@" + ensuredCall.targetCall().targetScene().name(),
-                                c -> c.assignTo(ensuredCall.workingVariableStoreName(),
-                                                composeWorkingVariableStore(ensuredCall, c)));
+  public Action beginEnsurer(Call each) {
+    return nop();
+  }
+  
+  public Action endEnsurer(Call each) {
+    return nop();
   }
   
   private String workingVariableStoreName() {
     return targetCall().targetScene().workingVariableStoreName();
-  }
-  
-  /*
-   * DUPLICATED!!
-   * Copies the map stored as "work area" to `outputFieldName` variable.
-   */
-  private static Action endCall(EnsuredCall ensuredCall) {
-    return InternalUtils.action("END@" + ensuredCall.targetCall().targetScene().name(), c -> {
-      c.assignTo(ensuredCall.outputVariableStoreName(), c.valueOf(ensuredCall.workingVariableStoreName()));
-      c.unassign(ensuredCall.workingVariableStoreName());
-    });
   }
   
   /**

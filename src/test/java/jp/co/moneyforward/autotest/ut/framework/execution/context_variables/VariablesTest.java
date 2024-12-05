@@ -66,7 +66,7 @@ public class VariablesTest extends TestBase {
                   List.of()),
         sceneCall("SCENE2",
                   List.of(actCall("y", addToListAct(out), "in")),
-                  List.of(new Resolver("in", Resolver.resolveVariable("x", "SCENE1"))))));
+                  List.of(new Resolver("in", Resolver.resolver("x", "SCENE1"))))));
     
     
     Action action = AutotestSupport.sceneToSceneCall(scene, "output", emptyResolverBundle()).toAction(createActionComposer());
@@ -95,7 +95,7 @@ public class VariablesTest extends TestBase {
                                                         List.of(x -> value(x).toBe()
                                                                              .startingWith("HELLO:")
                                                                              .containing("Scott")), "in")),
-                  List.of(new Resolver("in", Resolver.resolveVariable("x", "SCENE1"))))));
+                  List.of(new Resolver("in", Resolver.resolver("x", "SCENE1"))))));
     
     Action action = AutotestSupport.sceneToSceneCall(scene, "OUT", emptyResolverBundle()).toAction(createActionComposer());
     performAction(action, Writer.Std.OUT);
@@ -128,7 +128,7 @@ public class VariablesTest extends TestBase {
     SceneCall sceneCall2 = sceneCall("S2",
                                      List.of(actCall("var", helloAct(), "foo"),
                                              actCall("var", printlnAct(), "foo")),
-                                     List.of(new Resolver("foo", Resolver.resolveVariable("var", "S1"))));
+                                     List.of(new Resolver("foo", Resolver.resolver("var", "S1"))));
     
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
     var out1 = new Writer.Impl();
@@ -146,15 +146,15 @@ public class VariablesTest extends TestBase {
   @Test
   void action3() {
     SceneCall sceneCall1 = new SceneCall(new Scene.Builder("sceneCall1").addCall(actCall("var", let("Scott"), "NONE"))
-                                   .addCall(actCall("var", helloAct(), "var"))
-                                   .addCall(actCall("var", printlnAct(), "var"))
-                                   .build(), "S1",
-                                         emptyResolverBundle());
+                                                                        .addCall(actCall("var", helloAct(), "var"))
+                                                                        .addCall(actCall("var", printlnAct(), "var"))
+                                                                        .build(), emptyResolverBundle(), "S1"
+    );
     SceneCall sceneCall2 = new SceneCall(new Scene.Builder("sceneCall2").addCall(actCall("foo", helloAct(), "foo"))
-                                   .addCall(getStringStringAssertionActCall())
-                                   .build(), "S2",
-                                         new ResolverBundle(composeMapFrom(InternalUtils.Entry.$("foo",
-                                                                                                 context -> context.<Map<String, Object>>valueOf("S1").get("var")))));
+                                                                        .addCall(getStringStringAssertionActCall())
+                                                                        .build(), new ResolverBundle(composeMapFrom(InternalUtils.Entry.$("foo",
+                                                                                                                                context -> context.<Map<String, Object>>valueOf("S1").get("var")))), "S2"
+    );
     ReportingActionPerformer actionPerformer = createReportingActionPerformer();
     var out1 = new Writer.Impl();
     var out2 = new Writer.Impl();

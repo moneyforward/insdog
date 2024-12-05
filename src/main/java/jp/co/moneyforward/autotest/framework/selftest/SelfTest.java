@@ -1,6 +1,5 @@
 package jp.co.moneyforward.autotest.framework.selftest;
 
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.action.Scene;
@@ -10,7 +9,7 @@ import jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy;
 
 import java.util.HashMap;
 
-import static com.github.valid8j.fluent.Expectations.value;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.createContext;
 
 /**
  * A test to check if the framework works as designed.
@@ -24,7 +23,7 @@ import static com.github.valid8j.fluent.Expectations.value;
 public class SelfTest implements AutotestRunner {
   private static boolean enableAssertion = false;
   public static final String OVERRIDING_DOMAIN_NAME = "overriding.domain.name.co.jp";
-  private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(Context.create(), new HashMap<>());
+  private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(createContext(), new HashMap<>());
   
   @Named
   @Export("page")

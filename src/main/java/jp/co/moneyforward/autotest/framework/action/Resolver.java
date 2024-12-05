@@ -24,10 +24,10 @@ public record Resolver(String variableName, Function<Context, Object> resolverFu
    * Typically, this function is called by a method `resolverFor` and the `variableName` passed to it should be used as `variableNameInScene` for this method.
    *
    * @param variableName      A name of a variable whose value is to be resolved.
-   * @param variableStoreName A name of a scene from which the value is resolved.
+   * @param variableStoreName A name of a scene in which the value of the variable is resolved.
    * @return A function that gives the value of `variableNameInScene` from a `Context` object.
    */
-  public static Function<Context, Object> resolve(String variableName, String variableStoreName) {
+  public static Function<Context, Object> resolver(String variableName, String variableStoreName) {
     return Printables.function(format("resolve[%s][%s]", variableName, variableStoreName),
                                context -> context.defined(variableStoreName) ? context.<Map<String, Object>>valueOf(variableStoreName).get(variableName)
                                                                              : null);
@@ -37,12 +37,12 @@ public record Resolver(String variableName, Function<Context, Object> resolverFu
    * Returns a `Resolver` object, which resolves a value of a variable designated by `variableName` exported by a scene `sceneName`.
    * A `sceneName` must be a name of a scene, which is guaranteed to be performed one and only once during one test execution.
    *
-   * @param sceneName    A name of a scene by which `variableName` is exported.
-   * @param variableName A name of a variable to be resolved by the returned `Resolver`.
+   * @param variableName      A name of a variable to be resolved by the returned `Resolver`.
+   * @param variableStoreName A name of a scene by which `variableName` is exported.
    * @return A `Resolver` object.
    */
-  public static Resolver resolverFor(String sceneName, String variableName) {
-    return new Resolver(variableName, resolve(variableName, sceneName));
+  public static Resolver resolverFor(String variableName, String variableStoreName) {
+    return new Resolver(variableName, resolver(variableName, variableStoreName));
   }
   
   /**

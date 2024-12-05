@@ -76,7 +76,10 @@ public interface ActionComposer {
   default Action create(EnsuredCall ensuredCall) {
     Ensured.Builder b = ActionSupport.ensure(ensuredCall.targetCall().toAction(this));
     for (Call each : ensuredCall.ensurers()) {
-      b.with(each.toAction(this));
+      b.with(sequential(
+          ensuredCall.beginEnsurer(each),
+          each.toAction(this),
+          ensuredCall.endEnsurer(each)));
     }
     return sequential(concat(Stream.of(ensuredCall.begin()),
                              Stream.of(b.$()),

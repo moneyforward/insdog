@@ -26,12 +26,12 @@ public final class SceneCall implements Call, WithOid {
    * `resolverBundle` is used to compute input variable values.
    *
    * @param scene                   A scene to be performed by this call.
-   * @param outputVariableStoreName A name of variable store, to which the `scene` writes its output.
    * @param resolverBundle          A bundle of resolvers.
+   * @param outputVariableStoreName A name of variable store, to which the `scene` writes its output.
    */
   public SceneCall(Scene scene,
-                   String outputVariableStoreName,
-                   ResolverBundle resolverBundle) {
+                   ResolverBundle resolverBundle,
+                   String outputVariableStoreName) {
     this.outputVariableStoreName = requireNonNull(outputVariableStoreName);
     this.scene = requireNonNull(scene);
     this.resolverBundle = requireNonNull(resolverBundle);
@@ -98,7 +98,9 @@ public final class SceneCall implements Call, WithOid {
    * @return An action, which marks a beginning of a sequence of main actions.
    */
   public Action begin() {
-    return beginSceneCall(this);
+    return InternalUtils.action(scene.name() + "@BEGIN",
+                                c -> c.assignTo(workingVariableStoreName(),
+                                                composeWorkingVariableStore(this, c)));
   }
   
   /**
@@ -110,30 +112,15 @@ public final class SceneCall implements Call, WithOid {
    * @return An action, which marks an ending of a sequence of main actions.
    */
   public Action end() {
-    return endSceneCall(this);
-  }
-  
-  /**
-   * Creates an action that prepares variable store for a given `SceneCall` object.
-   *
-   * @param sceneCall A call for which a preparation action is created.
-   * @return A created Action.
-   */
-  private static Action beginSceneCall(SceneCall sceneCall) {
-    return InternalUtils.action("BEGIN@" + sceneCall.scene.name(),
-                                c -> c.assignTo(sceneCall.workingVariableStoreName(),
-                                                composeWorkingVariableStore(sceneCall, c)));
+    return InternalUtils.action(scene.name() + "@END", c -> {
+      c.assignTo(outputVariableStoreName(), c.valueOf(workingVariableStoreName()));
+      c.unassign(workingVariableStoreName());
+    });
   }
   
   /*
    * Copies the map stored as "work area" to `outputFieldName` variable.
    */
-  private static Action endSceneCall(SceneCall sceneCall) {
-    return InternalUtils.action("END@" + sceneCall.scene.name(), c -> {
-      c.assignTo(sceneCall.outputVariableStoreName(), c.valueOf(sceneCall.workingVariableStoreName()));
-      c.unassign(sceneCall.workingVariableStoreName());
-    });
-  }
   
   
   /**
