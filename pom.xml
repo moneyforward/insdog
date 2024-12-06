@@ -4,7 +4,7 @@
     <artifactId>insdog</artifactId>
     <packaging>jar</packaging>
 
-    <version>0.2.2</version>
+    <version>0.2.3-SNAPSHOT</version>
     <description>An action-based testing framework and library</description>
 
     <name>insdog</name>
@@ -16,7 +16,7 @@
         <developerConnection>scm:git:git@github.com:moneyforward/${project.name}.git
         </developerConnection>
         <url>http://moneyforward.github.io/${project.name}</url>
-        <tag>insdog-0.2.2</tag>
+        <tag>${project.name}-${project.version}</tag>
     </scm>
 
     <licenses>
