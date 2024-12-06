@@ -29,17 +29,15 @@ import static com.github.dakusui.valid8j.Requires.requireNonNull;
 public final class EnsuredCall extends CallDecorator.Base<SceneCall> {
   private final List<SceneCall> ensurers;
   private final ResolverBundle resolverBundle;
-  private final String outputVariableStoreName;
   
   /**
    * Creates an object of this class.
    *
    * @param target A target class to be decorated.
    */
-  public EnsuredCall(SceneCall target, List<SceneCall> ensurers, String outputVariableStoreName, ResolverBundle resolverBundle) {
+  public EnsuredCall(SceneCall target, List<SceneCall> ensurers, ResolverBundle resolverBundle) {
     super(target);
     this.ensurers = List.copyOf(requireNonNull(ensurers));
-    this.outputVariableStoreName = outputVariableStoreName;
     this.resolverBundle = resolverBundle;
   }
   
@@ -77,9 +75,5 @@ public final class EnsuredCall extends CallDecorator.Base<SceneCall> {
   
   private ResolverBundle resolverBundle() {
     return this.resolverBundle;
-  }
-  
-  private String outputVariableStoreName() {
-    return this.outputVariableStoreName;
   }
 }

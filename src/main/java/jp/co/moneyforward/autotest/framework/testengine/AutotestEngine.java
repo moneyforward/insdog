@@ -42,7 +42,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toMap;
 import static jp.co.moneyforward.autotest.framework.action.ActionComposer.createActionComposer;
-import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.resolverBundleFor;
 import static jp.co.moneyforward.autotest.framework.action.ResolverBundle.resolverBundleFromDependenciesOf;
 import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngine.Stage.*;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.composeResultMessageLine;
@@ -669,7 +668,6 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                               resolverBundleFromDependenciesOf(method, accessModelClass),
                                               nameOf(method)),
                              annotationsToEnsurers(preparedByAnnotations, accessModelClass, runner, method),
-                             nameOf(method),
                              resolverBundleFromDependenciesOf(method, accessModelClass));
     }
     return sceneToSceneCall(methodToScene(method, runner),
