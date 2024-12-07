@@ -12,6 +12,7 @@ import com.github.dakusui.actionunit.core.Action;
  * Otherwise,
  *
  * @see Act
+ * @see Scene
  */
 public sealed interface Call permits ActCall, CallDecorator, SceneCall {
   /**

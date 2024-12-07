@@ -16,6 +16,7 @@ import java.util.List;
 import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.forms.Predicates.containsString;
 import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.actCall;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.createContext;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.helloAct;
 import static jp.co.moneyforward.autotest.ututils.ActUtils.let;
 import static jp.co.moneyforward.autotest.ututils.ActionUtils.createActionComposer;
@@ -51,7 +52,7 @@ public class SceneTest extends TestBase {
     Scene scene = new Scene.Builder("scene").add("out", helloAct(), "in").build();
     
     List<String> out = new LinkedList<>();
-    Context context = Context.create();
+    Context context = createContext();
     final var sceneCall = AutotestSupport.sceneToSceneCall(scene, "OUT",
                                                            new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
     ActionUtils.performAction(createActionComposer().create(sceneCall),
@@ -75,7 +76,7 @@ public class SceneTest extends TestBase {
         .add(new Scene.Builder("inner").add("out", helloAct(), "in").build())
         .build();
     List<String> out = new LinkedList<>();
-    Context context = Context.create();
+    Context context = createContext();
     final var sceneCall = AutotestSupport.sceneToSceneCall(scene, "OUT",
                                                            new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
     
@@ -101,7 +102,7 @@ public class SceneTest extends TestBase {
         .add(new Scene.Builder("inner1").add(new Scene.Builder("inner").add("out", helloAct(), "in").build()).build())
         .build();
     List<String> out = new LinkedList<>();
-    Context context = Context.create();
+    Context context = createContext();
     final var sceneCall = AutotestSupport.sceneToSceneCall(scene, "OUT",
                                                            new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
     
@@ -127,7 +128,7 @@ public class SceneTest extends TestBase {
         .add(new Scene.Builder("inner").retry(actCall("out", helloAct(), "in")).build())
         .build();
     List<String> out = new LinkedList<>();
-    Context context = Context.create();
+    Context context = createContext();
     final var sceneCall = AutotestSupport.sceneToSceneCall(scene, "OUT",
                                                            new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
     
@@ -154,7 +155,7 @@ public class SceneTest extends TestBase {
         .add(new Scene.Builder("inner").retry(Scene.fromActs("in", helloAct())).build())
         .build();
     List<String> out = new LinkedList<>();
-    Context context = Context.create();
+    Context context = createContext();
     final var sceneCall = AutotestSupport.sceneToSceneCall(scene, "OUT",
                                                            new ResolverBundle(List.of(new Resolver("in", c -> "Scott Tiger"))));
     

@@ -3,6 +3,7 @@ package jp.co.moneyforward.autotest.framework.utils;
 import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.osynth.core.utils.MethodUtils;
 import com.github.valid8j.pcond.forms.Printables;
 import jp.co.moneyforward.autotest.framework.core.AutotestException;
@@ -198,6 +199,29 @@ public enum InternalUtils {
       return Stream.concat(streams[0], streams[1]);
     else
       return Stream.concat(streams[0], concat(Arrays.copyOfRange(streams, 1, streams.length)));
+  }
+  
+  /**
+   * Returns an action context for InsDog.
+   * The returned context is designed to print a proper message when each value in the action context is a variable store.
+   *
+   * @return A created context.
+   */
+  public static Context createContext() {
+    class InsDogContext extends Context.Impl {
+      @Override
+      public <V> V valueOf(String variableStoreName) {
+        try {
+          return super.valueOf(variableStoreName);
+        } catch (NoSuchElementException e) {
+          String message = "Variable Store: <" + variableStoreName + "> not found. ";
+          LOGGER.error(message);
+          LOGGER.debug("Caused by: <" + e.getMessage() + ">", e);
+          throw wrap(new Exception(message + ": Caused by: <" + e.getMessage() + ">"));
+        }
+      }
+    }
+    return new InsDogContext();
   }
   
   /**

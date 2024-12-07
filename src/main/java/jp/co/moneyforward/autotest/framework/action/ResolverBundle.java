@@ -5,7 +5,6 @@ import jp.co.moneyforward.autotest.framework.annotations.DependsOn;
 import jp.co.moneyforward.autotest.framework.annotations.Export;
 import jp.co.moneyforward.autotest.framework.annotations.PreparedBy;
 import jp.co.moneyforward.autotest.framework.annotations.When;
-import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.lang.annotation.Annotation;
@@ -14,7 +13,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngine.findMethodByName;
 
@@ -41,23 +39,35 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
    * @param resolvers A list of resolvers from which an object of this class will be created.
    */
   public ResolverBundle(List<Resolver> resolvers) {
-    this(resolverToMap(resolvers));
+    this(resolversToMap(resolvers));
   }
   
   /**
-   * Returns a resolver bundle object which figures out variable values for a given `Scene`.
+   * Returns a resolver bundle object which figures out both input and output variable values for a given `Scene`.
    * The variables are looked up from a variable store specified by the argument `variableStoreName`.
+   *
+   * For each input or output variable, a resolver will be created, and it will be an element of the returned bundle.
    *
    * @param scene             A scene for which resolver bundle is created.
    * @param variableStoreName A name of variable store, where variable values are looked up.
    * @return A new resolver bundle.
    */
   public static ResolverBundle resolverBundleFor(Scene scene, String variableStoreName) {
-    return new ResolverBundle(variableResolversFor(scene, variableStoreName));
+    return new ResolverBundle(createVariableResolversFor(scene, variableStoreName));
   }
   
-  public static ResolverBundle resolverBundleFor(Method targetMethod, Class<?> accessModelClass) {
-    return new ResolverBundle(variableResolversFor(targetMethod, accessModelClass));
+  /**
+   * Returns a resolver bundle which is necessary for creating a new `SceneCall` call from a `Scene` defined by
+   * `targetMethod`.
+   *
+   * @param targetMethod     A method which creates a `Scene`.
+   * @param accessModelClass A class to which `targetMethod` belongs and from which dependencies of `target` method are
+   *                         searched.
+   * @return A resolver bundle for a `Scene` created by `targetMethod`.
+   */
+  public static ResolverBundle resolverBundleFromDependenciesOf(Method targetMethod, Class<?> accessModelClass) {
+    assert Scene.class.isAssignableFrom(targetMethod.getReturnType());
+    return new ResolverBundle(resolversFromDependenciesOf(targetMethod, accessModelClass));
   }
   
   /**
@@ -82,12 +92,12 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
    *                          which are used by the scene.
    * @return A list of variable resolvers.
    */
-  private static List<Resolver> variableResolversFor(Scene scene, String variableStoreName) {
-    return Resolver.resolversFor(variableStoreName,
-                                 Stream.concat(scene.inputVariableNames().stream(),
+  private static List<Resolver> createVariableResolversFor(Scene scene, String variableStoreName) {
+    return Resolver.resolversFor(Stream.concat(scene.inputVariableNames().stream(),
                                                scene.outputVariableNames().stream())
                                        .distinct()
-                                       .toList());
+                                       .toList(), variableStoreName
+    );
   }
   
   /**
@@ -102,78 +112,81 @@ public class ResolverBundle extends HashMap<String, Function<Context, Object>> {
    * @param accessModelClass An access model class to which method belongs.
    * @return A list of resolvers that a scene returned by `method` requires.
    */
-  private static List<Resolver> variableResolversFor(Method method, Class<?> accessModelClass) {
-    return InternalUtils.concat(variableResolversFor(method,
-                                                     accessModelClass,
-                                                     DependsOn.class,
-                                                     m -> m.getAnnotation(DependsOn.class).value()).stream(),
-                                variableResolversFor(method,
-                                                     accessModelClass,
-                                                     When.class,
-                                                     m -> m.getAnnotation(When.class).value()).stream(),
-                                variableResolversFor(method,
-                                                     accessModelClass,
-                                                     PreparedBy.class,
-                                                     m -> Arrays.stream(m.getAnnotationsByType(PreparedBy.class))
-                                                                .flatMap(a -> Arrays.stream(a.value()))
-                                                                .toArray(String[]::new)).stream())
-                        .toList();
+  private static List<Resolver> resolversFromDependenciesOf(Method method, Class<?> accessModelClass) {
+    return InternalUtils.concat(variableResolversFor(annotationValuesOf(method, PreparedBy.class, PreparedBy::value), accessModelClass).stream(),
+                                variableResolversFor(annotationValuesOf(method, DependsOn.class, DependsOn::value), accessModelClass).stream(),
+                                variableResolversFor(annotationValuesOf(method, When.class, When::value), accessModelClass).stream()).toList();
+  }
+  
+  private static <A extends Annotation> String[] annotationValuesOf(Method method, Class<A> annotationClass, Function<A, String[]> func) {
+    A[] annotationsByType = method.getAnnotationsByType(annotationClass);
+    if (annotationsByType.length == 0)
+      return new String[0];
+    return Arrays.stream(annotationsByType).flatMap(a -> Arrays.stream(func.apply(a))).toArray(String[]::new);
   }
   
   /**
+   * Returns a list of variable resolvers (`Resolver`) for scenes specified by their names (`sceneNames).
+   *
    * Creates variable resolvers for a scene created from a method `m`.
    *
    * The scene created by `m` will be called "scene `m`" in this description, hereafter.
    * Variable resolvers created based on annotations specified by `dependencyAnnotationClass`, which is usually `@DependsOn`.
    *
-   * @param m                         A method to create a scene, for which resolvers are created.
-   * @param accessModelClass          An access model class that defines a set of scene creating methods, on which `m` potentially depends.
-   * @param dependencyAnnotationClass Annotation class which holds dependency scenes.
-   * @param dependenciesResolver      A function that returns names of scenes on which scene `m` depends.
+   * @param sceneNames       Scenes for which variable resolvers are searched, created, and returned.
+   * @param accessModelClass An access model class that defines a set of scene creating methods, on which `m` potentially depends.
    * @return Resolvers for a scene created by `m`.
+   * @see Resolver
    */
-  private static List<Resolver> variableResolversFor(Method m,
-                                                     Class<?> accessModelClass,
-                                                     Class<? extends Annotation> dependencyAnnotationClass,
-                                                     Function<Method, String[]> dependenciesResolver) {
-    if (m.getAnnotationsByType(dependencyAnnotationClass).length == 0)
+  private static List<Resolver> variableResolversFor(String[] sceneNames, Class<?> accessModelClass) {
+    if (sceneNames.length == 0)
       return emptyList();
-    return variableResolversFor(dependenciesResolver.apply(m),
-                                dependencySceneName -> exportedVariablesOf(findMethodByName(dependencySceneName, accessModelClass).orElseThrow(() -> messageForNoSuchMethod(accessModelClass, dependencySceneName))));
-  }
-  
-  private static NoSuchElementException messageForNoSuchMethod(Class<?> accessModelClass, String dependencySceneName) {
-    return new NoSuchElementException(String.format("A method named:'%s' was not found in class:'%s'",
-                                                    dependencySceneName,
-                                                    accessModelClass.getCanonicalName()));
+    return variableResolversFor(sceneNames,
+                                dependencySceneName -> exportedVariablesOf(methodForName(dependencySceneName, accessModelClass)));
   }
   
   /**
    * Returns `Resolver`s for variables exported by scenes specified by `sceneNames`.
    * A resolver in the list returns a value of a variable defined in a scene that exports it with the same name.
    *
-   * @param sceneNames        Names of `Scene`s.
-   * @param exportedVariables A function that returns a list of export variables for a scene specified as a parameter.
+   * @param sceneNames                    Names of `Scene`s.
+   * @param exportedVariableNamesResolver A function that returns a list of exported variable names by a scene specified as a parameter.
    * @return `Resolver`s for variables exported by specified scenes.
    */
   private static List<Resolver> variableResolversFor(String[] sceneNames,
-                                                     Function<String, List<String>> exportedVariables) {
+                                                     Function<String, List<String>> exportedVariableNamesResolver) {
     return Arrays.stream(sceneNames)
-                 .flatMap((String sceneName) -> exportedVariables.apply(sceneName)
-                                                                 .stream()
-                                                                 .map((String n) -> Resolver.resolverFor(sceneName, n)))
+                 .flatMap((String sceneName) -> exportedVariablesResolversOf(sceneName, exportedVariableNamesResolver).stream())
                  .toList();
+  }
+  
+  private static List<Resolver> exportedVariablesResolversOf(String sceneName, Function<String, List<String>> exportedVariablesNamesResolver) {
+    return exportedVariablesNamesResolver.apply(sceneName)
+                                         .stream()
+                                         .map((String variableNane) -> Resolver.resolverFor(variableNane, sceneName)).toList();
   }
   
   private static List<String> exportedVariablesOf(Method method) {
     return List.of(method.getAnnotation(Export.class).value());
   }
   
-  private static Map<String, Function<Context, Object>> resolverToMap(List<Resolver> resolvers) {
+  private static Map<String, Function<Context, Object>> resolversToMap(List<Resolver> resolvers) {
     Map<String, Function<Context, Object>> resolverMap = new HashMap<>();
     for (Resolver resolver : resolvers) {
       resolverMap.put(resolver.variableName(), resolver.resolverFunction());
     }
     return resolverMap;
+  }
+  
+  private static Method methodForName(String methodName, Class<?> classObject) {
+    return findMethodByName(methodName,
+                            classObject).orElseThrow(() -> messageForNoSuchMethod(classObject, methodName));
+  }
+  
+  
+  private static NoSuchElementException messageForNoSuchMethod(Class<?> accessModelClass, String dependencySceneName) {
+    return new NoSuchElementException(String.format("A method named:'%s' was not found in class:'%s'",
+                                                    dependencySceneName,
+                                                    accessModelClass.getCanonicalName()));
   }
 }

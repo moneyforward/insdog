@@ -16,12 +16,14 @@ public enum AutotestSupport {
   /**
    * Returns a `Call` object for a given `scene`.
    *
-   * This method internally calls `sceneCall(String,Scene,ResolverBundle)`.
+   * This method internally calls `new SceneCall(Scene, String, ResolverBundle)`.
    * A `ResolverBundle` is created from `scene.inputVariableNames()` and `scene.outputVariableNames()`.
    *
    * @param scene             A scene for which a call is created.
    * @param variableStoreName A name of a variable store in which the `scene` is performed.
+   *                          variables are resolved in the variable store specified by this parameter.
    * @return A created `SceneCall` object.
+   * @see SceneCall
    */
   public static SceneCall sceneToSceneCall(Scene scene, String variableStoreName) {
     return sceneToSceneCall(scene,
@@ -42,7 +44,7 @@ public enum AutotestSupport {
    * @return A `SceneCall` object for `scene`.
    */
   public static SceneCall sceneToSceneCall(Scene scene, String outputVariableStoreName, ResolverBundle resolverBundle) {
-    return new SceneCall(scene, outputVariableStoreName, resolverBundle);
+    return new SceneCall(scene, resolverBundle, outputVariableStoreName);
   }
   
   /**
