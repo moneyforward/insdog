@@ -103,6 +103,11 @@ public interface Scene extends WithOid {
                .toList();
   }
   
+  /**
+   * Returns a list of variables that are accessed by child scenes of this object.
+   *
+   * @return A list of variables that are accessed by child scenes of this object.
+   */
   default List<String> inputVariableNames() {
     return this.children()
                .stream()
@@ -171,6 +176,11 @@ public interface Scene extends WithOid {
       this.defaultVariableName = defaultVariableName;
     }
     
+    /**
+     * Creates an instance of this class.
+     * If you add an act to this object without explicitly specifying variable name with which the act interacts,
+     * a `NullPointerException` will be thrown.
+     */
     public Builder() {
       this(null);
     }
@@ -179,7 +189,6 @@ public interface Scene extends WithOid {
       this.name = requireNonNull(name);
       return this;
     }
-    
     
     /**
      * A "syntax-sugar" method to group a sequence of method calls to this `Builder` object.
