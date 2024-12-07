@@ -8,8 +8,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * An annotation to let the framework know an access-model method should be closed by an action specified by the method name.
+ * This annotation should be attached to methods for "arrangement" phase, not for "act" (test) methods.
  *
- * This annotation is used only when the `PlanningStrategy#DEPENDENCY_BASED` is activated and usually attached to methods for test results checking.
+ * This annotation is activated only when the `PlanningStrategy#DEPENDENCY_BASED` is activated and usually attached to methods for test results checking.
  *
  * @see PlanningStrategy#DEPENDENCY_BASED
  */

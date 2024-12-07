@@ -13,8 +13,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.retry;
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.valid8j.Requires.requireNonNull;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
 
@@ -74,7 +73,7 @@ public interface ActionComposer {
   }
   
   default Action create(EnsuredCall ensuredCall) {
-    Ensured.Builder b = ActionSupport.ensure(ensuredCall.targetCall().toAction(this));
+    Ensured.Builder b = ensure(ensuredCall.targetCall().toAction(this));
     for (Call each : ensuredCall.ensurers()) {
       b.with(each.toAction(this));
     }
@@ -129,7 +128,8 @@ public interface ActionComposer {
       LOGGER.debug("ENTERING: {}:{}", targetSceneName, actName);
       try {
         var v = act.perform(inputVariableResolver.apply(c), executionEnvironment);
-        ongoingSceneCall.workingVariableStore(c).put(outputVariableName, v);
+        ongoingSceneCall.workingVariableStore(c)
+                        .put(outputVariableName, v);
       } catch (Error | RuntimeException e) {
         LOGGER.error(e.getMessage());
         LOGGER.debug(e.getMessage(), e);

@@ -9,6 +9,8 @@ import jp.co.moneyforward.autotest.ut.framework.scene.SceneTest;
 
 import java.util.HashMap;
 
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.createContext;
+
 public enum ActionUtils {
   ;
   
@@ -17,7 +19,7 @@ public enum ActionUtils {
   }
   
   public static void performAction(Action action, Writer writer) {
-    performAction(action, Context.create(), writer);
+    performAction(action, createContext(), writer);
   }
   
   public static void performAction(Action action, ReportingActionPerformer reportingActionPerformer, Writer writer) {
@@ -28,7 +30,7 @@ public enum ActionUtils {
   }
   
   public static ReportingActionPerformer createReportingActionPerformer() {
-    return createReportingActionPerformer(Context.create());
+    return createReportingActionPerformer(createContext());
   }
   
   public static ReportingActionPerformer createReportingActionPerformer(Context context) {

@@ -40,3 +40,4 @@ spec:
   dependsOn:
   - Component:mddoclet
   - Component:mfdoc
+  - Component:mavenpkg

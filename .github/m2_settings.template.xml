@@ -1,7 +1,7 @@
 <settings>
     <servers>
         <server>
-            <id>github</id>
+            <id>github-mavenpkg</id>
             <username>${GH_USERNAME}</username>
             <password>${GH_PAT}</password>
         </server>
@@ -11,8 +11,8 @@
             <id>github</id>
             <repositories>
                 <repository>
-                    <id>github</id>
-                    <url>https://maven.pkg.github.com/moneyforward/mddoclet</url>
+                    <id>github-mavenpkg</id>
+                    <url>https://maven.pkg.github.com/moneyforward/mavenpkg</url>
                 </repository>
             </repositories>
         </profile>

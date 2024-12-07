@@ -1,15 +1,20 @@
 package jp.co.moneyforward.autotest.ut.testclasses;
 
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.framework.action.Act;
+import jp.co.moneyforward.autotest.framework.action.ActCall;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution.Spec;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
 
+import java.util.LinkedHashMap;
+import java.util.Objects;
 import java.util.function.Function;
 
 import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.DEPENDENCY_BASED;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.createContext;
 
 @AutotestExecution(
     defaultExecution = @Spec(
@@ -17,44 +22,48 @@ import static jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy.
         planExecutionWith = DEPENDENCY_BASED
     ))
 public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
+  final Context context = createContext();
   
   @Named
-  @Export
+  @Export({"window", "browser", "page"})
   @ClosedBy("closeExecutionSession")
   public Scene openExecutionSession() {
     return Scene.create("openPageSession",
-                        act("openWindow"),
-                        act("openBrowser"));
+                        call("window", act("openWindow", v -> "WindowObject")),
+                        call("browser", act("openBrowser", v -> "BrowserObject")),
+                        call("page", act("openPage", v -> "PageObject")));
   }
   
   @Named
+  @DependsOn("openExecutionSession")
   public Scene closeExecutionSession() {
     return Scene.create("closeExecutionSession",
-                        act("closeBrowser"),
-                        act("closeWindow"));
+                        call("browser", act("closeBrowser", Objects::requireNonNull)),
+                        call("window", act("closeWindow", Objects::requireNonNull)));
   }
   
   @Named
-  @Export
+  @Export({"page"})
   @DependsOn("openExecutionSession")
   public Scene toHomeScreen() {
-    return Scene.create("toHome", act("goToHomeScreenByDirectlyEnteringUrl"));
+    return Scene.create("toHome",
+                        call("page", act("goToHomeScreenByDirectlyEnteringUrl", v -> Objects.requireNonNull(v))));
   }
   
   @Named
-  @Export
+  @Export({"page"})
   @DependsOn("openExecutionSession")
   public Scene loadLoginSession() {
     return Scene.create("loadLoginSession",
-                        act("loadLoginSessionFromFile"));
+                        call("page", act("loadLoginSessionFromFile", Objects::requireNonNull)));
   }
   
   @Named
-  @Export
+  @Export("page")
   @DependsOn("openExecutionSession")
   public Scene saveLoginSession() {
     return Scene.create("saveLoginSession",
-                        act("saveLoginSessionToFile"));
+                        call("page", act("saveLoginSessionToFile", Objects::requireNonNull)));
   }
   
   /**
@@ -65,54 +74,67 @@ public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
    * @return A scene that performs "login"
    */
   @Named
-  @Export
+  @Export("page")
   @DependsOn("openExecutionSession")
   public Scene login() {
     return Scene.create("login",
-                        act("enterUsername"),
-                        act("enterPassword"),
-                        act("clickLogin"),
-                        act("enterTOTP"),
-                        act("submit"));
+                        call("page", act("enterUsername", Objects::requireNonNull)),
+                        call("page", act("enterPassword", Objects::requireNonNull)),
+                        call("page", act("clickLogin", Objects::requireNonNull)),
+                        call("page", act("enterTOTP", Objects::requireNonNull)),
+                        call("page", act("submit", Objects::requireNonNull)));
   }
   
   @Named
-  @Export
+  @Export("page")
   @DependsOn("openExecutionSession")
+//  /*
   @PreparedBy({"toHomeScreen"})
   @PreparedBy({"loadLoginSession", "toHomeScreen"})
   @PreparedBy({"login", "saveLoginSession"})
+//   */
   public Scene isLoggedIn() {
-    return Scene.create("isLoggedIn", act("checkIfIamOnHomeScreen"));
+    return Scene.create("isLoggedIn", call("page", act("checkIfIamOnHomeScreen", Objects::requireNonNull)));
   }
   
   @Named
+  @Export("page")
   @DependsOn("isLoggedIn")
   public Scene connect() {
-    return Scene.create("connect", act("connectBank"));
+    return Scene.create("connect", call("page", act("connectBank", Objects::requireNonNull)));
   }
   
   @Named
+  @Export("page")
   @DependsOn("isLoggedIn")
   public Scene disconnect() {
-    return Scene.create("disconnect", act("disconnectBank"));
+    return Scene.create("disconnect", call("page", act("disconnectBank")));
   }
   
+  @Export("page")
   @Named
   public Scene logout() {
-    return Scene.create("logout", act("loggingOut"));
+    return Scene.create("logout", call("page", act("loggingOut")));
   }
   
   @Override
   public ReportingActionPerformer actionPerformer() {
-    return ReportingActionPerformer.create();
+    return new ReportingActionPerformer(context, new LinkedHashMap<>());
   }
   
-  private static Act<Object, Object> act(String description) {
-    return Act.create(description, emptyFunction(description));
+  private static <T> ActCall<T, T> call(String varName, Act<T, T> act) {
+    return new ActCall<>(varName, act, varName);
   }
   
-  private static Function<Object, Object> emptyFunction(String description) {
+  private static <T> Act<T, T> act(String description) {
+    return act(description, emptyFunction(description));
+  }
+  
+  private static <T> Act<T, T> act(String description, Function<T, T> function) {
+    return Act.create(description, function);
+  }
+  
+  private static <T> Function<T, T> emptyFunction(String description) {
     return x -> {
       System.out.println(description);
       return x;
