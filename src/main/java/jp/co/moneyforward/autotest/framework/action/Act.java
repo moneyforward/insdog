@@ -76,9 +76,20 @@ public interface Act<T, R> {
     
   }
   
+  /**
+   * An act that models a function whose input is `T` and output is `R`
+   *
+   * @param <T> Input type
+   * @param <R> Output type
+   */
   class Func<T, R> implements Act<T, R> {
     private final Function<T, R> main;
     
+    /**
+     * Creates an object of this class from a given function `func`.
+     *
+     * @param func A function from which a new object is created.
+     */
     public Func(Function<T, R> func) {
       this.main = func;
     }
@@ -118,6 +129,13 @@ public interface Act<T, R> {
       this("sink", sink);
     }
     
+    /**
+     * Creates an object of this class from a given consumer `sink`.
+     * The sink is made printable using a string `name`.
+     *
+     * @param name A name of a consumer. Used on `toString`.
+     * @param sink A consumer from which a new object is created.
+     */
     public Sink(String name, Consumer<T> sink) {
       super(Printables.function(name, (T value) -> {
         sink.accept(value);
