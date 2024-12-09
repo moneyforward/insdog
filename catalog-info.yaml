@@ -3,6 +3,10 @@ kind: Component
 metadata:
   name: insdog
   description: "InspektorDog: A tool and framework for testing applications"
+  tags:
+    - java
+    - versatile testing framework
+    - insdog
   annotations:
     github.com/project-slug: moneyforward/insdog
     backstage.io/techdocs-ref: url:https://github.com/moneyforward/insdog/tree/techdocs
