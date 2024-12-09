@@ -5,7 +5,9 @@ metadata:
   description: "InspektorDog: A tool and framework for testing applications"
   tags:
     - java
-    - versatile testing framework
+    - testing
+    - framework
+    - versatile
     - insdog
   annotations:
     github.com/project-slug: moneyforward/insdog
