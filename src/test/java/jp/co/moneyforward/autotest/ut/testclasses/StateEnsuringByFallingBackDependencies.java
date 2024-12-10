@@ -24,46 +24,62 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.createCo
 public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
   final Context context = createContext();
   
+  /**
+   * Creates a scene object from a given name and acts.
+   *
+   * @param sceneName A name of the created scene.
+   * @param acts      acts to be added to the returned scene.
+   * @return A created scene.
+   */
+  @SafeVarargs
+  public static <T> Scene sceneFromActCalls(String sceneName, ActCall<T, T>... acts) {
+    Scene.Builder builder = new Scene.Builder().name(sceneName);
+    for (ActCall<T, T> eachCall : acts) {
+      builder.addCall(eachCall);
+    }
+    return builder.build();
+  }
+  
   @Named
   @Export({"window", "browser", "page"})
   @ClosedBy("closeExecutionSession")
   public Scene openExecutionSession() {
-    return Scene.create("openPageSession",
-                        call("window", act("openWindow", v -> "WindowObject")),
-                        call("browser", act("openBrowser", v -> "BrowserObject")),
-                        call("page", act("openPage", v -> "PageObject")));
+    return sceneFromActCalls("openPageSession",
+                             call("window", act("openWindow", v -> "WindowObject")),
+                             call("browser", act("openBrowser", v -> "BrowserObject")),
+                             call("page", act("openPage", v -> "PageObject")));
   }
   
   @Named
   @DependsOn("openExecutionSession")
   public Scene closeExecutionSession() {
-    return Scene.create("closeExecutionSession",
-                        call("browser", act("closeBrowser", Objects::requireNonNull)),
-                        call("window", act("closeWindow", Objects::requireNonNull)));
+    return sceneFromActCalls("closeExecutionSession",
+                             call("browser", act("closeBrowser", Objects::requireNonNull)),
+                             call("window", act("closeWindow", Objects::requireNonNull)));
   }
   
   @Named
   @Export({"page"})
   @DependsOn("openExecutionSession")
   public Scene toHomeScreen() {
-    return Scene.create("toHome",
-                        call("page", act("goToHomeScreenByDirectlyEnteringUrl", v -> Objects.requireNonNull(v))));
+    return sceneFromActCalls("toHome",
+                             call("page", act("goToHomeScreenByDirectlyEnteringUrl", v -> Objects.requireNonNull(v))));
   }
   
   @Named
   @Export({"page"})
   @DependsOn("openExecutionSession")
   public Scene loadLoginSession() {
-    return Scene.create("loadLoginSession",
-                        call("page", act("loadLoginSessionFromFile", Objects::requireNonNull)));
+    return sceneFromActCalls("loadLoginSession",
+                             call("page", act("loadLoginSessionFromFile", Objects::requireNonNull)));
   }
   
   @Named
   @Export("page")
   @DependsOn("openExecutionSession")
   public Scene saveLoginSession() {
-    return Scene.create("saveLoginSession",
-                        call("page", act("saveLoginSessionToFile", Objects::requireNonNull)));
+    return sceneFromActCalls("saveLoginSession",
+                             call("page", act("saveLoginSessionToFile", Objects::requireNonNull)));
   }
   
   /**
@@ -77,12 +93,12 @@ public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
   @Export("page")
   @DependsOn("openExecutionSession")
   public Scene login() {
-    return Scene.create("login",
-                        call("page", act("enterUsername", Objects::requireNonNull)),
-                        call("page", act("enterPassword", Objects::requireNonNull)),
-                        call("page", act("clickLogin", Objects::requireNonNull)),
-                        call("page", act("enterTOTP", Objects::requireNonNull)),
-                        call("page", act("submit", Objects::requireNonNull)));
+    return sceneFromActCalls("login",
+                             call("page", act("enterUsername", Objects::requireNonNull)),
+                             call("page", act("enterPassword", Objects::requireNonNull)),
+                             call("page", act("clickLogin", Objects::requireNonNull)),
+                             call("page", act("enterTOTP", Objects::requireNonNull)),
+                             call("page", act("submit", Objects::requireNonNull)));
   }
   
   @Named
@@ -94,27 +110,27 @@ public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
   @PreparedBy({"login", "saveLoginSession"})
 //   */
   public Scene isLoggedIn() {
-    return Scene.create("isLoggedIn", call("page", act("checkIfIamOnHomeScreen", Objects::requireNonNull)));
+    return sceneFromActCalls("isLoggedIn", call("page", act("checkIfIamOnHomeScreen", Objects::requireNonNull)));
   }
   
   @Named
   @Export("page")
   @DependsOn("isLoggedIn")
   public Scene connect() {
-    return Scene.create("connect", call("page", act("connectBank", Objects::requireNonNull)));
+    return sceneFromActCalls("connect", call("page", act("connectBank", Objects::requireNonNull)));
   }
   
   @Named
   @Export("page")
   @DependsOn("isLoggedIn")
   public Scene disconnect() {
-    return Scene.create("disconnect", call("page", act("disconnectBank")));
+    return sceneFromActCalls("disconnect", call("page", act("disconnectBank")));
   }
   
   @Export("page")
   @Named
   public Scene logout() {
-    return Scene.create("logout", call("page", act("loggingOut")));
+    return sceneFromActCalls("logout", call("page", act("loggingOut")));
   }
   
   @Override

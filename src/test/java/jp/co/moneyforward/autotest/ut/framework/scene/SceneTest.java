@@ -24,8 +24,16 @@ import static jp.co.moneyforward.autotest.ututils.ActionUtils.createActionCompos
 public class SceneTest extends TestBase {
   
   @Test
-  void whenSceneByChainingActs() {
-    Scene scene = Scene.fromActs("testField", helloAct(), helloAct());
+  void whenSceneWithVariableNameByChainingActs() {
+    Scene scene = Scene.create("testField", helloAct(), helloAct());
+    
+    assertAll(value(scene).toBe().notNull(),
+              value(scene.children()).size().toBe().equalTo(2));
+  }
+  
+  @Test
+  void whenSceneWithoutByChainingActs() {
+    Scene scene = Scene.create(helloAct(), helloAct());
     
     assertAll(value(scene).toBe().notNull(),
               value(scene.children()).size().toBe().equalTo(2));
@@ -152,7 +160,7 @@ public class SceneTest extends TestBase {
   @Test
   void givenNestedSceneWithRetry_whenPerformed_thenActionTreeLooksCorrect() {
     Scene scene = new Scene.Builder("scene")
-        .add(new Scene.Builder("inner").retry(Scene.fromActs("in", helloAct())).build())
+        .add(new Scene.Builder("inner").retry(Scene.create("in", helloAct())).build())
         .build();
     List<String> out = new LinkedList<>();
     Context context = createContext();

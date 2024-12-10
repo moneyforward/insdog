@@ -34,12 +34,13 @@ public interface Scene extends WithOid {
   
   /**
    * Creates a scene by chaining acts.
+   * When you need to handle multiple variables, use {@link Scene.Builder} directly.
    *
    * @param variableName A variable chained acts read input value from and write output value to.
    * @param acts         Acts from which a scene is created.
    * @return Created scene.
    */
-  static Scene fromActs(String variableName, Act<?, ?>... acts) {
+  static Scene create(String variableName, Act<?, ?>... acts) {
     Scene.Builder b = new Builder(variableName);
     for (Act<?, ?> act : acts) {
       b.add(act);
@@ -48,19 +49,16 @@ public interface Scene extends WithOid {
   }
   
   /**
-   * Creates a scene object from a given name and acts.
+   * Creates a scene by chaining acts.
+   * This method internally calls {@link Scene#create(String, Act[])} using {@link Scene#DEFAULT_DEFAULT_VARIABLE_NAME} as a `variableName`.
    *
-   * @param sceneName A name of the created scene.
-   * @param acts      acts to be added to the returned scene.
-   * @return A created scene.
+   * When you need to handle other variables, use {@link Scene#create(String, Act[])} or {@link Scene.Builder}, instead.
+   *
+   * @param acts Acts from which a scene is created.
+   * @return Created scene.
    */
-  @SafeVarargs
-  static <T> Scene create(String sceneName, ActCall<T, T>... acts) {
-    Builder builder = new Builder().name(sceneName);
-    for (ActCall<T, T> eachCall : acts) {
-      builder.addCall(eachCall);
-    }
-    return builder.build();
+  static Scene create(Act<?, ?>... acts) {
+    return create(Scene.DEFAULT_DEFAULT_VARIABLE_NAME, acts);
   }
   
   /**
