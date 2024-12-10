@@ -25,6 +25,14 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.simpleCl
  */
 public interface Scene extends WithOid {
   /**
+   * A default value of default variable name for `Scene.Builder` and `@Export`.
+   * This value is currently defined `page` for historical reason.
+   * However, **InspektorDog** is designed not only for GUI end-to-end test, but a general purpose testing framework.
+   * The value should be changed to a more context neutral keyword, such as `var` or `session`.
+   */
+  String DEFAULT_DEFAULT_VARIABLE_NAME = "page";
+  
+  /**
    * Creates a scene by chaining acts.
    *
    * @param variableName A variable chained acts read input value from and write output value to.
@@ -182,7 +190,7 @@ public interface Scene extends WithOid {
      * a `NullPointerException` will be thrown.
      */
     public Builder() {
-      this(null);
+      this(DEFAULT_DEFAULT_VARIABLE_NAME);
     }
     
     public Builder name(String name) {
