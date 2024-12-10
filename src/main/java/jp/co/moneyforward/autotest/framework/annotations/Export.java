@@ -1,10 +1,13 @@
 package jp.co.moneyforward.autotest.framework.annotations;
 
+import jp.co.moneyforward.autotest.framework.action.Scene;
+
 import java.lang.annotation.Retention;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
+ * // @formatter:off
  * An annotation to specify the fields that can be used by other scenes.
  *
  * ```java
@@ -25,6 +28,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * The method with this annotation can be referenced by other method (`bMethod`) using `@DependsOn` annotation.
  * The scene in the referencing method can access fields written by a scene in referenced method (`aMethod`).
+ * // @formatter:on
  */
 @Retention(RUNTIME)
 public @interface Export {
@@ -33,5 +37,5 @@ public @interface Export {
    *
    * @return Exported variable names.
    */
-  String[] value() default {};
+  String[] value() default {Scene.DEFAULT_DEFAULT_VARIABLE_NAME};
 }
