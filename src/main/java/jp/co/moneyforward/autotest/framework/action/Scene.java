@@ -33,6 +33,30 @@ public interface Scene extends WithOid {
   String DEFAULT_DEFAULT_VARIABLE_NAME = "page";
   
   /**
+   * // @formatter:off
+   * A synonym of `new Scene.Builder()`.
+   * Use this in combination with `Scene#end()` so that your code looks like:
+   *
+   * ```java
+   * class YourClass {
+   *   void method() {
+   *     Scene.begin()
+   *          .add(yourAct())
+   *          .assertion(s -> s.then().looksOkay())
+   *          .end()
+   *   }
+   * }
+   * ```
+   *
+   * // @formatter:on
+   *
+   * @return A new `Scene.Builder` object.
+   */
+  static Scene.Builder begin() {
+    return new Builder();
+  }
+  
+  /**
    * Creates a scene by chaining acts.
    * When you need to handle multiple variables, use {@link Scene.Builder} directly.
    *
@@ -197,19 +221,21 @@ public interface Scene extends WithOid {
     }
     
     /**
+     * // @formatter:off
      * A "syntax-sugar" method to group a sequence of method calls to this `Builder` object.
      *
      * That is, you can do:
      *
      * ```java
      * new SceneBuilder.with(b -> b.add(...)
-     * .add(...)
-     * .add(...))
-     * .build();
+     *                 .add(...)
+     *                 .add(...))
+     *                 .build();
      * ```
      *
      * Note that the operator `op` is supposed to return `this` object.
      *
+     * // @formatter:on
      * @param op A unary operator that groups operator on this object.
      * @return This object returned by `op`.
      */
@@ -380,6 +406,18 @@ public interface Scene extends WithOid {
                               : Scene.super.name();
         }
       };
+    }
+    
+    /**
+     * A synonym of {@link Builder#build()}.
+     * Use this with {@link Scene#begin()}.
+     *
+     * @return A new scene object
+     * @see Builder#build()
+     * @see Scene#begin()
+     */
+    public Scene end() {
+      return build();
     }
     
     /**

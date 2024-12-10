@@ -29,9 +29,9 @@ public class SelfTest implements AutotestRunner {
   @Export("page")
   @ClosedBy("close")
   public static Scene open() {
-    return new Scene.Builder("page")
-        .add(new Act.Let<>("OPEN"))
-        .build();
+    return Scene.begin()
+                .add(new Act.Let<>("OPEN"))
+                .end();
   }
   
   @Named
@@ -48,9 +48,9 @@ public class SelfTest implements AutotestRunner {
   @Export("page")
   @DependsOn("login")
   public static Scene connect() {
-    return new Scene.Builder("page")
-        .add(new Act.Let<>("CONNECT"))
-        .build();
+    return Scene.begin()
+                .add(new Act.Let<>("CONNECT"))
+                .end();
   }
   
   @Named
