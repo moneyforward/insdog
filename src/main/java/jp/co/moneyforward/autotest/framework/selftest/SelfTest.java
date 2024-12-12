@@ -2,6 +2,7 @@ package jp.co.moneyforward.autotest.framework.selftest;
 
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.framework.action.Act;
+import jp.co.moneyforward.autotest.framework.action.Act.Let;
 import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.annotations.*;
 import jp.co.moneyforward.autotest.framework.core.AutotestRunner;
@@ -30,7 +31,7 @@ public class SelfTest implements AutotestRunner {
   @ClosedBy("close")
   public static Scene open() {
     return Scene.begin()
-                .add(new Act.Let<>("OPEN"))
+                .act(new Let<>("OPEN"))
                 .end();
   }
   
@@ -39,9 +40,9 @@ public class SelfTest implements AutotestRunner {
   @Export("page")
   @DependsOn("open")
   public static Scene login() {
-    return new Scene.Builder("page")
-        .add(new Act.Let<>("LOGIN"))
-        .build();
+    return Scene.begin()
+                .act(new Let<>("LOGIN"))
+                .build();
   }
   
   @Named
@@ -49,7 +50,7 @@ public class SelfTest implements AutotestRunner {
   @DependsOn("login")
   public static Scene connect() {
     return Scene.begin()
-                .add(new Act.Let<>("CONNECT"))
+                .act(new Let<>("CONNECT"))
                 .end();
   }
   
@@ -58,7 +59,7 @@ public class SelfTest implements AutotestRunner {
   @DependsOn("login")
   public static Scene disconnect() {
     return new Scene.Builder("page")
-        .add(new Act.Let<>("DISCONNECT"))
+        .act(new Let<>("DISCONNECT"))
         .build();
   }
   
@@ -66,7 +67,7 @@ public class SelfTest implements AutotestRunner {
   @DependsOn("login")
   public static Scene logout() {
     return new Scene.Builder("page")
-        .add(new Act.Let<>("LOGOUT"))
+        .act(new Let<>("LOGOUT"))
         .build();
   }
   
@@ -74,7 +75,7 @@ public class SelfTest implements AutotestRunner {
   @DependsOn("open")
   public static Scene close() {
     return new Scene.Builder("page")
-        .add(new Act.Let<>("CLOSE"))
+        .act(new Let<>("CLOSE"))
         .build();
   }
   

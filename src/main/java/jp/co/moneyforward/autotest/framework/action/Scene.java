@@ -41,7 +41,7 @@ public interface Scene extends WithOid {
    * class YourClass {
    *   void method() {
    *     Scene.begin()
-   *          .add(yourAct())
+   *          .act(yourAct())
    *          .assertion(s -> s.then().looksOkay())
    *          .end()
    *   }
@@ -53,7 +53,11 @@ public interface Scene extends WithOid {
    * @return A new `Scene.Builder` object.
    */
   static Scene.Builder begin() {
-    return new Builder();
+    return begin(DEFAULT_DEFAULT_VARIABLE_NAME);
+  }
+  
+  static Scene.Builder begin(String defaultVariableName) {
+    return new Builder(defaultVariableName);
   }
   
   /**
@@ -215,6 +219,12 @@ public interface Scene extends WithOid {
       this(DEFAULT_DEFAULT_VARIABLE_NAME);
     }
     
+    /**
+     * Sets a name of a scene built by this builder object.
+     *
+     * @param name A name of a scene.
+     * @return This object.
+     */
     public Builder name(String name) {
       this.name = requireNonNull(name);
       return this;
@@ -257,19 +267,66 @@ public interface Scene extends WithOid {
       return this.add(defaultVariableName(), act, defaultVariableName());
     }
     
+    /**
+     * Synonym of {@link Builder#add(Act)}.
+     *
+     * Prefer this over `Builder#add(Act)` as usage of this method results in more readable code in general.
+     * This method is also useful for languages that run on JVM, but doesn't have method overloading.
+     *
+     * @param act An act to be added.
+     * @return This object
+     */
+    public final <T, R> Builder act(Act<T, R> act) {
+      return this.add(defaultVariableName(), act, defaultVariableName());
+    }
+    
+    /**
+     * Adds an act to this builder.
+     * The output of an act goes to a variable specified by `outputVariableName` in the scene's variable store.
+     *
+     * @param outputVariableName A variable name `act`'s output goes to.
+     * @param act                An `Act` to be added.
+     * @param <T>                Input type of `act`.
+     * @param <R>                Output type of `act`.
+     * @return This object
+     */
     public final <T, R> Builder add(String outputVariableName, Act<T, R> act) {
       return this.add(outputVariableName, act, defaultVariableName());
     }
     
+    /**
+     * Adds an `act` to this object so that it takes input from `inputVariableName` and writes output to `outputVariableName`.
+     *
+     * @param outputVariableName A string to specify an output variable.
+     * @param act                An `Act` to be added to this object.
+     * @param inputVariableName  A string to specify an input variable.
+     * @param <T>                An input value type
+     * @param <R>                An output value type
+     * @return This object
+     */
     public final <T, R> Builder add(String outputVariableName, Act<T, R> act, String inputVariableName) {
       return this.addCall(actCall(outputVariableName, act, inputVariableName));
     }
     
+    /**
+     * Adds a function `assertion` to this builder object.
+     *
+     * @param assertion An assertion to be added to this object.
+     * @param <R>       Type of value to be checked by `assertion`.
+     * @return This object.
+     */
     @SuppressWarnings("unchecked")
     public final <R> Builder assertion(Function<R, Statement<R>> assertion) {
       return this.assertions(assertion);
     }
     
+    /**
+     * Adds `assertions` to this builder object.
+     *
+     * @param assertions Functions that generates statements to be added.
+     * @param <R>        Type of the value to be verified.
+     * @return This object.
+     */
     @SuppressWarnings("unchecked")
     public final <R> Builder assertions(Function<R, Statement<R>>... assertions) {
       return this.assertions(defaultVariableName(), assertions);
@@ -305,6 +362,19 @@ public interface Scene extends WithOid {
      */
     public final Builder add(Scene scene) {
       return this.addCall(toSceneCall(scene));
+    }
+    
+    /**
+     * Synonym of {@link Builder#add(Scene)}.
+     *
+     * Prefer this over `Builder#add(Scene)` as usage of this method results in more readable code in general.
+     * This method is also useful for languages that run on JVM, but doesn't have method overloading.
+     *
+     * @param scene A scene to be added.
+     * @return This object
+     */
+    public final Builder scene(Scene scene) {
+      return this.add(scene);
     }
     
     /**
@@ -347,6 +417,13 @@ public interface Scene extends WithOid {
       return retry(call, times, Throwable.class);
     }
     
+    /**
+     * Adds a scene that retries a given `scene` twice.
+     * Note that, `scene` is attempted three times in total.
+     *
+     * @param scene A scene to be added and retried on a failure.
+     * @return This object
+     */
     public final Builder retry(Scene scene) {
       return retry(toSceneCall(scene));
     }

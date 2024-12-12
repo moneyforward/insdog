@@ -57,7 +57,9 @@ public class SceneTest extends TestBase {
   
   @Test
   void givenSceneWithSingleAct_whenToActionExecuted_thenActionTreeLooksCorrect() {
-    Scene scene = new Scene.Builder("scene").add("out", helloAct(), "in").build();
+    Scene scene = Scene.begin("scene")
+                       .add("out", helloAct(), "in")
+                       .end();
     
     List<String> out = new LinkedList<>();
     Context context = createContext();
@@ -80,9 +82,11 @@ public class SceneTest extends TestBase {
   
   @Test
   void givenNestedSceneCall_whenPerformed_thenActionTreeLooksCorrect() {
-    Scene scene = new Scene.Builder("scene")
-        .add(new Scene.Builder("inner").add("out", helloAct(), "in").build())
-        .build();
+    Scene scene = Scene.begin("scene")
+                       .scene(Scene.begin("inner")
+                                   .add("out", helloAct(), "in")
+                                   .end())
+                       .end();
     List<String> out = new LinkedList<>();
     Context context = createContext();
     final var sceneCall = AutotestSupport.sceneToSceneCall(scene, "OUT",
@@ -106,9 +110,14 @@ public class SceneTest extends TestBase {
   
   @Test
   void givenDoubleNestedSceneCall_whenPerformed_thenActionTreeLooksCorrect() {
-    Scene scene = new Scene.Builder("scene")
-        .add(new Scene.Builder("inner1").add(new Scene.Builder("inner").add("out", helloAct(), "in").build()).build())
-        .build();
+    Scene scene = Scene.begin("scene")
+                       .scene(Scene.begin("inner1")
+                                   .scene(Scene.begin("inner")
+                                               .add("out", helloAct(), "in")
+                                               .end())
+                                   .end())
+                       .build();
+    
     List<String> out = new LinkedList<>();
     Context context = createContext();
     final var sceneCall = AutotestSupport.sceneToSceneCall(scene, "OUT",
