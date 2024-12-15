@@ -19,12 +19,21 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.createCo
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
         planExecutionWith = PlanningStrategy.DEPENDENCY_BASED,
-        value = {"connect", "disconnect"}
+        beforeEach = {"snapshot"},
+        value = {"connect", "disconnect"},
+        afterEach = {"snapshot"}
     ))
 public class SelfTest implements AutotestRunner {
   private static boolean enableAssertion = false;
   public static final String OVERRIDING_DOMAIN_NAME = "overriding.domain.name.co.jp";
   private final ReportingActionPerformer actionPerformer = new ReportingActionPerformer(createContext(), new HashMap<>());
+  
+  @Named
+  public Scene snapshot() {
+    return Scene.begin()
+                .act(new Act.Func<>(p -> p))
+                .end();
+  }
   
   @Named
   @Export("page")
@@ -51,6 +60,7 @@ public class SelfTest implements AutotestRunner {
   public static Scene connect() {
     return Scene.begin()
                 .act(new Let<>("CONNECT"))
+                .act(new Act.Func<>(p -> p))
                 .end();
   }
   

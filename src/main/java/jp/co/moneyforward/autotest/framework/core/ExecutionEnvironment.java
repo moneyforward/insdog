@@ -20,8 +20,8 @@ public interface ExecutionEnvironment {
   
   String stepName();
   
-  default ExecutionEnvironment withSceneName(String sceneName, String stageName) {
-    requireNonNull(sceneName);
+  default ExecutionEnvironment withDisplayName(String displayName, String stageName) {
+    requireNonNull(displayName);
     return new ExecutionEnvironment() {
       @Override
       public String testClassName() {
@@ -30,7 +30,7 @@ public interface ExecutionEnvironment {
       
       @Override
       public Optional<String> testSceneName() {
-        return Optional.of(sceneName);
+        return Optional.of(displayName);
       }
       
       @Override

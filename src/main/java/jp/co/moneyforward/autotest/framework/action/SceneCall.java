@@ -90,15 +90,15 @@ public final class SceneCall implements Call, WithOid {
   }
   
   /**
-   * Returns an action, which marks a beginning of a sequence of main actions.
+   * Returns an action, which marks the beginning of a sequence of main actions.
    *
    * The action copies a map of the InsDog's framework variables for this scene call to a context variable whose name
    * is computed by `workingVariableStoreNameFor(this.targetScene().oid())`.
    *
-   * @return An action, which marks a beginning of a sequence of main actions.
+   * @return An action, which marks the beginning of a sequence of main actions.
    */
   public Action begin() {
-    return InternalUtils.action(scene.name() + "@BEGIN",
+    return InternalUtils.action("BEGIN[" + outputVariableStoreName() + "]@[" + workingVariableStoreName() + "]",
                                 c -> c.assignTo(workingVariableStoreName(),
                                                 composeWorkingVariableStore(this, c)));
   }
@@ -112,7 +112,7 @@ public final class SceneCall implements Call, WithOid {
    * @return An action, which marks an ending of a sequence of main actions.
    */
   public Action end() {
-    return InternalUtils.action(scene.name() + "@END", c -> {
+    return InternalUtils.action("END[" + outputVariableStoreName() + "]", c -> {
       c.assignTo(outputVariableStoreName(), c.valueOf(workingVariableStoreName()));
       c.unassign(workingVariableStoreName());
     });
