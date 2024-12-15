@@ -21,10 +21,5 @@
         <module name="insdog" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="autotest-ca" target="21" />
-      <module name="ca_web" target="21" />
-      <module name="framework" target="21" />
-    </bytecodeTargetLevel>
   </component>
 </project>

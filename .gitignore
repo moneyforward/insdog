@@ -54,6 +54,7 @@ hs_err_pid*
 
 # IntelliJ's file
 *.iml
+.idea/workspace.xml
 
 # Auto-generated files
 .dependencies
