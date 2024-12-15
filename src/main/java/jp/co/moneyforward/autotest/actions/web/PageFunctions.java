@@ -6,7 +6,6 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 
 import java.util.function.Function;
-import java.util.regex.Pattern;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
 

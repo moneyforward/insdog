@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run Coverage (framework)" type="JUnit" factoryName="JUnit">
-    <module name="framework" />
+  <configuration default="false" name="Run All Tests" type="JUnit" factoryName="JUnit">
+    <module name="insdog" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="jp.co.moneyforward.autotest.ut.*" />
@@ -35,9 +35,13 @@
         <option name="PATTERN" value="jp.co.moneyforward.autotest.framework.*" />
         <option name="ENABLED" value="true" />
       </pattern>
+      <pattern>
+        <option name="PATTERN" value="jp.co.moneyforward.autotest.actions.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
     </extension>
     <extension name="net.ashald.envfile">
-      <option name="IS_ENABLED" value="false" />
+      <option name="IS_ENABLED" value="true" />
       <option name="IS_SUBST" value="false" />
       <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
       <option name="IS_IGNORE_MISSING_FILES" value="false" />

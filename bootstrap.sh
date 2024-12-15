@@ -97,6 +97,10 @@ function __bootstrap__checkenv() {
     which git
   }
   _checks+=("is_git_installed")
+  function is_ruby_installed() {
+    which ruby
+  }
+  _checks+=("is_ruby_installed")
   function is_python3_12_installed() {
     which python3.12
   }
