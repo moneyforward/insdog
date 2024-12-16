@@ -18,7 +18,7 @@ import static jp.co.moneyforward.autotest.framework.action.AutotestSupport.*;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.simpleClassNameOf;
 
 /**
- * An interface that represents a reusable unit of an action in autotest-ca's programming model.
+ * An interface that represents a reusable unit of an action in **insdog**'s programming model.
  * An instance of this object contains 0 or more {@link Act} instances.
  *
  * Note that `Scene` uses the same map for both input and output.

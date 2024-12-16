@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * This interface represents the smallest and indivisible unit of action in **autotest-ca** 's programming model.
+ * This interface represents the smallest and indivisible unit of action in **insdog** 's programming model.
  */
 public interface Act<T, R> {
   /**
@@ -114,7 +114,7 @@ public interface Act<T, R> {
    * A leaf act, which models a "sink".
    * A sink is a concept, where value is consumed only.
    *
-   * As the design of leaf act of the **autotest-ca** framework, it needs to return a value on a call of `perform` method,
+   * As the design of leaf act of the **insdog** framework, it needs to return a value on a call of `perform` method,
    * it returns `null` instead.
    *
    * @param <T> A type of value consumed by this sink object.

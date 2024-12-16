@@ -1,4 +1,4 @@
-# Interactions between Components of `autotest-ca`
+# Interactions between Components in **InsDog**
 
 In the context of automated testing, various actions are defined and performed over and over again.
 Sometimes, as a test case itself. 
@@ -18,7 +18,7 @@ Also, you need to make both the test report and the test code readable without c
 On a failure, users want to see what is going on without being forced to repeat "run->fail->fix->run->" loop.
 These are challenges not seen in product code, but only in automated testing tool's context.
 
-To achieve such required flexibilities, `autotest-ca` employs the following mechanisms and design policies.
+To achieve such required flexibilities, **InsDog** employs the following mechanisms and design policies.
 
 - `Act`, `Scene`, and `ActionFactory` structure
 - Action compilation pipeline
@@ -29,7 +29,7 @@ Thus, even if a concept is described as a class in diagrams in this page, it may
 
 ## Scenes, Acts, and Play
 
-`autotest-ca` has units called `Act` and `Scene`, and they are called `ActionFactory` in general.
+**InsDog** has units called `Act` and `Scene`, and they are called `ActionFactory` in general.
 An `Act` is a minimal unit to define an interaction with the system under test (SUT).
 A `Scene` consists of one or more `ActionFactories`.
 An action factory can have one input and one output.
@@ -148,12 +148,12 @@ To define a function with multiple parameters, we need "currying" mechanism, whi
 ### Play
 
 Play is a concept to model the entire test, which consists of `setupAll`, `setUp`, `main`, `tearDown`, and `tearDownAll` action factories.
-It is created by the test extension of `autotest-ca` internally and users do not need to create it by themselves in usual use cases.
+It is created by the test extension of **InsDog** internally and users do not need to create it by themselves in usual use cases.
 
 
 ## Action Compiler Pipeline
 
-In order to modify/decorate the execution-time behavior of actions, `autotest-ca` has "Action Compiler" mechanism.
+In order to modify/decorate the execution-time behavior of actions, **InsDog** has "Action Compiler" mechanism.
 
 ```mermaid
 graph LR
@@ -200,7 +200,7 @@ By replacing a default execution compiler with a custom one, you can control how
 
 ## Programming Model
 
-Following is a code example that illustrates how a test class for `autotest-ca` will be written.
+Following is a code example that illustrates how a test class for **InsDog** will be written.
 
 <details>
 <summary>
@@ -260,7 +260,7 @@ public class AutotestExample implements ActionTestPerformer {
 ### Class Declaration : `@ExtendWith(AutotestEngine.class)` and `@ExecuteWith(...)`
 
 `@ExtendWith` is a built-in annotation of JUnit5.
-Specify `AutotestEngine.class` to run your test under `autotest-ca` 's framework.
+Specify `AutotestEngine.class` to run your test under **InsDog** 's framework.
 
 ```java
 @ExtendWith(AutotestEngine.class)
@@ -276,7 +276,7 @@ The `compiler` attribute specifies an "Execution Compiler" (discussed above) cla
 `ActionTestPerformer` is an interface that defines how actions should be performed by default.
 
 :::note info
-This is a current limitation of `autotest-ca`.
+This is a current limitation of **InsDog**.
 It is preferable to be able to write a test class without implementing the `ActionTestPerformer` interface. 
 :::
 

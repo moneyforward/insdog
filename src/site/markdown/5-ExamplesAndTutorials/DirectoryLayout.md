@@ -2,7 +2,7 @@
 
 ## Overview
 
-Following is the overview of the **autotest-ca** package.
+Following is the overview of the **InsDog** package.
 
 ```
 {project directory}
@@ -12,8 +12,6 @@ Following is the overview of the **autotest-ca** package.
     | +-java                              Java source files.
     | | `-jp/co/moneyforward/autotest
     | |   +-actions.web                   Basic classes to support testing a web applications are stored.
-    | |   +-ca_web                        "ca_web" specific classes are stored.
-    | |   +-examples                      Examples to understanding how to program tests using `autotest-ca` are stored.
     | |   `-framework                     SUT-neutral framework codes are stored.
     | +-javadoc                           files used for generating JavaDoc.
     | `-resources                         resources bundled with the executable.
@@ -21,24 +19,6 @@ Following is the overview of the **autotest-ca** package.
     +-test
 ```
 
-## `jp.co.moneyforward.autotest.ca_web` package
-
-Let's dig in to the **ca_web** (`jp.co.moneyforward.autotest.ca_web`) package, where most of the works happen.
-
-```
-{project directory}
-  +-src
-    +-main
-      +-java                          
-        `-jp/co/moneyforward/autotest
-          +-ca_web                        "ca_web" specific classes are stored.
-            +-accessmodels                Access model classes, currently `CaWebAccessModel`, only
-            +-cli                         A package for the CLI class.
-            +-core                        Core classes for the ca_web applications spec, such as profiles.
-            +-tests
-              +-bankaccount               "Connecting Banks" tests and related classes
-              +-pages                     "Visiting All Menu Items" tests and related classes
-              `-(others)                  Test writers can create new packages under `tests` by their decisions.
-```
-
-Under each subpackage of `tests`, test writers can create their tests and test packages so that they are organized cleanly and understandable. 
+Currently, the package `actions.web` exists as a part of this module.
+It is the only one that depends on the **Playwright-Java** component.
+In future when we introduce another dependency on external client level modules, we will make it an independent submodule together with the `framework` and other clients.

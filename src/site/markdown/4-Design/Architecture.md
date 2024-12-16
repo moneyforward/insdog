@@ -1,6 +1,6 @@
 # Software Architecture
 
-Following is a diagram that illustrates relationships between software components of **autotest-ca** and of external services.
+Following is a diagram that illustrates relationships between software components of **InsDog** and of external services.
 
 Note that some interactions in this diagram from **SDET(app)** are done not only by them but also by other roles.
 
@@ -29,9 +29,9 @@ graph LR
     SDETfw -.->|designs and implements| autotest-workflows
     SDETfw -.->|designs and implements| autotest-fw
     SDETfw -.->|refactors| autotest-tests
-    subgraph "autotest-ca"
-        autotest-tests("autoest-ca Tests")
-        autotest-fw("autoest-ca Framework")
+    subgraph "insdog"
+        autotest-tests("insdog Tests")
+        autotest-fw("insdog Framework")
         autotest-cli("CLI Tools")
         autotest-profile("Profiles")
         autotest-workflows("Workflows")
@@ -65,10 +65,10 @@ They are not supposed to access external services or implements complex logics b
 Instead, they should invoke **CLI tools** and be kept as light-weight as possible.
 Insight behind this is a fact, where workflows of GitHub Actions are hard to test even with helps by `gh` utility command, that GitHub distributes.
 
-**autotest-ca Framework** is a component responsible for executing tests defined as a part of **autotest-ca Tests** component.
+**insdog Framework** is a component responsible for executing tests defined as a part of **insdog Tests** component.
 The framework provides a **JUnit5** extension, which defines execution flow of tests.
 
-**autotest-ca Profile** is a component that abstracts execution environments and parameters whose values can be different across test runs.
+**insdog Profile** is a component that abstracts execution environments and parameters whose values can be different across test runs.
 
 **SDET(App)** are responsible for executing/implementing tests for **SUT** in an automated-fashion as much as possible to meet projects' deadlines.
 When necessary, they will execute tests by manual.
@@ -76,7 +76,7 @@ While **SDET(Framwork)** are responsible for making/keeping **SDET(App)** works 
 
 ## Internal
 
-Following is a diagram more focusing on the detail of the static structure of the `autotest-ca`.
+Following is a diagram more focusing on the detail of the static structure of the `insdog`.
 It is built as an executable assembly, which has all the necessary dependencies inside one file.
 
 ```mermaid
@@ -99,8 +99,8 @@ Rel(junit-platform-launcher, extension, "1. instantiates")
 Rel(junit-platform-launcher, testClasses, "2. instantiates")
 Rel(extension, testClasses, "3. executes")
 
-Boundary(autotest-ca-assembly, "autotest-ca:assembly", "application") {
-    Boundary(b0, "autotest-ca:main", "library") {
+Boundary(insdog-assembly, "insdog:assembly", "application") {
+    Boundary(b0, "insdog:main", "library") {
         Boundary(coreBoundary, "core", "package") {
             Component(extension, "JUnit 5 Test Extension")
             Component(abstractActions, "Base Action Factories")
@@ -140,7 +140,7 @@ This separation will be done as the product gets matured.
 
 ## "Profile" Mechanism
 
-This is a diagram that illustrates relationships between components of **autotest-ca** and of external services at runtime.
+This is a diagram that illustrates relationships between components of **insdog** and of external services at runtime.
 
 *Profile Mechanism*
 
@@ -153,7 +153,7 @@ graph TD
 
     subgraph executors [Autotest Execution Computers]
         subgraph "GitHub Self-hosted Server"
-            autotest-ca-ghsh("autotest-ca")
+            insdog-ghsh("insdog")
             subgraph "Profiles"
                 profile-prod-ghsh("profile-prod")
                 profile-stg-ghsh("profile-stg")
@@ -162,7 +162,7 @@ graph TD
             end
         end
         subgraph "Laptop"
-            autotest-ca-laptop("autotest-ca")
+            insdog-laptop("insdog")
         end
     end
 
@@ -189,11 +189,11 @@ graph TD
     end
 
     SDET -.-> gha
-    SDET -.-> autotest-ca-laptop
-    autotest-ca-ghsh -.-> profile-prod-ghsh
-    autotest-ca-ghsh -.-> profile-stg-ghsh
-    autotest-ca-ghsh -.-> profile-idev-ghsh
-    autotest-ca-ghsh -.-> profile-misc-ghsh
+    SDET -.-> insdog-laptop
+    insdog-ghsh -.-> profile-prod-ghsh
+    insdog-ghsh -.-> profile-stg-ghsh
+    insdog-ghsh -.-> profile-idev-ghsh
+    insdog-ghsh -.-> profile-misc-ghsh
     profile-prod-ghsh -.-> SUT-prod
     profile-stg-ghsh -.-> SUT-stg
     profile-idev-ghsh -.-> SUT-idev
@@ -201,15 +201,15 @@ graph TD
     SUT-prod -.-> testRail
     SUT-prod -.-> ghPackages
     SUT-prod -.-> backstage
-    gha -.-> autotest-ca-ghsh 
+    gha -.-> insdog-ghsh 
 ```
 
-**autotest-ca** is designed to be able to run both on laptop computers and GitHub Self-hosted Server transparently.
+**InsDog** is designed to be able to run both on laptop computers and GitHub Self-hosted Server transparently.
 Its tests are designed to be able to target known execution environments.
 Differences between environments are abstracted by a mechanism called **Profile**.
-Every component in **autotest-ca** should be designed to be able to run against known execution environments, such as "production", "staging", or "idev", by specifying a profile as a runtime parameter value passed to the CLI, without any single line change in the code.
+Every component in **InsDog** should be designed to be able to run against known execution environments, such as "production", "staging", or "idev", by specifying a profile as a runtime parameter value passed to the CLI, without any single line change in the code.
 
-Thus, every component of **autotest-ca** is meant to be testable.
+Thus, every component of **InsDog** is meant to be testable.
 
 More detail can be found in [Component Interactions](ComponentInteractions.md)
 

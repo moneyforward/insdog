@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>jp.co.moneyforward.insdog</groupId>
-    <artifactId>insdog</artifactId>
+    <artifactId>insdog-all</artifactId>
     <packaging>jar</packaging>
 
     <version>0.3.4-SNAPSHOT</version>
@@ -41,29 +41,22 @@
         <developer>
             <id>rinsyan0518</id>
             <name>Takamitsu Hamajo</name>
+            <email>rinsyan0518@gmail.com</email>
         </developer>
         <developer>
             <id>sukezan</id>
-            <name>Koske Yamagami| Kay</name>
-        </developer>
-        <developer>
-            <id>moneyforward-hoai-nam-dao</id>
-            <name>Hoai Nam Dao</name>
+            <name>Kosuke Yamagami | Kay</name>
+            <email>suke.3gs@icloud.com</email>
         </developer>
         <developer>
             <id>kwallaschek</id>
             <name>Kay Wallaschek</name>
-        </developer>
-        <developer>
-            <id>Kota</id>
-            <name>yagikota</name>
-        </developer>
-        <developer>
-            <id>vinhyenvodoi98</id>
+            <email>kayluis.wallaschek@gmail.com</email>
         </developer>
         <developer>
             <id>clover</id>
             <name>clover-zhao</name>
+            <email>cloverzz521@gmail.com</email>
         </developer>
     </developers>
 
@@ -325,7 +318,7 @@
                             <additionalOption>-overview ${project.basedir}/src/main/javadoc/overview.md</additionalOption>
                             <additionalOption>-d ${project.build.outputDirectory}/JavaMarkdown</additionalOption>
                             <additionalOption>--source-path ${project.build.sourceDirectory}</additionalOption>
-                            <additionalOption>-base-path /docs/default/Component/autotest-ca/3-APISpecification</additionalOption>
+                            <additionalOption>-base-path /docs/default/Component/insdog/3-APISpecification</additionalOption>
                             <additionalOption>-target-packages '.*#.*autotest.*'</additionalOption>
                         </additionalOptions>
                     </configuration>

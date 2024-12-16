@@ -2,7 +2,7 @@
 
 #####
 ## A small script to clean up "artifacts" of GitHub actions.
-## This script removes all the artifacts of autotest-ca except for the most recent 10 items.
+## This script removes all the artifacts of InsDog except for the most recent 10 items.
 #####
 
 OWNER=${GH_OWNER:-}

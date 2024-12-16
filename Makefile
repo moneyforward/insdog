@@ -34,8 +34,8 @@ test:
 ## Generated site is found under .work/doc/wiki
 ## Please upgrade your local bash version by using `brew install bash`.
 compile-wiki:
-	$(BASH) -eu src/build_tools/mfdoc.sh compile-wiki -- "*.md:src/site/markdown:"
-
+	$(BASH) -eu src/build_tools/mfdoc.sh compile-wiki -- "*.md:src/site/markdown:" \
+                                                         "*.md:target/classes/JavaMarkdown:3-APISpecification"
 ## Publishes generated site to the repo's wiki.
 ## Use with caution.
 publish-wiki: clean-mfdoc compile-wiki _publish-wiki

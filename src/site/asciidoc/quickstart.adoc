@@ -2,48 +2,34 @@ include::attributes.adoc[]
 
 :toc:
 
-== About `autotest-ca`
+== About **InspektorDog**
 
-`autotest-ca` is a tool to test `ca_web` in an automated fashion.
-
-You can access the full documentation of this project at https://backstage.test.musubu.co.in/docs/default/Component/autotest-ca[autotest-ca@backstage/techdocs].
-Backstage portal of this project is found at https://backstage.test.musubu.co.in/catalog/default/component/autotest-ca[autotest-ca@backstage]
+**InspektorDog** (**InsDog** for short) is a test runner library for developers.
 
 == On-boarding the Project
 
-Check https://github.com/moneyforward/autotest-ca/wiki/developmentGuide[developmentGuide] for more detal.
+Check https://github.com/moneyforward/insdog/wiki/developmentGuide[developmentGuide] for more detail.
 
 === Preparation
 
-You need to install `python3.12` and `trcli` (TestRail CLI client) beforehand.
-
-.Installing `python3.12`
-----
-$ brew install python3.12
-----
-
-.Installing `trcli`
-----
-$ pip install trcli
-----
-For more detail, check https://support.testrail.com/hc/en-us/articles/7146548750868-Overview-and-installation#InstallingtheTestRailCLI[TestRail CLI].
+Please be sure you are on **macOS**.
+The `bootstrap.sh` script is currently only for **macOS**, although it's not difficult to set up your environment for development.
 
 
-
-=== Bootstrapping: Setting Up Development Environment
+=== Bootstrapping: Setting Up Development Environment for macOS
 
 Clone the repository:
 
 [source, bash]
 ----
-$ git clone https://github.com/moneyforward/autotest-ca.git
+$ git clone https://github.com/moneyforward/insdog.git
 ----
 
 Then `cd` to the directory:
 
 [source, bash]
 ----
-$ cd autotest-ca
+$ cd insdog
 ----
 
 In the project root directory, run:
@@ -61,7 +47,7 @@ pass: <is_git_installed>
 ---
 FAILED CHECKS: 0
 BEGIN: BOOTSTRAP
-[BOOTSTRAP] Initialized empty Git repository in /Users/ukai.hiroshi/Documents/github/moneyforward/autotest-ca/.dependencies/homebrew/.git/
+[BOOTSTRAP] Initialized empty Git repository in /Users/your.name/Documents/github/moneyforward/insdog/.dependencies/homebrew/.git/
 
 ...
 
@@ -99,8 +85,6 @@ NOTE:: To work with environment variables in IntelliJ IDEA, you need to install 
 5. Click `Install` to add the plugin.
 6. Restart IntelliJ IDEA if prompted.
 
-You can request "Ultimate"'s license here: https://join.slack.com/share/enQtNzUxMDM3NDQ5MjAwMi00ZWI3NmU2ZjZiYjEzN2Y2OGNiOGE0NDA4NDIzNDEyNzljYmMwNTI1NjRhMDk1YzVhOWJmNTRlYjRlZTkwMTUx[contact_cio_manged-tools] slack channel.
-
 === Playing with `./build.sh`
 
 `build.sh` is a very thin wrapper script of `make` command.
@@ -120,32 +104,6 @@ Run the following command.
 $ ./build.sh build
 ----
 
-==== Running the Tests
-
-To run all tests for the SUT, do:
-
-[source, bash]
-----
-$ ./build.sh run
-----
-
-It will show log like following.
-
-[source, bash]
-----
-java -jar ca_web/target/autotest-caweb.jar -q 'classname:~.*' run
-Running tests in:[jp.co.moneyforward.autotest.ca_web.tests.bankaccount.BankConnectingTest]
-
-WARNING: sun.reflect.Reflection.getCallerClass is not supported. This will impact performance.
-2024-06-27T16:15:51,117 [main] INFO  jp.co.moneyforward.autotest.framework.action.ActionComposer [] - ENTERING: :Navigate[https://accounting-stg1.ebisubook.com/]
-2024-06-27T16:15:52,655 [main] INFO  jp.co.moneyforward.autotest.framework.action.ActionComposer [] - LEAVING:  :Navigate[https://accounting-stg1.ebisubook.com/]
-2024-06-27T16:15:52,655 [main] INFO  jp.co.moneyforward.autotest.framework.action.ActionComposer [] - ENTERING: :SendKey[@[placeholder=example@moneyforward.com]][ukai.hiroshi+autotest1@moneyforward.co.jp]
-2024-06-27T16:15:52,722 [main] INFO  j
-...
-----
-
-You will find test results under `target/testResult` directory after execution.
-
 ==== Showing a Help
 
 To know what other targets are defined and their usages, just do:
@@ -161,12 +119,6 @@ This gives you explanations of "public" targets in the `Makefile`, which you are
 
 Coding conventions are defined under `.idea/codeStyles` and `.ideaInspectionProfiles`.
 When you want to propose improvements in the style, please open a pull request containing only files under them.
-
-== Contacts
-
-- For developers discussion: https://moneyforward.slack.com/archives/C06RW82AN79[# pj_ca_e2e_test_automation]
-- To report a bug, visit: https://app.asana.com/-/desktop_app_link?path=%2F0%2F1206402209253009%2F1206402209253009%3F[Automatic E2E Testing]
-
 
 == Copyright and license
 

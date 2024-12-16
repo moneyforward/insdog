@@ -16,11 +16,11 @@ import static jp.co.moneyforward.autotest.ututils.TestUtils.launchHeadlessBrowse
 
 public class TableQueryTest extends TestBase {
   @Test
-  void givenCawebOfficeListTable_whenPerformQueryResultingInMultipleRows_thenExpectedLocatorsReturned() {
+  void givenOfficeListTable_whenPerformQueryResultingInMultipleRows_thenExpectedLocatorsReturned() {
     try (Playwright playwright = Playwright.create()) {
       try (Browser browser = launchHeadlessBrowser(playwright.chromium())) {
         Page page = browser.newPage();
-        page.navigate(TestUtils.testTableResourcePath("caweb/testTable.html"));
+        page.navigate(TestUtils.testTableResourcePath("webtable/testTable.html"));
         //#js-ca-main-contents > table > thead
         
         List<Locator> locators = TableQuery.select("事業者・年度の切替")
@@ -42,11 +42,11 @@ public class TableQueryTest extends TestBase {
   }
   
   @Test
-  void givenCawebOfficeListTable_whenPerformQueryResultingInSingleRow_thenExpectedLocatorsReturned2() {
+  void givenOfficeListTable_whenPerformQueryResultingInSingleRow_thenExpectedLocatorsReturned2() {
     try (Playwright playwright = Playwright.create()) {
       try (Browser browser = launchHeadlessBrowser(playwright.chromium())) {
         Page page = browser.newPage();
-        page.navigate(TestUtils.testTableResourcePath("caweb/testTable.html"));
+        page.navigate(TestUtils.testTableResourcePath("webtable/testTable.html"));
         //#js-ca-main-contents > table > thead
         
         List<Locator> locators = TableQuery.select("事業者・年度の切替")
@@ -70,11 +70,11 @@ public class TableQueryTest extends TestBase {
   }
   
   @Test
-  void givenCawebOfficeListTable_whenPerformQueryForNonExistingOfficeName_thenExpectedLocatorsReturned() {
+  void givenOfficeListTable_whenPerformQueryForNonExistingOfficeName_thenExpectedLocatorsReturned() {
     try (Playwright playwright = Playwright.create()) {
       try (Browser browser = launchHeadlessBrowser(playwright.chromium())) {
         Page page = browser.newPage();
-        page.navigate(TestUtils.testTableResourcePath("caweb/testTable.html"));
+        page.navigate(TestUtils.testTableResourcePath("webtable/testTable.html"));
         //#js-ca-main-contents > table > thead
         
         List<Locator> result = TableQuery.select("事業者・年度の切替")

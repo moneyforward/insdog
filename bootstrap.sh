@@ -97,10 +97,6 @@ function __bootstrap__checkenv() {
     which git
   }
   _checks+=("is_git_installed")
-  function is_python3_12_installed() {
-    which python3.12
-  }
-  _checks+=("is_python3_12_installed")
   __bootstrap__perform_checks \
     "${_installation_reportdir}" \
     "pre-check" \

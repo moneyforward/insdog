@@ -107,7 +107,7 @@ function _mangle_links_in_source() {
 
   # \1 link text
   # \2 link target
-  sed -E 's/\[(.+)\]\(([^:]+).md\)/[\1]('"${_linkbase}"'\2)/g' |
+  sed -E 's/\[(.+)\]\(([^:]+)(.md|\/)\)/[\1]('"${_linkbase}"'\2)/g' |
   sed -E 's/\[(.+)\]\(([^:]+)\/index\)/[\1](\2)/g'|
   sed -E 's/\[(.+)\]\(([^:]+)\|\.\.\)/[\1](\2)/g'|
   sed -E 's/\[\.\.\]\(([^:]+)\)/[..]('"${_parent}"')/g'

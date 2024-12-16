@@ -32,7 +32,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static jp.co.moneyforward.autotest.actions.web.SendKey.MASK_PREFIX;
 
 /**
- * An internal utility class of the **autotest-ca** framework.
+ * An internal utility class of the **insdog** framework.
  */
 public enum InternalUtils {
   ;

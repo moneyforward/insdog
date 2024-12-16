@@ -50,7 +50,7 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.composeR
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.reverse;
 
 /**
- * The test execution engine of the **autotest-ca**.
+ * The test execution engine of the **insdog**.
  *
  * In the implementation of this engine, the steps performed during a test class execution are following:
  *
@@ -73,7 +73,7 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.reverse;
  *
  * Also, a `PlanningStrategy` should be designed in a way where scenes that a user specifies explicitly are included in its resulting execution plan.
  *
- * With this separation, **autotest-ca** allows users to specify scenes that really want to execute directly.
+ * With this separation, **insdog** allows users to specify scenes that really want to execute directly.
  *
  * @see AutotestExecution.Spec
  * @see PlanningStrategy

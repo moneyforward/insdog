@@ -5,12 +5,12 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /**
- * A CLI for **autotest-ca**.
+ * A CLI for **insdog**.
  */
 @Command(
     name = "autotest-cli", mixinStandardHelpOptions = true,
     version = "0.0",
-    description = "A command line interface of 'autotest-ca', an automated testing tool for 'caweb'.")
+    description = "A command line interface of 'insdog', an automated testing tool for 'caweb'.")
 public class CliImpl extends CliBase {
   private static final String ROOT_PACKAGE_NAME = "jp.co.moneyforward.autotest.ut.testclasses";
   

@@ -10,7 +10,7 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 
 /**
  * A general-purpose act.
- * Convenient starting point for writing **autotest-ca** based tests.
+ * Convenient starting point for writing **insdog** based tests.
  */
 public abstract class PageAct implements Act<Page, Page> {
   private final String description;

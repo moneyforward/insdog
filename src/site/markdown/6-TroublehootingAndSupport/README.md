@@ -1,5 +1,4 @@
 # Frequently Asked Questions
 
-- **(t.b.d.):** (t.b.d.)
-- **(t.b.d.):** (t.b.d.)
+Check [GitHub Issues](https://github.com/moneyforward/insdog/issues)
 

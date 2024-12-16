@@ -44,7 +44,7 @@ import static jp.co.moneyforward.autotest.framework.utils.Valid8JCliches.mapToKe
  * - Only "equal" condition is supported.
  * - Only conjunctions are supported.
  *
- * In case you think these need to be improved, contact the development team of *autotest-ca*.
+ * In case you think these need to be improved, contact the development team of *insdog*.
  *
  * @param tableName A locator string to specify a table within a `Page` object.
  * @param columnName A column from which value is project to the result.

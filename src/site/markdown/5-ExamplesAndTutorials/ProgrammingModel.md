@@ -1,6 +1,6 @@
-# Programming Model of "autotest-ca"
+# Programming Model of "InsDog"
 
-**autotest-ca** sets its own programming model, so that test writers can define high quality test classes in a natural way.
+**InsDog** sets its own programming model, so that test writers can define high quality test classes in a natural way.
 It is designed to result in compilation errors rather than runtime failures, if a test writer fails to follow preferable design as much as possible.
 That said, knowing the design thought behind it will help you learn how to write tests in the model quickly.
 
@@ -11,7 +11,7 @@ Check the latest code and consult with the designer of this product (`ukai.hiros
 
 ## Walking through an example
 
-Following is the first Test Class of **autotest-ca**. 
+Following is the first Test Class of **InsDog**. 
 
 ```java
 /**
@@ -38,7 +38,7 @@ public class BankConnectingTest extends CawebAccessingModel /* (3) */ {
 }
 ```
 
-In the design concept of **autotest-ca**, a test class is equivalent to a test scenario.
+In the design concept of **InsDog**, a test class is equivalent to a test scenario.
 
 * **(1):** "Tag", with which you can filter test to be executed by CLI.
 See [Execution](Execution.md) for its usage at runtime.
@@ -218,7 +218,7 @@ In case information collection needs a preparation before executing a test, you 
 ## Where to define **Scene** methods? In a test class, or in access model?
 
 If a **Scene** method is obviously used only by the test you are about to write, it should be in the test class.
-If it is obviously used in many test classes, it should go to `CaWebAccessModel` class.
+If it is obviously used in many test classes, it should go to `YourAccessModel` class.
 But reality is always somewhere in between.
 
 For the time being let's take this policy.

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * A base class of CLI for **autotest-ca**.
+ * A base class of CLI for **insdog**.
  */
 public abstract class CliBase implements Callable<Integer> {
   private static final Logger LOGGER = LoggerFactory.getLogger(CliBase.class);
