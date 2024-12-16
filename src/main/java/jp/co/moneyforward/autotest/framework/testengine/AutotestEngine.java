@@ -127,7 +127,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     AutotestRunner runner = autotestRunner(executionContext);
     String stageName = BEFORE_ALL.stageName();
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(executionContext, executionContext::getDisplayName, stageName);
-    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-beforeAll.log"), Level.INFO);
+    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-beforeAll", "log"), Level.INFO);
     
     logExecutionPlan(testClass(executionContext), executionPlan(executionContext));
     
@@ -156,7 +156,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(executionContext,
                                                                            executionContext::getDisplayName,
                                                                            stageName);
-    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-before.log"), Level.INFO);
+    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-before", "log"), Level.INFO);
     newPassedInBeforeEach(executionContext);
     AutotestRunner runner = autotestRunner(executionContext);
     Map<String, SceneCall> sceneCallMap = sceneCallMap(executionContext);
@@ -171,7 +171,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                    // Then, stream again. Otherwise, the log will not become so readable.
                                    .toList()
                                    .forEach(r -> logExecutionSceneExecutionResult(r, stageName, executionContext));
-    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-main.log"), Level.INFO);
+    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-main", "log"), Level.INFO);
   }
   
   /**
@@ -185,7 +185,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(executionContext,
                                                                            executionContext::getDisplayName,
                                                                            stageName);
-    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-after.log"), Level.INFO);
+    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-after", "log"), Level.INFO);
     AutotestRunner runner = autotestRunner(executionContext);
     List<ExceptionEntry> errors = new ArrayList<>();
     ExecutionPlan executionPlan = executionPlan(executionContext);
@@ -222,7 +222,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     ExecutionEnvironment executionEnvironment = createExecutionEnvironment(executionContext,
                                                                            executionContext::getDisplayName,
                                                                            stageName);
-    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-afterAll.log"), Level.INFO);
+    configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-afterAll", "log"), Level.INFO);
     try {
       List<ExceptionEntry> errors = new ArrayList<>();
       ExecutionPlan executionPlan = executionPlan(executionContext);
@@ -298,11 +298,12 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     if (each.hasSucceeded()) executionContext.add(each.name());
     return true;
   }
-
+  
   private static boolean keepFailedRecordAsError(SceneExecutionResult r, List<ExceptionEntry> errors) {
     r.exception().ifPresent(t -> errors.add(new ExceptionEntry(r.name(), t)));
     return true;
   }
+  
   private static Entry<String, Action> sceneNameToActionEntry(String sceneName, ExtensionContext executionContext, ExecutionEnvironment executionEnvironment) {
     return new Entry<>(sceneName, sceneNameToAction(sceneName, executionContext, executionEnvironment));
   }
@@ -315,7 +316,7 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     sceneExecutionResult.throwIfFailed();
     return true;
   }
-
+  
   private static void logExecutionSceneExecutionResult(SceneExecutionResult r, String stageName, ExtensionContext executionContext) {
     LOGGER.info(r.composeMessageHeader(testClass(executionContext), stageName));
     r.out().forEach((String l) -> LOGGER.info(composeResultMessageLine(testClass(executionContext), stageName, l)));
