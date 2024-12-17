@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
-import static com.github.dakusui.valid8j.Requires.requireNonNull;
+import static com.github.valid8j.classic.Requires.requireNonNull;
 import static com.github.valid8j.fluent.Expectations.require;
 import static com.github.valid8j.fluent.Expectations.value;
 import static java.util.Arrays.asList;

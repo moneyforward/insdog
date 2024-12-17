@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
-import static com.github.dakusui.valid8j.Requires.requireNonNull;
+import static com.github.valid8j.classic.Requires.requireNonNull;
 import static com.github.valid8j.pcond.internals.InternalUtils.getMethod;
 import static java.io.File.createTempFile;
 import static java.lang.Thread.currentThread;

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.dakusui.valid8j.Requires.requireNonNull;
+import static com.github.valid8j.classic.Requires.requireNonNull;
 
 /**
  * A class to provide a construct to "ensure" a specific state checked by `target` call.

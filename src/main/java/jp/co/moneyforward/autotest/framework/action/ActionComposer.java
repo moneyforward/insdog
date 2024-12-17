@@ -14,7 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
-import static com.github.dakusui.valid8j.Requires.requireNonNull;
+import static com.github.valid8j.classic.Requires.requireNonNull;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
 
 /**

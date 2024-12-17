@@ -1,6 +1,6 @@
 package jp.co.moneyforward.autotest.framework.action;
 
-import static com.github.dakusui.valid8j.Requires.requireNonNull;
+import static com.github.valid8j.classic.Requires.requireNonNull;
 
 /**
  * An interface to decorate a behavior of a given call.

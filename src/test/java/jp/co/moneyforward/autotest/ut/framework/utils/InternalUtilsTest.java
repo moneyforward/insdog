@@ -256,7 +256,7 @@ class InternalUtilsTest extends TestBase {
   
   @Test
   void givenNullToOutput_whenMaterializeResource_thenExceptionThrown() {
-    var resourcePath = "ca_web/invoiceImage.png";
+    var resourcePath = "testImage/invoiceImage.png";
     
     assertThrows(NullPointerException.class, () -> InternalUtils.materializeResource(null, resourcePath));
   }
@@ -291,7 +291,7 @@ class InternalUtilsTest extends TestBase {
   
   @Test
   void givenResourcePath_whenMaterializeResource_thenFileExists() {
-    var resourcePath = "ca_web/invoiceImage.png";
+    var resourcePath = "testImage/invoiceImage.png";
     
     File output = InternalUtils.materializeResource(resourcePath);
     assertTrue(output.exists());

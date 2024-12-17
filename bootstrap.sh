@@ -2,7 +2,7 @@
 
 # Component versions to install
 COMPONENT_VERSIONS="$(cat <<'EOF'
-JDK:    21.0.2-open
+JDK:    21.0.5-graal
 MAVEN:  3.9.6
 GOLANG: 1.21.6
 EOF
