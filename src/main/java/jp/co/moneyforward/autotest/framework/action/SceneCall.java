@@ -147,7 +147,6 @@ public final class SceneCall implements Call, WithOid {
                                                                  Context context) {
     Map<String, Object> ret = context.defined(ongoingWorkingVariableStoreName) ? context.valueOf(ongoingWorkingVariableStoreName)
                                                                                : new HashMap<>();
-    System.err.println("ONGOING working variable store: " + ongoingWorkingVariableStoreName + ":" + ret);
     sceneCall.resolverBundle()
              .forEach((k, r) -> ret.put(k, r.apply(context)));
     return ret;
