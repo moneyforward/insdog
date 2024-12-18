@@ -9,6 +9,8 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -66,11 +68,13 @@ public interface ActionComposer {
    * @return A sequential action created from `sceneCall`.
    */
   default Action create(SceneCall sceneCall) {
-    return sequential(concat(Stream.of(sceneCall.begin()),
+    return sequential(concat(Stream.of(sceneCall.begin(ongoingWorkingVariableStoreNames())),
                              Stream.of(sceneCall.targetScene().toSequentialAction(this)),
-                             Stream.of(sceneCall.end()))
+                             Stream.of(sceneCall.end(ongoingWorkingVariableStoreNames())))
                           .toList());
   }
+  
+  List<String> ongoingWorkingVariableStoreNames();
   
   default Action create(EnsuredCall ensuredCall) {
     Ensured.Builder b = ensure(ensuredCall.targetCall().toAction(this));
@@ -142,6 +146,8 @@ public interface ActionComposer {
   
   static ActionComposer createActionComposer(final ExecutionEnvironment executionEnvironment) {
     return new ActionComposer() {
+      final List<String> ongoingWorkingVariableStoreNames = new ArrayList<>();
+      
       SceneCall ongoingSceneCall = null;
       
       @Override
@@ -163,6 +169,11 @@ public interface ActionComposer {
         } finally {
           this.ongoingSceneCall = before;
         }
+      }
+      
+      @Override
+      public List<String> ongoingWorkingVariableStoreNames() {
+        return ongoingWorkingVariableStoreNames;
       }
     };
   }

@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.core.Context;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
@@ -97,10 +98,18 @@ public final class SceneCall implements Call, WithOid {
    *
    * @return An action, which marks the beginning of a sequence of main actions.
    */
-  public Action begin() {
-    return InternalUtils.action("BEGIN[" + outputVariableStoreName() + "]@[" + workingVariableStoreName() + "]",
-                                c -> c.assignTo(workingVariableStoreName(),
-                                                composeWorkingVariableStore(this, c)));
+  public Action begin(List<String> ongoingWorkingVariableStoreNames) {
+    try {
+      String ongoingWorkingVariableStoreName = ongoingWorkingVariableStoreNames.isEmpty() ? null
+                                                                                          : ongoingWorkingVariableStoreNames.getLast();
+      return InternalUtils.action("BEGIN[" + outputVariableStoreName() + "]@[" + workingVariableStoreName() + "]",
+                                  c -> c.assignTo(workingVariableStoreName(),
+                                                  composeWorkingVariableStore(ongoingWorkingVariableStoreName,
+                                                                              this,
+                                                                              c)));
+    } finally {
+      ongoingWorkingVariableStoreNames.add(workingVariableStoreName());
+    }
   }
   
   /**
@@ -111,7 +120,8 @@ public final class SceneCall implements Call, WithOid {
    *
    * @return An action, which marks an ending of a sequence of main actions.
    */
-  public Action end() {
+  public Action end(List<String> ongoingWorkingVariableStoreNames) {
+    ongoingWorkingVariableStoreNames.removeLast();
     return InternalUtils.action("END[" + outputVariableStoreName() + "]", c -> {
       c.assignTo(outputVariableStoreName(), c.valueOf(workingVariableStoreName()));
       c.unassign(workingVariableStoreName());
@@ -132,9 +142,12 @@ public final class SceneCall implements Call, WithOid {
    * @return A data store map.
    * @see ResolverBundle
    */
-  private static Map<String, Object> composeWorkingVariableStore(SceneCall sceneCall,
+  private static Map<String, Object> composeWorkingVariableStore(String ongoingWorkingVariableStoreName,
+                                                                 SceneCall sceneCall,
                                                                  Context context) {
-    var ret = new HashMap<String, Object>();
+    Map<String, Object> ret = context.defined(ongoingWorkingVariableStoreName) ? context.valueOf(ongoingWorkingVariableStoreName)
+                                                                               : new HashMap<>();
+    System.err.println("ONGOING working variable store: " + ongoingWorkingVariableStoreName + ":" + ret);
     sceneCall.resolverBundle()
              .forEach((k, r) -> ret.put(k, r.apply(context)));
     return ret;
