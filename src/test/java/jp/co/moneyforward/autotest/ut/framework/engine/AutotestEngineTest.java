@@ -109,6 +109,17 @@ public class AutotestEngineTest extends TestBase {
   }
   
   @Test
+  void givenVariableHandOver_whenRunTests_thenFinishesNormally() {
+    // Create a custom listener that will validate test results
+    TestResultValidatorExtension validator = new TestResultValidatorExtension();
+    validator.addExpectation(forTestMatching(".*scene1.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*thenClickButton2.*").shouldBeSuccessful());
+    validator.addExpectation(forTestMatching(".*thenClickButton3.*").shouldBeSuccessful());
+    
+    runTests(validator, VariableHandOver.class);
+  }
+  
+  @Test
   void examineAutotestEngineCanRunAndReportTestResultsForEmptyTestClass() {
     // Create a custom listener that will validate test results
     TestResultValidatorExtension validator = new TestResultValidatorExtension();
