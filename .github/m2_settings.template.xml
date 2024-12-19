@@ -1,7 +1,7 @@
 <settings>
     <servers>
         <server>
-            <id>github-mavenpkg</id>
+            <id>github-dakusui-mddoclet</id>
             <username>${GH_USERNAME}</username>
             <password>${GH_PAT}</password>
         </server>
@@ -10,10 +10,6 @@
         <profile>
             <id>github</id>
             <repositories>
-                <repository>
-                    <id>github-mavenpkg</id>
-                    <url>https://maven.pkg.github.com/moneyforward/mavenpkg</url>
-                </repository>
             </repositories>
         </profile>
     </profiles>
