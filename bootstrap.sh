@@ -2,7 +2,7 @@
 
 # Component versions to install
 COMPONENT_VERSIONS="$(cat <<'EOF'
-JDK:    21.0.5-graal
+JDK:    21.0.5-oracle
 MAVEN:  3.9.6
 GOLANG: 1.21.6
 EOF
@@ -95,6 +95,10 @@ function __bootstrap__checkenv() {
   local _checks=()
   function is_git_installed() {
     which git
+  }
+  _checks+=("is_ruby_installed")
+  function is_ruby_installed() {
+    which ruby
   }
   _checks+=("is_git_installed")
   __bootstrap__perform_checks \
@@ -228,7 +232,7 @@ function main() {
   # install sdkman
   curl -s "https://get.sdkman.io"    | /bin/bash 2>&1 | progress "sdkman"
 
-  sdk_install java "$(jdk_version)"  | progress "sdkman:openjdk"
+  sdk_install java "$(jdk_version)"  | progress "sdkman:java"
   sdk_install maven "$(maven_version)" | progress "sdkman:maven"
 }
 

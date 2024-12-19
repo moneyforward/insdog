@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -334,9 +335,21 @@ public enum InternalUtils {
     }
   }
   
+  /**
+   * Removes a given `file`, if exists.
+   * If it doesn't exist, this method does nothing.
+   * If the `file` is a directory, it must be empty.
+   * Otherwise, an exception will be thrown.
+   *
+   * @param file A file to be deleted.
+   *             Must not be `null`.
+   */
   public static void removeFile(File file) {
     try {
-      Files.delete(requireNonNull(file).toPath());
+      Path pathToDelete = requireNonNull(file).toPath();
+      if (pathToDelete.toFile().exists()) {
+        Files.delete(pathToDelete);
+      }
     } catch (IOException e) {
       throw wrap(e);
     }

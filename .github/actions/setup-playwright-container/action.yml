@@ -3,10 +3,6 @@ description: |
   This action is responsible for installing essential apps and configuring environment variables.
 
 inputs:
-  require-python:
-    description: 'set "true" as a string if you need to install Python'
-    required: false
-    default: 'false'
   require-m2-settings:
     description: 'set "true" as a string if you need to configure .m2/settings.xml'
     required: false
@@ -48,13 +44,6 @@ runs:
           libopencore-amrwb0 \
           libsidplay1v5
 
-    - name: Pull secret file
-      shell: bash
-      run: |
-        git config --global --add safe.directory "${GITHUB_WORKSPACE}"
-        make pull-secrets
-        make print-secrets >> "$GITHUB_ENV"
-
     - name: Export environment variables
       shell: bash
       run: |
@@ -77,8 +66,3 @@ runs:
         java-version: '21'
         cache: 'maven'
         overwrite-settings: false
-
-    - uses: actions/setup-python@v5
-      if: inputs.require-python == 'true'
-      with:
-        python-version: '3.9'

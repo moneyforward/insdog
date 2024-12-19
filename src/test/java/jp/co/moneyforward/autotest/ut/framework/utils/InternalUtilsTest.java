@@ -317,12 +317,21 @@ class InternalUtilsTest extends TestBase {
     assertStatement(value(returned).toBe().notNull().notEmpty());
   }
   
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   @Test
-  void givenNonExistingFile_whenRemoveFile_thenExceptionThrown() {
+  void givenNonEmptyDirectory_whenRemoveFile_thenExceptionThrown() throws IOException {
+    File nonEmptyDir = Files.createTempDirectory(InternalUtilsTest.class.getSimpleName()).toFile();
+    File file = new File(nonEmptyDir.getAbsoluteFile().toString(), "test.txt");
+    file.createNewFile();
+    
+    file.deleteOnExit();
+    nonEmptyDir.deleteOnExit();
+    
     Exception e = assertThrows(AutotestException.class,
-                               () -> InternalUtils.removeFile(new File("NOTEXISTINGFILE")));
-    assertStatement(value(e.getMessage()).toBe().containing("NOTEXISTINGFILE"));
+                               () -> InternalUtils.removeFile(nonEmptyDir));
+    assertStatement(value(e.getMessage()).toBe().containing(nonEmptyDir.getName()));
   }
+  
   
   @Test
   void givenExistingNormalFile_whenRemoveFile_thenRemoved() throws IOException {
@@ -331,6 +340,16 @@ class InternalUtilsTest extends TestBase {
     
     InternalUtils.removeFile(file);
     
+    assertFalse(file.exists());
+  }
+  
+  @Test
+  void givenNonExistingFile_whenRemoveFile_thenNothingHappens() throws IOException {
+    File file = new File("NotExistingFile.txt");
+    
+    InternalUtils.removeFile(file);
+    
+    // Check if the internal logic of removeFile doesn't create the file mistakenly.
     assertFalse(file.exists());
   }
   
