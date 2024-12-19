@@ -48,13 +48,6 @@ runs:
           libopencore-amrwb0 \
           libsidplay1v5
 
-    - name: Pull secret file
-      shell: bash
-      run: |
-        git config --global --add safe.directory "${GITHUB_WORKSPACE}"
-        make pull-secrets
-        make print-secrets >> "$GITHUB_ENV"
-
     - name: Export environment variables
       shell: bash
       run: |
