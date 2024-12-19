@@ -10,7 +10,7 @@ import picocli.CommandLine.Command;
 @Command(
     name = "autotest-cli", mixinStandardHelpOptions = true,
     version = "0.0",
-    description = "A command line interface of 'insdog', an automated testing tool for 'caweb'.")
+    description = "An example command line interface of 'insdog', an automated testing tool for test.")
 public class CliImpl extends CliBase {
   private static final String ROOT_PACKAGE_NAME = "jp.co.moneyforward.autotest.ut.testclasses";
   

@@ -12,32 +12,13 @@ metadata:
   annotations:
     github.com/project-slug: moneyforward/insdog
     backstage.io/techdocs-ref: url:https://github.com/moneyforward/insdog/tree/techdocs
-  # It is claimed in [1] that icons defined in the doc[2].
-  # However, [1] doesn't tell anything about a key starts with 'kind:' such as 'kind:system'.
-  # [1] https://backstage.io/docs/features/software-catalog/descriptor-format/#links-optional
-  # [2] https://github.com/backstage/backstage/blob/master/packages/app-defaults/src/defaults/icons.tsx
   links:
     - url: https://github.com/moneyforward/insdog/
       title: GitHub
       icon: github
-    - url: https://app.asana.com/0/1206402209253009/1206402209253009
-      title: Asana
-      icon: dashboard
-    - url: https://sonar.mfvn.dev/dashboard?id=insdog
-      title: SonarQube
-      icon: dashboard
-    - url: https://moneyforward.tmxtestrail.com/index.php?/projects/overview/35
-      title: TestRail
-      icon: dashboard
-    - url: https://accounting-stg1.ebisubook.com/
-      title: Staging Instance
-      icon: system
     - url: https://github.com/moneyforward/insdog/wiki
       title: "Wiki: For notes, drafts, ideas, etc."
       icon: docs
-    - url: https://moneyforward.slack.com/archives/C06RW82AN79
-      title: Slack
-      icon: chat
 
 spec:
   type: tool
@@ -45,5 +26,3 @@ spec:
   owner: autotest-ca-dev
   dependsOn:
   - Component:mddoclet
-  - Component:mfdoc
-  - Component:mavenpkg

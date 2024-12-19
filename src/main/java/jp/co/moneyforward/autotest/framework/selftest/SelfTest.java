@@ -14,7 +14,7 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.createCo
 
 /**
  * A test to check if the framework works as designed.
- * This test is designed not to access the **caweb** application.
+ * This test is designed to work without accessing actual applications.
  */
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
