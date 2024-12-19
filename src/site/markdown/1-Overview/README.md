@@ -19,7 +19,6 @@ The **InspektorDog** (shortened **InsDog**) is a Test Execution Library, which i
 
 1. **Written in Java, not having a separate DSL:**
    It is written in Java in order to allow test-writers to access the most matured knowledge pool among others.
-   This will also allow us to access larger hiring pool than the predecessor's ([駄犬くん](https://github.com/moneyforward/ca_web_e2e_test_d/tree/main/script/daken_kun) was written in Ruby, and it is becoming more and more difficult to find a fine programmer in the language).  
    Also, "correctness" and "defined specifications" are important in verifications and validations, which are what Java is excellent at.
 2. **No separate DSL:**
    Introduction of a custom DSL based on external notations, such as CSV, JSON, YAML, Markdown, or whatsoever is what we do not try at this stage.
@@ -39,10 +38,9 @@ They also want to run a test they focus on currently with minimum dependencies.
 In order to make those possible in a programmatic way, test writers are supposed to define what they want to do in a form of an object.
 It will be called an action, and in **InsDog**, it will be called `Act`, `Scene`, or `Action`, depending on the context and purposes they fulfil.
 4. **Application Neutrality:**
-Although it is developed for **caweb**, it is designed to be able to work for other applications from the day one.
-As you see in the package structure, we have a package `jp.co.moneyforward.autotest.ca_web`.
-Outside this package, nothing is depending on the application's spec.
-We can always add a new package for a new application.
+Although it is developed for a certain internal application in **MoneyForward**, it is designed to be able to work for other applications from the day one.
+It has a built-in support for Web application's UI testing leveraged by **Playwright**, but it's not limited to the area.
+By creating custom scenes and acts, you can apply it to API tests and others, too.
 5. **Separation of Tests, Accessing model:**
 Similar to the neutrality for applications, it has a concept of **Accessing Model**.
 It is a common concern to have a "top-heavy" automated testing pyramid after successful attempts of testing automation.
@@ -53,13 +51,9 @@ Based on the annotations you attach to the asserting functions, the tool will au
 
 Following are the summary of the rest of the **InsDog**'s documentations.
 
-[2-Requirements](../2-Requirements/index.md) Discusses requirement items for **InsDog**'s initial version.
+[2-Design](../2-Design/index.md) Discusses **InsDog**'s design overview and important concepts.
 You can find the detail API reference in [3-APISpecification](../3-APISpecification/index.md).
-The software architecture of **InsDog** is discussed in [4-Design](../4-Design/index.md).
-[5-ExamplesAndTutorials](../5-ExamplesAndTutorials/index.md) collects guides about writing tests, improving the tool, introducing development tools. 
-Check [6-TroublehootingAndSupport](../7-TroubleshootingAndSupport/index.md), when you need a help.
-You can find release notes under [7-ChangeLog](../7-ChangeLog/index.md).  
-In [X-Appendix](../X-Appendix/index.md), detail and technical information and resources will be collected.
+[4-ExamplesAndTutorials](../4-ExamplesAndTutorials/index.md) collects guides about writing tests, improving the tool, introducing development tools. 
 
 Enjoy!
 

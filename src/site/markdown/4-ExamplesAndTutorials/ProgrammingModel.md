@@ -34,7 +34,7 @@ Following is the first Test Class of **InsDog**.
         value = {"login", "connectBank", "disconnectBank", "logout"},
         afterEach = {"screenshot"},
         afterAll = {"close"}))
-public class BankConnectingTest extends CawebAccessingModel /* (3) */ {
+public class BankConnectingTest extends AppAccessingModel /* (3) */ {
 }
 ```
 
@@ -58,7 +58,7 @@ A **Scene** method is supposed to return `Scene` object, which can be built by `
 Note that how to build a scene object using the builder is omitted in this example for the simplicity's sake.
 
 ```java
-public class CawebAccessingModel implements AutotestRunner {
+public class AppAccessingModel implements AutotestRunner {
   
   @Named
   public static Scene open() {

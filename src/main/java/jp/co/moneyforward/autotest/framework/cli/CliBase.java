@@ -78,7 +78,7 @@ public abstract class CliBase implements Callable<Integer> {
           
           --execution-profile=userEmail:user@example.com
           --execution-profile=password:password
-          --execution-profile=domain:ca-web-{NAMESPACE}.idev.test.musubu.co.in
+          --execution-profile=domain:{SUT_DOMAIN_NAME}
           
           For the part after '=' and before ':', you can specify a method name that returns a 'String' in ExecutionProfile.
           """)

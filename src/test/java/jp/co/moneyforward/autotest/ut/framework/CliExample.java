@@ -6,7 +6,7 @@ import picocli.CommandLine.Command;
 @Command(
     name = "InsDog-example-CLI", mixinStandardHelpOptions = true,
     version = "0.0",
-    description = "A command line interface of 'insdog', an automated testing tool for 'caweb'.")
+    description = "An example command line interface of 'insdog', an automated testing tool.")
 public class CliExample extends CliBase {
   @Override
   protected String rootPackageName() {

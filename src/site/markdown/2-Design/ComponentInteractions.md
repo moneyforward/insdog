@@ -125,13 +125,14 @@ public class AutotestExample {
   
   @BeforeEach
   public Scene login() {
-      return new Scene.Builder().add("page", new Value(browser.newPage()))
-                                //                                                                                  input field name.                                                       
-                                //   output field name      
-                                .add("page", new Navigate("https://ca-web-NAMESPACE.idev.test.musubu.co.in/home"), "page")
-                                .add("page", new Click("a#txtbox-email"), "page")
-                                // ...
-                                .build();
+      return Scene.begin()
+                  .add("page", new Value(browser.newPage()))
+                  //                                                                                  input field name.                                                       
+                  //   output field name      
+                  .add("page", new Navigate("https://app.example.com/home"), "page")
+                  .add("page", new Click("a#txtbox-email"), "page")
+                  // ...
+                  .build();
   }
 }
 ```
