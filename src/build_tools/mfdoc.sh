@@ -81,6 +81,19 @@ function _to_github_md_file() {
   _mangle_links_in_source "${_src_basedir}" "${_path_to_src_file}" < "${_src_filename}" >> "${_dest_filename}"
 }
 
+encode_url() {
+    local string="$1"
+    local encoded=""
+    for ((i = 0; i < ${#string}; i++)); do
+        c="${string:i:1}"
+        case "$c" in
+            [a-zA-Z0-9.~_-]) encoded+="$c" ;;
+            *) encoded+=$(printf '%%%02X' "'$c") ;;
+        esac
+    done
+    echo "$encoded"
+}
+
 function _mangle_links_in_source() {
   local _src_basedir="${1}" _path_to_src_file="${2}"
   local _dirname_for_src_file _linkbase _parent
@@ -154,7 +167,8 @@ function _generate_index_for_manually_written_wiki_pages() {
     if [[ "${_i}" == *Sidebar* ]]; then
       continue
     fi
-    echo "- [${_f}](${_f})"
+    _l="$(encode_url "${_f}")"
+    echo "- [${_f}](${_l})"
   done
 }
 
