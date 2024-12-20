@@ -32,5 +32,5 @@ For more details of their semantics, check respective documents of annotations a
 
 ## References
 
-@see PlanningStrategy
+@see jp.co.moneyforward.autotest.framework.testengine.PlanningStrategy
 

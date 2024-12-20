@@ -10,9 +10,9 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-/**
- * A base class of CLI for **insdog**.
- */
+/// 
+/// A base class of CLI for **insdog**.
+/// 
 public abstract class CliBase implements Callable<Integer> {
   private static final Logger LOGGER = LoggerFactory.getLogger(CliBase.class);
   
@@ -44,9 +44,9 @@ public abstract class CliBase implements Callable<Integer> {
       defaultValue = "classname:~.*")
   private String[] queries;
   
-  /**
-   * @see jp.co.moneyforward.autotest.framework.annotations.AutotestExecution.Spec.Loader
-   */
+  /// 
+  /// @see jp.co.moneyforward.autotest.framework.annotations.AutotestExecution.Spec.Loader
+  /// 
   @Option(names = {"--execution-descriptor"},
       description = """
           Used with 'run' subcommand.

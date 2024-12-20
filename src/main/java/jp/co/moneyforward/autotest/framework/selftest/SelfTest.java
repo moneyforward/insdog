@@ -12,10 +12,10 @@ import java.util.HashMap;
 
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.createContext;
 
-/**
- * A test to check if the framework works as designed.
- * This test is designed to work without accessing actual applications.
- */
+/// 
+/// A test to check if the framework works as designed.
+/// This test is designed to work without accessing actual applications.
+/// 
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
         planExecutionWith = PlanningStrategy.DEPENDENCY_BASED,

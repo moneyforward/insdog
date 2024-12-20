@@ -38,9 +38,9 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.writeTo;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
 
-/**
- * A utility class for **autotest** CLI.
- */
+/// 
+/// A utility class for **autotest** CLI.
+/// 
 public enum CliUtils {
   ;
   private static final Logger LOGGER = LoggerFactory.getLogger(CliUtils.class);
