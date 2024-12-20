@@ -128,10 +128,7 @@ public final class SceneCall implements Call, WithOid {
     });
   }
   
-  /*
-   * Copies the map stored as "work area" to `outputFieldName` variable.
-   */
-  
+  //  Copies the map stored as "work area" to `outputFieldName` variable.
   
   /**
    * Returns a map (variable store), with which a targetScene can interact to store/read data.

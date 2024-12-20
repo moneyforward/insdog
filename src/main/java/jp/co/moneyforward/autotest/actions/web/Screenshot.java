@@ -16,9 +16,7 @@ public class Screenshot implements Act<Page, Page> {
    * Creates an instance of this class.
    */
   public Screenshot() {
-    /*
-     Make default constructor findable.
-     */
+     // Make default constructor findable.
   }
   
   /**
