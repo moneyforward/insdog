@@ -10,8 +10,6 @@ MVN_WITH_JAVADOC:=source .dependencies/sdkman/bin/sdkman-init.sh && \
                   mvn -B -Dmaven.javadoc.skip=false
 PROJ_DIR:=$(shell pwd)
 
-.PHONY: always-run
-
 ## This is a Makefile for "InspektorDog" project.
 ## - https://github.com/moneyforward/insdog/wiki/9-ContributionGuidelines%7CMakefile
 ABOUT: help
