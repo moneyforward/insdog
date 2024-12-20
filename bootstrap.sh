@@ -2,9 +2,10 @@
 
 # Component versions to install
 COMPONENT_VERSIONS="$(cat <<'EOF'
-JDK:    21.0.5-oracle
-MAVEN:  3.9.6
-GOLANG: 1.21.6
+JDK:         21.0.5-oracle
+JAVADOC_JDK: 25.ea.2-open
+MAVEN:       3.9.6
+GOLANG:      1.21.6
 EOF
 )"
 
@@ -23,11 +24,14 @@ function projectbrew() {
 
 function version_for() {
   local _component_name="${1}"
-  echo "${COMPONENT_VERSIONS}" | grep "${_component_name}" | cut -f 2 -d ':' | sed -E 's/^ +//g'
+  echo "${COMPONENT_VERSIONS}" | grep "^${_component_name}" | cut -f 2 -d ':' | sed -E 's/^ +//g'
 }
 
 function jdk_version() {
   version_for "JDK"
+}
+function javadoc_jdk_version() {
+  version_for "JAVADOC_JDK"
 }
 function maven_version() {
   version_for "MAVEN"
@@ -93,14 +97,18 @@ function __bootstrap__perform_checks() {
 function __bootstrap__checkenv() {
   local _installation_reportdir="${1}"
   local _checks=()
+  function is_curl_installed() {
+    which curl
+  }
+  _checks+=("is_curl_installed")
   function is_git_installed() {
     which git
   }
-  _checks+=("is_ruby_installed")
+  _checks+=("is_git_installed")
   function is_ruby_installed() {
     which ruby
   }
-  _checks+=("is_git_installed")
+  _checks+=("is_ruby_installed")
   __bootstrap__perform_checks \
     "${_installation_reportdir}" \
     "pre-check" \
@@ -120,7 +128,6 @@ function install_project_homebrew() {
   git -C "${_homebrew_dir}" commit -a -m 'DUMMY COMMIT' >& /dev/null
 }
 
-
 function bootstrap_homebrew() {
   local _homebrew_dir="${1}"
   install_project_homebrew "${_homebrew_dir}" | progress "BOOTSTRAP" 2>&1 /dev/null
@@ -134,7 +141,7 @@ function install_brew_package() {
 function sdk_install() {
   local _lang="${1}" _ver="${2}"
   bash -c 'source '"${SDKMAN_DIR}"'/bin/sdkman-init.sh
-           sdk install '"${_lang}"' '"${_ver}"
+           yes | sdk install '"${_lang}"' '"${_ver}"
 }
 
 function progress() {
@@ -168,6 +175,14 @@ function compose_goenv_rc() {
   "
 }
 
+function compose_sdk_rc() {
+  local _jdk_name="${1}" _javadoc_jdk_name="${2}"
+  echo "
+  export SDK_JDK_NAME=${_jdk_name}
+  export SDK_JAVADOC_JDK_NAME=${_javadoc_jdk_name}
+  "
+}
+
 function message() {
   echo "${@}" >&2
 }
@@ -188,6 +203,7 @@ function main() {
   _goenv_file="${_project_dependencies_dir}/rc/goenv.rc"
   _project_godir="${_project_dependencies_dir}/go"
 
+  _sdkenv_file="${_project_dependencies_dir}/rc/sdk.rc"
   _project_sdkman_dir="${_project_dependencies_dir}/sdkman"
   shift
 
@@ -232,8 +248,11 @@ function main() {
   # install sdkman
   curl -s "https://get.sdkman.io"    | /bin/bash 2>&1 | progress "sdkman"
 
+  sdk_install java "$(javadoc_jdk_version)"  | progress "sdkman:java for javadoc"
   sdk_install java "$(jdk_version)"  | progress "sdkman:java"
   sdk_install maven "$(maven_version)" | progress "sdkman:maven"
+
+  compose_sdk_rc "$(jdk_version)" "$(javadoc_jdk_version)" > "${_sdkenv_file}"
 }
 
 projectdir="$(dirname "${BASH_SOURCE[0]}")"

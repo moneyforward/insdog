@@ -1,4 +1,4 @@
-This package hols annotations defined by the **autotest** framework.
+This package hols annotations defined by the **InsDog** framework.
 
 ## `@AutotestExecution`: Test Class's Fallback Behaviors
 
@@ -13,7 +13,7 @@ You need to modify the code directly and re-compile it for now.
 This annotation specifies a name of an entity, typically a **Scene** providing method.
 In case, you don't give a `value` of it, the framework considers the name of the entity, i.e. a name of the method if it is a method, is the name of it.
 
-Note that only with the name, the **autotest** framework-core identifies an entity.
+Note that only with the name, the **InsDog** framework-core identifies an entity.
 Meaning that if you don't give this annotation, it simply doesn't recognize a method you create at all.
 
 **NOTE:** Currently, the framework doesn't do validations on your class at all.
@@ -26,7 +26,7 @@ Its value specifies the variable names that can be used by other **Scene** provi
 
 ## `@DependsOn`, `@When`, and `@ClosedBy`
 
-If you choose a `PlanningSteatedy.DEPENDENCY_BASED` for `@AutotextExecution.Spec#planExecutionWith`, the **autotest** framework respects the annotations `@DependsOn`, `@When`, and `@ClosedBy` attached to the **Scene** providing methods.
+If you choose a `PlanningSteatedy.DEPENDENCY_BASED` for `@AutotextExecution.Spec#planExecutionWith`, the **InsDog** framework respects the annotations `@DependsOn`, `@When`, and `@ClosedBy` attached to the **Scene** providing methods.
 
 For more details of their semantics, check respective documents of annotations and the `PlanningStrategy`.
 
