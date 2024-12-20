@@ -8,13 +8,13 @@ function convert_package_info_md_to_package_info_java() {
   local _out="${_base_dir}/${_rel_dir}/package-info.java"
   rm -f ${_out}
   touch ${_out}
-  echo "/**" >> ${_out}
+  echo "///" >> ${_out}
   while IFS= read -r _i
   do
-    echo " * ${_i}" >> ${_out}
+    echo "/// ${_i}" >> ${_out}
   done < "${_base_dir}/${_rel_dir}/package-info.md"
 
-  echo " */" >> ${_out}
+  echo "/// " >> ${_out}
   echo "package ${_rel_dir//\//.};" >> ${_out}
 }
 
