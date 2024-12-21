@@ -31,6 +31,7 @@ test:
 ## Generate Javadoc under `target/site/apidocs` dir.
 javadoc:
 	@$(MVN_WITH_JAVADOC) clean compile javadoc:javadoc
+	./src/build_tools/mangle-javadoc-html-files.sh target/site/apidocs
 
 ## Does "mvn package" without generating JavaDoc to save time.
 package:

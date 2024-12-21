@@ -333,6 +333,12 @@
                             </goals>
                         </execution>
                     </executions>
+                    <configuration>
+                        <additionalOptions>
+                            <additionalOption>--add-script=${project.basedir}/src/site/resources/js/mermaid.min.js</additionalOption>
+                            <additionalOption>--add-script=${project.basedir}/src/site/resources/js/mermaid-init.js</additionalOption>
+                        </additionalOptions>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
