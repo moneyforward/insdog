@@ -1,1 +1,1 @@
-include::src/site/asciidoc/attributes.adoc[]
+include::src/site/asciidoc/en/attributes.adoc[]

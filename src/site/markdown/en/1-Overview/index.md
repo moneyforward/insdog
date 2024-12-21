@@ -4,15 +4,15 @@ The **InspektorDog** (shortened **InsDog**) is a Test Execution Library, which i
 
 * **Developer Oriented**
 * **A thin and simple library:**
-  * A JUnit Test Runner Extension
-  * You can use it with arbitrary clients for test development (HttpClient, gRPC, …)
-  * Design-wise, you can even remove Playwright and replace it with another browser automation solution (although, you don’t want to, perhaps ;) )
+  1. A JUnit Test Runner Extension
+  2.  You can use it with arbitrary clients for test development (HttpClient, gRPC, …)
+  3.  Design-wise, you can even remove Playwright and replace it with another browser automation solution (although, you don’t want to, perhaps ;) )
 * **For Higher Integration Tests**
-  * Inter-component Integration Tests
-  * End-to-end Tests
+  1. Inter-component Integration Tests
+  2.  End-to-end Tests
 * **Action-based**
-  * Execution Flexibility
-  * Rich Reporting
+  1. Execution Flexibility
+  2. Rich Reporting
 *  and it's **Open Sourced**
 
 
@@ -53,7 +53,7 @@ Following are the summary of the rest of the **InsDog**'s documentations.
 
 [2-Design](../2-Design/index.md) Discusses **InsDog**'s design overview and important concepts.
 You can find the detail API reference in [3-APISpecification](../3-APISpecification/index.md).
-[4-ExamplesAndTutorials](../4-ExamplesAndTutorials/index.md) collects guides about writing tests, improving the tool, introducing development tools. 
+[4-ExamplesAndTutorials](../3-ExamplesAndTutorials/index.md) collects guides about writing tests, improving the tool, introducing development tools. 
 
 Enjoy!
 

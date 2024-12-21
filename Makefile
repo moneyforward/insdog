@@ -3,7 +3,7 @@
 
 BASH:=$(shell which bash)
 MVN:=source .dependencies/sdkman/bin/sdkman-init.sh && \
-     sdk use java "${SDK_JDK_NAME}" &&         \
+     sdk use java "${SDK_JDK_NAME}" &&                 \
      mvn -B -Dmaven.javadoc.skip=true
 MVN_WITH_JAVADOC:=source .dependencies/sdkman/bin/sdkman-init.sh && \
 	              sdk use java "${SDK_JAVADOC_JDK_NAME}" &&         \
@@ -28,10 +28,15 @@ compile:
 test:
 	@$(MVN) clean compile test
 
-## Generate Javadoc under `target/site/apidocs` dir.
-javadoc:
-	@$(MVN_WITH_JAVADOC) clean compile javadoc:javadoc
-	./src/build_tools/mangle-javadoc-html-files.sh target/site/apidocs
+## Generate a site of this product under `target/site` directory.
+site:
+	@$(MVN_WITH_JAVADOC) clean compile site
+	@./src/build_tools/mangle-javadoc-html-files.sh target/site/en/apidocs
+
+# Generate Javadoc under `target/site/apidocs` dir.
+# Deprecated. Use `site` instead.
+javadoc: site
+	:
 
 ## Does "mvn package" without generating JavaDoc to save time.
 package:

@@ -1,7 +1,10 @@
 <project>
     <body>
         <menu name="Documents">
-            <item href="quickstart.html" name="Quick Start"/>
+            <item href="quickstart.html" name="QUICKSTART"/>
+            <item href="1-Overview/index.html" name="Overview"/>
+            <item href="2-Design/index.html" name="Design"/>
+            <item href="3-ExamplesAndTutorials/index.html" name="Examples and Tutorials"/>
         </menu>
         <menu ref="reports" inherit="top"/>
     </body>
