@@ -89,7 +89,6 @@ public class Click implements Act<Page, Page> {
     return page;
   }
 }
-
 ```
 
 Another example is `Value`, which is used for assigning a specified value to a "context variable".
