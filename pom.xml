@@ -113,7 +113,6 @@
         <java-otp.version>0.4.0</java-otp.version>
         <graalvm.version>24.1.1</graalvm.version>
         <mockito-core.version>5.4.0</mockito-core.version>
-        <markdown-page-generator-plugin.version>2.4.2</markdown-page-generator-plugin.version>
     </properties>
 
     <dependencies>
@@ -499,27 +498,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.ruleoftech</groupId>
-                <artifactId>markdown-page-generator-plugin</artifactId>
-                <version>${markdown-page-generator-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>markdown-rendering</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <inputDirectory>${project.basedir}/src/site/markdown</inputDirectory>
-                    <outputDirectory>${project.build.directory}/site</outputDirectory>
-                    <recursiveInput>true</recursiveInput>
-                    <headerHtmlFile>${project.basedir}/src/site/resources/html/header.html</headerHtmlFile>
-                    <footerHtmlFile>${project.basedir}/src/site/resources/html/footer.html</footerHtmlFile>
-                    <defaultTitle>Inspektor Dog: InsDog</defaultTitle>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

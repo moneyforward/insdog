@@ -11,12 +11,22 @@ shopt -s inherit_errexit
 # 2. It replaces all the occurrences of `../ ... ../mermaid.min.js` with the URL from which it was downloaded originally.
 function main() {
   local _target_dir="${1}"
+  # Taking care of JavaDoc generated HTML
   find "${_target_dir}" -type f        \
                         -name '*.html' \
                         -exec sed -i -E 's/class=\"language-mermaid\"/class=\"mermaid\"/g' {} \;
+  # Taking care of JavaDoc generated HTML
   find "${_target_dir}" -type f        \
                         -name '*.html' \
-                        -exec sed -i -E 's!(\.\./)+script-files/mermaid.min.js!https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js!g' {} \;
+                        -exec sed -i -E 's!(\.\./)+script-files/mermaid.min.js!https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js!g' {} \;
+  # Taking care of pandoc generated HTML
+  find "${_target_dir}" -type f        \
+                        -name '*.html' \
+                        -exec sed -i -E 's!<pre class=\"mermaid\"><code>!<pre class=\"mermaid\">!g' {} \;
+  # Taking care of pandoc generated HTML
+  find "${_target_dir}" -type f        \
+                        -name '*.html' \
+                        -exec sed -i -E 's!</code></pre>!</pre>!g' {} \;
 }
 
 main "${@}"

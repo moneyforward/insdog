@@ -31,7 +31,8 @@ test:
 ## Generate a site of this product under `target/site` directory.
 site:
 	@$(MVN_WITH_JAVADOC) clean compile site
-	@./src/build_tools/mangle-javadoc-html-files.sh target/site/en/apidocs
+	@./src/build_tools/render-md-into-html.sh src/site/markdown target/site src/site/resources/html
+	@./src/build_tools/mangle-javadoc-html-files.sh target/site/en
 
 # Generate Javadoc under `target/site/apidocs` dir.
 # Deprecated. Use `site` instead.
