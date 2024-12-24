@@ -11,9 +11,9 @@ public final class RetryCall extends CallDecorator.Base<Call>  {
   private final int retryTimes;
   private final Class<? extends Throwable> onExceptionType;
   
-  /**
-   * Creates an instance of this class.
-   */
+  /// 
+  /// Creates an instance of this class.
+  /// 
   public RetryCall(Call target, Class<? extends Throwable> onExceptionType, int retryTimes, int interval) {
     super(target);
     this.interval = interval;

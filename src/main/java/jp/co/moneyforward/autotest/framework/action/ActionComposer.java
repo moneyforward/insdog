@@ -18,54 +18,54 @@ import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.concat;
 
-/**
- * An interface that models a factory of actions.
- *
- * This interface is designed to be a "visitor" of "calls", each of which represents a call of an action (`ActionFactory`).
- *
- * A call is a model of an occurrence of an action, and it has input and output.
- *
- * Calls can be categorized into two.
- * Calls for scenes (`Scene`) and calls for acts (`Act`).
- * Corresponding to the subclasses of `Act`, there are subcategories of it, which are `LeafAct`, `AssertionAct`, and `PipelinedAct`.
- *
- * In this interface, there are `create(XyzCall xyzCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall)` methods defined.
- *
- * `assignmentResolversFromCurrentCall` is a map from a variable name to a function which resolves its value from the
- * ongoing context object.
- * By relying on this object for resolving variable values referenced inside `Act` objects (, which are held by `Calls`), we can define `Act` objects
- * work in different variable spaces without changing code (transparent to variable space name, which is determined by a call's object name).
- *
- * @see Call
- * @see Scene
- * @see Act
- */
+/// 
+/// An interface that models a factory of actions.
+/// 
+/// This interface is designed to be a "visitor" of "calls", each of which represents a call of an action (`ActionFactory`).
+/// 
+/// A call is a model of an occurrence of an action, and it has input and output.
+/// 
+/// Calls can be categorized into two.
+/// Calls for scenes (`Scene`) and calls for acts (`Act`).
+/// Corresponding to the subclasses of `Act`, there are subcategories of it, which are `LeafAct`, `AssertionAct`, and `PipelinedAct`.
+/// 
+/// In this interface, there are `create(XyzCall xyzCall, Map<String, Function<Context, Object>> assignmentResolversFromCurrentCall)` methods defined.
+/// 
+/// `assignmentResolversFromCurrentCall` is a map from a variable name to a function which resolves its value from the
+/// ongoing context object.
+/// By relying on this object for resolving variable values referenced inside `Act` objects (, which are held by `Calls`), we can define `Act` objects
+/// work in different variable spaces without changing code (transparent to variable space name, which is determined by a call's object name).
+/// 
+/// @see Call
+/// @see Scene
+/// @see Act
+/// 
 public interface ActionComposer {
-  /**
-   * A logger object
-   */
+  /// 
+  /// A logger object
+  /// 
   Logger LOGGER = LoggerFactory.getLogger(ActionComposer.class);
   
-  /**
-   * Returns currently ongoing `SceneCall` object.
-   *
-   * @return Currently ongoing `SceneCall` object.
-   */
+  /// 
+  /// Returns currently ongoing `SceneCall` object.
+  /// 
+  /// @return Currently ongoing `SceneCall` object.
+  /// 
   SceneCall ongoingSceneCall();
   
-  /**
-   * Returns an execution environment in which actions created by this composer objects are performed.
-   *
-   * @return An execution environment.
-   */
+  /// 
+  /// Returns an execution environment in which actions created by this composer objects are performed.
+  /// 
+  /// @return An execution environment.
+  /// 
   ExecutionEnvironment executionEnvironment();
   
-  /**
-   * Creates an action for a given `SceneCall` object.
-   *
-   * @param sceneCall A scene call from which an action should be created.
-   * @return A sequential action created from `sceneCall`.
-   */
+  /// 
+  /// Creates an action for a given `SceneCall` object.
+  /// 
+  /// @param sceneCall A scene call from which an action should be created.
+  /// @return A sequential action created from `sceneCall`.
+  /// 
   default Action create(SceneCall sceneCall) {
     return sequential(concat(Stream.of(sceneCall.begin(ongoingWorkingVariableStoreNames())),
                              Stream.of(sceneCall.targetScene().toSequentialAction(this)),

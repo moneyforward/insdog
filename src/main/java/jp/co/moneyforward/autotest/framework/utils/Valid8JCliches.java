@@ -11,24 +11,24 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-/**
- * A container class for utility classes for **valid8j** usages.
- *
- * This class may hold utility methods and various inner classes.
- * They should be fed back to the **valid8j** community and once those are implemented as its out-of-box features,
- * usages of them should be replaced with the new features in **valid8j**.
- *
- */
+/// 
+/// A container class for utility classes for **valid8j** usages.
+/// 
+/// This class may hold utility methods and various inner classes.
+/// They should be fed back to the **valid8j** community and once those are implemented as its out-of-box features,
+/// usages of them should be replaced with the new features in **valid8j**.
+/// 
+/// 
 public enum Valid8JCliches {
   ;
   
-  /**
-   * This is a method to workaround issue: [valid8j:issue-16](https://github.com/valid8j/valid8j/issues/16[valid8j/issue-16)
-   * Once it is fixed, usages of this method should be replaced with `Expectations.assumeStatement`.
-   *
-   * @param statement A statement
-   * @param <T>       Type of the value
-   */
+  /// 
+  /// This is a method to workaround issue: [valid8j:issue-16](https://github.com/valid8j/valid8j/issues/16[valid8j/issue-16)
+  /// Once it is fixed, usages of this method should be replaced with `Expectations.assumeStatement`.
+  /// 
+  /// @param statement A statement
+  /// @param <T>       Type of the value
+  /// 
   @SuppressWarnings("JavadocLinkAsPlainText")
   public static <T> void assumeStatement(Statement<T> statement) {
     Validator.INSTANCE.get().validate(statement.statementValue(),
@@ -42,9 +42,9 @@ public enum Valid8JCliches {
     return Printables.function("mapToKeyList", m -> m.keySet().stream().toList());
   }
   
-  /**
-   * A utility class to make an existing `Function` s  and `Predicate` s "printable".
-   */
+  /// 
+  /// A utility class to make an existing `Function` s  and `Predicate` s "printable".
+  /// 
   public enum MakePrintable {
     ;
     

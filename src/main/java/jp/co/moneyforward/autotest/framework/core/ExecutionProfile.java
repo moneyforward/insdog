@@ -20,9 +20,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.platform.commons.support.ReflectionSupport.invokeMethod;
 
 public interface ExecutionProfile {
-  /**
-   * An annotation that lets the framework know which factory should be used for creating a profile instance.
-   */
+  /// 
+  /// An annotation that lets the framework know which factory should be used for creating a profile instance.
+  /// 
   @SuppressWarnings("rawtypes")
   @Retention(RUNTIME)
   @Target(TYPE)
@@ -31,10 +31,10 @@ public interface ExecutionProfile {
   }
   
   interface Factory<T extends ExecutionProfile> {
-    /**
-     * @param branchName This can be `null`, if the execution is not on a branch, otherwise the git branch name.
-     * @return An execution profile object.
-     */
+    /// 
+    /// @param branchName This can be `null`, if the execution is not on a branch, otherwise the git branch name.
+    /// @return An execution profile object.
+    /// 
     T create(String branchName);
   }
   

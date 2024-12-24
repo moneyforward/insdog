@@ -9,46 +9,46 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 import static com.github.valid8j.fluent.Expectations.precondition;
 import static com.github.valid8j.fluent.Expectations.value;
 
-/**
- * An interface to model the execution environment.
- */
+/// 
+/// An interface to model the execution environment.
+/// 
 public interface ExecutionEnvironment {
   
-  /**
-   * A system property key for a base directory under which test results are stored.
-   */
+  /// 
+  /// A system property key for a base directory under which test results are stored.
+  /// 
   String PROPERTY_KEY_FOR_TEST_RESULT_DIRECTORY = "jp.co.moneyforward.autotest.testResultDirectory";
   
-  /**
-   * A currently ongoing test class name.
-   *
-   * @return A test class name.
-   */
+  /// 
+  /// A currently ongoing test class name.
+  /// 
+  /// @return A test class name.
+  /// 
   String testClassName();
   
-  /**
-   * Returns a name of a currently ongoing scene, if any.
-   *
-   * @return A name of an ongoing scene.
-   * @see ExecutionEnvironment#withDisplayName(String, String)
-   */
+  /// 
+  /// Returns a name of a currently ongoing scene, if any.
+  /// 
+  /// @return A name of an ongoing scene.
+  /// @see ExecutionEnvironment#withDisplayName(String, String)
+  /// 
   Optional<String> testSceneName();
   
-  /**
-   * A name of an ongoing step, such as `beforeAll`, `afterEach`, or `main`.
-   *
-   * @return A name of an ongoing step.
-   * @see ExecutionEnvironment#withDisplayName(String, String)
-   */
+  /// 
+  /// A name of an ongoing step, such as `beforeAll`, `afterEach`, or `main`.
+  /// 
+  /// @return A name of an ongoing step.
+  /// @see ExecutionEnvironment#withDisplayName(String, String)
+  /// 
   String stepName();
   
-  /**
-   * Returns a new {@link ExecutionEnvironment} instance, with a currently ongoing display name and a step name.
-   *
-   * @param displayName A display name of a currently ongoing scene.
-   * @param stageName   A stage name of a currently ongoing scene.
-   * @return A new execution environment object.
-   */
+  /// 
+  /// Returns a new {@link ExecutionEnvironment} instance, with a currently ongoing display name and a step name.
+  /// 
+  /// @param displayName A display name of a currently ongoing scene.
+  /// @param stageName   A stage name of a currently ongoing scene.
+  /// @return A new execution environment object.
+  /// 
   default ExecutionEnvironment withDisplayName(String displayName, String stageName) {
     requireNonNull(displayName);
     return new ExecutionEnvironment() {
@@ -69,22 +69,22 @@ public interface ExecutionEnvironment {
     };
   }
   
-  /**
-   * Returns a `Path` to a directory under which test results are stored.
-   *
-   * @return A path to a test result directory.
-   */
+  /// 
+  /// Returns a `Path` to a directory under which test results are stored.
+  /// 
+  /// @return A path to a test result directory.
+  /// 
   default Path testResultDirectory() {
     return testResultDirectoryFor(this.testClassName(),
                                   this.testSceneName().orElse("unknown-" + Utils.counter.getAndIncrement()));
   }
   
-  /**
-   * Returns an absolute path to a test result file.
-   *
-   * @param fileName A file name under the test result directory.
-   * @return An absolute path to a test result file.
-   */
+  /// 
+  /// Returns an absolute path to a test result file.
+  /// 
+  /// @param fileName A file name under the test result directory.
+  /// @return An absolute path to a test result file.
+  /// 
   default Path testOutputFilenameFor(String fileName) {
     return Paths.get(testResultDirectory().toString(), fileName);
   }

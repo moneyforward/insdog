@@ -7,27 +7,27 @@ import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
 
 import java.util.function.Function;
 
-/**
- * An abstract base class for clicking acts.
- */
+/// 
+/// An abstract base class for clicking acts.
+/// 
 public abstract class ClickBase implements Act<Page, Page> {
   final Function<Page, Locator> locatorFunction;
   
-  /**
-   * Creates an object of this class.
-   *
-   * @param locatorFunction A function to locate an element to click.
-   */
+  /// 
+  /// Creates an object of this class.
+  /// 
+  /// @param locatorFunction A function to locate an element to click.
+  /// 
   protected ClickBase(Function<Page, Locator> locatorFunction) {
     this.locatorFunction = locatorFunction;
   }
   
-  /**
-   * Returns a name of this object.
-   * The returned name is printed in action trees.
-   *
-   * @return A name of this object.
-   */
+  /// 
+  /// Returns a name of this object.
+  /// The returned name is printed in action trees.
+  /// 
+  /// @return A name of this object.
+  /// 
   @Override
   public String name() {
     return InternalUtils.simpleClassNameOf(this.getClass()) + "[" + this.locatorFunction + "]";

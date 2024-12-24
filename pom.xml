@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>jp.co.moneyforward.insdog</groupId>
     <artifactId>insdog-all</artifactId>
@@ -111,6 +112,7 @@
         <!-- END: build dependencies -->
         <java-otp.version>0.4.0</java-otp.version>
         <graalvm.version>24.1.1</graalvm.version>
+        <mockito-core.version>5.4.0</mockito-core.version>
     </properties>
 
     <dependencies>
@@ -232,7 +234,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.4.0</version>
+            <version>${mockito-core.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -261,7 +263,7 @@
                     <artifactId>maven-resources-plugin</artifactId>
                     <executions>
                         <execution>
-                            <id>copy-js-resources</id>
+                            <id>copy-resources</id>
                             <phase>process-resources</phase>
                             <goals>
                                 <goal>resources</goal>
@@ -274,6 +276,13 @@
                                             <include>**/*.js</include>
                                         </includes>
                                         <targetPath>.</targetPath>
+                                    </resource>
+                                    <resource>
+                                        <directory>src/site/asciidoc</directory>
+                                        <includes>
+                                            <include>**/*.adoc</include>
+                                        </includes>
+                                        <targetPath>${project.build.directory}/site/</targetPath>
                                     </resource>
                                 </resources>
                                 <outputDirectory>${project.build.outputDirectory}</outputDirectory>
@@ -333,6 +342,13 @@
                             </goals>
                         </execution>
                     </executions>
+                    <configuration>
+                        <overview>src/main/javadoc/overview.md</overview>
+                        <additionalOptions>
+                            <additionalOption>--add-script=${project.basedir}/src/site/resources/js/mermaid.min.js</additionalOption>
+                            <additionalOption>--add-script=${project.basedir}/src/site/resources/js/mermaid-init.js</additionalOption>
+                        </additionalOptions>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -571,7 +587,7 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <sourceDirectory>src/site/asciidoc</sourceDirectory>
+                    <sourceDirectory>src/site/asciidoc/en</sourceDirectory>
                     <requires>
                         <require>asciidoctor-diagram</require>
                     </requires>
@@ -594,13 +610,13 @@
                         </goals>
                         <configuration>
                             <backend>html5</backend>
-                            <outputDirectory>target/site</outputDirectory>
+                            <outputDirectory>target/site/en</outputDirectory>
                             <attributes>
                                 <imagesdir>.</imagesdir>
                                 <toc>left</toc>
                                 <icons>font</icons>
                                 <sectanchors>true</sectanchors>
-                                <idprefix />
+                                <idprefix/>
                                 <idseparator>-</idseparator>
                             </attributes>
                         </configuration>
