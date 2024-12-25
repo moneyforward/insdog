@@ -1,13 +1,10 @@
-# Programming Model of "InsDog"
+# Lesson-2: Programming Model of "InsDog"
 
 **InsDog** sets its own programming model, so that test writers can define high quality test classes in a natural way.
 It is designed to result in compilation errors rather than runtime failures, if a test writer fails to follow preferable design as much as possible.
 That said, knowing the design thought behind it will help you learn how to write tests in the model quickly.
 
 In this document, we will walk through a working example and touch up on important elements one by one.
-
-**NOTE:** Please note that examples in this page are all under active development as of June-July/2024.
-Check the latest code and consult with the designer of this product (`ukai.hiroshi@moneyforward.co.jp`), when you start working on writing tests, although basic concepts will not be changed.
 
 ## Walking through an example
 
@@ -119,7 +116,7 @@ This means, overloading scene methods require explicit `@Named` value without co
 
 **NOTE:** Currently the **Access Model** needs to be extended by test model, however test execution and access model are essentially separate concerns.
 For instance, you may want to execute the same test scenario using a different access model than Web UI, let's say, public API.
-In such a situation, you want to change the access model at execution time through runtime CLI parameter.
+In such a situation, you want to change the access model's behavior at execution time through runtime CLI parameter.
 This enhancement will be made in the future.
 
 **NOTE:** It is being considered to separate the dependency declaration and variable definitions.
@@ -227,3 +224,6 @@ Once the second user appears, move it to an appropriate class.
 
 Don't worry, they are all static methods, which you can easily move around.
 
+// NOTE:
+// * act(Act)// prefer this
+// * add(String, Act)// when granular control is needed

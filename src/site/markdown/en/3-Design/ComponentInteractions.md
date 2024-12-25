@@ -6,9 +6,7 @@ Sometimes, as a test preparation step.
 Many of them look similar to each others but slightly different from each others.
 This is why we need a good mechanism to compose a testing activity from smaller and reusable elements in a programmatic way.
 
-Not only that, we need to take more concerns into account.
-
-One defined action can be performed in various ways, this is such a concern.
+One defined action can be performed in various ways.
 For instance, an action to deploy a certain system is used for building SUT in a given environment, but it can also be a function to be tested.
 If you run it as a test, you want to collect information about the deployment in order to examine the function works as expected.
 Once a test fails in its set up phase, users want to run the phase as if it were a main part of the test to collect information.
@@ -20,20 +18,21 @@ These are challenges not seen in product code, but only in automated testing too
 
 To achieve such required flexibilities, **InsDog** employs the following mechanisms and design policies.
 
-- `Act`, `Scene`, and `ActionFactory` structure
+- `Act`, `Scene`, and `Call` structure
 - Action compilation pipeline
 - Custom `JUnit5` extension (custom test runner) and annotation based programming model
 
 Note that code examples and class/sequence diagrams in this page are intended to describe the basic concepts and may be different from the product code in their implementation details.
-Thus, even if a concept is described as a class in diagrams in this page, it may not have a corresponding implementation class in the code base, for instance.
+Thus, even if a concept is described as a class in diagrams in this page, it may not have a corresponding implementation class in the code base.
 
-## Scenes, Acts, and Play
+## Scenes, Acts, and Test object
 
-**InsDog** has units called `Act` and `Scene`, and they are called `ActionFactory` in general.
+**InsDog** has units called `Act` and `Scene`, and they are essentially factories of actions.
 An `Act` is a minimal unit to define an interaction with the system under test (SUT).
-A `Scene` consists of one or more `ActionFactories`.
-An action factory can have one input and one output.
-Input is read from a variable in a context to which action belongs.
+A `Scene` consists of one or more `Act` or `Scene`.
+An `Act` can have zero or one input variable and zero or one output variable.
+Input is read from a variable in a variable store.
+A variable store is owned by a `Scene` and an `Act` belongs to a scene.
 
 Following is a diagram that models relationships between `Act`, `Scene`, and `ActionFactory`.
 
@@ -41,39 +40,36 @@ Following is a diagram that models relationships between `Act`, `Scene`, and `Ac
 classDiagram
     ActionFactory <|-- Scene
     ActionFactory <|-- Act
-    Scene "1" --> "*" ActionFactory : children
-    Play "1" --> "*" Scene : baseSetUp
-    Play "1" --> "*" Scene : setUp
-    Play "1" --> "*" Scene : main
-    Play "1" --> "*" Scene : tearDown
-    Play "1" --> "*" Scene : baseTearDown
-    
+    Scene "1" --> "*" ActionFactory: children
+    TestObject "1" --> "*" Scene: baseSetUp
+    TestObject "1" --> "*" Scene: setUp
+    TestObject "1" --> "*" Scene: main
+    TestObject "1" --> "*" Scene: tearDown
+    TestObject "1" --> "*" Scene: baseTearDown
     <<interface>> Scene
     class Scene {
         List~ActionFactory~ children()
     }
     <<interface>> Act
     class Act {
-       R perform(T input) 
+        R perform(T input)
     }
-    
+
 ```
-:::note info
-Due to a tool's limitation, generics isn't rendered same in the implementation language in the diagram and just showing overall concepts.
-:::
 
-:::TODO
-Remove "Play"
-:::
+`TestObject` is an instance of a test class.
+A test class is the entry points that of your test, and it is what you write from!
 
-They are modeled as Java code in a way where programmers (typically SDETs) can minimize repetitions in the test code to keep the readability and maintainability.
+As in many testing frameworks, you can define usual test phases; before all (baseSetUp), before each (setUp), test methods, after each (tearDown), and after all (baseTearDown). 
+
+All of those are modeled as Java code in a way where programmers (typically SDETs) can minimize repetitions in the test code to keep the readability and maintainability.
 
 ### Act
 
 An `Act` models a single action executed in a test scenario.
 In the context of web-UI testing, actions such as "click", "sendKey", "waitFor", "doubleClick", etc. can be modeled as an `Act`.
 
-Following is one example of `Act` implementation: `Click`.
+Following is one example of `Act`, An implementation of `Click` class.
 
 ```java
 public class Click implements Act<Page, Page> {
@@ -91,20 +87,22 @@ public class Click implements Act<Page, Page> {
 }
 ```
 
-Another example is `Value`, which is used for assigning a specified value to a "context variable".
+
+Another example is of an `Act` is `Value`.
+This class is used for assigning a specified value to a "context variable".
 
 ```java
-  class Value<T> implements Act<Void, T> {
-    private final T value;
-    
-    public Value(T value) {
-      this.value = value;
-    }
-    
-    public T perform(Void value, ExecutionEnvironment executionEnvironment) {
-      return this.value;
-    }
+class Value<T> implements Act<Void, T> {
+  private final T value;
+
+  public Value(T value) {
+    this.value = value;
   }
+
+  public T perform(Void value, ExecutionEnvironment executionEnvironment) {
+    return this.value;
+  }
+}
 ```
 
 ### Scene
@@ -145,9 +143,9 @@ When the output field name or the input field name is omitted, a constant "defau
 
 To define a function with multiple parameters, we need "currying" mechanism, which is not supported as of now.
 
-### Play
+### Test Object
 
-Play is a concept to model the entire test, which consists of `setupAll`, `setUp`, `main`, `tearDown`, and `tearDownAll` action factories.
+Test Object is a concept to model the entire test, which consists of `setupAll`, `setUp`, `main`, `tearDown`, and `tearDownAll` action factories.
 It is created by the test extension of **InsDog** internally and users do not need to create it by themselves in usual use cases.
 
 
@@ -157,12 +155,12 @@ In order to modify/decorate the execution-time behavior of actions, **InsDog** h
 
 ```mermaid
 graph LR
-    Play
-    Play --> baseSetUp
-    Play --> setUp
-    Play --> main
-    Play --> tearDown
-    Play --> baseTearDown
+    TestObject
+    TestObject --> baseSetUp
+    TestObject --> setUp
+    TestObject --> main
+    TestObject --> tearDown
+    TestObject --> baseTearDown
     AutotestExtension
     TestClass
     ExecutionCompiler
@@ -178,7 +176,7 @@ graph LR
         afterAll
         beforeAll
     end
-    ExecutionCompiler -- read --> Play
+    ExecutionCompiler -- read --> TestObject
     ExecutionCompiler -. create .-> Execution
     Execution --> beforeAll
     Execution --> beforeEach
@@ -186,108 +184,16 @@ graph LR
     Execution --> afterEach
     Execution --> afterAll
     AutotestExtension -- 1: read annotations --> TestClass
-    AutotestExtension -. 2: compose a play object .-> Play
+    AutotestExtension -. 2: compose a play object .-> TestObject
     AutotestExtension -. 3: instantiate execution compiler .-> ExecutionCompiler
     AutotestExtension -- 4: request compilation --> ExecutionCompiler
     AutotestExtension -- 5: request performing action --> ActionPerformer
-
     ActionPerformer --> actionTrees
     ActionPerformer -.-> testResults
 ```
 
 `Execution Compiler` compiles trees of `ActionFactories` into trees of actions, which can be performed by `ActionUnit`.
 By replacing a default execution compiler with a custom one, you can control how your test is executed.
-
-## Programming Model
-
-Following is a code example that illustrates how a test class for **InsDog** will be written.
-
-<details>
-<summary>
-@ExtendWith(AutotestEngine.class)
-@ExecuteWith(
-    compiler = ExecutionCompiler.Default.class,
-    actionPerformer = ReportingActionPerformer.class)
-public class AutotestExample {
-</summary>
-
-```java
-@ExtendWith(AutotestEngine.class)
-@ExecuteWith(compiler = ExecutionCompiler.Default.class)
-public class AutotestExample implements ActionTestPerformer {
-  @SetUpAll
-  public Scene login() {
-    return new Scene.Builder("page").add(SomeAction())
-                              .add(new WaitFor())
-                              .build();
-  }
-  
-  @SetUpAll
-  @DependsOn("login")
-  public Scene connectDatasetAndRegisterAccounts() {
-    return new Scene.Builder().add(SomeAction(), "varName1")
-                              .add("resultVariable", new WaitFor())
-                              .build();
-  }
-  
-  @ActionTest
-  public Scene registerBankAccountUnderApiPartnership_Rakuten() {
-    return new Scene.Builder().add(SomeAction(), "varName1")
-                              .add("resultVariable", new WaitFor())
-                              .build();
-  }
-  
-  
-  @ActionTest
-  @DependsOn("registerBankAccountUnderApiPartnership_Rakuten")
-  public Scene unregisterBankAccount_Rakuten() {
-    return new Scene.Builder().add(SomeAction(), "varName1")
-                              .add("resultVariable", new WaitFor())
-                              .build();
-  }
-  
-  @AfterAll
-  public Scene logout() {
-    return new Scene.Builder().add(SomeAction(), "varName1")
-                              .add("resultVariable", new WaitFor())
-                              .build();
-  }
-}
-
-```
-</details>
-
-### Class Declaration : `@ExtendWith(AutotestEngine.class)` and `@ExecuteWith(...)`
-
-`@ExtendWith` is a built-in annotation of JUnit5.
-Specify `AutotestEngine.class` to run your test under **InsDog** 's framework.
-
-```java
-@ExtendWith(AutotestEngine.class)
-@ExecuteWith(compiler = ExecutionCompiler.Default.class)
-public class AutotestExample implements ActionTestPerformer {
-  // ...
-}
-```
-
-`@ExecuteWith(...)` is a custom annotation to specify how the framework runs user's tests.
-The `compiler` attribute specifies an "Execution Compiler" (discussed above) class.
-
-`ActionTestPerformer` is an interface that defines how actions should be performed by default.
-
-:::note info
-This is a current limitation of **InsDog**.
-It is preferable to be able to write a test class without implementing the `ActionTestPerformer` interface. 
-:::
-
-
-### Method Level Annotations: `@SetUpAll`, `@SetUpEach`, `@ActionTest`, `@TearDownEach`, and `@TearDownAll`
-
-These annotation specifies how a method to which they are given will play a role in a test class. 
-
-### Dependency: `@DependsOn("methodName1", "methodName2", ...)` 
-
-This annotation specifies in what order actions produced by each method should be executed.
 
 ## References
 

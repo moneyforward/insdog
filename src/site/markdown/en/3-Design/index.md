@@ -5,3 +5,4 @@
 
 * [Architecture](Architecture.md)
 * [Component Interactions](ComponentInteractions.md)
+* [Variable Store Mechanism](...)

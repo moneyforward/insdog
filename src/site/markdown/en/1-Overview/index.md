@@ -15,8 +15,6 @@ The **InspektorDog** (shortened **InsDog**) is a Test Execution Library, which i
   2. Rich Reporting
 *  and it's **Open Sourced**
 
-
-
 1. **Written in Java, not having a separate DSL:**
    It is written in Java in order to allow test-writers to access the most matured knowledge pool among others.
    Also, "correctness" and "defined specifications" are important in verifications and validations, which are what Java is excellent at.
@@ -51,9 +49,9 @@ Based on the annotations you attach to the asserting functions, the tool will au
 
 Following are the summary of the rest of the **InsDog**'s documentations.
 
-[2-Design](../2-Design/index.md) Discusses **InsDog**'s design overview and important concepts.
+[2-Design](../3-Design/index.md) Discusses **InsDog**'s design overview and important concepts.
 You can find the detail API reference in [3-APISpecification](../3-APISpecification/index.md).
-[4-ExamplesAndTutorials](../3-ExamplesAndTutorials/index.md) collects guides about writing tests, improving the tool, introducing development tools. 
+[4-ExamplesAndTutorials](../2-ExamplesAndTutorials/index.md) collects guides about writing tests, improving the tool, introducing development tools. 
 
 Enjoy!
 
