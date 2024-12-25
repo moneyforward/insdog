@@ -105,7 +105,7 @@ public class AutotestEngineTest extends TestBase {
     validator.addExpectation(forTestMatching(".*logout.*").shouldBeSuccessful());
     validator.addExpectation(forTestMatching(".*fail.*").shouldBeFailed());
     
-    runTests(validator, StateEnsuringByFallingBackDependencies.class);
+    runTests(validator, StateEnsuringTechniqueByFallingBackDependencies.class);
   }
   
   @Test
