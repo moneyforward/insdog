@@ -17,8 +17,7 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.createCo
 @AutotestExecution(
     defaultExecution = @AutotestExecution.Spec(
         value = {
-            "scene1",
-            "thenClickButton3"
+            "performTargetFunction"
         },
         planExecutionWith = DEPENDENCY_BASED
     ))
@@ -41,7 +40,7 @@ public class VariableHandOver implements AutotestRunner {
   @Named
   @Export()
   @DependsOn("openBasePage")
-  public Scene scene1() {
+  public Scene performTargetFunction() {
     return Scene.begin()
                 .add(clickButton1())
                 .add("childPage", openChildPage())
@@ -53,7 +52,7 @@ public class VariableHandOver implements AutotestRunner {
   
   @Named
   @Export()
-  @When("scene1")
+  @When("performTargetFunction")
   public Scene thenClickButton2() {
     return Scene.begin()
                 .add(clickButton2())
@@ -62,7 +61,7 @@ public class VariableHandOver implements AutotestRunner {
   
   @Named
   @Export()
-  @DependsOn("scene1")
+  @DependsOn("performTargetFunction")
   public Scene thenClickButton3() {
     return Scene.begin()
                 .add(clickButton3())
@@ -70,7 +69,7 @@ public class VariableHandOver implements AutotestRunner {
   }
   
   private Act<Object, String> openNewPage() {
-    return new Act.Let<String>("newPage");
+    return new Act.Let<>("newPage");
   }
   
   private Act<Object, Object> screenshot() {
