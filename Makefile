@@ -28,6 +28,19 @@ compile:
 test:
 	@$(MVN) clean compile test
 
+## Does "mvn package" without generating JavaDoc.
+package:
+	@$(MVN) clean compile package
+
+## Does "mvn deploy" without generating JavaDoc.
+deploy:
+	@$(MVN) clean compile deploy
+
+## Does "mvn release:prepare" and "mvn release:perform" without generating JavaDoc.
+release:
+	@$(MVN) release:prepare && \
+    $(MVN) release:perform
+
 ## Generate a site of this product under `target/site` directory.
 site:
 	@$(MVN_WITH_JAVADOC) clean compile site
@@ -39,12 +52,9 @@ site:
 javadoc: site
 	:
 
-## Does "mvn package" without generating JavaDoc to save time.
-package:
-	@$(MVN) clean compile package
 
-## Build.
-## Internally executes `package-without-javadoc` target.
+## Build this repository locally.
+## This is a synonym for `package`.
 build: package
 	:
 
