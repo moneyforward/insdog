@@ -55,59 +55,61 @@ A **Scene** method is supposed to return `Scene` object, which can be built by `
 Note that how to build a scene object using the builder is omitted in this example for the simplicity's sake.
 
 ```java
+import jp.co.moneyforward.autotest.framework.action.Scene;
+import jp.co.moneyforward.autotest.framework.annotations.Export;
+
 public class AppAccessingModel implements AutotestRunner {
-  
+
   @Named
+  @Export({"browser", "window", "page"})
   public static Scene open() {
-    return new Scene.Builder("NONE").build();
+    return Scene.begin()
+                .add("browser", openBrowser())
+                .add("window", openWindow())
+                .add("page", openPage())
+                .end();
   }
-  
+
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  @DependsOn("open")
   public static Scene login() {
-    return new Scene.Builder("login").build();
+    return Scene.begin()
+                .act(login())
+                .end();
   }
-  
+
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  @DependsOn("page")
   public static Scene connectBank() {
     return new Scene.Builder("page").build();
   }
-  
+
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
+  @DependsOn("page")
   public static Scene disconnectBank() {
     return new Scene.Builder("page").build();
   }
-  
+
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
+  @DependsOn("page")
   public static Scene logout() {
     return new Scene.Builder("page").build();
   }
-  
+
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  @DependsOn("page")
   public static Scene screenshot() {
     return new Scene.Builder("page").build();
   }
-  
+
   @Named
-  @DependsOn({
-      @Parameter(name = "browser", sourceSceneName = "open", fieldNameInSourceScene = "browser"),
-      @Parameter(name = "window", sourceSceneName = "open", fieldNameInSourceScene = "window"),
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page")}
-  )
+  @DependsOn("open")
   public static Scene close() {
     return new Scene.Builder("page").build();
   }
 }
 ```
+
 **NOTE:** `@Named` annotation can have a string `value`.
 The value will be treated as a name of the scene method with which **Execution Directive** references.
 By default, the name of the method will be used.
@@ -119,19 +121,6 @@ For instance, you may want to execute the same test scenario using a different a
 In such a situation, you want to change the access model's behavior at execution time through runtime CLI parameter.
 This enhancement will be made in the future.
 
-**NOTE:** It is being considered to separate the dependency declaration and variable definitions.
-That is:
-```java
-  @Named
-  @DependsOn("open")
-  @Import(value="page", from="page@open")
-  public static Scene screenshot() {
-    return new Scene.Builder("screenshot").build();
-  }
-```
-This will allow us to declare `@DependsOn` in an abstract **Access Model**, which is common to web-UI and API, for instance, while we can declare `@Import` in the concrete access models, so that they can access different variables accordingly.
-
-
 ### Scene and Act
 
 A **scene** consists of one or more **acts**.
@@ -141,20 +130,20 @@ It is suggested to create reusable **acts** (functions to create **acts**, class
 
 ```java
   public static Scene disconnectBank() {
-    return new Scene.Builder("page")
-        // (1)
-        .add(new Navigate(EXECUTION_PROFILE.accountsUrl()))
-        // (2)
-        .add(new PageAct("金融機関を削除する") {            
-          @Override
-          protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-            page.getByRole(AriaRole.CELL, new Page.GetByRoleOptions().setName("\uF142")).locator("a").click();
-            page.onceDialog(Dialog::accept);
-            page.getByTestId("ca-client-test-account-dropdown-menu-delete-button")
-                .click();
-          }
-        })
-        .build();
+    return Scene.begin("page")
+                // (1)
+                .add(new Navigate(EXECUTION_PROFILE.accountsUrl()))
+                // (2)
+                .add(new PageAct("金融機関を削除する") {            
+                    @Override
+                    protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+                      page.getByRole(AriaRole.CELL, new Page.GetByRoleOptions().setName("\uF142")).locator("a").click();
+                      page.onceDialog(Dialog::accept);
+                      page.getByTestId("ca-client-test-account-dropdown-menu-delete-button")
+                          .click();
+                    }
+                  })
+                .end();
   }
 ```
 

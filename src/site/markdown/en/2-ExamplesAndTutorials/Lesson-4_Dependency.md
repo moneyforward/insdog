@@ -313,6 +313,8 @@ Note that `closeExecutionSession` will be performed unless the `openExecutionSes
 So, it is highly recommended to write the `openExecutionSession` in an "atomic" manner, where an operation completely
 succeeds, otherwise it leaves no side effect at all.
 
+t.b.d.: Place action tree in each section
+
 ## Footnotes
 
 * [^1]: `closeExecutionSession` is declared to be depending on `openExecutionSession`.
