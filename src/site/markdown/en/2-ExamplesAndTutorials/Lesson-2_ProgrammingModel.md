@@ -62,7 +62,7 @@ public class AppAccessingModel implements AutotestRunner {
 
   @Named
   @Export({"browser", "window", "page"})
-  public static Scene open() {
+  public static Scene openSession() {
     return Scene.begin()
                 .add("browser", openBrowser())
                 .add("window", openWindow())
@@ -81,31 +81,31 @@ public class AppAccessingModel implements AutotestRunner {
   @Named
   @DependsOn("page")
   public static Scene connectBank() {
-    return new Scene.Builder("page").build();
+    return Scene.begin("page").act("...").end();
   }
 
   @Named
   @DependsOn("page")
   public static Scene disconnectBank() {
-    return new Scene.Builder("page").build();
+    return Scene.begin("page").act("...").end();
   }
 
   @Named
   @DependsOn("page")
   public static Scene logout() {
-    return new Scene.Builder("page").build();
+    return Scene.begin("page").act("...").end();
   }
 
   @Named
   @DependsOn("page")
   public static Scene screenshot() {
-    return new Scene.Builder("page").build();
+    return Scene.begin("page").act("...").end();
   }
 
   @Named
-  @DependsOn("open")
+  @DependsOn("openSession")
   public static Scene close() {
-    return new Scene.Builder("page").build();
+    return Scene.begin("page").act("...").end();
   }
 }
 ```

@@ -80,6 +80,38 @@ public class Lesson extends LessonBase {
 Here is a note about behaviors when you specify the execution order in `@AutotestExecution`, which is against the dependency declarations by `@DependsOn` and others.
 They are not defined as of now.
 
+**Execution Plan:**
+```text
+[INFO ] [2024/12/27 17:00:37.027] [main] - ----
+[INFO ] [2024/12/27 17:00:37.028] [main] - Execution plan is as follows:
+[INFO ] [2024/12/27 17:00:37.028] [main] - - beforeAll:      [setUpMethod]
+[INFO ] [2024/12/27 17:00:37.028] [main] - - beforeEach:     []
+[INFO ] [2024/12/27 17:00:37.028] [main] - - value:          [sceneMethod]
+[INFO ] [2024/12/27 17:00:37.028] [main] - - afterEach:      []
+[INFO ] [2024/12/27 17:00:37.028] [main] - - afterAll:       []
+[INFO ] [2024/12/27 17:00:37.028] [main] - ----
+```
+
+**Action Tree: beforeAll:**
+
+```text
+[INFO ] [2024/12/27 17:00:37.035] [main] - LessonDependsOn     : beforeAll:  [o]setUpMethod                                                  
+[INFO ] [2024/12/27 17:00:37.036] [main] - LessonDependsOn     : beforeAll:  +-[o:0]BEGIN[setUpMethod]@[work-id-1659515968]
+[INFO ] [2024/12/27 17:00:37.036] [main] - LessonDependsOn     : beforeAll:  |-+-[o:0]let[InsDog][page]
+[INFO ] [2024/12/27 17:00:37.036] [main] - LessonDependsOn     : beforeAll:  | +-[o:0]sink[page]
+[INFO ] [2024/12/27 17:00:37.036] [main] - LessonDependsOn     : beforeAll:  +-[o:0]END[setUpMethod]
+```
+
+**Action Tree: test:**
+
+```text
+[INFO ] [2024/12/27 17:00:37.047] [main] - LessonDependsOn     : value:      [o]sceneMethod
+[INFO ] [2024/12/27 17:00:37.048] [main] - LessonDependsOn     : value:      +-[o:0]BEGIN[sceneMethod]@[work-id-1337829755]
+[INFO ] [2024/12/27 17:00:37.048] [main] - LessonDependsOn     : value:      |-+-[o:0]let[InsDog][page]
+[INFO ] [2024/12/27 17:00:37.048] [main] - LessonDependsOn     : value:      | +-[o:0]sink[page]
+[INFO ] [2024/12/27 17:00:37.048] [main] - LessonDependsOn     : value:      +-[o:0]END[sceneMethod]
+```
+
 Here is another question.
 Except for a set-up method, what do we want to specify here?
 You should specify other scene returning methods, without which the method don't make sense.
@@ -108,11 +140,11 @@ Following code shows its usage.
 ```java
 
 @AutotestExecution(defaultExecution = @Spec(
-    value = "performFunction",
+    value = "performTargetFunction",
     planExecutionWith = DEPENDENCY_BASED))
 public class LessonWhen extends LessonBase {
   @Named
-  public Scene performFunction() {
+  public Scene performTargetFunction() {
     return Scene.begin().act("...").end();
   }
   
@@ -157,6 +189,32 @@ That will look like in your IDE's test run window as follows.:
     + [1]: performTargetFunction
     + [2]: thenDatabaseRecordWasUpdated 
     + [3]: thenWindowWasUpdated 
+```
+
+Also, the execution plan and action tree look as follows.
+
+**Execution Plan:**
+```text
+[INFO ] [2024/12/27 15:45:17.221] [main] - ----
+[INFO ] [2024/12/27 15:45:17.221] [main] - Execution plan is as follows:
+[INFO ] [2024/12/27 15:45:17.221] [main] - - beforeAll:      []
+[INFO ] [2024/12/27 15:45:17.221] [main] - - beforeEach:     []
+[INFO ] [2024/12/27 15:45:17.222] [main] - - value:          [performFunction, thenDatabaseRecordUpdated]
+[INFO ] [2024/12/27 15:45:17.222] [main] - - afterEach:      []
+[INFO ] [2024/12/27 15:45:17.222] [main] - - afterAll:       []
+[INFO ] [2024/12/27 15:45:17.222] [main] - ----
+```
+
+**Action Tree**
+```text
+[INFO ] [2024/12/27 15:45:17.248] [main] - LessonWhen          : value:      [o]performFunction
+[INFO ] [2024/12/27 15:45:17.248] [main] - LessonWhen          : value:      +-[o:0]BEGIN[performFunction]@[work-id-519303080]
+[INFO ] [2024/12/27 15:45:17.248] [main] - LessonWhen          : value:      |-+-[o:0]let[Hello!][page]
+[INFO ] [2024/12/27 15:45:17.248] [main] - LessonWhen          : value:      +-[o:0]END[performFunction]
+[INFO ] [2024/12/27 15:45:17.256] [main] - LessonWhen          : value:      [o]thenDatabaseRecordUpdated
+[INFO ] [2024/12/27 15:45:17.256] [main] - LessonWhen          : value:      +-[o:0]BEGIN[thenDatabaseRecordUpdated]@[work-id-1552400354]
+[INFO ] [2024/12/27 15:45:17.257] [main] - LessonWhen          : value:      |-+-[o:0]let[Database record updated!][page]
+[INFO ] [2024/12/27 15:45:17.257] [main] - LessonWhen          : value:      +-[o:0]END[thenDatabaseRecordUpdated]
 ```
 
 When you want to run tests, you will declare the `performFunction` to be executed for sure.
@@ -245,6 +303,46 @@ If it is a manual test, you would navigate to the home page of the system, then 
 Even if you've closed a browser tab, still the cookie may remember the session, and you have a chance to go to the home
 page without a problem.
 Only when you run out of a way to keep conducting tests, you will do the log in again.
+
+Following is an execution plan of the class.
+
+```text
+[INFO ] [2024/12/27 16:53:17.710] [main] - ----
+[INFO ] [2024/12/27 16:53:17.710] [main] - Execution plan is as follows:
+[INFO ] [2024/12/27 16:53:17.710] [main] - - beforeAll:      [isLoggedIn]
+[INFO ] [2024/12/27 16:53:17.711] [main] - - beforeEach:     []
+[INFO ] [2024/12/27 16:53:17.711] [main] - - value:          [performScenario]
+[INFO ] [2024/12/27 16:53:17.711] [main] - - afterEach:      []
+[INFO ] [2024/12/27 16:53:17.711] [main] - - afterAll:       []
+[INFO ] [2024/12/27 16:53:17.711] [main] - ----
+```
+
+Only logged in is shown in the plan.
+Action tree looks as follows (Edited for the conciseness sake).
+
+```text
+[INFO ] [2024/12/27 16:53:17.718] [main] - LessonPreparedBy    : beforeAll:  [o]isLoggedIn                                                   
+[INFO ] [2024/12/27 16:53:17.718] [main] - LessonPreparedBy    : beforeAll:  [o:0]ensure:do sequentially using
+[INFO ] [2024/12/27 16:53:17.718] [main] - LessonPreparedBy    : beforeAll:    |-+-[o:0]let[isLoggedIn][page]
+[INFO ] [2024/12/27 16:53:17.719] [main] - LessonPreparedBy    : beforeAll:    | +-[o:0]sink[page]
+[INFO ] [2024/12/27 16:53:17.719] [main] - LessonPreparedBy    : beforeAll:    +-[o:0]BEGIN[isLoggedIn]@[work-id-1636588948]
+[INFO ] [2024/12/27 16:53:17.719] [main] - LessonPreparedBy    : beforeAll:    | |-+-[o:0]let[toHomeScreen][page]
+[INFO ] [2024/12/27 16:53:17.719] [main] - LessonPreparedBy    : beforeAll:    +-[o:0]END[isLoggedIn]
+[INFO ] [2024/12/27 16:53:17.719] [main] - LessonPreparedBy    : beforeAll:    +-[]BEGIN[isLoggedIn]@[work-id-662925691]
+[INFO ] [2024/12/27 16:53:17.719] [main] - LessonPreparedBy    : beforeAll:    |-+-[]BEGIN[work-id-662925691]@[work-id-1977618945]
+[INFO ] [2024/12/27 16:53:17.719] [main] - LessonPreparedBy    : beforeAll:    | |-+-[]let[loadLoginSession][page]
+[INFO ] [2024/12/27 16:53:17.719] [main] - LessonPreparedBy    : beforeAll:    | +-[]END[work-id-662925691]
+[INFO ] [2024/12/27 16:53:17.720] [main] - LessonPreparedBy    : beforeAll:    | +-[]BEGIN[work-id-662925691]@[work-id-1060519157]
+[INFO ] [2024/12/27 16:53:17.720] [main] - LessonPreparedBy    : beforeAll:    | |-+-[]let[toHomeScreen][page]
+[INFO ] [2024/12/27 16:53:17.720] [main] - LessonPreparedBy    : beforeAll:    | +-[]END[work-id-662925691]
+[INFO ] [2024/12/27 16:53:17.720] [main] - LessonPreparedBy    : beforeAll:    | +-[]BEGIN[work-id-662925691]@[work-id-1060519157]
+[INFO ] [2024/12/27 16:53:17.720] [main] - LessonPreparedBy    : beforeAll:    | |-+-[]let[login][page]
+[INFO ] [2024/12/27 16:53:17.720] [main] - LessonPreparedBy    : beforeAll:    | | +-[]sink[page]
+[INFO ] [2024/12/27 16:53:17.720] [main] - LessonPreparedBy    : beforeAll:    | |-+-[]let[saveLoginSession][page]
+[INFO ] [2024/12/27 16:53:17.720] [main] - LessonPreparedBy    : beforeAll:    | +-[]END[work-id-662925691]
+[INFO ] [2024/12/27 16:53:17.721] [main] - LessonPreparedBy    : beforeAll:    +-[]END[isLoggedIn]
+```
+
 Similar situation happens everywhere in testing.
 Unless you know data sets in your system, you don't want to reload them, even if it is automated.
 Ultimately, for the reliability's sake, it is necessary to be able to re-provision the entire system from the bare-metal
@@ -313,11 +411,53 @@ Note that `closeExecutionSession` will be performed unless the `openExecutionSes
 So, it is highly recommended to write the `openExecutionSession` in an "atomic" manner, where an operation completely
 succeeds, otherwise it leaves no side effect at all.
 
-t.b.d.: Place action tree in each section
+**Execution Plan:**
+```text
+[INFO ] [2024/12/27 17:27:13.746] [main] - ----
+[INFO ] [2024/12/27 17:27:13.746] [main] - Execution plan is as follows:
+[INFO ] [2024/12/27 17:27:13.746] [main] - - beforeAll:      [openExecutionSession]
+[INFO ] [2024/12/27 17:27:13.746] [main] - - beforeEach:     []
+[INFO ] [2024/12/27 17:27:13.746] [main] - - value:          [performScenario]
+[INFO ] [2024/12/27 17:27:13.747] [main] - - afterEach:      []
+[INFO ] [2024/12/27 17:27:13.747] [main] - - afterAll:       []
+[INFO ] [2024/12/27 17:27:13.747] [main] - ----
+```
+
+`closeExecutionSession` should be executed in the `afterAll` stage, but it is not shown.
+The reason why is, because `closeExecutionSession` may not be executed in case `openExecutionSession` fails.
+However, this is a matter of design choice and this behavior may be modified in the future.
+
+**Action Tree (beforeAll)**
+
+Since 
+
+```text
+[INFO ] [2024/12/27 17:27:13.786] [main] - LessonClosedBy      : beforeAll:  [o]openExecutionSession                                         
+[INFO ] [2024/12/27 17:27:13.786] [main] - LessonClosedBy      : beforeAll:  +-[o:0]BEGIN[openExecutionSession]@[work-id-1620459733]
+[INFO ] [2024/12/27 17:27:13.786] [main] - LessonClosedBy      : beforeAll:  |-+-[o:0]let[openExecutionSession][page]
+[INFO ] [2024/12/27 17:27:13.786] [main] - LessonClosedBy      : beforeAll:  +-[o:0]END[openExecutionSession]
+```
+
+**Action Tree (test)**
+
+```text
+[INFO ] [2024/12/27 17:27:13.811] [main] - LessonClosedBy      : value:      [o]performScenario
+[INFO ] [2024/12/27 17:27:13.811] [main] - LessonClosedBy      : value:      +-[o:0]BEGIN[performScenario]@[work-id-1976166251]
+[INFO ] [2024/12/27 17:27:13.811] [main] - LessonClosedBy      : value:      |-+-[o:0]let[openExecutionSession][page]
+[INFO ] [2024/12/27 17:27:13.811] [main] - LessonClosedBy      : value:      +-[o:0]END[performScenario]
+```
+
+**Action Tree (afterAll)**
+
+```text
+[INFO ] [2024/12/27 17:27:13.820] [main] - LessonClosedBy      : afterAll:   [o]closeExecutionSession                                         
+[INFO ] [2024/12/27 17:27:13.820] [main] - LessonClosedBy      : afterAll:   +-[o:0]BEGIN[closeExecutionSession]@[work-id-435914790]
+[INFO ] [2024/12/27 17:27:13.820] [main] - LessonClosedBy      : afterAll:   |-+-[o:0]let[closeExecutionSession][page]
+[INFO ] [2024/12/27 17:27:13.821] [main] - LessonClosedBy      : afterAll:   +-[o:0]END[closeExecutionSession]
+```
 
 ## Footnotes
 
 * [^1]: `closeExecutionSession` is declared to be depending on `openExecutionSession`.
   This is because it needs to resolve the variable that holds a resource to be released.
-  This design might be changed so that `closeExecutionSession` doesn't require the explicit declaration
-  of `@DependsOn("openExecutionSession")`.
+  This design might be changed so that `closeExecutionSession` doesn't require the explicit declaration of `@DependsOn("openExecutionSession")`.
