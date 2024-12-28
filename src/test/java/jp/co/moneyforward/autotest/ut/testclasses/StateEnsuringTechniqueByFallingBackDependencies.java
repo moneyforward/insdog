@@ -18,27 +18,13 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.createCo
 
 @AutotestExecution(
     defaultExecution = @Spec(
-        value = {"connect", "disconnect"},
-        planExecutionWith = DEPENDENCY_BASED
+        planExecutionWith = DEPENDENCY_BASED,
+        value = {
+            "connectBank",
+            "disconnectBank"}
     ))
-public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
+public class StateEnsuringTechniqueByFallingBackDependencies implements AutotestRunner {
   final Context context = createContext();
-  
-  /**
-   * Creates a scene object from a given name and acts.
-   *
-   * @param sceneName A name of the created scene.
-   * @param acts      acts to be added to the returned scene.
-   * @return A created scene.
-   */
-  @SafeVarargs
-  public static <T> Scene sceneFromActCalls(String sceneName, ActCall<T, T>... acts) {
-    Scene.Builder builder = new Scene.Builder().name(sceneName);
-    for (ActCall<T, T> eachCall : acts) {
-      builder.addCall(eachCall);
-    }
-    return builder.build();
-  }
   
   @Named
   @Export({"window", "browser", "page"})
@@ -59,7 +45,7 @@ public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
   }
   
   @Named
-  @Export({"page"})
+  @Export()
   @DependsOn("openExecutionSession")
   public Scene toHomeScreen() {
     return sceneFromActCalls("toHome",
@@ -67,7 +53,7 @@ public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
   }
   
   @Named
-  @Export({"page"})
+  @Export()
   @DependsOn("openExecutionSession")
   public Scene loadLoginSession() {
     return sceneFromActCalls("loadLoginSession",
@@ -104,11 +90,9 @@ public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
   @Named
   @Export("page")
   @DependsOn("openExecutionSession")
-//  /*
   @PreparedBy({"toHomeScreen"})
   @PreparedBy({"loadLoginSession", "toHomeScreen"})
   @PreparedBy({"login", "saveLoginSession"})
-//   */
   public Scene isLoggedIn() {
     return sceneFromActCalls("isLoggedIn", call("page", act("checkIfIamOnHomeScreen", Objects::requireNonNull)));
   }
@@ -116,15 +100,15 @@ public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
   @Named
   @Export("page")
   @DependsOn("isLoggedIn")
-  public Scene connect() {
-    return sceneFromActCalls("connect", call("page", act("connectBank", Objects::requireNonNull)));
+  public Scene connectBank() {
+    return sceneFromActCalls("connectBank", call("page", act("connectBankWithAppAccount", Objects::requireNonNull)));
   }
   
   @Named
   @Export("page")
   @DependsOn("isLoggedIn")
-  public Scene disconnect() {
-    return sceneFromActCalls("disconnect", call("page", act("disconnectBank")));
+  public Scene disconnectBank() {
+    return sceneFromActCalls("disconnect", call("page", act("disconnectBankWithAppAccount", Objects::requireNonNull)));
   }
   
   @Export("page")
@@ -136,6 +120,22 @@ public class StateEnsuringByFallingBackDependencies implements AutotestRunner {
   @Override
   public ReportingActionPerformer actionPerformer() {
     return new ReportingActionPerformer(context, new LinkedHashMap<>());
+  }
+  
+  /**
+   * Creates a scene object from a given name and acts.
+   *
+   * @param sceneName A name of the created scene.
+   * @param acts      acts to be added to the returned scene.
+   * @return A created scene.
+   */
+  @SafeVarargs
+  public static <T> Scene sceneFromActCalls(String sceneName, ActCall<T, T>... acts) {
+    Scene.Builder builder = new Scene.Builder().name(sceneName);
+    for (ActCall<T, T> eachCall : acts) {
+      builder.addCall(eachCall);
+    }
+    return builder.build();
   }
   
   private static <T> ActCall<T, T> call(String varName, Act<T, T> act) {

@@ -323,12 +323,12 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   }
   
   private static TestTemplateInvocationContext createTestTemplateInvocationContext(ExtensionContext extensionContext,
-                                                                                   final SceneCall currentSceneCall,
+                                                                                   final Call currentCall,
                                                                                    String sceneName,
                                                                                    AtomicInteger indexHolder) {
     return new TestTemplateInvocationContext() {
       final String displayName = computeDisplayName(indexHolder.getAndIncrement());
-      final Action value = sceneCallToAction(currentSceneCall, createActionComposer(createExecutionEnvironment(extensionContext, () -> Optional.of(displayName).orElse("XXX"), "main")));
+      final Action value = sceneCallToAction(currentCall, createActionComposer(createExecutionEnvironment(extensionContext, () -> Optional.of(displayName).orElse("XXX"), "main")));
       
       @Override
       public List<Extension> getAdditionalExtensions() {

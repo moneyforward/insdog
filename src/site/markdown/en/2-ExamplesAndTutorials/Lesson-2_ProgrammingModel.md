@@ -1,13 +1,10 @@
-# Programming Model of "InsDog"
+# Lesson-2: Programming Model of "InsDog"
 
 **InsDog** sets its own programming model, so that test writers can define high quality test classes in a natural way.
 It is designed to result in compilation errors rather than runtime failures, if a test writer fails to follow preferable design as much as possible.
 That said, knowing the design thought behind it will help you learn how to write tests in the model quickly.
 
 In this document, we will walk through a working example and touch up on important elements one by one.
-
-**NOTE:** Please note that examples in this page are all under active development as of June-July/2024.
-Check the latest code and consult with the designer of this product (`ukai.hiroshi@moneyforward.co.jp`), when you start working on writing tests, although basic concepts will not be changed.
 
 ## Walking through an example
 
@@ -58,59 +55,61 @@ A **Scene** method is supposed to return `Scene` object, which can be built by `
 Note that how to build a scene object using the builder is omitted in this example for the simplicity's sake.
 
 ```java
+import jp.co.moneyforward.autotest.framework.action.Scene;
+import jp.co.moneyforward.autotest.framework.annotations.Export;
+
 public class AppAccessingModel implements AutotestRunner {
-  
+
   @Named
-  public static Scene open() {
-    return new Scene.Builder("NONE").build();
+  @Export({"browser", "window", "page"})
+  public static Scene openSession() {
+    return Scene.begin()
+                .add("browser", openBrowser())
+                .add("window", openWindow())
+                .add("page", openPage())
+                .end();
   }
-  
+
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  @DependsOn("open")
   public static Scene login() {
-    return new Scene.Builder("login").build();
+    return Scene.begin()
+                .act(login())
+                .end();
   }
-  
+
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  @DependsOn("page")
   public static Scene connectBank() {
-    return new Scene.Builder("page").build();
+    return Scene.begin("page").act("...").end();
   }
-  
+
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
+  @DependsOn("page")
   public static Scene disconnectBank() {
-    return new Scene.Builder("page").build();
+    return Scene.begin("page").act("...").end();
   }
-  
+
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "login", fieldNameInSourceScene = "page"))
+  @DependsOn("page")
   public static Scene logout() {
-    return new Scene.Builder("page").build();
+    return Scene.begin("page").act("...").end();
   }
-  
+
   @Named
-  @DependsOn(
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page"))
+  @DependsOn("page")
   public static Scene screenshot() {
-    return new Scene.Builder("page").build();
+    return Scene.begin("page").act("...").end();
   }
-  
+
   @Named
-  @DependsOn({
-      @Parameter(name = "browser", sourceSceneName = "open", fieldNameInSourceScene = "browser"),
-      @Parameter(name = "window", sourceSceneName = "open", fieldNameInSourceScene = "window"),
-      @Parameter(name = "page", sourceSceneName = "open", fieldNameInSourceScene = "page")}
-  )
+  @DependsOn("openSession")
   public static Scene close() {
-    return new Scene.Builder("page").build();
+    return Scene.begin("page").act("...").end();
   }
 }
 ```
+
 **NOTE:** `@Named` annotation can have a string `value`.
 The value will be treated as a name of the scene method with which **Execution Directive** references.
 By default, the name of the method will be used.
@@ -119,21 +118,8 @@ This means, overloading scene methods require explicit `@Named` value without co
 
 **NOTE:** Currently the **Access Model** needs to be extended by test model, however test execution and access model are essentially separate concerns.
 For instance, you may want to execute the same test scenario using a different access model than Web UI, let's say, public API.
-In such a situation, you want to change the access model at execution time through runtime CLI parameter.
+In such a situation, you want to change the access model's behavior at execution time through runtime CLI parameter.
 This enhancement will be made in the future.
-
-**NOTE:** It is being considered to separate the dependency declaration and variable definitions.
-That is:
-```java
-  @Named
-  @DependsOn("open")
-  @Import(value="page", from="page@open")
-  public static Scene screenshot() {
-    return new Scene.Builder("screenshot").build();
-  }
-```
-This will allow us to declare `@DependsOn` in an abstract **Access Model**, which is common to web-UI and API, for instance, while we can declare `@Import` in the concrete access models, so that they can access different variables accordingly.
-
 
 ### Scene and Act
 
@@ -144,20 +130,20 @@ It is suggested to create reusable **acts** (functions to create **acts**, class
 
 ```java
   public static Scene disconnectBank() {
-    return new Scene.Builder("page")
-        // (1)
-        .add(new Navigate(EXECUTION_PROFILE.accountsUrl()))
-        // (2)
-        .add(new PageAct("金融機関を削除する") {            
-          @Override
-          protected void action(Page page, ExecutionEnvironment executionEnvironment) {
-            page.getByRole(AriaRole.CELL, new Page.GetByRoleOptions().setName("\uF142")).locator("a").click();
-            page.onceDialog(Dialog::accept);
-            page.getByTestId("ca-client-test-account-dropdown-menu-delete-button")
-                .click();
-          }
-        })
-        .build();
+    return Scene.begin("page")
+                // (1)
+                .add(new Navigate(EXECUTION_PROFILE.accountsUrl()))
+                // (2)
+                .add(new PageAct("金融機関を削除する") {            
+                    @Override
+                    protected void action(Page page, ExecutionEnvironment executionEnvironment) {
+                      page.getByRole(AriaRole.CELL, new Page.GetByRoleOptions().setName("\uF142")).locator("a").click();
+                      page.onceDialog(Dialog::accept);
+                      page.getByTestId("ca-client-test-account-dropdown-menu-delete-button")
+                          .click();
+                    }
+                  })
+                .end();
   }
 ```
 
@@ -227,3 +213,6 @@ Once the second user appears, move it to an appropriate class.
 
 Don't worry, they are all static methods, which you can easily move around.
 
+// NOTE:
+// * act(Act)// prefer this
+// * add(String, Act)// when granular control is needed
