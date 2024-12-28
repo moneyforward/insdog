@@ -49,11 +49,11 @@ import static jp.co.moneyforward.autotest.framework.testengine.AutotestEngine.St
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.composeResultMessageLine;
 import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.reverse;
 
-/// 
+///
 /// The test execution engine of the **insdog**.
-/// 
+///
 /// In the implementation of this engine, the steps performed during a test class execution are following:
-/// 
+///
 /// 1. **beforeAll:** Every scene in this step is executed in the order they are shown in the execution plan.
 /// 2. **beforeEach:** For each scene in the **value (main)** step, every scene in this step is executed in the order.
 /// When a failure occurs, the rest will not be executed.
@@ -65,43 +65,43 @@ import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.reverse;
 /// In this step, even if a failure happens in an **afterEach** scene, the subsequent scenes should still be executed.
 /// 5. **afterAll:** Scenes in this step are executed in the provided order, after all the scenes in the **afterEach** for the last of the **value (or main)** is executed.
 /// In this step, even if a failure happens in an **afterAll** scene, the subsequent scenes should still be executed.
-/// 
+///
 /// Note that the "execution plan" and which scenes a user specifies to execute are not the same.
 /// The former is modeled by `ExecutionPlan` and the latter is modeled by the `AutotestExecution.Spec`.
 /// The `PlanningStrategy` instance interprets the `AutotestExecution.Spec` and creates an `ExecutionPlan`.
 /// The discussion above is about the `ExecutionPlan`.
-/// 
+///
 /// Also, a `PlanningStrategy` should be designed in a way where scenes that a user specifies explicitly are included in its resulting execution plan.
-/// 
+///
 /// With this separation, **insdog** allows users to specify scenes that really want to execute directly.
-/// 
+///
 /// @see AutotestExecution.Spec
 /// @see PlanningStrategy
-/// 
+///
 public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, TestTemplateInvocationContextProvider, AfterEachCallback, AfterAllCallback {
   private static final Logger LOGGER = LoggerFactory.getLogger(AutotestEngine.class);
   
-  /// 
+  ///
   /// Returns `true` to let the framework know this engine supports test template.
   /// Note that test template is pre-defined as `runTestAction(String, Action)` method in `AutotestRunner` class and
   /// test programmers do not need to defined it by themselves.
-  /// 
+  ///
   /// @param extensionContext the extension context for the test template method about
   ///                         to be invoked; never {@code null}
   /// @return `true`.
-  /// 
+  ///
   @Override
   public boolean supportsTestTemplate(ExtensionContext extensionContext) {
     return true;
   }
   
-  /// 
+  ///
   /// Returns a stream of `TestTemplateInvocationContext` objects.
-  /// 
+  ///
   /// @param extensionContext the extension context for the test template method about
   ///                         to be invoked; never {@code null}
   /// @return A stream of `TestTemplateInvocationContext` objects.
-  /// 
+  ///
   @Override
   public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext extensionContext) {
     var sceneCallMap = sceneCallMap(extensionContext);
@@ -115,11 +115,11 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                                                                                              indexHolder));
   }
   
-  /// 
+  ///
   /// Executes actions planned for **Before All** stage.
-  /// 
+  ///
   /// @param executionContext the current extension context; never {@code null}
-  /// 
+  ///
   @Override
   public void beforeAll(ExtensionContext executionContext) throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
     prepareBeforeAllStage(executionContext, System.getProperties());
@@ -145,11 +145,11 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
                                    .forEach(r -> logExecutionSceneExecutionResult(r, stageName, executionContext));
   }
   
-  /// 
+  ///
   /// Executes actions planned for **Before Each** stage.
-  /// 
+  ///
   /// @param executionContext the current extension context; never {@code null}
-  /// 
+  ///
   @Override
   public void beforeEach(ExtensionContext executionContext) {
     String stageName = BEFORE_EACH.stageName();
@@ -174,11 +174,11 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     configureLogging(executionEnvironment.testOutputFilenameFor("autotestExecution-main", "log"), Level.INFO);
   }
   
-  /// 
+  ///
   /// Executes actions planned for **After Each** stage.
-  /// 
+  ///
   /// @param executionContext the current extension context; never {@code null}
-  /// 
+  ///
   @Override
   public void afterEach(ExtensionContext executionContext) {
     String stageName = "afterEach";
@@ -210,11 +210,11 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     if (!errors.isEmpty()) reportErrors(errors);
   }
   
-  /// 
+  ///
   /// Executes actions planned for **After All** stage.
-  /// 
+  ///
   /// @param executionContext the current extension context; never {@code null}
-  /// 
+  ///
   @Override
   public void afterAll(ExtensionContext executionContext) {
     AutotestRunner runner = autotestRunner(executionContext);
@@ -268,12 +268,12 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     }
   }
   
-  /// 
+  ///
   /// Creates an execution environment object for a given test class.
-  /// 
+  ///
   /// @param testClassName A test class name for which an execution environment is created.
   /// @return An execution environment object.
-  /// 
+  ///
   public static ExecutionEnvironment createExecutionEnvironment(String testClassName) {
     require(value(testClassName).toBe().notNull());
     return new ExecutionEnvironment() {
@@ -407,30 +407,30 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     LOGGER.info("----");
   }
   
-  /// 
+  ///
   /// Checks if a scene method designated by `x` has finished normally in `beforeEach` stage.
-  /// 
+  ///
   /// This implementation has a limitation, when a same scene is run more than once in
   /// `beforeEach` step, it cannot determine if it was finished or not correctly.
-  /// 
+  ///
   /// @param context   A context, where `sceneName` is to be checked if executed and finished normally.
   /// @param sceneName A name of a scene method to be checked.
   /// @return `true` - finished normally (passed) / `false` - otherwise.
-  /// 
+  ///
   private static boolean passedInBeforeEachStage(ExtensionContext context, String sceneName) {
     return passedInBeforeEach(context).contains(sceneName);
   }
   
-  /// 
+  ///
   /// Checks if a scene method designated by `x` has finished normally in `beforeAll` stage.
-  /// 
+  ///
   /// This implementation has a limitation, when a same scene is run more than once in
   /// `beforeAll` step, it cannot determine if it was finished or not correctly.
-  /// 
+  ///
   /// @param context A context, where `x` is to be checked if executed and finished normally.
   /// @param x       A name of a scene method to be checked.
   /// @return `true` - finished normally (passed) / `false` - otherwise.
-  /// 
+  ///
   private static boolean passedInBeforeAllStage(ExtensionContext context, String x) {
     return passedScenesInBeforeAll(context).contains(x);
   }
@@ -547,16 +547,16 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return aClass;
   }
   
-  /// 
+  ///
   /// Returns a "name" a given `method`.
   /// If the method has `@Named` annotation and its value is set, the value will be returned.
   /// If the value is equal to `Named.DEFAULT_VALUE`, the name of the method itself will be returned.
-  /// 
+  ///
   /// This method should be called for a method with `@Named` annotation.
-  /// 
+  ///
   /// @param m A method whose name should be returned.
   /// @return The name of the method the framework recognizes.
-  /// 
+  ///
   private static String nameOf(Method m) {
     Named annotation = m.getAnnotation(Named.class);
     //NOSONAR
@@ -565,13 +565,13 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     return m.getName();
   }
   
-  /// 
+  ///
   /// Note that resolution is done based on the value of `Named` annotation first.
-  /// 
+  ///
   /// @param methodName A name of a method to be found.
   /// @param klass      A class from which a method is searched.
   /// @return An optional containing a found method, otherwise, empty.
-  /// 
+  ///
   public static Optional<Method> findMethodByName(String methodName, Class<?> klass) {
     return Arrays.stream(klass.getMethods()).filter(m -> m.isAnnotationPresent(Named.class)).filter(m -> Objects.equals(nameOf(m), methodName)).findFirst();
   }
@@ -596,18 +596,18 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
     }
   }
   
-  /// 
+  ///
   /// This method is called for every method `m` in a test class to be run if `m` is:
-  /// 
+  ///
   /// * Annotated with `@Named`.
   /// * Not annotated with `@Disabled`.
-  /// 
+  ///
   /// If all the validations are passed, method `m` itself will be returned.
   /// Otherwise, an exception will be thrown.
-  /// 
+  ///
   /// @param m A method to be validated.
   /// @return `m` itself.
-  /// 
+  ///
   private static Method validateSceneProvidingMethod(Method m) {
     // TODO: https://app.asana.com/0/1206402209253009/1207418182714921/f
     // @When and @DependsOn are mutually exclusively used.
@@ -666,19 +666,19 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   private record Entry<K, V>(K key, V value) {
   }
   
-  /// 
+  ///
   /// This record models an execution plan created from the requirement given by user.
-  /// 
+  ///
   /// The framework executes the scenes returned by each method.
   /// It is a design concern of the test engine (`AutotestEngine`) how scenes within the stage.
   /// For instance, whether they should be executed sequentially or concurrently, although sequential execution will be preferred in most cases.
   /// The engine should execute each state as an instance of this record gives.
   /// All scenes in `beforeAll` should be executed in the `beforeAll` stage, nothing else at all, in the order, where they are returned,
   /// as long as they give no errors, and as such.
-  /// 
+  ///
   /// In situations, where a non-directly required scenes need to be executed for some reason (E.g., a scene in a stage requires some others to be executed beforehand),
   /// including the scenes implicitly and sorting out the execution order appropriately is the responsibility of the `PlanningStrategy`, not the engine.
-  /// 
+  ///
   /// @param beforeAll  The names of the scenes to be executed in the `beforeAll` scene.
   /// @param beforeEach The names of the scenes to be executed in the `beforeEach` scene.
   /// @param value      The names of the scenes to be executed as real tests.
@@ -686,14 +686,14 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
   /// @param afterAll   The names of the scenes to be executed in the `afterAll` scene.
   /// @see AutotestEngine
   /// @see PlanningStrategy
-  /// 
+  ///
   public record ExecutionPlan(List<String> beforeAll, List<String> beforeEach, List<String> value,
                               List<String> afterEach, List<String> afterAll) {
   }
   
-  /// 
+  ///
   /// A class that models a result of a scene execution.
-  /// 
+  ///
   public static class SceneExecutionResult {
     private final String name;
     private final Throwable exception;
@@ -705,11 +705,11 @@ public class AutotestEngine implements BeforeAllCallback, BeforeEachCallback, Te
       this.out = requireNonNull(out);
     }
     
-    /// 
+    ///
     /// Returns a name of this object.
-    /// 
+    ///
     /// @return A name
-    /// 
+    ///
     public String name() {
       return this.name;
     }
