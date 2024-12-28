@@ -150,6 +150,12 @@ public enum InternalUtils {
     return Objects.toString(o).replaceAll("((" + MASK_PREFIX + ").*)", MASK_PREFIX);
   }
   
+  public static Stream<Action> flattenSequentialAction(Action action) {
+    if (action instanceof Composite && !((Composite) action).isParallel())
+      return ((Composite) action).children().stream();
+    return Stream.of(action);
+  }
+  
   public static class AssumptionViolation extends TestAbortedException {
     public AssumptionViolation(String message) {
       super(message);

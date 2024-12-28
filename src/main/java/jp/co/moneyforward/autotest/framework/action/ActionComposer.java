@@ -70,7 +70,7 @@ public interface ActionComposer {
   ///
   default Action create(SceneCall sceneCall) {
     return sequential(concat(Stream.of(sceneCall.begin(ongoingWorkingVariableStoreNames())),
-                             Stream.of(sceneCall.targetScene().toSequentialAction(this)),
+                             InternalUtils.flattenSequentialAction(sceneCall.targetScene().toSequentialAction(this)),
                              Stream.of(sceneCall.end(ongoingWorkingVariableStoreNames())))
                           .toList());
   }
