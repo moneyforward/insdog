@@ -1,9 +1,9 @@
 package jp.co.moneyforward.autotest.framework.utils;
 
 import com.github.dakusui.actionunit.actions.Composite;
+import com.github.dakusui.actionunit.actions.Leaf;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.exceptions.ActionException;
 import com.github.dakusui.osynth.core.utils.MethodUtils;
 import com.github.valid8j.pcond.forms.Printables;
 import jp.co.moneyforward.autotest.framework.core.AutotestException;
@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 import static com.github.valid8j.classic.Requires.requireNonNull;
+import static com.github.dakusui.actionunit.utils.InternalUtils.toStringIfOverriddenOrNoname;
 import static com.github.valid8j.pcond.internals.InternalUtils.getMethod;
 import static java.io.File.createTempFile;
 import static java.lang.Thread.currentThread;
@@ -259,12 +260,21 @@ public enum InternalUtils {
     return leaf(printableConsumer(name, contextConsumer));
   }
   
-  /// 
+  ///
+  /// Creates a trivial leaf action, which is the same as an action created by `InternalUtils.action(String, Consumer<Context>)`.
+  ///
+  /// @param name            A name of the action.
+  /// @param contextConsumer A consumer that defines the behavior of the action.
+  public static Action trivialAction(String name, Consumer<Context> contextConsumer) {
+    return new TrivialAction(printableConsumer(name, contextConsumer));
+  }
+  
+  ///
   /// Returns a predicate that tests if the date given to it is after the `date`.
-  /// 
+  ///
   /// @param date The returned predicate returns `true` if a given date is after this.
   /// @return A predicate to check if a given date is after `date`.
-  /// 
+  ///
   public static Predicate<Date> dateAfter(Date date) {
     return Printables.predicate("after[" + date + "]", d -> d.after(date));
   }
@@ -388,7 +398,7 @@ public enum InternalUtils {
   /// 
   /// Copies the contents of a resource file from the classpath to a specified output file.
   /// 
-  /// @param output       output the file to which the resource contents will be written
+  /// @param output       The output file to which the resource contents will be written
   /// @param resourcePath A path to a resource on a class path to be materialized
   /// 
   public static void materializeResource(File output, final String resourcePath) {
@@ -422,6 +432,24 @@ public enum InternalUtils {
   
   public static File temporaryDirectory() {
     return TEMPORARY_DIRECTORY;
+  }
+  
+  public static class TrivialAction implements Leaf {
+    final Consumer<Context> consumer;
+    
+    public TrivialAction(Consumer<Context> consumer) {
+      this.consumer = requireNonNull(consumer);
+    }
+    
+    @Override
+    public Runnable runnable(Context context) {
+      return () -> consumer.accept(context);
+    }
+    
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision) {
+      formatter.format("%s", toStringIfOverriddenOrNoname(consumer));
+    }
   }
   
   static {

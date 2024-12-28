@@ -25,6 +25,7 @@ public enum ActionUtils {
   public static void performAction(Action action, ReportingActionPerformer reportingActionPerformer, Writer writer) {
     reportingActionPerformer.performAndReport(action, writer);
   }
+  
   public static void performAction(Action action, Context context, Writer writer) {
     performAction(action, createReportingActionPerformer(context), writer);
   }

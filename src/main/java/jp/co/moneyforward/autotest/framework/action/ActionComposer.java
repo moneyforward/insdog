@@ -60,7 +60,9 @@ public interface ActionComposer {
   /// 
   ExecutionEnvironment executionEnvironment();
   
-  /// 
+  List<String> ongoingWorkingVariableStoreNames();
+
+  ///
   /// Creates an action for a given `SceneCall` object.
   /// 
   /// @param sceneCall A scene call from which an action should be created.
@@ -72,8 +74,6 @@ public interface ActionComposer {
                              Stream.of(sceneCall.end(ongoingWorkingVariableStoreNames())))
                           .toList());
   }
-  
-  List<String> ongoingWorkingVariableStoreNames();
   
   default Action create(EnsuredCall ensuredCall) {
     Ensured.Builder b = ensure(ensuredCall.targetCall().toAction(this));
