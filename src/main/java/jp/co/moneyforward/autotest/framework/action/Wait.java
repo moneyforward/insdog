@@ -8,24 +8,24 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.requireNonNull;
 
-/// 
+///
 /// Use this only when you have no other choices.
-/// 
+///
 /// @param <T> The type of the variable to handle.
-/// 
+///
 public class Wait<T> implements Act<T, T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(Wait.class);
   private final int time;
   private final TimeUnit unit;
   private final String excuse;
   
-  /// 
+  ///
   /// Creates an instance of this class.
-  /// 
+  ///
   /// @param time   Time to wait.
   /// @param unit   Unit of the time.
   /// @param excuse An excuse to use this class.
-  /// 
+  ///
   public Wait(int time, TimeUnit unit, String excuse) {
     this.time = time;
     this.unit = requireNonNull(unit);

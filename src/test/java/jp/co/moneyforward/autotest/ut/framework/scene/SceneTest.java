@@ -2,7 +2,10 @@ package jp.co.moneyforward.autotest.ut.framework.scene;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
-import jp.co.moneyforward.autotest.framework.action.*;
+import jp.co.moneyforward.autotest.framework.action.AutotestSupport;
+import jp.co.moneyforward.autotest.framework.action.Resolver;
+import jp.co.moneyforward.autotest.framework.action.ResolverBundle;
+import jp.co.moneyforward.autotest.framework.action.Scene;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.framework.testengine.AutotestEngine;
 import jp.co.moneyforward.autotest.ututils.ActionUtils;
@@ -51,7 +54,7 @@ public class SceneTest extends TestBase {
     ActionUtils.performAction(createActionComposer().create(sceneCall), createWriter(out));
     Assumptions.assumeFalse(false);
     assertStatement(value(out).toBe()
-                              .containingElementsInOrder(List.of(containsString("BEGIN"),
+                              .containingElementsInOrder(List.of(containsString("output:"),
                                                                  containsString("END"))));
   }
   
@@ -69,9 +72,10 @@ public class SceneTest extends TestBase {
                               context,
                               createWriter(out));
     assertAll(value(out).toBe()
-                        .containingElementsInOrder(List.of(containsString("BEGIN"),
-                                                           containsString("helloAct"),
-                                                           containsString("END"))),
+                        .containingElementsInOrder(List.of(containsString("output:")
+                                                               .and(containsString("work-id-"))
+                                                               .and(containsString("work:")),
+                                                           containsString("helloAct[in]"))),
               value(context).invoke("valueOf", "OUT")
                             .invoke("get", "out")
                             .asString()
@@ -97,9 +101,10 @@ public class SceneTest extends TestBase {
                               createWriter(out));
     
     assertAll(value(out).toBe()
-                        .containingElementsInOrder(List.of(containsString("BEGIN"),
-                                                           containsString("helloAct"),
-                                                           containsString("END"))),
+                        .containingElementsInOrder(List.of(containsString("output:")
+                                                               .and(containsString("work-id-"))
+                                                               .and(containsString("work:")),
+                                                           containsString("helloAct[in]"))),
               value(context).invoke("valueOf", "OUT")
                             .invoke("get", "out")
                             .asString()
@@ -128,9 +133,9 @@ public class SceneTest extends TestBase {
                               createWriter(out));
     
     assertAll(value(out).toBe()
-                        .containingElementsInOrder(List.of(containsString("BEGIN"),
-                                                           containsString("helloAct"),
-                                                           containsString("END"))),
+                        .containingElementsInOrder(List.of(containsString("output:"),
+                                                           containsString("work:"),
+                                                           containsString("helloAct[in]"))),
               value(context).invoke("valueOf", "OUT")
                             .invoke("get", "out")
                             .asString()
@@ -154,9 +159,10 @@ public class SceneTest extends TestBase {
                               createWriter(out));
     
     assertAll(value(out).toBe()
-                        .containingElementsInOrder(List.of(containsString("BEGIN"),
-                                                           containsString("helloAct"),
-                                                           containsString("END"))),
+                        .containingElementsInOrder(List.of(containsString("output:")
+                                                               .and(containsString("work-id-"))
+                                                               .and(containsString("work:")),
+                                                           containsString("helloAct"))),
               value(context).invoke("valueOf", "OUT")
                             .invoke("get", "out")
                             .asString()
@@ -181,9 +187,10 @@ public class SceneTest extends TestBase {
                               createWriter(out));
     
     assertAll(value(out).toBe()
-                        .containingElementsInOrder(List.of(containsString("BEGIN"),
-                                                           containsString("helloAct"),
-                                                           containsString("END"))),
+                        .containingElementsInOrder(List.of(containsString("output:")
+                                                               .and(containsString("work-id-"))
+                                                               .and(containsString("work:")),
+                                                           containsString("helloAct"))),
               value(context).invoke("valueOf", "OUT")
                             .invoke("get", "in")
                             .asString()
@@ -205,10 +212,11 @@ public class SceneTest extends TestBase {
                                                                                              new ResolverBundle(List.of()))),
                               createWriter(out));
     assertStatement(value(out).toBe()
-                              .containingElementsInOrder(List.of(containsString("BEGIN"),
+                              .containingElementsInOrder(List.of(containsString("output:")
+                                                                     .and(containsString("work-id-"))
+                                                                     .and(containsString("work:")),
                                                                  containsString("let"),
-                                                                 containsString("helloAct"),
-                                                                 containsString("END"))));
+                                                                 containsString("helloAct"))));
   }
   
   @Test

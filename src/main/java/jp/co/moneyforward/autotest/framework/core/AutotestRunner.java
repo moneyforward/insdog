@@ -1,7 +1,9 @@
 package jp.co.moneyforward.autotest.framework.core;
 
+import com.github.dakusui.actionunit.actions.Composite;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ActionReporter;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import jp.co.moneyforward.autotest.framework.annotations.AutotestExecution;
 import jp.co.moneyforward.autotest.framework.utils.InternalUtils;
@@ -33,7 +35,7 @@ public interface AutotestRunner {
   /// @param writer A writer through which report of the `action` will be written.
   ///
   default void beforeAll(Action action, Writer writer) {
-    actionPerformer().performAndReport(action, writer);
+    performAndReport(this, action, writer);
   }
   
   ///
@@ -43,7 +45,7 @@ public interface AutotestRunner {
   /// @param writer A writer through which report of the `action` will be written.
   ///
   default void beforeEach(Action action, Writer writer) {
-    actionPerformer().performAndReport(action, writer);
+    performAndReport(this, action, writer);
   }
   
   ///
@@ -59,7 +61,7 @@ public interface AutotestRunner {
     boolean succeeded = false;
     try {
       Writer writer = createWriter(out);
-      actionPerformer().performAndReport(action, writer);
+      performAndReport(this, action, writer);
       succeeded = true;
     } finally {
       String message = composeResultMessage(this.getClass(), stageName, name, succeeded);
@@ -75,7 +77,7 @@ public interface AutotestRunner {
   /// @param writer A writer through which a report is written.
   ///
   default void afterEach(Action action, Writer writer) {
-    actionPerformer().performAndReport(action, writer);
+    performAndReport(this, action, writer);
   }
   
   ///
@@ -85,7 +87,7 @@ public interface AutotestRunner {
   /// @param writer A writer through which a report is written.
   ///
   default void afterAll(Action action, Writer writer) {
-    actionPerformer().performAndReport(action, writer);
+    performAndReport(this, action, writer);
   }
   
   ///
@@ -120,5 +122,32 @@ public interface AutotestRunner {
   ///
   static String composeResultMessage(Class<? extends AutotestRunner> aClass, String stageName, String testName, boolean succeeded) {
     return String.format("%-20s: %-11s [%s]%s", InternalUtils.simpleClassNameOf(aClass), stageName + ":", succeeded ? "o" : "E", testName);
+  }
+  
+  private static void performAndReport(AutotestRunner autotestRunner, Action action, Writer writer) {
+    var reportingActionPerformer = autotestRunner.actionPerformer();
+    try {
+      reportingActionPerformer.perform(action);
+    } finally {
+      createActionReporter(writer, reportingActionPerformer).report(action);
+    }
+  }
+  
+  private static ActionReporter createActionReporter(Writer writer,
+                                                     ReportingActionPerformer reportingActionPerformer) {
+    return new ActionReporter(a -> a instanceof Composite || a instanceof InternalUtils.TrivialAction,
+                              writer,
+                              writer,
+                              writer,
+                              writer,
+                              reportingActionPerformer.getReport(),
+                              2) {
+      @Override
+      public String indent() {
+        if (super.indent().isEmpty())
+          return "";
+        return String.format("%" + super.indent().length() + "s", " ");
+      }
+    };
   }
 }
