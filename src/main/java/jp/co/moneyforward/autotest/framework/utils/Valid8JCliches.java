@@ -29,7 +29,6 @@ public enum Valid8JCliches {
   /// @param statement A statement
   /// @param <T>       Type of the value
   ///
-  @SuppressWarnings("JavadocLinkAsPlainText")
   public static <T> void assumeStatement(Statement<T> statement) {
     Validator.INSTANCE.get().validate(statement.statementValue(),
                                       statement.statementPredicate(),

@@ -151,11 +151,15 @@ public enum InternalUtils {
   }
   
   public static Stream<Action> flattenSequentialAction(Action action) {
-    if (action instanceof Composite && !((Composite) action).isParallel())
-      return ((Composite) action).children().stream();
-    return Stream.of(action);
+    // NOSONAR: In Java 21, there is a feature called pattern matching, where this use of switch should be encouraged.
+    return switch (action) {
+      case Composite a -> (!a.isParallel()) ? a.children().stream()
+                                            : Stream.of(a);
+      default -> Stream.of(action);
+    };
   }
   
+  // NOSONAR: Intrusive warning. Number of hierarchical depth should not be checked against very well known library such as opentest4j
   public static class AssumptionViolation extends TestAbortedException {
     public AssumptionViolation(String message) {
       super(message);
