@@ -1,0 +1,1 @@
+Automatic-Module-Name: jp.co.moneyforward.autotest
