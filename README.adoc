@@ -1,0 +1,125 @@
+include::attributes.adoc[]
+
+:toc:
+
+== About **InspektorDog**
+
+**InspektorDog** (**InsDog** for short) is a test runner library for developers.
+
+== On-boarding the Project
+
+Check https://github.com/moneyforward/insdog/wiki/developmentGuide[developmentGuide] for more detail.
+
+=== Preparation
+
+Please be sure you are on **macOS**.
+The `bootstrap.sh` script is currently only for **macOS**, although it's not difficult to set up your environment for development.
+
+
+=== Bootstrapping: Setting Up Development Environment for macOS
+
+Clone the repository:
+
+[source, bash]
+----
+$ git clone https://github.com/moneyforward/insdog.git
+----
+
+Then `cd` to the directory:
+
+[source, bash]
+----
+$ cd insdog
+----
+
+In the project root directory, run:
+
+[source, bash]
+----
+$ ./bootstrap.sh
+----
+
+If this step succeeds, the script will print something like following and should exit with `0`.
+
+----
+We are erasing the old .dependencies
+pass: <is_git_installed>
+---
+FAILED CHECKS: 0
+BEGIN: BOOTSTRAP
+[BOOTSTRAP] Initialized empty Git repository in /Users/your.name/Documents/github/moneyforward/insdog/.dependencies/homebrew/.git/
+
+...
+
+  [sdkman:maven] Installing: maven 3.9.6
+  [sdkman:maven] Done installing!
+  [sdkman:maven]
+  [sdkman:maven]
+  [sdkman:maven] Setting maven 3.9.6 as default.
+END:   sdkman:maven
+----
+
+NOTE:: In case you want to re-try the set-up for some reason, in the project root directory please do:
+[source, bash]
+----
+$ sudo rm -fr .dependencies
+----
+Then, do `./bootstrap.sh`.
+
+[[IDE]]
+=== Integrated Development Environment (IDE)
+
+We use *IntelliJ IDEA* for daily development.
+You can use either Community or Ultimate edition.
+For SDET(FW) or SDET(PM), Ultimate edition is recommended.
+
+You can install required the plugins from the `Install required plugins` button at the bottom right when you open *IntelliJ IDEA* without them.
+
+You can just open a test class such as `VisitAllMenuItemsTest.java` and run it with the "Play" button (a green triangle) to run it.
+
+NOTE:: To work with environment variables in IntelliJ IDEA, you need to install the `EnvFile` plugin:
+1. Open IntelliJ IDEA.
+2. Go to `IntelliJ IDEA` > `Settings`.
+3. Navigate to `Plugins`.
+4. Search for `EnvFile` in the Marketplace tab.
+5. Click `Install` to add the plugin.
+6. Restart IntelliJ IDEA if prompted.
+
+=== Playing with `./build.sh`
+
+`build.sh` is a very thin wrapper script of `make` command.
+It only defines environment variables assumed by the targets defined in `Makefile`, then executes `make` command with arguments passed to itself.
+
+You can skip this part and just open the directory to which you cloned the source code with <<IDE>>.
+
+Still, it is important to define development tasks in the `Makefile` because it allows us to automate and integrate them into CI environment.
+
+
+==== Building the Executable.
+
+Run the following command.
+
+[source, bash]
+----
+$ ./build.sh build
+----
+
+==== Showing a Help
+
+To know what other targets are defined and their usages, just do:
+
+[source, bash]
+----
+$ ./build.sh
+----
+
+This gives you explanations of "public" targets in the `Makefile`, which you are supposed to use in daily developments.
+
+=== Coding Conventions
+
+Coding conventions are defined under `.idea/codeStyles` and `.ideaInspectionProfiles`.
+When you want to propose improvements in the style, please open a pull request containing only files under them.
+
+== Copyright and license
+
+All Rights Reserved by Money Forward.
