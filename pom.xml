@@ -4,7 +4,7 @@
     <artifactId>insdog-all</artifactId>
     <packaging>jar</packaging>
 
-    <version>0.4.3</version>
+    <version>0.4.4-SNAPSHOT</version>
     <description>An action-based testing framework and library</description>
 
     <name>insdog</name>
