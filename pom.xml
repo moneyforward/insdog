@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>jp.co.moneyforward.insdog</groupId>
     <artifactId>insdog-all</artifactId>
     <packaging>jar</packaging>
 
-    <version>0.4.1-SNAPSHOT</version>
+    <version>0.4.3</version>
     <description>An action-based testing framework and library</description>
 
     <name>insdog</name>
@@ -17,7 +16,7 @@
         <developerConnection>scm:git:git@github.com:moneyforward/${project.name}.git
         </developerConnection>
         <url>http://moneyforward.github.io/${project.name}</url>
-        <tag>${project.name}-${project.version}</tag>
+        <tag>insdog-all-0.4.3</tag>
     </scm>
 
     <licenses>
@@ -616,7 +615,7 @@
                                 <toc>left</toc>
                                 <icons>font</icons>
                                 <sectanchors>true</sectanchors>
-                                <idprefix/>
+                                <idprefix />
                                 <idseparator>-</idseparator>
                             </attributes>
                         </configuration>
