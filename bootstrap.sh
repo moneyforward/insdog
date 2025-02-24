@@ -175,7 +175,7 @@ function compose_goenv_rc() {
   export GOPATH=${_project_godir}/${_go_version}
   export GOROOT=${_project_godir}/env/versions/${_go_version}
 
-  export PATH=${_project_godir}/${_go_version}/bin:${PATH}
+  export PATH=${_project_godir}/${_go_version}/bin:"'${PATH}'"
   "
 }
 
