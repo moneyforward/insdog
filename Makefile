@@ -1,7 +1,7 @@
 # We use Makefile for simplifying mvn command's usage.
 # Since InspektorDog (shortened "insdog") is a Java-based component, its binary build and release should be done through mvn, without relying on Makefile.
 
-BASH:=$(shell which bash)
+SHELL:=$(shell which bash)
 MVN:=source .dependencies/sdkman/bin/sdkman-init.sh && \
      sdk use java "${SDK_JDK_NAME}" &&                 \
      mvn -B -Dmaven.javadoc.skip=true

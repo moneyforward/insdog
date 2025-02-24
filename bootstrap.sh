@@ -184,6 +184,7 @@ function compose_sdk_rc() {
   echo "
   export SDK_JDK_NAME=${_jdk_name}
   export SDK_JAVADOC_JDK_NAME=${_javadoc_jdk_name}
+  export SDKMAN_DIR=$(pwd)/.dependencies/sdkman
   "
 }
 
