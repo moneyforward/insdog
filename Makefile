@@ -75,6 +75,6 @@ _site-generate:
 
 _site-clone:
 	@mkdir -p target/site
-	@git -C target/site clone --branch gh-pages --single-branch --depth 1 https://github.com/dakusui/insdog.git en
+	@git -C target/site clone --branch gh-pages --single-branch --depth 1 https://github.com/moneyforward/insdog.git en
 	@git -C target/site/en checkout gh-pages
 
