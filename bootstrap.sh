@@ -175,7 +175,7 @@ function compose_goenv_rc() {
   export GOPATH=${_project_godir}/${_go_version}
   export GOROOT=${_project_godir}/env/versions/${_go_version}
 
-  export PATH=${_project_godir}/${_go_version}/bin:${PATH}
+  export PATH=${_project_godir}/${_go_version}/bin:"'${PATH}'"
   "
 }
 
@@ -184,6 +184,7 @@ function compose_sdk_rc() {
   echo "
   export SDK_JDK_NAME=${_jdk_name}
   export SDK_JAVADOC_JDK_NAME=${_javadoc_jdk_name}
+  export SDKMAN_DIR=$(pwd)/.dependencies/sdkman
   "
 }
 
