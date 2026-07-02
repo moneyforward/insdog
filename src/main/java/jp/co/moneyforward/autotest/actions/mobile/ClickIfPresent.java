@@ -34,7 +34,7 @@ public class ClickIfPresent extends ClickBase {
   @Override
   public AppiumDriver perform(AppiumDriver driver, ExecutionEnvironment executionEnvironment) {
     List<WebElement> elements = driver.findElements(this.locatorFunction.apply(driver));
-    if (!elements.isEmpty()) {
+    if (!elements.isEmpty() && elements.getFirst().isDisplayed()) {
       elements.getFirst().click();
     }
     return driver;

@@ -318,6 +318,7 @@ class BuiltInActsTest extends TestBase {
     WebElement element = Mockito.mock(WebElement.class);
     By by = By.id("someId");
     when(driver.findElements(by)).thenReturn(List.of(element));
+    when(element.isDisplayed()).thenReturn(true);
 
     AppiumDriver returned = new jp.co.moneyforward.autotest.actions.mobile.ClickIfPresent(by).perform(driver, executionEnvironment);
 
