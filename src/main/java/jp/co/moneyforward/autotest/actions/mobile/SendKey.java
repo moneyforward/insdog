@@ -57,6 +57,14 @@ public class SendKey implements Act<AppiumDriver, AppiumDriver> {
     return value;
   }
   
+  @Override
+  public String name() {
+    String keys = keySequenceGenerator.get();
+    return Act.super.name() + "[" + locatorFunction + "][" +
+        (keys.startsWith(MASK_PREFIX) ? MASK_PREFIX
+                                      : keys) + "]";
+  }
+  
   private static Supplier<String> toSupplier(String keys) {
     return () -> keys;
   }

@@ -609,12 +609,28 @@ class BuiltInActsTest extends TestBase {
   }
 
   @Test
-  void givenMobileSendKey_whenName_thenNameContainsSendKey() {
+  void givenMobileSendKey_whenName_thenNameContainsSendKeyAndLocatorAndKeys() {
     jp.co.moneyforward.autotest.actions.mobile.SendKey act =
         new jp.co.moneyforward.autotest.actions.mobile.SendKey(By.id("field"), "keys");
 
     String name = act.name();
 
-    assertAll(value(name).toBe().containing("SendKey"));
+    assertStatement(value(name).toBe()
+                               .containing("SendKey")
+                               .containing("field")
+                               .containing("keys"));
+  }
+
+  @Test
+  void givenMobileSendKeyWithMaskedKey_whenName_thenNameContainsMaskPrefixNotSecret() {
+    jp.co.moneyforward.autotest.actions.mobile.SendKey act =
+        new jp.co.moneyforward.autotest.actions.mobile.SendKey(By.id("field"), MASK_PREFIX + "secret");
+
+    String name = act.name();
+
+    assertStatement(value(name).toBe()
+                               .containing("SendKey")
+                               .containing(MASK_PREFIX)
+                               .not(v -> v.containing("secret")));
   }
 }
