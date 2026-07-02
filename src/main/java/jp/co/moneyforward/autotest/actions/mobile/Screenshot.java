@@ -5,10 +5,9 @@ import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import org.openqa.selenium.OutputType;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.Path;
 
 ///
 /// An act that does screenshot.
@@ -34,11 +33,10 @@ public class Screenshot implements Act<AppiumDriver, AppiumDriver> {
   ///
   @Override
   public AppiumDriver perform(AppiumDriver value, ExecutionEnvironment executionEnvironment) {
-    File screenshot = value.getScreenshotAs(OutputType.FILE);
     try {
-      Files.copy(screenshot.toPath(),
-                 new File(String.valueOf(executionEnvironment.testOutputFilenameFor(String.format("screenshot-%s.png", executionEnvironment.stepName())))).toPath(),
-                 StandardCopyOption.REPLACE_EXISTING);
+      Path destination = executionEnvironment.testOutputFilenameFor(String.format("screenshot-%s.png", executionEnvironment.stepName()));
+      Files.createDirectories(destination.getParent());
+      Files.write(destination, value.getScreenshotAs(OutputType.BYTES));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

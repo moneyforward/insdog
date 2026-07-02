@@ -565,15 +565,15 @@ class BuiltInActsTest extends TestBase {
     AppiumDriver driver = Mockito.mock(AppiumDriver.class);
     ExecutionEnvironment executionEnvironment = Mockito.mock(ExecutionEnvironment.class);
     when(executionEnvironment.stepName()).thenReturn("TEST_STEP");
-    File sourceFile = File.createTempFile("screenshot-source", ".png");
-    sourceFile.deleteOnExit();
-    Path destPath = File.createTempFile("screenshot-dest", ".png").toPath();
-    when(driver.getScreenshotAs(any())).thenReturn(sourceFile);
+    Path destPath = Path.of(System.getProperty("java.io.tmpdir"), "screenshot-test-" + System.nanoTime(), "screenshot-dest.png");
+    when(driver.getScreenshotAs(any())).thenReturn(new byte[]{1, 2, 3});
     when(executionEnvironment.testOutputFilenameFor(any(String.class))).thenReturn(destPath);
 
     AppiumDriver returned = new jp.co.moneyforward.autotest.actions.mobile.Screenshot().perform(driver, executionEnvironment);
 
-    assertAll(value(returned).toBe().equalTo(driver));
+    assertAll(
+        value(returned).toBe().equalTo(driver),
+        value(destPath.toFile().exists()).toBe().equalTo(true));
     Mockito.verify(driver).getScreenshotAs(any());
   }
 
