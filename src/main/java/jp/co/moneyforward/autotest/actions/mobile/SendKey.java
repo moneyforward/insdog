@@ -10,12 +10,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.MASK_PREFIX;
 
 public class SendKey implements Act<AppiumDriver, AppiumDriver> {
-  ///
-  /// A prefix to control a
-  ///
-  public static final String MASK_PREFIX = "MASK!";
   private final Supplier<String> keySequenceGenerator;
   private final Function<AppiumDriver, By> locatorFunction;
   

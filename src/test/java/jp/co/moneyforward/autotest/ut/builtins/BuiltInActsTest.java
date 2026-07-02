@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.valid8j.fluent.Expectations.*;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.MASK_PREFIX;
 import static org.mockito.Mockito.*;
 
 class BuiltInActsTest extends TestBase {
@@ -128,7 +129,7 @@ class BuiltInActsTest extends TestBase {
       when(page.locator(any())).thenReturn(locator);
       when(page.keyboard()).thenReturn(keyboard);
       
-      Page returned = new SendKey("hello", SendKey.MASK_PREFIX + "keysToBeSentToHello").perform(page, executionEnvironment);
+      Page returned = new SendKey("hello", MASK_PREFIX + "keysToBeSentToHello").perform(page, executionEnvironment);
       
       assertAll(value(returned).toBe().equalTo(page));
       Mockito.verify(locator).focus();
@@ -138,7 +139,7 @@ class BuiltInActsTest extends TestBase {
   
   @Test
   void givenMaskedString_whenName_thenNameLooksOkWithoutUnmaskedString() {
-    SendKey act = new SendKey("hello", SendKey.MASK_PREFIX + "keysToBeSentToHello");
+    SendKey act = new SendKey("hello", MASK_PREFIX + "keysToBeSentToHello");
     
     String name = act.name();
     
@@ -146,7 +147,7 @@ class BuiltInActsTest extends TestBase {
     assertStatement(value(name).toBe()
                                .containing("SendKey")
                                .not(v -> v.containing("keysToBeSentToHello"))
-                               .containing(SendKey.MASK_PREFIX));
+                               .containing(MASK_PREFIX));
   }
   
   @Test
@@ -600,7 +601,7 @@ class BuiltInActsTest extends TestBase {
     when(driver.findElement(by)).thenReturn(element);
 
     AppiumDriver returned = new jp.co.moneyforward.autotest.actions.mobile.SendKey(
-        by, jp.co.moneyforward.autotest.actions.mobile.SendKey.MASK_PREFIX + "myPassword"
+        by, MASK_PREFIX + "myPassword"
     ).perform(driver, executionEnvironment);
 
     assertAll(value(returned).toBe().equalTo(driver));
