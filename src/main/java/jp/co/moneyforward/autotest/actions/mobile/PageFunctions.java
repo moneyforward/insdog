@@ -158,23 +158,25 @@ public enum PageFunctions {;
     }
 
     ///
-    /// Returns a function that gives a locator of a link-like element whose text contains a given `text`.
+    /// Returns a function that resolves a locator whose text contains `text` in a given driver.
+    /// Delegates to `locatorByText(text, true)`.
     ///
-    /// @param text A string to be contained in the text of a link-like element.
-    /// @return A function that gives a locator of a link-like element whose text contains a given `text`.
+    /// @param text A string to be contained by the matching element's text.
+    /// @return A function that resolves a locator whose text contains `text`.
     ///
     public static Function<AppiumDriver, WebElement> linkLocatorByText(String text) {
-        return linkLocatorByText(text, true);
+        return locatorByText(text, true);
     }
 
     ///
-    /// Returns a function that gives a locator of a link-like element whose text equals to a given `text`.
+    /// Returns a function that resolves a locator whose text equals `text` in a given driver.
+    /// Delegates to `locatorByText(text, false)`.
     ///
-    /// @param text A string to be matched exactly with the text of a link-like element.
-    /// @return A function that gives a locator of a link-like element whose text equals to a given `text`.
+    /// @param text A string to be matched exactly against the matching element's text.
+    /// @return A function that resolves a locator whose text equals `text`.
     ///
     public static Function<AppiumDriver, WebElement> linkLocatorByExactText(String text) {
-        return linkLocatorByText(text, false);
+        return locatorByText(text, false);
     }
 
     ///
@@ -184,13 +186,5 @@ public enum PageFunctions {;
     ///
     public static Function<AppiumDriver, String> toTitle() {
         return Printables.function("title", AppiumDriver::getTitle);
-    }
-
-    public static Function<AppiumDriver, WebElement> linkLocatorByText(String text, boolean lenient) {
-        String xpath = lenient
-            ? "//*[contains(@text,'" + text + "') or contains(@label,'" + text + "') or contains(@name,'" + text + "')]"
-            : "//*[@text='" + text + "' or @label='" + text + "' or @name='" + text + "']";
-        return Printables.function("link:@[text" + (lenient ? "~" : "=") + text + "]",
-                                   d -> d.findElement(By.xpath(xpath)));
     }
 }
