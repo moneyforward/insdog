@@ -9,7 +9,6 @@ import jp.co.moneyforward.autotest.framework.action.Act;
 import jp.co.moneyforward.autotest.framework.core.ExecutionEnvironment;
 import jp.co.moneyforward.autotest.ututils.TestBase;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -385,169 +384,108 @@ class BuiltInActsTest extends TestBase {
 
   @Test
   void whenPageFunctionsLinkLocatorByName_thenExactMatchXpathUsed() {
-    AppiumDriver driver = Mockito.mock(AppiumDriver.class);
-    WebElement element = Mockito.mock(WebElement.class);
-    ArgumentCaptor<By> byCaptor = ArgumentCaptor.forClass(By.class);
-    when(driver.findElement(any(By.class))).thenReturn(element);
+    By by = jp.co.moneyforward.autotest.actions.mobile.PageFunctions.linkLocatorByName("hello").apply(null);
 
-    jp.co.moneyforward.autotest.actions.mobile.PageFunctions.linkLocatorByName("hello").apply(driver);
-
-    Mockito.verify(driver).findElement(byCaptor.capture());
-    assertStatement(value(byCaptor.getValue().toString()).toBe()
-                                                        .containing("@content-desc='hello'")
-                                                        .containing("@name='hello'"));
+    assertStatement(value(by.toString()).toBe()
+                                        .containing("@content-desc='hello'")
+                                        .containing("@name='hello'"));
   }
 
   @Test
   void whenPageFunctionsLinkLocatorByNameLenient_thenContainsMatchXpathUsed() {
-    AppiumDriver driver = Mockito.mock(AppiumDriver.class);
-    WebElement element = Mockito.mock(WebElement.class);
-    ArgumentCaptor<By> byCaptor = ArgumentCaptor.forClass(By.class);
-    when(driver.findElement(any(By.class))).thenReturn(element);
+    By by = jp.co.moneyforward.autotest.actions.mobile.PageFunctions.linkLocatorByName("hello", true).apply(null);
 
-    jp.co.moneyforward.autotest.actions.mobile.PageFunctions.linkLocatorByName("hello", true).apply(driver);
-
-    Mockito.verify(driver).findElement(byCaptor.capture());
-    assertStatement(value(byCaptor.getValue().toString()).toBe()
-                                                        .containing("contains(@content-desc,'hello')")
-                                                        .containing("contains(@name,'hello')"));
+    assertStatement(value(by.toString()).toBe()
+                                        .containing("contains(@content-desc,'hello')")
+                                        .containing("contains(@name,'hello')"));
   }
 
   @Test
   void whenPageFunctionsLocatorByText_thenExactMatchXpathUsed() {
-    AppiumDriver driver = Mockito.mock(AppiumDriver.class);
-    WebElement element = Mockito.mock(WebElement.class);
-    ArgumentCaptor<By> byCaptor = ArgumentCaptor.forClass(By.class);
-    when(driver.findElement(any(By.class))).thenReturn(element);
+    By by = jp.co.moneyforward.autotest.actions.mobile.PageFunctions.locatorByText("hello").apply(null);
 
-    jp.co.moneyforward.autotest.actions.mobile.PageFunctions.locatorByText("hello").apply(driver);
-
-    Mockito.verify(driver).findElement(byCaptor.capture());
-    assertStatement(value(byCaptor.getValue().toString()).toBe()
-                                                        .containing("@text='hello'")
-                                                        .containing("@label='hello'")
-                                                        .containing("@name='hello'"));
+    assertStatement(value(by.toString()).toBe()
+                                        .containing("@text='hello'")
+                                        .containing("@label='hello'")
+                                        .containing("@name='hello'"));
   }
 
   @Test
   void whenPageFunctionsLocatorByTextLenient_thenContainsMatchXpathUsed() {
-    AppiumDriver driver = Mockito.mock(AppiumDriver.class);
-    WebElement element = Mockito.mock(WebElement.class);
-    ArgumentCaptor<By> byCaptor = ArgumentCaptor.forClass(By.class);
-    when(driver.findElement(any(By.class))).thenReturn(element);
+    By by = jp.co.moneyforward.autotest.actions.mobile.PageFunctions.locatorByText("hello", true).apply(null);
 
-    jp.co.moneyforward.autotest.actions.mobile.PageFunctions.locatorByText("hello", true).apply(driver);
-
-    Mockito.verify(driver).findElement(byCaptor.capture());
-    assertStatement(value(byCaptor.getValue().toString()).toBe()
-                                                        .containing("contains(@text,'hello')")
-                                                        .containing("contains(@label,'hello')")
-                                                        .containing("contains(@name,'hello')"));
+    assertStatement(value(by.toString()).toBe()
+                                        .containing("contains(@text,'hello')")
+                                        .containing("contains(@label,'hello')")
+                                        .containing("contains(@name,'hello')"));
   }
 
   @Test
   void whenPageFunctionsButtonLocatorByName_thenCorrectXpathUsed() {
-    AppiumDriver driver = Mockito.mock(AppiumDriver.class);
-    WebElement element = Mockito.mock(WebElement.class);
-    ArgumentCaptor<By> byCaptor = ArgumentCaptor.forClass(By.class);
-    when(driver.findElement(any(By.class))).thenReturn(element);
+    By by = jp.co.moneyforward.autotest.actions.mobile.PageFunctions.buttonLocatorByName("Submit").apply(null);
 
-    jp.co.moneyforward.autotest.actions.mobile.PageFunctions.buttonLocatorByName("Submit").apply(driver);
-
-    Mockito.verify(driver).findElement(byCaptor.capture());
-    assertStatement(value(byCaptor.getValue().toString()).toBe()
-                                                        .containing("android.widget.Button[@text='Submit']")
-                                                        .containing("XCUIElementTypeButton[@name='Submit']"));
+    assertStatement(value(by.toString()).toBe()
+                                        .containing("android.widget.Button[@text='Submit']")
+                                        .containing("XCUIElementTypeButton[@name='Submit']"));
   }
 
   @Test
   void whenPageFunctionsLocatorByLabel_thenExactMatchXpathUsed() {
-    AppiumDriver driver = Mockito.mock(AppiumDriver.class);
-    WebElement element = Mockito.mock(WebElement.class);
-    ArgumentCaptor<By> byCaptor = ArgumentCaptor.forClass(By.class);
-    when(driver.findElement(any(By.class))).thenReturn(element);
+    By by = jp.co.moneyforward.autotest.actions.mobile.PageFunctions.locatorByLabel("myLabel").apply(null);
 
-    jp.co.moneyforward.autotest.actions.mobile.PageFunctions.locatorByLabel("myLabel").apply(driver);
-
-    Mockito.verify(driver).findElement(byCaptor.capture());
-    assertStatement(value(byCaptor.getValue().toString()).toBe()
-                                                        .containing("@content-desc='myLabel'")
-                                                        .containing("@label='myLabel'"));
+    assertStatement(value(by.toString()).toBe()
+                                        .containing("@content-desc='myLabel'")
+                                        .containing("@label='myLabel'"));
   }
 
   @Test
   void whenPageFunctionsLocatorByLabelLenient_thenContainsMatchXpathUsed() {
-    AppiumDriver driver = Mockito.mock(AppiumDriver.class);
-    WebElement element = Mockito.mock(WebElement.class);
-    ArgumentCaptor<By> byCaptor = ArgumentCaptor.forClass(By.class);
-    when(driver.findElement(any(By.class))).thenReturn(element);
+    By by = jp.co.moneyforward.autotest.actions.mobile.PageFunctions.locatorByLabel("myLabel", true).apply(null);
 
-    jp.co.moneyforward.autotest.actions.mobile.PageFunctions.locatorByLabel("myLabel", true).apply(driver);
-
-    Mockito.verify(driver).findElement(byCaptor.capture());
-    assertStatement(value(byCaptor.getValue().toString()).toBe()
-                                                        .containing("contains(@content-desc,'myLabel')")
-                                                        .containing("contains(@label,'myLabel')"));
+    assertStatement(value(by.toString()).toBe()
+                                        .containing("contains(@content-desc,'myLabel')")
+                                        .containing("contains(@label,'myLabel')"));
   }
 
   @Test
   void whenPageFunctionsLocatorByPlaceholder_thenCorrectXpathUsed() {
-    AppiumDriver driver = Mockito.mock(AppiumDriver.class);
-    WebElement element = Mockito.mock(WebElement.class);
-    ArgumentCaptor<By> byCaptor = ArgumentCaptor.forClass(By.class);
-    when(driver.findElement(any(By.class))).thenReturn(element);
+    By by = jp.co.moneyforward.autotest.actions.mobile.PageFunctions.locatorByPlaceholder("Enter name").apply(null);
 
-    jp.co.moneyforward.autotest.actions.mobile.PageFunctions.locatorByPlaceholder("Enter name").apply(driver);
-
-    Mockito.verify(driver).findElement(byCaptor.capture());
-    assertStatement(value(byCaptor.getValue().toString()).toBe()
-                                                        .containing("@hint='Enter name'")
-                                                        .containing("@placeholderValue='Enter name'"));
+    assertStatement(value(by.toString()).toBe()
+                                        .containing("@hint='Enter name'")
+                                        .containing("@placeholderValue='Enter name'"));
   }
 
   @Test
-  void whenPageFunctionsLocatorBySelector_thenFindElementCalledWithGivenBy() {
+  void whenPageFunctionsLocatorBySelector_thenByIsReturned() {
     AppiumDriver driver = Mockito.mock(AppiumDriver.class);
-    WebElement element = Mockito.mock(WebElement.class);
     By by = By.id("targetId");
-    when(driver.findElement(by)).thenReturn(element);
+    WebElement expected = Mockito.mock(WebElement.class);
+    when(driver.findElement(by)).thenReturn(expected);
 
-    WebElement result = jp.co.moneyforward.autotest.actions.mobile.PageFunctions.locatorBySelector(by).apply(driver);
+    WebElement result = jp.co.moneyforward.autotest.actions.mobile.PageFunctions.findElementBy(by).apply(driver);
 
-    assertAll(value(result).toBe().equalTo(element));
-    Mockito.verify(driver).findElement(by);
+    assertAll(value(result).toBe().equalTo(expected));
   }
 
   @Test
   void whenPageFunctionsLinkLocatorByText_thenLenientXpathUsed() {
-    AppiumDriver driver = Mockito.mock(AppiumDriver.class);
-    WebElement element = Mockito.mock(WebElement.class);
-    ArgumentCaptor<By> byCaptor = ArgumentCaptor.forClass(By.class);
-    when(driver.findElement(any(By.class))).thenReturn(element);
+    By by = jp.co.moneyforward.autotest.actions.mobile.PageFunctions.linkLocatorByText("hello").apply(null);
 
-    jp.co.moneyforward.autotest.actions.mobile.PageFunctions.linkLocatorByText("hello").apply(driver);
-
-    Mockito.verify(driver).findElement(byCaptor.capture());
-    assertStatement(value(byCaptor.getValue().toString()).toBe()
-                                                        .containing("contains(@text,'hello')")
-                                                        .containing("contains(@label,'hello')")
-                                                        .containing("contains(@name,'hello')"));
+    assertStatement(value(by.toString()).toBe()
+                                        .containing("contains(@text,'hello')")
+                                        .containing("contains(@label,'hello')")
+                                        .containing("contains(@name,'hello')"));
   }
 
   @Test
   void whenPageFunctionsLinkLocatorByExactText_thenExactXpathUsed() {
-    AppiumDriver driver = Mockito.mock(AppiumDriver.class);
-    WebElement element = Mockito.mock(WebElement.class);
-    ArgumentCaptor<By> byCaptor = ArgumentCaptor.forClass(By.class);
-    when(driver.findElement(any(By.class))).thenReturn(element);
+    By by = jp.co.moneyforward.autotest.actions.mobile.PageFunctions.linkLocatorByExactText("hello").apply(null);
 
-    jp.co.moneyforward.autotest.actions.mobile.PageFunctions.linkLocatorByExactText("hello").apply(driver);
-
-    Mockito.verify(driver).findElement(byCaptor.capture());
-    assertStatement(value(byCaptor.getValue().toString()).toBe()
-                                                        .containing("@text='hello'")
-                                                        .containing("@label='hello'")
-                                                        .containing("@name='hello'"));
+    assertStatement(value(by.toString()).toBe()
+                                        .containing("@text='hello'")
+                                        .containing("@label='hello'")
+                                        .containing("@name='hello'"));
   }
 
   @Test
@@ -632,5 +570,22 @@ class BuiltInActsTest extends TestBase {
                                .containing("SendKey")
                                .containing(MASK_PREFIX)
                                .not(v -> v.containing("secret")));
+  }
+
+  @Test
+  void givenMobilePageFunctionsLocator_whenConstructingActs_thenComposable() {
+    AppiumDriver driver = Mockito.mock(AppiumDriver.class);
+    ExecutionEnvironment env = Mockito.mock(ExecutionEnvironment.class);
+    WebElement element = Mockito.mock(WebElement.class);
+    when(driver.findElement(any(By.class))).thenReturn(element);
+    when(driver.findElements(any(By.class))).thenReturn(List.of(element));
+    when(element.isDisplayed()).thenReturn(true);
+
+    new jp.co.moneyforward.autotest.actions.mobile.Click(jp.co.moneyforward.autotest.actions.mobile.PageFunctions.buttonLocatorByName("Submit")).perform(driver, env);
+    new jp.co.moneyforward.autotest.actions.mobile.ClickIfPresent(jp.co.moneyforward.autotest.actions.mobile.PageFunctions.locatorByText("hello")).perform(driver, env);
+    new jp.co.moneyforward.autotest.actions.mobile.SendKey(jp.co.moneyforward.autotest.actions.mobile.PageFunctions.locatorByPlaceholder("Enter name"), "text").perform(driver, env);
+
+    Mockito.verify(element, Mockito.atLeast(2)).click();
+    Mockito.verify(element).sendKeys("text");
   }
 }

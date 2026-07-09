@@ -39,7 +39,7 @@ public enum PageFunctions {;
     /// @param name A name (accessibility id / content-desc) of a link-like element.
     /// @return A function that resolves a locator specified by `name` in a given `AppiumDriver` object.
     ///
-    public static Function<AppiumDriver, WebElement> linkLocatorByName(String name) {
+    public static Function<AppiumDriver, By> linkLocatorByName(String name) {
         return linkLocatorByName(name, false);
     }
 
@@ -51,12 +51,13 @@ public enum PageFunctions {;
     /// @param lenient `true` - partial match / `false` - exact match.
     /// @return A function that resolves a given `name` to a locator of a link-like element whose name matches with it.
     ///
-    public static Function<AppiumDriver, WebElement> linkLocatorByName(String name, boolean lenient) {
+    public static Function<AppiumDriver, By> linkLocatorByName(String name, boolean lenient) {
+        String lit = xpathLiteral(name);
         String xpath = lenient
-            ? "//*[contains(@content-desc,'" + name + "') or contains(@name,'" + name + "')]"
-            : "//*[@content-desc='" + name + "' or @name='" + name + "']";
+            ? "//*[contains(@content-desc," + lit + ") or contains(@name," + lit + ")]"
+            : "//*[@content-desc=" + lit + " or @name=" + lit + "]";
         return Printables.function("link[name" + (lenient ? "~" : "=") + name + "]",
-                                   d -> d.findElement(By.xpath(xpath)));
+                                   d -> By.xpath(xpath));
     }
 
     ///
@@ -65,7 +66,7 @@ public enum PageFunctions {;
     /// @param text A text to be contained by the matching element.
     /// @return A function that resolves a locator whose text contains `text` in a given driver.
     ///
-    public static Function<AppiumDriver, WebElement> locatorByText(String text) {
+    public static Function<AppiumDriver, By> locatorByText(String text) {
         return locatorByText(text, false);
     }
 
@@ -80,12 +81,13 @@ public enum PageFunctions {;
     /// @param lenient `true` - lenient / `false` - strict.
     /// @return A function that resolves a locator which matches `text` in a given `AppiumDriver` object.
     ///
-    public static Function<AppiumDriver, WebElement> locatorByText(String text, boolean lenient) {
+    public static Function<AppiumDriver, By> locatorByText(String text, boolean lenient) {
+        String lit = xpathLiteral(text);
         String xpath = lenient
-            ? "//*[contains(@text,'" + text + "') or contains(@label,'" + text + "') or contains(@name,'" + text + "')]"
-            : "//*[@text='" + text + "' or @label='" + text + "' or @name='" + text + "']";
+            ? "//*[contains(@text," + lit + ") or contains(@label," + lit + ") or contains(@name," + lit + ")]"
+            : "//*[@text=" + lit + " or @label=" + lit + " or @name=" + lit + "]";
         return Printables.function("@[text" + (lenient ? "~" : "=") + text + "]",
-                                   d -> d.findElement(By.xpath(xpath)));
+                                   d -> By.xpath(xpath));
     }
 
     ///
@@ -96,10 +98,10 @@ public enum PageFunctions {;
     /// @param name A string to be matched with a button element's name.
     /// @return A function that resolves a locator to a button element whose name is equal to `name`.
     ///
-    public static Function<AppiumDriver, WebElement> buttonLocatorByName(String name) {
+    public static Function<AppiumDriver, By> buttonLocatorByName(String name) {
+        String lit = xpathLiteral(name);
         return Printables.function("@[name=" + name + "]",
-                                   d -> d.findElement(By.xpath(
-                                       "//android.widget.Button[@text='" + name + "'] | //XCUIElementTypeButton[@name='" + name + "']")));
+                                   d -> By.xpath("//android.widget.Button[@text=" + lit + "] | //XCUIElementTypeButton[@name=" + lit + "]"));
     }
 
     ///
@@ -108,7 +110,7 @@ public enum PageFunctions {;
     /// @param label A string to be matched with the accessibility label of a locator.
     /// @return A function that resolves a locator whose label matches with `label`.
     ///
-    public static Function<AppiumDriver, WebElement> locatorByLabel(String label) {
+    public static Function<AppiumDriver, By> locatorByLabel(String label) {
         return locatorByLabel(label, false);
     }
 
@@ -124,12 +126,13 @@ public enum PageFunctions {;
     /// @param lenient `true` - lenient / `false` - strict.
     /// @return A function that resolves a locator whose label matches with `label` in a given driver.
     ///
-    public static Function<AppiumDriver, WebElement> locatorByLabel(String label, boolean lenient) {
+    public static Function<AppiumDriver, By> locatorByLabel(String label, boolean lenient) {
+        String lit = xpathLiteral(label);
         String xpath = lenient
-            ? "//*[contains(@content-desc,'" + label + "') or contains(@label,'" + label + "')]"
-            : "//*[@content-desc='" + label + "' or @label='" + label + "']";
+            ? "//*[contains(@content-desc," + lit + ") or contains(@label," + lit + ")]"
+            : "//*[@content-desc=" + lit + " or @label=" + lit + "]";
         return Printables.function("@[label" + (lenient ? "~" : "=") + label + "]",
-                                   d -> d.findElement(By.xpath(xpath)));
+                                   d -> By.xpath(xpath));
     }
 
     ///
@@ -140,10 +143,10 @@ public enum PageFunctions {;
     /// @param placeholder A string to be matched with a locator's placeholder.
     /// @return A function that resolves a locator whose placeholder is `placeholder`.
     ///
-    public static Function<AppiumDriver, WebElement> locatorByPlaceholder(String placeholder) {
+    public static Function<AppiumDriver, By> locatorByPlaceholder(String placeholder) {
+        String lit = xpathLiteral(placeholder);
         return Printables.function("@[placeholder=" + placeholder + "]",
-                                   d -> d.findElement(By.xpath(
-                                       "//*[@hint='" + placeholder + "' or @placeholderValue='" + placeholder + "']")));
+                                   d -> By.xpath("//*[@hint=" + lit + " or @placeholderValue=" + lit + "]"));
     }
 
     ///
@@ -152,7 +155,7 @@ public enum PageFunctions {;
     /// @param by A `By` selector that specifies a locator.
     /// @return A function that resolves a locator specified by `by` in a given `AppiumDriver`.
     ///
-    public static Function<AppiumDriver, WebElement> locatorBySelector(By by) {
+    public static Function<AppiumDriver, WebElement> findElementBy(By by) {
         Requires.requireNonNull(by);
         return Printables.function("@[" + by + "]", d -> d.findElement(by));
     }
@@ -164,7 +167,7 @@ public enum PageFunctions {;
     /// @param text A string to be contained by the matching element's text.
     /// @return A function that resolves a locator whose text contains `text`.
     ///
-    public static Function<AppiumDriver, WebElement> linkLocatorByText(String text) {
+    public static Function<AppiumDriver, By> linkLocatorByText(String text) {
         return locatorByText(text, true);
     }
 
@@ -175,7 +178,7 @@ public enum PageFunctions {;
     /// @param text A string to be matched exactly against the matching element's text.
     /// @return A function that resolves a locator whose text equals `text`.
     ///
-    public static Function<AppiumDriver, WebElement> linkLocatorByExactText(String text) {
+    public static Function<AppiumDriver, By> linkLocatorByExactText(String text) {
         return locatorByText(text, false);
     }
 
@@ -186,5 +189,21 @@ public enum PageFunctions {;
     ///
     public static Function<AppiumDriver, String> toTitle() {
         return Printables.function("title", AppiumDriver::getTitle);
+    }
+
+    private static String xpathLiteral(String value) {
+        if (!value.contains("'")) {
+            return "'" + value + "'";
+        }
+        StringBuilder sb = new StringBuilder("concat(");
+        String[] parts = value.split("'", -1);
+        for (int i = 0; i < parts.length; i++) {
+            if (i > 0) {
+                sb.append(",\"'\",");
+            }
+            sb.append("'").append(parts[i]).append("'");
+        }
+        sb.append(")");
+        return sb.toString();
     }
 }
