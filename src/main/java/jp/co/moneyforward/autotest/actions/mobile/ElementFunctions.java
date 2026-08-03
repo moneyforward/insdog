@@ -20,4 +20,8 @@ public enum ElementFunctions {;
     public static Function<WebElement, Boolean> isEnabled() {
       return Printables.function("isEnabled", WebElement::isEnabled);
     }
+    
+    public static Function<WebElement, Boolean> isDisplayed() {
+      return Printables.function("isDisplayed", WebElement::isDisplayed);
+    }
 }
