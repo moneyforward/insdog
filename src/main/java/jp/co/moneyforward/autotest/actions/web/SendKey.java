@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
+import static jp.co.moneyforward.autotest.framework.utils.InternalUtils.MASK_PREFIX;
 
 ///
 /// A class that represents an action to send key sequence to a specified locator.
@@ -20,10 +21,6 @@ import static com.github.valid8j.classic.Requires.requireNonNull;
 ///
 ///
 public class SendKey implements Act<Page, Page> {
-  ///
-  /// A prefix to control a
-  ///
-  public static final String MASK_PREFIX = "MASK!";
   private final Supplier<String> keySequenceGenerator;
   private final Function<Page, Locator> locatorFunction;
   

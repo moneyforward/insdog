@@ -31,7 +31,6 @@ import static java.io.File.createTempFile;
 import static java.lang.Thread.currentThread;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
-import static jp.co.moneyforward.autotest.actions.web.SendKey.MASK_PREFIX;
 
 ///
 /// An internal utility class of the **insdog** framework.
@@ -39,6 +38,7 @@ import static jp.co.moneyforward.autotest.actions.web.SendKey.MASK_PREFIX;
 public enum InternalUtils {
   ;
   
+  public static final String MASK_PREFIX = "MASK!";
   public static final Logger LOGGER = LoggerFactory.getLogger(InternalUtils.class);
   
   ///
